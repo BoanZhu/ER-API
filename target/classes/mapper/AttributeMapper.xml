@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.dao.UserDao">
+    <!--配置查询所有，resultType的作用就是返回封装的位置，如果你要是不写的话，最后mybatis是不知道你到底要封装到哪里，会出现错误，我这个是User表，查询的也是这个，最后返回的结果就封装在User类中-->
+    <select id="findAll" resultType="com.java.domain.User">
+        SELECT *
+        FROM user
+    </select>
+    <!--注意在resources中，目录是一级结构，要一个一个创建，而com.java.dao是一个目录。而包是三级结构-->
+
+</mapper>
