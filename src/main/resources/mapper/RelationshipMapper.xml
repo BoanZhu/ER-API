@@ -29,7 +29,7 @@
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByRelationship" parameterType="BaseResultMap">
+    <select id="selectByRelationship" parameterType="com.ic.er.bean.entity.Relationship">
         select
         id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
         from relationship

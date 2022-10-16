@@ -24,7 +24,7 @@
         from view where is_delete = 0
     </select>
 
-    <select id="selectByView" parameterType="BaseResultMap">
+    <select id="selectByView" parameterType="com.ic.er.bean.entity.View">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modefied
         from view

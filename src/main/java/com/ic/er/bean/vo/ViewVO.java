@@ -3,6 +3,8 @@ package com.ic.er.bean.vo;
 import com.ic.er.bean.entity.Attribute;
 import com.ic.er.bean.entity.Entity;
 import com.ic.er.bean.entity.Relationship;
+import com.ic.er.common.ResultState;
+
 import java.util.List;
 
 /**
@@ -10,9 +12,7 @@ import java.util.List;
  * @author wendi
  * @date 16/10/2022
  */
-public class viewVO {
-
-    private Long id;
+public class ViewVO {
 
     private String name;
 
@@ -20,9 +20,9 @@ public class viewVO {
 
     private Long parent_id;
 
-    private List<Entity> entityList;
+    private List<EntityVO> entityList;
 
     private List<Relationship> relationshipList;
 
-    private List<Attribute> attributeList;
+    private ResultState resultState;
 }

@@ -1,11 +1,7 @@
 package com.ic.er.bean.dto;
 
-/**
- *
- * @author wendi
- * @date 16/10/2022
- */
-public class viewDTO {
+public class ViewDTO {
+    private Long id;
 
     private String name;
 

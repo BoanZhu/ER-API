@@ -24,7 +24,7 @@
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByEntity" parameterType="BaseResultMap">
+    <select id="selectByEntity" parameterType="com.ic.er.bean.entity.Entity">
         select
         id,name,view_id,is_delete,gmt_create,gmt_modefied
         from entity

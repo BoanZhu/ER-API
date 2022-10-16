@@ -6,11 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-/**
- * @Desceiption Relationship entity
- * @author wendi
- * @date 15/10/2022
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

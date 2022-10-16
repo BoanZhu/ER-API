@@ -4,11 +4,6 @@ import com.ic.er.bean.entity.Relationship;
 
 import java.util.List;
 
-/**
- * @Desceiption Relationship entity
- * @author wendi
- * @data 15/10/2022
- */
 public interface RelationshipMapper {
     Relationship selectById(Long id);
 

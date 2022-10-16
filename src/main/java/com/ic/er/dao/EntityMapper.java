@@ -4,11 +4,6 @@ import com.ic.er.bean.entity.Entity;
 
 import java.util.List;
 
-/**
- * @Desceiption entity mapper
- * @author wendi
- * @data 15/10/2022
- */
 public interface EntityMapper {
     Entity selectById(Long id);
 
