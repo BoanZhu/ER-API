@@ -21,6 +21,8 @@ public class View {
 
     private String creator;
 
+    private Long parent_id;
+
     private int is_delete;
 
     private Date gmt_create;

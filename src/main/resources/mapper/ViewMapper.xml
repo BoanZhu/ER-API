@@ -8,24 +8,25 @@
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="creator" property="creator"/>
+        <result column="parent_id" property="parent_id"/>
         <result column="is_delete" property="is_delete"/>
         <result column="gmt_create" property="gmt_create"/>
         <result column="gmt_modefied" property="gmt_modefied"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, creator
+        id, name, creator, parent_id
     </sql>
 
     <select id="selectAll">
         select
-        id,name,creator,is_delete,gmt_create,gmt_modefied
+        id,name,creator,parent_id,is_delete,gmt_create,gmt_modefied
         from view where is_delete = 0
     </select>
 
     <select id="selectByView" parameterType="BaseResultMap">
         select
-        id,name,creator,is_delete,gmt_create,gmt_modefied
+        id,name,creator,parent_id,is_delete,gmt_create,gmt_modefied
         from view
         where
         <trim suffixOverrides=",">
@@ -37,6 +38,9 @@
             </if>
             <if test="creator != null">
                 creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="parent_id != null">
+                parent_id = #{parent_id,jdbcType=BIGINT},
             </if>
             <if test="is_delete != null">
                 is_delete = #{is_delete,jdbcType=TINYINT},
@@ -52,7 +56,7 @@
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-        id,name,creator,is_delete,gmt_create,gmt_modefied
+        id,name,creator,parent_id,is_delete,gmt_create,gmt_modefied
         from view
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
@@ -69,6 +73,9 @@
             <if test="creator != null">
                 creator,
             </if>
+            <if test="parent_id != null">
+                parent_id,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -79,6 +86,9 @@
             </if>
             <if test="creator != null">
                 #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="parent_id != null">
+                #{parent_id,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>
@@ -96,6 +106,9 @@
             </if>
             <if test="creator != null">
                 creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="parent_id != null">
+                parent_id = #{parent_id,jdbcType=BIGINT},
             </if>
             <if test="is_delete != null">
                 is_delete = #{is_delete,jdbcType=TINYINT},

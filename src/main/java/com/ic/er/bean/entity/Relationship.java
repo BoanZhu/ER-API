@@ -19,6 +19,8 @@ public class Relationship {
 
     private String name;
 
+    private Long view_id;
+
     private Long first_entity_id;
 
     private Long second_entity_id;

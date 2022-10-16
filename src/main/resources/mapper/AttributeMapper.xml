@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.Attribute">
         <id column="id" property="id"/>
         <result column="entity_id" property="entity_id"/>
+        <result column="view_id" property="view_id"/>
         <result column="name" property="name"/>
         <result column="data_type" property="data_type"/>
         <result column="is_primary" property="is_primary"/>
@@ -17,19 +18,19 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, entity_id, name, data_type, is_primary, is_foreign
+        id, entity_id, view_id, name, data_type, is_primary, is_foreign
     </sql>
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-        id,entity_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
+        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
         from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByAttribute" parameterType="BaseResultMap">
         select
-        id,entity_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
+        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
         from attribute
         where
         <trim suffixOverrides=",">
@@ -38,6 +39,9 @@
             </if>
             <if test="entity_id != null">
                 entity_id = #{entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="view_id != null">
+                view_id = #{view_id,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
@@ -72,6 +76,9 @@
             <if test="entity_id != null">
                 entity_id,
             </if>
+            <if test="view_id != null">
+                view_id,
+            </if>
             <if test="name != null">
                 name,
             </if>
@@ -91,6 +98,9 @@
             </if>
             <if test="entity_id != null">
                 #{entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="view_id != null">
+                #{view_id,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
@@ -117,6 +127,9 @@
         <set>
             <if test="entity_id != null">
                 entity_id = #{entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="view_id != null">
+                view_id = #{view_id,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},

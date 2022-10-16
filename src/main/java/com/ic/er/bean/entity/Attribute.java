@@ -19,6 +19,8 @@ public class Attribute {
 
     private Long entity_id;
 
+    private Long view_id;
+
     private String name;
 
     private String data_type;

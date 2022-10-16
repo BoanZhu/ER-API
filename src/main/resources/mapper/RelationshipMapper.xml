@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.Relationship">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
+        <result column="view_id" property="view_id"/>
         <result column="first_entity_id" property="first_entity_id"/>
         <result column="second_entity_id" property="second_entity_id"/>
         <result column="first_attribute_id" property="first_attribute_id"/>
@@ -18,19 +19,19 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, first_entity_id, second_entity_id, first_attribute_id, second_attribute_id, cardinatily
+        id, name, view_id, first_entity_id, second_entity_id, first_attribute_id, second_attribute_id, cardinatily
     </sql>
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-            id,name,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
+        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
         from relationship
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByRelationship" parameterType="BaseResultMap">
         select
-        id,name,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
+        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
         from relationship
         where
         <trim suffixOverrides=",">
@@ -39,6 +40,9 @@
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="view_id != null">
+                view_id = #{view_id,jdbcType=BIGINT},
             </if>
             <if test="first_entity_id != null">
                 first_entity_id = #{first_entity_id,jdbcType=BIGINT},
@@ -76,6 +80,9 @@
             <if test="name != null">
                 name,
             </if>
+            <if test="view_id != null">
+                view_id,
+            </if>
             <if test="first_entity_id != null">
                 first_entity_id,
             </if>
@@ -98,6 +105,9 @@
             </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="view_id != null">
+                #{view_id,jdbcType=BIGINT},
             </if>
             <if test="first_entity_id != null">
                 #{first_entity_id,jdbcType=BIGINT},
@@ -127,6 +137,9 @@
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="view_id != null">
+                view_id = #{view_id,jdbcType=BIGINT},
             </if>
             <if test="first_entity_id != null">
                 first_entity_id = #{first_entity_id,jdbcType=BIGINT},
