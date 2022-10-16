@@ -16,9 +16,9 @@
         </environment>
     </environments>
     <mappers>
-<!--        <mapper resource='mapper/AttributeMapper.xml'/>-->
-<!--        <mapper resource='mapper/EntityMapper.xml'/>-->
-<!--        <mapper resource='mapper/RelationshipMapper.xml'/>-->
+        <mapper resource='mapper/AttributeMapper.xml'/>
+        <mapper resource='mapper/EntityMapper.xml'/>
+        <mapper resource='mapper/RelationshipMapper.xml'/>
         <mapper resource='mapper/ViewMapper.xml'/>
     </mappers>
 </configuration>

@@ -15,13 +15,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class View {
-    private long id;
+    private Long id;
 
     private String name;
 
     private String creator;
 
-    private byte is_delete;
+    private int is_delete;
 
     private Date gmt_create;
 

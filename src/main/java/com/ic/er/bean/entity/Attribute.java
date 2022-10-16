@@ -15,19 +15,19 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Attribute {
-    private long id;
+    private Long id;
 
-    private long entity_id;
+    private Long entity_id;
 
     private String name;
 
     private String data_type;
 
-    private byte is_primary;
+    private int is_primary;
 
-    private byte is_foreign;
+    private int is_foreign;
 
-    private byte is_delete;
+    private int is_delete;
 
     private Date gmt_create;
 

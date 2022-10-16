@@ -15,21 +15,21 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Relationship {
-    private long id;
+    private Long id;
 
     private String name;
 
-    private long first_entity_id;
+    private Long first_entity_id;
 
-    private long second_entity_id;
+    private Long second_entity_id;
 
-    private long first_attribute_id;
+    private Long first_attribute_id;
 
-    private long second_attribute_id;
+    private Long second_attribute_id;
 
-    private short cardinatily;
+    private int cardinatily;
 
-    private byte is_delete;
+    private int is_delete;
 
     private Date gmt_create;
 

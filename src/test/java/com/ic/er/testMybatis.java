@@ -7,12 +7,14 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 
 /**
+ *
+ * @author wendi
+ * @data 15/10/2022
  *
  */
 public class testMybatis {

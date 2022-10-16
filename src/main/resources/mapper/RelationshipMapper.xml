@@ -21,4 +21,132 @@
         id, name, first_entity_id, second_entity_id, first_attribute_id, second_attribute_id, cardinatily
     </sql>
 
+    <select id="selectById" parameterType="java.lang.Long">
+        select
+            id,name,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
+        from relationship
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+    </select>
+
+    <select id="selectByRelationship" parameterType="BaseResultMap">
+        select
+        id,name,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
+        from relationship
+        where
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id = #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="first_entity_id != null">
+                first_entity_id = #{first_entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="second_entity_id != null">
+                second_entity_id = #{second_entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="first_attribute_id != null">
+                first_attribute_id = #{first_attribute_id,jdbcType=BIGINT},
+            </if>
+            <if test="second_attribute_id != null">
+                second_attribute_id = #{second_attribute_id,jdbcType=BIGINT},
+            </if>
+            <if test="cardinality != null">
+                cardinality = #{cardinality,jdbcType=SMALLINT},
+            </if>
+            <if test="is_delete != null">
+                is_delete = #{is_delete,jdbcType=TINYINT},
+            </if>
+            <if test="gmt_create != null">
+                gmt_create = #{gmt_create,jdbcType=DATETIME},
+            </if>
+            <if test="gmt_modefied != null">
+                gmt_modefied = #{gmt_modefied,jdbcType=DATETIME},
+            </if>
+        </trim>
+    </select>
+
+    <insert id="insert" parameterType="com.ic.er.bean.entity.Relationship">
+        insert into relationship
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="first_entity_id != null">
+                first_entity_id,
+            </if>
+            <if test="second_entity_id != null">
+                second_entity_id,
+            </if>
+            <if test="first_attribute_id != null">
+                first_attribute_id,
+            </if>
+            <if test="second_attribute_id != null">
+                second_attribute_id,
+            </if>
+            <if test="cardinality != null">
+                cardinality,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="first_entity_id != null">
+                #{first_entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="second_entity_id != null">
+                #{second_entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="first_attribute_id != null">
+                #{first_attribute_id,jdbcType=BIGINT},
+            </if>
+            <if test="second_attribute_id != null">
+                #{second_attribute_id,jdbcType=BIGINT},
+            </if>
+            <if test="cardinality != null">
+                #{cardinality,jdbcType=SMALLINT},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from relationship
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+    </delete>
+
+    <update id="updateById" parameterType="com.ic.er.bean.entity.Attribute">
+        update attribute
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="first_entity_id != null">
+                first_entity_id = #{first_entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="second_entity_id != null">
+                second_entity_id = #{second_entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="first_attribute_id != null">
+                first_attribute_id = #{first_attribute_id,jdbcType=BIGINT},
+            </if>
+            <if test="second_attribute_id != null">
+                second_attribute_id = #{second_attribute_id,jdbcType=BIGINT},
+            </if>
+            <if test="cardinality != null">
+                cardinality = #{cardinality,jdbcType=SMALLINT},
+            </if>
+            <if test="is_delete != null">
+                is_delete = #{is_delete,jdbcType=TINYINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
 </mapper>

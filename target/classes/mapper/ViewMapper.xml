@@ -5,12 +5,70 @@
 <mapper namespace="com.ic.er.dao.ViewMapper">
 
     <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.View">
-        <id column="id" jdbcType="BIGINT" property="id"/>
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="creator" property="creator"/>
+        <result column="is_delete" property="is_delete"/>
+        <result column="gmt_create" property="gmt_create"/>
+        <result column="gmt_modefied" property="gmt_modefied"/>
     </resultMap>
 
-    <select id="findAll" resultType="com.java.domain.User">
-        SELECT *
-        FROM user
+    <sql id="Base_Column_List">
+        id, name, creator
+    </sql>
+
+    <select id="selectAll" resultMap="">
+        select
+        <include refid="Base_Column_List"/>
+        from view
     </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from view
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <insert id="insert" parameterType="com.ic.er.bean.entity.View">
+        insert into view
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from view
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <update id="updateById" parameterType="com.ic.er.bean.entity.View">
+        update view
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
 
 </mapper>

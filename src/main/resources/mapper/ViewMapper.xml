@@ -17,4 +17,91 @@
         id, name, creator
     </sql>
 
+    <select id="selectAll">
+        select
+        id,name,creator,is_delete,gmt_create,gmt_modefied
+        from view where is_delete = 0
+    </select>
+
+    <select id="selectByView" parameterType="BaseResultMap">
+        select
+        id,name,creator,is_delete,gmt_create,gmt_modefied
+        from view
+        where
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id = #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="is_delete != null">
+                is_delete = #{is_delete,jdbcType=TINYINT},
+            </if>
+            <if test="gmt_create != null">
+                gmt_create = #{gmt_create,jdbcType=DATETIME},
+            </if>
+            <if test="gmt_modefied != null">
+                gmt_modefied = #{gmt_modefied,jdbcType=DATETIME},
+            </if>
+        </trim>
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long">
+        select
+        id,name,creator,is_delete,gmt_create,gmt_modefied
+        from view
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+    </select>
+    
+    <insert id="insert" parameterType="com.ic.er.bean.entity.View">
+        insert into view
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from view
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+    </delete>
+
+    <update id="updateById" parameterType="com.ic.er.bean.entity.View">
+        update view
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="is_delete != null">
+                is_delete = #{is_delete,jdbcType=TINYINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
 </mapper>

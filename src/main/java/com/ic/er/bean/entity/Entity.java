@@ -15,13 +15,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Entity {
-    private long id;
+    private Long id;
 
     private String name;
 
-    private long view_id;
+    private Long view_id;
 
-    private byte is_delete;
+    private int is_delete;
 
     private Date gmt_create;
 

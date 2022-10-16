@@ -17,4 +17,84 @@
         id, name, view_id
     </sql>
 
+    <select id="selectById" parameterType="java.lang.Long">
+        select
+            id,name,view_id,is_delete,gmt_create,gmt_modefied
+        from entity
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+    </select>
+
+    <select id="selectByEntity" parameterType="BaseResultMap">
+        select
+        id,name,view_id,is_delete,gmt_create,gmt_modefied
+        from entity
+        where
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id = #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="view_id != null">
+                view_id = #{view_id,jdbcType=BIGINT},
+            </if>
+            <if test="is_delete != null">
+                is_delete = #{is_delete,jdbcType=TINYINT},
+            </if>
+            <if test="gmt_create != null">
+                gmt_create = #{gmt_create,jdbcType=DATETIME},
+            </if>
+            <if test="gmt_modefied != null">
+                gmt_modefied = #{gmt_modefied,jdbcType=DATETIME},
+            </if>
+        </trim>
+    </select>
+
+    <insert id="insert" parameterType="com.ic.er.bean.entity.Entity">
+        insert into entity
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="view_id != null">
+                view_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="view_id != null">
+                #{view_id,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from entity
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+    </delete>
+
+    <update id="updateById" parameterType="com.ic.er.bean.entity.Entity">
+        update entity
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="view_id != null">
+                view_id = #{view_id,jdbcType=BIGINT},
+            </if>
+            <if test="is_delete != null">
+                is_delete = #{is_delete,jdbcType=TINYINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
 </mapper>

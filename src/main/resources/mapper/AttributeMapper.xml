@@ -6,6 +6,7 @@
 
     <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.Attribute">
         <id column="id" property="id"/>
+        <result column="entity_id" property="entity_id"/>
         <result column="name" property="name"/>
         <result column="data_type" property="data_type"/>
         <result column="is_primary" property="is_primary"/>
@@ -16,6 +17,123 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, data_type, is_primary, is_foreign
+        id, entity_id, name, data_type, is_primary, is_foreign
     </sql>
+
+    <select id="selectById" parameterType="java.lang.Long">
+        select
+        id,entity_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
+        from attribute
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+    </select>
+
+    <select id="selectByAttribute" parameterType="BaseResultMap">
+        select
+        id,entity_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
+        from attribute
+        where
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id = #{id,jdbcType=BIGINT},
+            </if>
+            <if test="entity_id != null">
+                entity_id = #{entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="data_type != null">
+                data_type = #{data_type,jdbcType=VARCHAR},
+            </if>
+            <if test="is_primary != null">
+                is_primary = #{is_primary,jdbcType=TINYINT},
+            </if>
+            <if test="is_foreign != null">
+                is_foreign = #{is_foreign,jdbcType=TINYINT},
+            </if>
+            <if test="is_delete != null">
+                is_delete = #{is_delete,jdbcType=TINYINT},
+            </if>
+            <if test="gmt_create != null">
+                gmt_create = #{gmt_create,jdbcType=DATETIME},
+            </if>
+            <if test="gmt_modefied != null">
+                gmt_modefied = #{gmt_modefied,jdbcType=DATETIME},
+            </if>
+        </trim>
+    </select>
+
+    <insert id="insert" parameterType="com.ic.er.bean.entity.Attribute">
+        insert into attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="entity_id != null">
+                entity_id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="data_type != null">
+                data_type,
+            </if>
+            <if test="is_primary != null">
+                is_primary,
+            </if>
+            <if test="is_foreign != null">
+                is_foreign,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="entity_id != null">
+                #{entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="data_type != null">
+                #{data_type,jdbcType=VARCHAR},
+            </if>
+            <if test="is_primary != null">
+                #{is_primary,jdbcType=TINYINT},
+            </if>
+            <if test="is_foreign != null">
+                #{is_foreign,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from attribute
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+    </delete>
+
+    <update id="updateById" parameterType="com.ic.er.bean.entity.Attribute">
+        update attribute
+        <set>
+            <if test="entity_id != null">
+                entity_id = #{entity_id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="data_type != null">
+                data_type = #{data_type,jdbcType=VARCHAR},
+            </if>
+            <if test="is_primary != null">
+                is_primary = #{is_primary,jdbcType=TINYINT},
+            </if>
+            <if test="is_foreign != null">
+                is_foreign = #{is_foreign,jdbcType=TINYINT},
+            </if>
+            <if test="is_delete != null">
+                is_delete = #{is_delete,jdbcType=TINYINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
 </mapper>
