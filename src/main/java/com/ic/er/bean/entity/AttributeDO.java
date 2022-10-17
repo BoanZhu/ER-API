@@ -9,14 +9,20 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class View {
+public class AttributeDO {
     private Long id;
+
+    private Long entity_id;
+
+    private Long view_id;
 
     private String name;
 
-    private String creator;
+    private String data_type;
 
-    private Long parent_id;
+    private int is_primary;
+
+    private int is_foreign;
 
     private int is_delete;
 

@@ -1,15 +1,15 @@
 package com.ic.er.dao;
 
-import com.ic.er.bean.entity.Attribute;
+import com.ic.er.bean.entity.AttributeDO;
 
 import java.util.List;
 
 public interface AttributeMapper {
-    Attribute selectById(Long id);
+    AttributeDO selectById(Long id);
 
-    List<Attribute> selectByAttribute(Attribute attribute);
+    List<AttributeDO> selectByAttribute(AttributeDO attributeDO);
 
-    int insert(Attribute attribute);
+    int insert(AttributeDO attributeDO);
 
     // rarely use, please use update to change is_delete to 1
     int deleteById(Long id);

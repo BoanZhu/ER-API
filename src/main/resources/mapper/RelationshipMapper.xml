@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.RelationshipMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.Relationship">
+    <resultMap id="BaseResultMap" type="com.ic.er.bean.entityDO.Relationship">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="view_id" property="view_id"/>
@@ -15,7 +15,7 @@
         <result column="cardinatily" property="cardinatily"/>
         <result column="is_delete" property="is_delete"/>
         <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modified" property="gmt_modified"/>
+        <result column="gmt_modefied" property="gmt_modefied"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -24,15 +24,15 @@
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
-        from relationship
+        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
+        from relationshipDO
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByRelationship" parameterType="com.ic.er.bean.entity.Relationship">
+    <select id="selectByRelationship" parameterType="com.ic.er.bean.entityDO.Relationship">
         select
-        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
-        from relationship
+        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
+        from relationshipDO
         where
         <trim suffixOverrides=",">
             <if test="id != null">
@@ -65,14 +65,14 @@
             <if test="gmt_create != null">
                 gmt_create = #{gmt_create,jdbcType=DATETIME},
             </if>
-            <if test="gmt_modified != null">
-                gmt_modified = #{gmt_modified,jdbcType=DATETIME},
+            <if test="gmt_modefied != null">
+                gmt_modefied = #{gmt_modefied,jdbcType=DATETIME},
             </if>
         </trim>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.Relationship">
-        insert into relationship
+    <insert id="insert" parameterType="com.ic.er.bean.entityDO.Relationship">
+        insert into relationshipDO
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -128,12 +128,12 @@
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.Long">
-        delete from relationship
+        delete from relationshipDO
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </delete>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.Attribute">
-        update attribute
+    <update id="updateById" parameterType="com.ic.er.bean.entityDO.AttributeDO">
+        update attributeDO
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},

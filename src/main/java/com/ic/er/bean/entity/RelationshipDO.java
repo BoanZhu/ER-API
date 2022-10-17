@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Relationship {
+public class RelationshipDO {
     private Long id;
 
     private String name;
