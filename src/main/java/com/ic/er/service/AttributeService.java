@@ -5,10 +5,10 @@ import com.ic.er.bean.vo.AttributeVO;
 import com.ic.er.common.ResultState;
 
 public interface AttributeService {
-    AttributeVO createAttribute(AttributeDTO attributeDTO);
+    AttributeVO create(AttributeDTO attributeDTO);
 
-    ResultState deleteAttribute(AttributeDTO attributeDTO);
+    ResultState delete(AttributeDTO attributeDTO);
 
-    ResultState updateAttribute(AttributeDTO attributeDTO);
+    ResultState update(AttributeDTO attributeDTO);
 
 }
