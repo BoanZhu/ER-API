@@ -6,9 +6,9 @@ import com.ic.er.common.ResultState;
 
 public interface RelationshipService {
 
-    RelationshipVO createRelationship(RelationshipDTO relationshipDTO);
+    RelationshipVO create(RelationshipDTO relationshipDTO);
 
-    ResultState deleteRelationship(RelationshipDTO relationshipDTO);
+    ResultState delete(RelationshipDTO relationshipDTO);
 
-    ResultState updateRelationship(RelationshipDTO relationshipDTO);
+    ResultState update(RelationshipDTO relationshipDTO);
 }

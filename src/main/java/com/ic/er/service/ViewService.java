@@ -6,13 +6,13 @@ import com.ic.er.common.ResultState;
 import java.util.List;
 
 public interface ViewService {
-    ViewVO createView(ViewDTO view);
+    ViewVO create(ViewDTO view);
 
-    ResultState deleteView(ViewDTO view);
+    ResultState delete(ViewDTO view);
 
-    List<ViewVO> queryAllView();
+    List<ViewVO> queryAll();
 
-    ViewVO queryView(ViewDTO view);
+    ViewVO queryById();
 
-    ResultState updateView(ViewDTO view);
+    ResultState update(ViewDTO name);
 }

@@ -6,9 +6,9 @@ import com.ic.er.common.ResultState;
 
 public interface EntityService {
 
-    EntityVO createEntity(EntityDTO entityDTO);
+    EntityVO create(EntityDTO entityDTO);
 
-    ResultState deleteEntity(EntityDTO entityDTO);
+    ResultState delete(EntityDTO entityDTO);
 
-    ResultState updateEntity(EntityDTO entityDTO);
+    ResultState update(EntityDTO entityDTO);
 }
