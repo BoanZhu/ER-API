@@ -9,14 +9,22 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class View {
+public class RelationshipDO {
     private Long id;
 
     private String name;
 
-    private String creator;
+    private Long view_id;
 
-    private Long parent_id;
+    private Long first_entity_id;
+
+    private Long second_entity_id;
+
+    private Long first_attribute_id;
+
+    private Long second_attribute_id;
+
+    private int cardinatily;
 
     private int is_delete;
 

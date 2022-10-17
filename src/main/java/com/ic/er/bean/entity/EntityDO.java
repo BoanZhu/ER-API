@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Entity {
+public class EntityDO {
     private Long id;
 
     private String name;
