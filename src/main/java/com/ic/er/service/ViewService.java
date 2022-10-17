@@ -12,7 +12,7 @@ public interface ViewService {
 
     List<ViewVO> queryAllView();
 
-    ViewVO queryViewById();
+    ViewVO queryView(ViewDTO view);
 
-    ResultState updateView(ViewDTO name);
+    ResultState updateView(ViewDTO view);
 }

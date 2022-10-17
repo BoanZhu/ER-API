@@ -32,7 +32,7 @@ public class ResultState {
     }
 
     public ResultState(Object data) {
-        this.status = 200;
+        this.status = ResultStateCode.successfulOp;
         this.msg = "OK";
         this.data = data;
     }
