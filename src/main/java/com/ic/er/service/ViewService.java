@@ -8,6 +8,7 @@ import java.util.List;
 public interface ViewService {
     ViewVO createView(ViewDTO view);
 
+    //todo deleteById
     ResultState deleteView(ViewDTO view);
 
     List<ViewVO> queryAllView();
