@@ -1,0 +1,19 @@
+package com.ic.er.service;
+
+import com.ic.er.bean.dto.ViewDTO;
+import com.ic.er.bean.vo.ViewVO;
+import com.ic.er.common.ResultState;
+import java.util.List;
+
+public interface ViewService {
+    ViewVO createView(ViewDTO view);
+
+    //todo deleteById
+    ResultState deleteView(ViewDTO view);
+
+    List<ViewVO> queryAllView();
+
+    ViewVO queryView(ViewDTO view);
+
+    ResultState updateView(ViewDTO view);
+}

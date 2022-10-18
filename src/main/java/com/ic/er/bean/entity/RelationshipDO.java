@@ -15,7 +15,7 @@ public class RelationshipDO {
 
     private String name;
 
-    private Long view_id;
+    private Long viewId;
 
     private Long firstEntityId;
 

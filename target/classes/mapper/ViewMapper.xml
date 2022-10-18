@@ -28,30 +28,29 @@
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
         from view
-        where
-        <trim suffixOverrides=",">
+        <where>
             <if test="id != null">
-                id = #{id,jdbcType=BIGINT},
+                id = #{id,jdbcType=BIGINT}
             </if>
             <if test="name != null">
-                name = #{name,jdbcType=VARCHAR},
+                and name = #{name,jdbcType=VARCHAR}
             </if>
             <if test="creator != null">
-                creator = #{creator,jdbcType=VARCHAR},
+                and creator = #{creator,jdbcType=VARCHAR}
             </if>
             <if test="parentId != null">
-                parent_id = #{parentId,jdbcType=BIGINT},
+                and parent_id = #{parentId,jdbcType=BIGINT}
             </if>
             <if test="isDelete != null">
-                is_delete = #{isDelete,jdbcType=TINYINT},
+                and is_delete = #{isDelete,jdbcType=TINYINT}
             </if>
             <if test="gmtCreate != null">
-                gmt_create = #{gmtCreate,jdbcType=DATETIME},
+                and gmt_create = #{gmtCreate,jdbcType=DATETIME}
             </if>
             <if test="gmtModified != null">
-                gmt_modified = #{gmtModified,jdbcType=DATETIME},
+                and gmt_modified = #{gmtModified,jdbcType=DATETIME}
             </if>
-        </trim>
+        </where>
     </select>
 
     <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
