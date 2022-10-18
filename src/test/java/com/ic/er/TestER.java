@@ -16,22 +16,19 @@ public class TestER {
     @Test
     public void testCreateViewEntityRelationship() throws JsonProcessingException {
         View firstView = View.createView("first view", "tw");
+
         Entity teacher = firstView.addEntity("teacher");
         teacher.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
         teacher.addAttribute("name", DataType.VARCHAR, 0, 0);
         teacher.addAttribute("age", DataType.INTEGER, 0, 0);
+
         Entity student = firstView.addEntity("student");
         student.addAttribute("student_id", DataType.VARCHAR, 1, 0);
         student.addAttribute("name", DataType.VARCHAR, 0, 0);
         student.addAttribute("grade", DataType.INTEGER, 0, 0);
+
         Relationship ts = firstView.createRelationship("teaches", teacher.getID(), student.getID(), Cardinality.OneToMany);
 
-        for (Entity entity : firstView.getEntityList()) {
-            System.out.printf("entity, id: %d, name: %s, gmtCreate: %s\n", entity.getID(), entity.getName(), entity.getGmtCreate().toString());
-        }
-        for (Relationship relationship : firstView.getRelationshipList()) {
-            System.out.printf("relationship, id: %d, name: %s\n", relationship.getID(), relationship.getName());
-        }
         System.out.println(firstView.ToJSON());
     }
 
