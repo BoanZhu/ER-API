@@ -20,6 +20,6 @@ public class Entity {
 
     private Date gmt_create;
 
-    private Date gmt_modefied;
+    private Date gmt_modified;
 
 }

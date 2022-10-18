@@ -15,7 +15,7 @@
         <result column="cardinatily" property="cardinatily"/>
         <result column="is_delete" property="is_delete"/>
         <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modefied" property="gmt_modefied"/>
+        <result column="gmt_modified" property="gmt_modified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -24,14 +24,14 @@
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
+        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByRelationship" parameterType="com.ic.er.bean.entity.Relationship">
         select
-        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modefied
+        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
         where
         <trim suffixOverrides=",">
@@ -65,8 +65,8 @@
             <if test="gmt_create != null">
                 gmt_create = #{gmt_create,jdbcType=DATETIME},
             </if>
-            <if test="gmt_modefied != null">
-                gmt_modefied = #{gmt_modefied,jdbcType=DATETIME},
+            <if test="gmt_modified != null">
+                gmt_modified = #{gmt_modified,jdbcType=DATETIME},
             </if>
         </trim>
     </select>
