@@ -22,14 +22,14 @@
         id, name, view_id, first_entity_id, second_entity_id, first_attribute_id, second_attribute_id, cardinality
     </sql>
 
-    <select id="selectById" parameterType="java.lang.Long">
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByRelationship" parameterType="com.ic.er.bean.entity.RelationshipDO">
+    <select id="selectByRelationship" parameterType="com.ic.er.bean.entity.RelationshipDO" resultMap="BaseResultMap">
         select
         id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
