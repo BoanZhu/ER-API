@@ -21,14 +21,14 @@
         id, entity_id, view_id, name, data_type, is_primary, is_foreign
     </sql>
 
-    <select id="selectById" parameterType="java.lang.Long">
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
         from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByAttribute" parameterType="com.ic.er.bean.entity.AttributeDO">
+    <select id="selectByAttribute" parameterType="com.ic.er.bean.entity.AttributeDO" resultMap="BaseResultMap">
         select
         id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
         from attribute

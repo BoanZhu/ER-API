@@ -18,13 +18,13 @@
         id, name, creator, parent_id
     </sql>
 
-    <select id="selectAll">
+    <select id="selectAll" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
         from view where is_delete = 0
     </select>
 
-    <select id="selectByView" parameterType="com.ic.er.bean.entity.ViewDO">
+    <select id="selectByView" parameterType="com.ic.er.bean.entity.ViewDO" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
         from view
@@ -54,7 +54,7 @@
         </trim>
     </select>
 
-    <select id="selectById" parameterType="java.lang.Long">
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
         from view

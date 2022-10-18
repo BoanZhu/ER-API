@@ -13,18 +13,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.ResultSet;
 
-/**
- *
- * @author wendi
- * @data 15/10/2022
- *
- */
 public class testMybatis {
 
     @Test
-    public void testMybatisConnect() throws IOException {
+    public void testMybatisConnect() {
         try {
             InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
             SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
