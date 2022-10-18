@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.AttributeMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.Attribute">
+    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.AttributeDO">
         <id column="id" property="id"/>
         <result column="entity_id" property="entity_id"/>
         <result column="view_id" property="view_id"/>
@@ -14,7 +14,7 @@
         <result column="is_foreign" property="is_foreign"/>
         <result column="is_delete" property="is_delete"/>
         <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modefied" property="gmt_modefied"/>
+        <result column="gmt_modified" property="gmt_modified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -23,14 +23,14 @@
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
+        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
         from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByAttribute" parameterType="com.ic.er.bean.entity.Attribute">
+    <select id="selectByAttribute" parameterType="com.ic.er.bean.entity.AttributeDO">
         select
-        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
+        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
         from attribute
         <where>
             <if test="id != null">
@@ -60,8 +60,8 @@
             <if test="gmt_create != null">
                 and gmt_create = #{gmt_create,jdbcType=DATETIME}
             </if>
-            <if test="gmt_modefied != null">
-                and gmt_modefied = #{gmt_modefied,jdbcType=DATETIME}
+            <if test="gmt_modified != null">
+                and gmt_modified = #{gmt_modified,jdbcType=DATETIME}
             </if>
         </where>
     </select>

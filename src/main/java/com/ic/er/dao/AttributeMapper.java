@@ -9,7 +9,7 @@ public interface AttributeMapper {
 
     List<AttributeDO> selectByAttribute(AttributeDO attributeDO);
 
-    int insert(AttributeDO attributeDO);
+    Long insert(AttributeDO attributeDO);
 
     // rarely use, please use update to change is_delete to 1
     int deleteById(Long id);
