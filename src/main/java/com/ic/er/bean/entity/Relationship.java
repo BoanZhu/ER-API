@@ -24,7 +24,7 @@ public class Relationship {
 
     private Long second_attribute_id;
 
-    private int cardinatily;
+    private int cardinality;
 
     private int is_delete;
 
