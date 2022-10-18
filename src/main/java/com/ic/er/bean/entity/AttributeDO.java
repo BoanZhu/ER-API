@@ -1,5 +1,6 @@
 package com.ic.er.bean.entity;
 
+import com.ic.er.common.DataType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class AttributeDO {
 
     private String name;
 
-    private String data_type;
+    private DataType data_type;
 
     private int is_primary;
 

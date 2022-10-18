@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.ViewMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.View">
+    <resultMap id="BaseResultMap" type="com.ic.er.bean.entityDO.View">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="creator" property="creator"/>
@@ -21,13 +21,13 @@
     <select id="selectAll">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modefied
-        from view where is_delete = 0
+        from viewDO where is_delete = 0
     </select>
 
-    <select id="selectByView" parameterType="com.ic.er.bean.entity.View">
+    <select id="selectByView" parameterType="com.ic.er.bean.entityDO.View">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modefied
-        from view
+        from viewDO
         where
         <trim suffixOverrides=",">
             <if test="id != null">
@@ -57,12 +57,12 @@
     <select id="selectById" parameterType="java.lang.Long">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modefied
-        from view
+        from viewDO
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
     
-    <insert id="insert" parameterType="com.ic.er.bean.entity.View">
-        insert into view
+    <insert id="insert" parameterType="com.ic.er.bean.entityDO.View">
+        insert into viewDO
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -94,12 +94,12 @@
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.Long">
-        delete from view
+        delete from viewDO
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </delete>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.View">
-        update view
+    <update id="updateById" parameterType="com.ic.er.bean.entityDO.View">
+        update viewDO
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
