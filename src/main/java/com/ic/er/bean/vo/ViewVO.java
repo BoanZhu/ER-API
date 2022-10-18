@@ -16,7 +16,7 @@ public class ViewVO {
 
     private String creator;
 
-    private Long parent_id;
+    private Long parentId;
 
     private List<EntityVO> entityList;
 

@@ -4,17 +4,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.AttributeMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.AttributeDO">
+    <resultMap id="BaseResultMap" type="com.ic.er.bean.entityDO.AttributeDO">
         <id column="id" property="id"/>
-        <result column="entity_id" property="entity_id"/>
-        <result column="view_id" property="view_id"/>
+        <result column="entity_id" property="entityId"/>
+        <result column="view_id" property="viewId"/>
         <result column="name" property="name"/>
-        <result column="data_type" property="data_type"/>
-        <result column="is_primary" property="is_primary"/>
-        <result column="is_foreign" property="is_foreign"/>
-        <result column="is_delete" property="is_delete"/>
-        <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modefied" property="gmt_modefied"/>
+        <result column="data_type" property="dataType"/>
+        <result column="is_primary" property="isPrimary"/>
+        <result column="is_foreign" property="isForeign"/>
+        <result column="is_delete" property="isDelete"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -23,45 +23,45 @@
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
+        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
         from attributeDO
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByAttribute" parameterType="com.ic.er.bean.entity.AttributeDO">
+    <select id="selectByAttribute" parameterType="com.ic.er.bean.entityDO.AttributeDO">
         select
-        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
+        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
         from attributeDO
         <where>
             <if test="id != null">
                 and id = #{id,jdbcType=BIGINT}
             </if>
-            <if test="entity_id != null">
-                and entity_id = #{entity_id,jdbcType=BIGINT}
+            <if test="entityId != null">
+                and entity_id = #{entityId,jdbcType=BIGINT}
             </if>
-            <if test="view_id != null">
-                and view_id = #{view_id,jdbcType=BIGINT}
+            <if test="viewId != null">
+                and view_id = #{viewId,jdbcType=BIGINT}
             </if>
             <if test="name != null">
                 and name = #{name,jdbcType=VARCHAR}
             </if>
-            <if test="data_type != null">
-                and data_type = #{data_type,jdbcType=VARCHAR}
+            <if test="dataType != null">
+                and data_type = #{dataType,jdbcType=VARCHAR}
             </if>
-            <if test="is_primary != null">
-                and is_primary = #{is_primary,jdbcType=TINYINT}
+            <if test="isPrimary != null">
+                and is_primary = #{isPrimary,jdbcType=TINYINT}
             </if>
-            <if test="is_foreign != null">
-                and is_foreign = #{is_foreign,jdbcType=TINYINT}
+            <if test="isForeign != null">
+                and is_foreign = #{isForeign,jdbcType=TINYINT}
             </if>
-            <if test="is_delete != null">
-                and is_delete = #{is_delete,jdbcType=TINYINT}
+            <if test="isDelete != null">
+                and is_delete = #{isDelete,jdbcType=TINYINT}
             </if>
-            <if test="gmt_create != null">
-                and gmt_create = #{gmt_create,jdbcType=DATETIME}
+            <if test="gmtCreate != null">
+                and gmt_create = #{gmtCreate,jdbcType=DATETIME}
             </if>
-            <if test="gmt_modefied != null">
-                and gmt_modefied = #{gmt_modefied,jdbcType=DATETIME}
+            <if test="gmtModified != null">
+                and gmt_modified = #{gmtModified,jdbcType=DATETIME}
             </if>
         </where>
     </select>
@@ -72,22 +72,22 @@
             <if test="id != null">
                 id,
             </if>
-            <if test="entity_id != null">
+            <if test="entityId != null">
                 entity_id,
             </if>
-            <if test="view_id != null">
+            <if test="viewId != null">
                 view_id,
             </if>
             <if test="name != null">
                 name,
             </if>
-            <if test="data_type != null">
+            <if test="dataType != null">
                 data_type,
             </if>
-            <if test="is_primary != null">
+            <if test="isPrimary != null">
                 is_primary,
             </if>
-            <if test="is_foreign != null">
+            <if test="isForeign != null">
                 is_foreign,
             </if>
         </trim>
@@ -95,23 +95,23 @@
             <if test="id != null">
                 #{id,jdbcType=BIGINT},
             </if>
-            <if test="entity_id != null">
-                #{entity_id,jdbcType=BIGINT},
+            <if test="entityId != null">
+                #{entityId,jdbcType=BIGINT},
             </if>
-            <if test="view_id != null">
-                #{view_id,jdbcType=BIGINT},
+            <if test="viewId != null">
+                #{viewId,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
-            <if test="data_type != null">
-                #{data_type,jdbcType=VARCHAR},
+            <if test="dataType != null">
+                #{dataType,jdbcType=VARCHAR},
             </if>
-            <if test="is_primary != null">
-                #{is_primary,jdbcType=TINYINT},
+            <if test="isPrimary != null">
+                #{isPrimary,jdbcType=TINYINT},
             </if>
-            <if test="is_foreign != null">
-                #{is_foreign,jdbcType=TINYINT},
+            <if test="isForeign != null">
+                #{isForeign,jdbcType=TINYINT},
             </if>
         </trim>
     </insert>
@@ -124,26 +124,26 @@
     <update id="updateById" parameterType="com.ic.er.bean.entityDO.AttributeDO">
         update attributeDO
         <set>
-            <if test="entity_id != null">
-                entity_id = #{entity_id,jdbcType=BIGINT},
+            <if test="entityId != null">
+                entity_id = #{entityId,jdbcType=BIGINT},
             </if>
-            <if test="view_id != null">
-                view_id = #{view_id,jdbcType=BIGINT},
+            <if test="viewId != null">
+                view_id = #{viewId,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="data_type != null">
-                data_type = #{data_type,jdbcType=VARCHAR},
+            <if test="dataType != null">
+                data_type = #{dataType,jdbcType=VARCHAR},
             </if>
-            <if test="is_primary != null">
-                is_primary = #{is_primary,jdbcType=TINYINT},
+            <if test="isPrimary != null">
+                is_primary = #{isPrimary,jdbcType=TINYINT},
             </if>
-            <if test="is_foreign != null">
-                is_foreign = #{is_foreign,jdbcType=TINYINT},
+            <if test="isForeign != null">
+                is_foreign = #{isForeign,jdbcType=TINYINT},
             </if>
-            <if test="is_delete != null">
-                is_delete = #{is_delete,jdbcType=TINYINT},
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=TINYINT},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT}

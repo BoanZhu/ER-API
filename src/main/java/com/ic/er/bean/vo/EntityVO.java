@@ -9,7 +9,7 @@ public class EntityVO {
 
     private String name;
 
-    private Long view_id;
+    private Long viewId;
 
     private List<AttributeDO> attributeDOList;
 

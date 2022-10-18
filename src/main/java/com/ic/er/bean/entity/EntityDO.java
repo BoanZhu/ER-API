@@ -14,12 +14,12 @@ public class EntityDO {
 
     private String name;
 
-    private Long view_id;
+    private Long viewId;
 
-    private int is_delete;
+    private int isDelete;
 
-    private Date gmt_create;
+    private Date gmtCreate;
 
-    private Date gmt_modified;
+    private Date gmtModified;
 
 }

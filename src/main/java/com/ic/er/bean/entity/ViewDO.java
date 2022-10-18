@@ -16,12 +16,12 @@ public class ViewDO {
 
     private String creator;
 
-    private Long parent_id;
+    private Long parentId;
 
-    private int is_delete;
+    private int isDelete;
 
-    private Date gmt_create;
+    private Date gmtCreate;
 
-    private Date gmt_modified;
+    private Date gmtModified;
 
 }
