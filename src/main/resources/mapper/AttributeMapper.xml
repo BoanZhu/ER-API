@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.AttributeMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entityDO.AttributeDO">
+    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.AttributeDO">
         <id column="id" property="id"/>
         <result column="entity_id" property="entity_id"/>
         <result column="view_id" property="view_id"/>
@@ -28,7 +28,7 @@
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByAttribute" parameterType="com.ic.er.bean.entityDO.AttributeDO">
+    <select id="selectByAttribute" parameterType="com.ic.er.bean.entity.AttributeDO">
         select
         id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
         from attributeDO
