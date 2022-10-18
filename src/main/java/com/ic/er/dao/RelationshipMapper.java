@@ -9,7 +9,7 @@ public interface RelationshipMapper {
 
     List<RelationshipDO> selectByRelationship(RelationshipDO relationshipDO);
 
-    int insert(RelationshipDO relationshipDO);
+    Long insert(RelationshipDO relationshipDO);
 
     // rarely use, please use update to change is_delete to 1
     int deleteById(Long id);

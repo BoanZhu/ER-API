@@ -1,5 +1,6 @@
 package com.ic.er.bean.entity;
 
+import com.ic.er.common.Cardinality;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,7 @@ public class RelationshipDO {
 
     private Long second_attribute_id;
 
-    private int cardinality;
+    private Cardinality cardinality;
 
     private int is_delete;
 

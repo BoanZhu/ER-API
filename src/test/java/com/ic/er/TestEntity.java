@@ -2,11 +2,12 @@ package com.ic.er;
 
 
 import com.ic.er.common.DataType;
-import com.ic.er.service.Attribute;
-import com.ic.er.service.Entity;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 public class TestEntity {
 
@@ -14,7 +15,7 @@ public class TestEntity {
 
     @Before
     public void setUp() {
-        entity = new Entity(0L, "test entity", 10L);
+        entity = new Entity(0L, "test entity", 10L, new ArrayList<>(), new Date(), new Date());
     }
 
     @Test
@@ -30,7 +31,7 @@ public class TestEntity {
             }
             System.out.println(age.getName());
             System.out.println("--------------------");
-            entity.deleteAttribute(age);
+            entity.removeAttribute(age);
             for (int i = entity.getAttributeList().size() - 1; i >= 0; i--) {
                 System.out.printf("Attribute name: %s\n", entity.getAttributeList().get(i).getName());
             }
