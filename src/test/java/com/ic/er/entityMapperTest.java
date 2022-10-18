@@ -2,7 +2,6 @@ package com.ic.er;
 
 import com.ic.er.bean.entity.EntityDO;
 import com.ic.er.dao.EntityMapper;
-import com.ic.er.dao.ViewMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -11,12 +10,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Date;
-import java.time.LocalDateTime;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.util.Date;
 
 /**
  *
@@ -42,6 +39,22 @@ public class entityMapperTest {
     @Test
     public void insertEntity() {
 
+        long id = Long.valueOf(456);
+        String name = "b";
+        long viewId = Long.valueOf(2234);
+        Date create = new Date();
+        Date modify = new Date();
+        int isDelete = 0;
+
+        EntityDO entity = new EntityDO(id,name,viewId,isDelete,create,modify);
+
+        Assert.assertNotNull(sqlSession);
+        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
+        entityMapper.insert(entity);
+    }
+    @Test
+    public void insertEntityTest() {
+
         long id = 12334;
         String name = "b";
         long viewId = 789;
@@ -50,12 +63,69 @@ public class entityMapperTest {
         int isDelete = 0;
 
         EntityDO entity = new EntityDO(id,name,viewId,isDelete,create,modify);
+
+        Assert.assertNotNull(sqlSession);
         EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
+        entityMapper.insert(entity);
+    }
+
+    @Test
+    public void selectByEntityTest() {
+
+        long id = Long.valueOf(12334);
+        String name = null;
+        long viewId = Long.valueOf(789);
+        Date create = null;
+        Date modify = null;
+        int isDelete = 0;
+
+        EntityDO entity = new EntityDO(id,name,viewId,isDelete,create,modify);
+
 
 
         Assert.assertNotNull(sqlSession);
-        entityMapper.insert(entity);
-        sqlSession.close();
+        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
+        entityMapper.selectByEntity(entity);
     }
+
+    @Test
+    public void selectByIdTest() {
+        Long id = Long.valueOf(123);
+
+        Assert.assertNotNull(sqlSession);
+        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
+        entityMapper.selectById(id);
+    }
+
+
+    @Test
+    public void updateByIdTest() {
+
+        long id = Long.valueOf(123);
+        String name = "b";
+        long viewId = Long.valueOf(456);
+        Date create = new Date();
+        Date modify = new Date();
+        int isDelete = 0;
+
+        EntityDO entityDo = new EntityDO(id,name,viewId,isDelete,create,modify);
+
+        Assert.assertNotNull(sqlSession);
+        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
+        entityMapper.updateById(entityDo);
+    }
+    @Test
+    public void deleteByIdTest() {
+
+        long id = Long.valueOf(123);
+
+        Assert.assertNotNull(sqlSession);
+        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
+        entityMapper.deleteById(id);
+    }
+
+
+
+
 
 }
