@@ -1,6 +1,5 @@
 package com.ic.er.bean.vo;
 
-import com.ic.er.bean.entity.RelationshipDO;
 import com.ic.er.common.ResultState;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public class ViewVO {
 
     private List<EntityVO> entityList;
 
-    private List<RelationshipDO> relationshipDOList;
+    private List<RelationshipVO> relationshipDOList;
 
     private ResultState resultState;
 }

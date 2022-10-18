@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.EntityMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entityDO.EntityDO">
+    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.EntityDO">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="view_id" property="viewId"/>
@@ -20,14 +20,14 @@
     <select id="selectById" parameterType="java.lang.Long">
         select
             id,name,view_id,is_delete,gmt_create,gmt_modified
-        from entityDO
+        from entity
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByEntity" parameterType="com.ic.er.bean.entityDO.EntityDO">
+    <select id="selectByEntity" parameterType="com.ic.er.bean.entity.EntityDO">
         select
         id,name,view_id,is_delete,gmt_create,gmt_modified
-        from entityDO
+        from entity
         where
         <trim suffixOverrides=",">
             <if test="id != null">
@@ -51,8 +51,8 @@
         </trim>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entityDO.EntityDO">
-        insert into entityDO
+    <insert id="insert" parameterType="com.ic.er.bean.entity.EntityDO">
+        insert into entity
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -78,12 +78,12 @@
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.Long">
-        delete from entityDO
+        delete from entity
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </delete>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entityDO.EntityDO">
-        update entityDO
+    <update id="updateById" parameterType="com.ic.er.bean.entity.EntityDO">
+        update entity
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},

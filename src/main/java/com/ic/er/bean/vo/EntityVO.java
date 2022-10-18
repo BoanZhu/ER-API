@@ -11,7 +11,7 @@ public class EntityVO {
 
     private Long viewId;
 
-    private List<AttributeDO> attributeDOList;
+    private List<AttributeVO> attributeVOList;
 
     private ResultState resultState;
 }

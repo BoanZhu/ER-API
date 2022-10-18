@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.AttributeMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entityDO.AttributeDO">
+    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.AttributeDO">
         <id column="id" property="id"/>
         <result column="entity_id" property="entityId"/>
         <result column="view_id" property="viewId"/>
@@ -24,14 +24,14 @@
     <select id="selectById" parameterType="java.lang.Long">
         select
         id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
-        from attributeDO
+        from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByAttribute" parameterType="com.ic.er.bean.entityDO.AttributeDO">
+    <select id="selectByAttribute" parameterType="com.ic.er.bean.entity.AttributeDO">
         select
         id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
-        from attributeDO
+        from attribute
         <where>
             <if test="id != null">
                 and id = #{id,jdbcType=BIGINT}
@@ -66,8 +66,8 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entityDO.AttributeDO">
-        insert into attributeDO
+    <insert id="insert" parameterType="com.ic.er.bean.entity.AttributeDO">
+        insert into attribute
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -117,12 +117,12 @@
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.Long">
-        delete from attributeDO
+        delete from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </delete>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entityDO.AttributeDO">
-        update attributeDO
+    <update id="updateById" parameterType="com.ic.er.bean.entity.AttributeDO">
+        update attribute
         <set>
             <if test="entityId != null">
                 entity_id = #{entityId,jdbcType=BIGINT},

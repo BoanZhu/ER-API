@@ -7,10 +7,10 @@
     <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.EntityDO">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
-        <result column="view_id" property="view_id"/>
-        <result column="is_delete" property="is_delete"/>
-        <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modified" property="gmt_modified"/>
+        <result column="view_id" property="viewId"/>
+        <result column="is_delete" property="isDelete"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -36,22 +36,22 @@
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="view_id != null">
-                view_id = #{view_id,jdbcType=BIGINT},
+            <if test="viewId != null">
+                view_id = #{viewId,jdbcType=BIGINT},
             </if>
-            <if test="is_delete != null">
-                is_delete = #{is_delete,jdbcType=TINYINT},
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=TINYINT},
             </if>
-            <if test="gmt_create != null">
-                gmt_create = #{gmt_create,jdbcType=DATETIME},
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=DATETIME},
             </if>
-            <if test="gmt_modified != null">
-                gmt_modified = #{gmt_modified,jdbcType=DATETIME},
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=DATETIME},
             </if>
         </trim>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.Entity">
+    <insert id="insert" parameterType="com.ic.er.bean.entity.EntityDO">
         insert into entity
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -71,8 +71,8 @@
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
-            <if test="view_id != null">
-                #{view_id,jdbcType=BIGINT},
+            <if test="viewId != null">
+                #{viewId,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>
@@ -82,17 +82,17 @@
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </delete>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.Entity">
+    <update id="updateById" parameterType="com.ic.er.bean.entity.EntityDO">
         update entity
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="view_id != null">
-                view_id = #{view_id,jdbcType=BIGINT},
+            <if test="viewId != null">
+                view_id = #{viewId,jdbcType=BIGINT},
             </if>
-            <if test="is_delete != null">
-                is_delete = #{is_delete,jdbcType=TINYINT},
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=TINYINT},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT}
