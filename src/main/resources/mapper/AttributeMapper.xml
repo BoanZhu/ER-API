@@ -14,7 +14,7 @@
         <result column="is_foreign" property="is_foreign"/>
         <result column="is_delete" property="is_delete"/>
         <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modefied" property="gmt_modefied"/>
+        <result column="gmt_modified" property="gmt_modified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -23,15 +23,15 @@
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
-        from attributeDO
+        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
+        from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByAttribute" parameterType="com.ic.er.bean.entityDO.AttributeDO">
         select
-        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modefied
-        from attributeDO
+        id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
+        from attribute
         <where>
             <if test="id != null">
                 and id = #{id,jdbcType=BIGINT}
@@ -60,14 +60,14 @@
             <if test="gmt_create != null">
                 and gmt_create = #{gmt_create,jdbcType=DATETIME}
             </if>
-            <if test="gmt_modefied != null">
-                and gmt_modefied = #{gmt_modefied,jdbcType=DATETIME}
+            <if test="gmt_modified != null">
+                and gmt_modified = #{gmt_modified,jdbcType=DATETIME}
             </if>
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entityDO.AttributeDO">
-        insert into attributeDO
+    <insert id="insert" parameterType="com.ic.er.bean.entity.Attribute">
+        insert into attribute
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -117,12 +117,12 @@
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.Long">
-        delete from attributeDO
+        delete from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </delete>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entityDO.AttributeDO">
-        update attributeDO
+    <update id="updateById" parameterType="com.ic.er.bean.entity.Attribute">
+        update attribute
         <set>
             <if test="entity_id != null">
                 entity_id = #{entity_id,jdbcType=BIGINT},

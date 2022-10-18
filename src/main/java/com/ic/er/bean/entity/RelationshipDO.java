@@ -24,12 +24,12 @@ public class RelationshipDO {
 
     private Long second_attribute_id;
 
-    private int cardinatily;
+    private int cardinality;
 
     private int is_delete;
 
     private Date gmt_create;
 
-    private Date gmt_modefied;
+    private Date gmt_modified;
 
 }

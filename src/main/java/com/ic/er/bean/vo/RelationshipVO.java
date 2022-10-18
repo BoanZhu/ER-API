@@ -17,7 +17,7 @@ public class RelationshipVO {
 
     private Long second_attribute_id;
 
-    private int cardinatily;
+    private int cardinality;
 
     private ResultState resultState;
 

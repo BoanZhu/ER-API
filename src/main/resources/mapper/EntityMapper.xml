@@ -10,7 +10,7 @@
         <result column="view_id" property="view_id"/>
         <result column="is_delete" property="is_delete"/>
         <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modefied" property="gmt_modefied"/>
+        <result column="gmt_modified" property="gmt_modified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -19,15 +19,15 @@
 
     <select id="selectById" parameterType="java.lang.Long">
         select
-            id,name,view_id,is_delete,gmt_create,gmt_modefied
-        from entityDO
+            id,name,view_id,is_delete,gmt_create,gmt_modified
+        from entity
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByEntity" parameterType="com.ic.er.bean.entityDO.EntityDO">
         select
-        id,name,view_id,is_delete,gmt_create,gmt_modefied
-        from entityDO
+        id,name,view_id,is_delete,gmt_create,gmt_modified
+        from entity
         where
         <trim suffixOverrides=",">
             <if test="id != null">
@@ -45,14 +45,14 @@
             <if test="gmt_create != null">
                 gmt_create = #{gmt_create,jdbcType=DATETIME},
             </if>
-            <if test="gmt_modefied != null">
-                gmt_modefied = #{gmt_modefied,jdbcType=DATETIME},
+            <if test="gmt_modified != null">
+                gmt_modified = #{gmt_modified,jdbcType=DATETIME},
             </if>
         </trim>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entityDO.EntityDO">
-        insert into entityDO
+    <insert id="insert" parameterType="com.ic.er.bean.entity.Entity">
+        insert into entity
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
@@ -78,12 +78,12 @@
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.Long">
-        delete from entityDO
+        delete from entity
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </delete>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entityDO.EntityDO">
-        update entityDO
+    <update id="updateById" parameterType="com.ic.er.bean.entity.Entity">
+        update entity
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
