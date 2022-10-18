@@ -1,6 +1,6 @@
 package com.ic.er.bean.vo;
 
-import com.ic.er.bean.entity.Attribute;
+import com.ic.er.bean.entity.AttributeDO;
 import com.ic.er.common.ResultState;
 import java.util.List;
 
@@ -9,9 +9,9 @@ public class EntityVO {
 
     private String name;
 
-    private Long view_id;
+    private Long viewId;
 
-    private List<Attribute> attributeList;
+    private List<AttributeDO> attributeDOList;
 
     private ResultState resultState;
 }

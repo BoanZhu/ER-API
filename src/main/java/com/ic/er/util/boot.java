@@ -19,10 +19,10 @@ public class boot {
             InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
             SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
             SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
-            sqlSession = sqlSessionFactory.openSession(true);
-            resultState = ResultState.ok();
+                    sqlSession = sqlSessionFactory.openSession(true);
+                    resultState = ResultState.ok();
         } catch (IOException msg) {
-            resultState = ResultState.build(ResultStateCode.failOp, msg.getMessage());
+            resultState = ResultState.build(ResultStateCode.FAILRESULTCODE, msg.getMessage());
             return resultState;
         }
         return resultState;

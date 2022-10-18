@@ -7,15 +7,15 @@ public class RelationshipVO {
 
     private String name;
 
-    private Long view_id;
+    private Long viewId;
 
-    private Long first_entity_id;
+    private Long firstEntityId;
 
-    private Long second_entity_id;
+    private Long secondEntityId;
 
-    private Long first_attribute_id;
+    private Long firstAttributeId;
 
-    private Long second_attribute_id;
+    private Long secondAttributeId;
 
     private int cardinality;
 

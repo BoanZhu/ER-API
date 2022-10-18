@@ -7,7 +7,7 @@ public class EntityDTO {
 
     private String name;
 
-    private Long view_id;
+    private Long viewId;
 
     private List<AttributeDTO> attributeDTOList;
 

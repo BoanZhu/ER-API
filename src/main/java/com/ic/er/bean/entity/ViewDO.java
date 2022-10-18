@@ -9,19 +9,19 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class View {
+public class ViewDO {
     private Long id;
 
     private String name;
 
     private String creator;
 
-    private Long parent_id;
+    private Long parentId;
 
-    private int is_delete;
+    private int isDelete;
 
-    private Date gmt_create;
+    private Date gmtCreate;
 
-    private Date gmt_modified;
+    private Date gmtModified;
 
 }
