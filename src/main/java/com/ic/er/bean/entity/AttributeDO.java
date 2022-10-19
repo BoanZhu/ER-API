@@ -21,14 +21,22 @@ public class AttributeDO {
 
     private DataType dataType;
 
-    private int isPrimary;
+    private Integer isPrimary;
 
-    private int isForeign;
+    private Integer isForeign;
 
-    private int isDelete;
+    private Integer isDelete;
 
     private Date gmtCreate;
 
     private Date gmtModified;
+
+    public AttributeDO(Long id) {
+        this.id = id;
+    }
+    public AttributeDO(Long entityId, Long viewId) {
+        this.entityId = entityId;
+        this.viewId = viewId;
+    }
 
 }

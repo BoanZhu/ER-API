@@ -18,10 +18,14 @@ public class ViewDO {
 
     private Long parentId;
 
-    private int isDelete;
+    private Integer isDelete;
 
     private Date gmtCreate;
 
     private Date gmtModified;
+
+    public ViewDO(Long ID) {
+        this.id = ID;
+    }
 
 }

@@ -27,10 +27,18 @@ public class RelationshipDO {
 
     private Cardinality cardinality;
 
-    private int isDelete;
+    private Integer isDelete;
 
     private Date gmtCreate;
 
     private Date gmtModified;
+
+    public RelationshipDO(Long ID) {
+        this.id = ID;
+    }
+    public RelationshipDO(Long firstEntityId, Long secondEntityId) {
+        this.firstEntityId = firstEntityId;
+        this.secondEntityId = secondEntityId;
+    }
 
 }

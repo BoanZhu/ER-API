@@ -58,12 +58,9 @@
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
     
-    <insert id="insert" parameterType="com.ic.er.bean.entity.ViewDO">
+    <insert id="insert" parameterType="com.ic.er.bean.entity.ViewDO" useGeneratedKeys="true" keyProperty="id">
         insert into view
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
             <if test="name != null">
                 name,
             </if>
@@ -75,9 +72,6 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>

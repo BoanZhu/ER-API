@@ -1,5 +1,6 @@
 package com.ic.er.bean.entity;
 
+import com.ic.er.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,10 +17,13 @@ public class EntityDO {
 
     private Long viewId;
 
-    private int isDelete;
+    private Integer isDelete;
 
     private Date gmtCreate;
 
     private Date gmtModified;
 
+    public EntityDO(Long id) {
+        this.id = id;
+    }
 }

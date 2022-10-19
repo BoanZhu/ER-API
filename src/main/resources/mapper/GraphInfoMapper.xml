@@ -58,7 +58,7 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.GraphInfoDO">
+    <insert id="insert" parameterType="com.ic.er.bean.entity.GraphInfoDO" useGeneratedKeys="true" keyProperty="id">
         insert into graph_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">

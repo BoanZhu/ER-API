@@ -68,12 +68,9 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.RelationshipDO">
+    <insert id="insert" parameterType="com.ic.er.bean.entity.RelationshipDO" useGeneratedKeys="true" keyProperty="id">
         insert into relationship
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
             <if test="name != null">
                 name,
             </if>
@@ -97,9 +94,6 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
@@ -119,7 +113,7 @@
                 #{secondAttributeId,jdbcType=BIGINT},
             </if>
             <if test="cardinality != null">
-                #{cardinality,jdbcType=SMALLINT},
+                #{cardinality.value,jdbcType=SMALLINT},
             </if>
         </trim>
     </insert>
@@ -152,7 +146,7 @@
                 second_attribute_id = #{secondAttributeId,jdbcType=BIGINT},
             </if>
             <if test="cardinality != null">
-                cardinality = #{cardinality,jdbcType=SMALLINT},
+                cardinality = #{cardinality.value,jdbcType=SMALLINT},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT} and is_delete = 0

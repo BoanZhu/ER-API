@@ -29,9 +29,10 @@ public class Entity {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
-            this.ID = Utils.generateID();
             if (ER.useDB) {
-                 insertDB();
+                 this.insertDB();
+            } else {
+                this.ID = Utils.generateID();
             }
         }
     }
@@ -40,7 +41,7 @@ public class Entity {
                         int isPrimary, int isForeign) {
         Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, isForeign, new Date(), new Date());
         this.attributeList.add(attribute);
-        this.setGmtModified(new Date(System.currentTimeMillis()));
+        this.setGmtModified(new Date());
         if (ER.useDB) {
             this.updateDB();
         }
@@ -56,14 +57,13 @@ public class Entity {
         return false;
     }
 
-    public static Entity TransformFromDB(EntityDO EntityDO) {
-        // todo add entity_id
-        List<Attribute> attributeList = Attribute.queryByAttribute(null);
-        return new Entity(EntityDO.getId(), EntityDO.getName(), EntityDO.getViewId(), attributeList,
-                 EntityDO.getGmtCreate(), EntityDO.getGmtModified());
+    private static Entity TransformFromDB(EntityDO entityDO) {
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getId(), entityDO.getViewId()));
+        return new Entity(entityDO.getId(), entityDO.getName(), entityDO.getViewId(), attributeList,
+                 entityDO.getGmtCreate(), entityDO.getGmtModified());
     }
 
-    public static List<Entity> TransListFormFromDB(List<EntityDO> doList) {
+    private static List<Entity> TransListFormFromDB(List<EntityDO> doList) {
         List<Entity> ret = new ArrayList<>();
         for (EntityDO EntityDO : doList) {
             ret.add(TransformFromDB(EntityDO));
@@ -76,8 +76,20 @@ public class Entity {
         return TransListFormFromDB(entityDOList);
     }
 
-    public long insertDB() {
-        return ER.entityMapper.insert(new EntityDO(0L, this.name, this.viewID, 0, this.gmtCreate, this.gmtModified));
+    public static Entity queryByID(Long ID) {
+        List<Entity> entityDOList = queryByEntity(new EntityDO(ID));
+        if (entityDOList.size() == 0) {
+            return null;
+        } else {
+            return entityDOList.get(0);
+        }
+    }
+
+    public int insertDB() {
+        EntityDO entityDO = new EntityDO(0L, this.name, this.viewID, 0, this.gmtCreate, this.gmtModified);
+        int ret = ER.entityMapper.insert(entityDO);
+        this.ID = entityDO.getId();
+        return ret;
     }
 
     ResultState deleteDB() {
@@ -90,7 +102,7 @@ public class Entity {
     }
 
     ResultState updateDB() {
-        int res = ER.entityMapper.updateById(new EntityDO(this.ID, "", 0L, 0, new Date(), new Date()));
+        int res = ER.entityMapper.updateById(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
         if (res == 0) {
             return ResultState.ok();
         } else {

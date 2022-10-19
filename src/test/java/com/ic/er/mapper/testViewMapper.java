@@ -1,4 +1,4 @@
-package com.ic.er;
+package com.ic.er.mapper;
 
 import com.ic.er.bean.entity.ViewDO;
 import com.ic.er.dao.ViewMapper;

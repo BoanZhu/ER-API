@@ -1,7 +1,6 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ic.er.bean.entity.RelationshipDO;
 import com.ic.er.bean.entity.ViewDO;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.ResultState;
@@ -13,7 +12,6 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 public class View {
@@ -33,15 +31,12 @@ public class View {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
-            this.ID = Utils.generateID();
             if (ER.useDB) {
                 insertDB();
+            } else {
+                this.ID = Utils.generateID();
             }
         }
-    }
-
-    public static View createView(String name, String creator) {
-        return new View(0L, name, new ArrayList<>(), new ArrayList<>(), creator, new Date(), new Date());
     }
 
     public Entity addEntity(String entityName) {
@@ -69,8 +64,7 @@ public class View {
     public Relationship createRelationship(String relationshipName, Long firstEntityID, Long secondEntityID,
                                            Cardinality cardinality) {
         Relationship relationship = new Relationship(0L, relationshipName, this.ID,
-                firstEntityID, secondEntityID, 0L, 0L, cardinality,
-                 new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()));
+                firstEntityID, secondEntityID, 0L, 0L, cardinality, new Date(), new Date());
         this.getRelationshipList().add(relationship);
         if (ER.useDB) {
             this.updateDB();
@@ -91,19 +85,14 @@ public class View {
     }
 
     int insertDB() {
-        return ER.viewMapper.insert(new ViewDO(
-                0L,
-                this.name,
-                this.creator,
-                0L,
-                0,
-                this.gmtCreate,
-                this.gmtModified
-        ));
+        ViewDO viewDO = new ViewDO(0L, this.name, this.creator, 0L, 0, this.gmtCreate, this.gmtModified);
+        int ret = ER.viewMapper.insert(viewDO);
+        this.ID = viewDO.getId();
+        return ret;
     }
 
     public static List<View> queryAll() {
-        return null;
+        return TransListFormFromDB(ER.viewMapper.selectAll());
     }
 
     public String ToJSON() throws JsonProcessingException {
@@ -112,14 +101,14 @@ public class View {
         return json;
     }
 
-    public static View TransformFromDB(ViewDO ViewDO) {
+    private static View TransformFromDB(ViewDO ViewDO) {
         List<Entity> entityList = Entity.queryByEntity(null);
         List<Relationship> relationshipList = Relationship.queryByRelationship(null);
         return new View(ViewDO.getId(), ViewDO.getName(), entityList, relationshipList, ViewDO.getCreator(),
                 ViewDO.getGmtCreate(), ViewDO.getGmtModified());
     }
 
-    public static List<View> TransListFormFromDB(List<ViewDO> doList) {
+    private static List<View> TransListFormFromDB(List<ViewDO> doList) {
         List<View> ret = new ArrayList<>();
         for (ViewDO ViewDO : doList) {
             ret.add(TransformFromDB(ViewDO));
@@ -128,11 +117,20 @@ public class View {
     }
 
     public static List<View> queryByView(ViewDO ViewDO) {
-        List<com.ic.er.bean.entity.ViewDO> viewDOList = ER.viewMapper.selectByView(ViewDO);
+        List<ViewDO> viewDOList = ER.viewMapper.selectByView(ViewDO);
         return TransListFormFromDB(viewDOList);
     }
 
-    public ResultState delete() {
+    public static View queryByID(Long ID) {
+        List<View> viewDOList = queryByView(new ViewDO(ID));
+        if (viewDOList.size() == 0) {
+            return null;
+        } else {
+            return viewDOList.get(0);
+        }
+    }
+
+    public ResultState deleteDB() {
         int res = ER.viewMapper.deleteById(this.ID);
         if (res == 0) {
             return ResultState.ok();
@@ -142,7 +140,7 @@ public class View {
     }
 
     ResultState updateDB() {
-        int res = ER.viewMapper.updateById(new ViewDO(this.ID, "", "", 0L, 0, new Date(), new Date()));
+        int res = ER.viewMapper.updateById(new ViewDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
         if (res == 0) {
             return ResultState.ok();
         } else {

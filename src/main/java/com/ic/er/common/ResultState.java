@@ -32,7 +32,7 @@ public class ResultState {
     }
 
     public ResultState(Object data) {
-        this.status = ResultStateCode.SUCCESSRESULTCODE;
+        this.status = ResultStateCode.Success;
         this.msg = "OK";
         this.data = data;
     }

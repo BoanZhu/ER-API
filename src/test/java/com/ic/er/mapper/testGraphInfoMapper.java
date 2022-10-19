@@ -1,4 +1,4 @@
-package com.ic.er;
+package com.ic.er.mapper;
 
 public class testGraphInfoMapper {
 }
