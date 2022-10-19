@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.RelationshipDO">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
-        <result column="view_id" property="view_id"/>
+        <result column="view_id" property="viewId"/>
         <result column="first_entity_id" property="firstEntityId"/>
         <result column="second_entity_id" property="secondEntityId"/>
         <result column="first_attribute_id" property="firstAttributeId"/>
@@ -33,42 +33,39 @@
         select
         id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
-        where
-        <trim suffixOverrides=",">
+        <where>
             <if test="id != null">
-                id = #{id,jdbcType=BIGINT},
+                and id = #{id,jdbcType=BIGINT}
             </if>
             <if test="name != null">
-                name = #{name,jdbcType=VARCHAR},
+                and name = #{name,jdbcType=VARCHAR}
             </if>
             <if test="viewId != null">
-                view_id = #{viewId,jdbcType=BIGINT},
+                and view_id = #{viewId,jdbcType=BIGINT}
             </if>
             <if test="firstEntityId != null">
-                first_entity_id = #{firstEntityId,jdbcType=BIGINT},
+                and first_entity_id = #{firstEntityId,jdbcType=BIGINT}
             </if>
             <if test="secondEntityId != null">
-                second_entity_id = #{secondEntityId,jdbcType=BIGINT},
+                and second_entity_id = #{secondEntityId,jdbcType=BIGINT}
             </if>
             <if test="firstAttributeId != null">
-                first_attribute_id = #{firstAttributeId,jdbcType=BIGINT},
+                and first_attribute_id = #{firstAttributeId,jdbcType=BIGINT}
             </if>
             <if test="secondAttributeId != null">
-                second_attribute_id = #{secondAttributeId,jdbcType=BIGINT},
+                and second_attribute_id = #{secondAttributeId,jdbcType=BIGINT}
             </if>
             <if test="cardinality != null">
-                cardinality = #{cardinality,jdbcType=SMALLINT},
-            </if>
-            <if test="is_delete != null">
-                is_delete = #{isDelete,jdbcType=TINYINT},
+                and cardinality = #{cardinality,jdbcType=SMALLINT}
             </if>
             <if test="gmtCreate != null">
-                gmt_create = #{gmtCreate,jdbcType=DATETIME},
+                and gmt_create = #{gmtCreate,jdbcType=DATETIME}
             </if>
             <if test="gmtModified != null">
-                gmt_modified = #{gmtModified,jdbcType=DATETIME},
+                and gmt_modified = #{gmtModified,jdbcType=DATETIME}
             </if>
-        </trim>
+            and is_delete = #{isDelete,jdbcType=TINYINT}
+        </where>
     </select>
 
     <insert id="insert" parameterType="com.ic.er.bean.entity.RelationshipDO">
@@ -127,10 +124,11 @@
         </trim>
     </insert>
 
-    <delete id="deleteById" parameterType="java.lang.Long">
-        delete from relationship
+    <update id="deleteById" parameterType="java.lang.Long">
+        update relationship set
+            is_delete = 1
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
-    </delete>
+    </update>
 
     <update id="updateById" parameterType="com.ic.er.bean.entity.RelationshipDO">
         update relationship
@@ -160,6 +158,6 @@
                 is_delete = #{isDelete,jdbcType=TINYINT},
             </if>
         </set>
-        where id = #{id,jdbcType=BIGINT}
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </update>
 </mapper>
