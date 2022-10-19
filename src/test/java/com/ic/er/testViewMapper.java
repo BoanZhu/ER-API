@@ -39,7 +39,7 @@ public class testViewMapper {
     public void testQueryAllViews() {
         Assert.assertNotNull(sqlSession);
         List<ViewDO> viewDOList = viewMapper.selectAll();
-        Assert.assertEquals(viewDOList.size(), 1);
+        Assert.assertEquals(1,viewDOList.size());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class testViewMapper {
     @Test
     public void testCreateView(){
         Assert.assertNotNull(sqlSession);
-        ViewDO viewDO = new ViewDO(Long.valueOf(3),"view3","creator3", Long.valueOf(1),0, new Date(),new Date());
+        ViewDO viewDO = new ViewDO(Long.valueOf(2),"view3","creator3", Long.valueOf(1),0, new Date(),new Date());
         Assert.assertEquals(viewMapper.insert(viewDO),1);
     }
 

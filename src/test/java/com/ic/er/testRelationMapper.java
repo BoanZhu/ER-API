@@ -52,15 +52,16 @@ public class testRelationMapper {
     @Test
     public void testCreateRelation(){
         Assert.assertNotNull(sqlSession);
-        RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(4),"relation4",
-                Long.valueOf(3),Long.valueOf(4),Long.valueOf(3),Long.valueOf(4),Long.valueOf(4),
+        RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(11),"relation4",
+                Long.valueOf(4),Long.valueOf(4),Long.valueOf(3),Long.valueOf(4),Long.valueOf(4),
                 0,0,new Date(),new Date());
         Assert.assertEquals(relationMapper.insert(relationshipDO),1);
     }
+
     @Test
     public void testDeleteRelation(){
         Assert.assertNotNull(sqlSession);
-        Assert.assertEquals(relationMapper.deleteById(Long.valueOf(3)),1);
+        Assert.assertEquals(relationMapper.deleteById(Long.valueOf(11)),1);
     }
 
     @Test

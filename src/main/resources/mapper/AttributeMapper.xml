@@ -54,15 +54,13 @@
             <if test="isForeign != null">
                 and is_foreign = #{isForeign,jdbcType=TINYINT}
             </if>
-            <if test="isDelete != null">
-                and is_delete = #{isDelete,jdbcType=TINYINT}
-            </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
             </if>
             <if test="gmtModified != null">
                 and gmt_modified = #{gmtModified,jdbcType=DATETIME}
             </if>
+            and is_delete = #{isDelete,jdbcType=TINYINT}
         </where>
     </select>
 
@@ -116,10 +114,11 @@
         </trim>
     </insert>
 
-    <delete id="deleteById" parameterType="java.lang.Long">
-        delete from attribute
+    <update id="deleteById" parameterType="java.lang.Long">
+        update attribute set
+            is_delete = 1
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
-    </delete>
+    </update>
 
     <update id="updateById" parameterType="com.ic.er.bean.entity.AttributeDO">
         update attribute
@@ -142,10 +141,7 @@
             <if test="isForeign != null">
                 is_foreign = #{isForeign,jdbcType=TINYINT},
             </if>
-            <if test="isDelete != null">
-                is_delete = #{isDelete,jdbcType=TINYINT},
-            </if>
         </set>
-        where id = #{id,jdbcType=BIGINT}
+        where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </update>
 </mapper>
