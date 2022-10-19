@@ -1,6 +1,7 @@
 package com.ic.er;
 
 import com.ic.er.bean.entity.RelationshipDO;
+import com.ic.er.common.Cardinality;
 import com.ic.er.dao.RelationshipMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -44,7 +45,7 @@ public class testRelationMapper {
         Assert.assertNotNull(sqlSession);
         RelationshipDO relationshipDO = new RelationshipDO(null,"relation4",
                 null,null,null,null,null,
-                0,0,null,null);
+                Cardinality.OneToMany,0,null,null);
         List<RelationshipDO> res = relationMapper.selectByRelationship(relationshipDO);
         System.out.println(res);
     }
@@ -54,7 +55,7 @@ public class testRelationMapper {
         Assert.assertNotNull(sqlSession);
         RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(11),"relation4",
                 Long.valueOf(4),Long.valueOf(4),Long.valueOf(3),Long.valueOf(4),Long.valueOf(4),
-                0,0,new Date(),new Date());
+                Cardinality.OneToMany,0,new Date(),new Date());
         Assert.assertEquals(relationMapper.insert(relationshipDO),1);
     }
 
@@ -69,7 +70,7 @@ public class testRelationMapper {
         Assert.assertNotNull(sqlSession);
         RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(4),"relation4update",
                 Long.valueOf(3),Long.valueOf(4),Long.valueOf(3),Long.valueOf(4),Long.valueOf(4),
-                0,0,new Date(),new Date());
+                Cardinality.OneToMany,0,new Date(),new Date());
         Assert.assertEquals(relationMapper.updateById(relationshipDO),1);
     }
 }

@@ -35,15 +35,14 @@ public class Attribute {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
+            this.ID = Utils.generateID();
             if (ER.useDB) {
-                this.ID = insertDB();
-            } else {
-                this.ID = Utils.generateID();
+                insertDB();
             }
         }
     }
 
-    public Long insertDB() {
+    public int insertDB() {
         return ER.attributeMapper.insert(new AttributeDO(
                 0L,
                 this.entityID,
@@ -63,15 +62,15 @@ public class Attribute {
     }
 
     ResultState updateDB() {
-        int ret = ER.attributeMapper.updateById(this.ID);
+        int ret = ER.attributeMapper.updateById(new AttributeDO());
         return ResultState.ok();
     }
 
     // transform the data from db format to java class format
     public static Attribute TransformFromDB(AttributeDO attributeDO) {
-        return new Attribute(attributeDO.getId(), attributeDO.getEntity_id(), attributeDO.getView_id(),
-                attributeDO.getName(), attributeDO.getData_type(), attributeDO.getIs_primary(),
-                attributeDO.getIs_foreign(), attributeDO.getGmt_create(), attributeDO.getGmt_modified());
+        return new Attribute(attributeDO.getId(), attributeDO.getEntityId(), attributeDO.getViewId(),
+                attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(),
+                attributeDO.getIsForeign(), attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 
     public static List<Attribute> TransListFormFromDB(List<AttributeDO> doList) {
