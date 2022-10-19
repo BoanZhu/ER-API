@@ -54,7 +54,7 @@ public class attributeMapperTest {
     @Test
     public void insertAttribute() {
 
-        Long id = Long.valueOf(123);
+        Long id = 123L;
 
         Long entityId = Long.valueOf(456);
 
@@ -80,7 +80,11 @@ public class attributeMapperTest {
 
         Assert.assertNotNull(sqlSession);
         AttributeMapper attributeMapper = sqlSession.getMapper(AttributeMapper.class);
-        attributeMapper.insert(attributeDO);
+        int ret = attributeMapper.insert(attributeDO);
+        attributeDO.setId(555L);
+        int ret2 = attributeMapper.insert(attributeDO);
+        System.out.printf("ret: %d\n", ret);
+        System.out.printf("ret2: %d\n", ret2);
     }
     @Test
     public void selectByAttributeTest() {
