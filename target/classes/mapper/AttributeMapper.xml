@@ -116,10 +116,11 @@
         </trim>
     </insert>
 
-    <delete id="deleteById" parameterType="java.lang.Long">
-        delete from attribute
+    <update id="deleteById" parameterType="java.lang.Long">
+        update attribute set
+            is_delete = 1
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
-    </delete>
+    </update>
 
     <update id="updateById" parameterType="com.ic.er.bean.entity.AttributeDO">
         update attribute
