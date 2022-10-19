@@ -11,11 +11,11 @@ public interface ViewMapper {
 
     ViewDO selectById(Long id);
 
-    Long insert(ViewDO viewDO);
+    int insert(ViewDO viewDO);
 
     // rarely use, please use update to change is_delete to 1
     int deleteById(Long id);
 
-    int updateById(Long id);
+    int updateById(ViewDO viewDO);
 
 }

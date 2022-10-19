@@ -33,8 +33,8 @@ CREATE TABLE `relationship` (
     `view_id` bigint NOT NULL COMMENT 'related view id',
     `first_entity_id` bigint NOT NULL COMMENT 'the first entity in the relationship',
     `second_entity_id` bigint NOT NULL COMMENT 'the second entity in the relationship',
-    `first_attribute_id` bigint NOT NULL COMMENT 'the first attribute in the relationship',
-    `second_attribute_id` bigint NOT NULL COMMENT 'the second attribute in the relationship',
+    `first_attribute_id` bigint NOT NULL DEFAULT 0 COMMENT 'the first attribute in the relationship',
+    `second_attribute_id` bigint NOT NULL DEFAULT 0 COMMENT 'the second attribute in the relationship',
     `cardinality` smallint NOT NULL COMMENT '0-one to one, 1-one to many, 2-many to many, 3-many to one',
     `is_delete` tinyint NOT NULL DEFAULT 0 COMMENT '0-undeleted，1-delete，default 0',
     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create times',
@@ -47,9 +47,20 @@ CREATE TABLE `view` (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'uuid of the ER model',
     `name` varchar(255) NOT NULL COMMENT 'name of the ER model',
     `creator` varchar(255) NULL DEFAULT NULL COMMENT 'name of the ER model',
-    `parent_id` bigint NULL DEFAULT NULL COMMENT 'parent view id',
+    `parent_id` bigint NULL DEFAULT 0 COMMENT 'parent view id',
     `is_delete` tinyint NOT NULL DEFAULT 0 COMMENT '0-undeleted，1-delete，default 0',
     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modified time',
+    PRIMARY KEY (`id`)
+);
+
+DROP TABLE IF EXISTS `graph_info`;
+CREATE TABLE `graph_info` (
+    `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'graph id',
+    `related_obj_id` bigint NOT NULL COMMENT 'related object id',
+    `layout_x` NUMERIC(8,3) NOT NULL COMMENT 'x position on the view',
+    `layout_y` NUMERIC(8,3) NOT NULL COMMENT 'y position on the view',
+    `width` NUMERIC(8,3) NOT NULL COMMENT 'the width of object',
+    `height` NUMERIC(8,3) NOT NULL COMMENT 'the height of object',
     PRIMARY KEY (`id`)
 );

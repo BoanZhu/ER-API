@@ -1,18 +1,18 @@
 package com.ic.er.bean.dto;
 
 public class AttributeDTO {
-    private Long entity_id;
+    private Long entityId;
 
-    private Long view_id;
+    private Long viewId;
 
     private String name;
 
-    private String data_type;
+    private String dataType;
 
-    private int is_primary;
+    private int isPrimary;
 
-    private int is_foreign;
+    private int isForeign;
 
-    private int is_delete;
+    private int isDelete;
 
 }

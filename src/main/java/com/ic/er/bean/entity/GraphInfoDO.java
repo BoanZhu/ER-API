@@ -1,25 +1,25 @@
 package com.ic.er.bean.entity;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EntityDO {
+public class GraphInfoDO {
+
     private Long id;
 
-    private String name;
+    private Long relatedObjId;
 
-    private Long viewId;
+    private Double layoutX;
 
-    private int isDelete;
+    private Double layoutY;
 
-    private Date gmtCreate;
+    private Double height;
 
-    private Date gmtModified;
+    private Double length;
 
 }

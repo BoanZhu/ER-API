@@ -7,51 +7,50 @@
     <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.EntityDO">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
-        <result column="view_id" property="view_id"/>
-        <result column="is_delete" property="is_delete"/>
-        <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modified" property="gmt_modified"/>
+        <result column="view_id" property="viewId"/>
+        <result column="is_delete" property="isDelete"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, name, view_id
     </sql>
 
-    <select id="selectById" parameterType="java.lang.Long">
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
             id,name,view_id,is_delete,gmt_create,gmt_modified
         from entity
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByEntity" parameterType="com.ic.er.bean.entity.EntityDO">
+    <select id="selectByEntity" parameterType="com.ic.er.bean.entity.EntityDO" resultMap="BaseResultMap">
         select
         id,name,view_id,is_delete,gmt_create,gmt_modified
         from entity
-        where
-        <trim suffixOverrides=",">
+        <where>
             <if test="id != null">
-                id = #{id,jdbcType=BIGINT},
+                and id = #{id,jdbcType=BIGINT}
             </if>
             <if test="name != null">
-                name = #{name,jdbcType=VARCHAR},
+                and name = #{name,jdbcType=VARCHAR}
             </if>
-            <if test="view_id != null">
-                view_id = #{view_id,jdbcType=BIGINT},
+            <if test="viewId != null">
+                and view_id = #{viewId,jdbcType=BIGINT}
             </if>
-            <if test="is_delete != null">
-                is_delete = #{is_delete,jdbcType=TINYINT},
+            <if test="isDelete != null">
+                and is_delete = #{isDelete,jdbcType=TINYINT}
             </if>
-            <if test="gmt_create != null">
-                gmt_create = #{gmt_create,jdbcType=DATETIME},
+            <if test="gmtCreate != null">
+                and gmt_create = #{gmtCreate,jdbcType=DATETIME}
             </if>
-            <if test="gmt_modified != null">
-                gmt_modified = #{gmt_modified,jdbcType=DATETIME},
+            <if test="gmtModified != null">
+                and gmt_modified = #{gmtModified,jdbcType=DATETIME}
             </if>
-        </trim>
+        </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.Entity">
+    <insert id="insert" parameterType="com.ic.er.bean.entity.EntityDO">
         insert into entity
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -60,7 +59,7 @@
             <if test="name != null">
                 name,
             </if>
-            <if test="view_id != null">
+            <if test="viewId != null">
                 view_id,
             </if>
         </trim>
@@ -71,28 +70,29 @@
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
-            <if test="view_id != null">
-                #{view_id,jdbcType=BIGINT},
+            <if test="viewId != null">
+                #{viewId,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>
 
-    <delete id="deleteById" parameterType="java.lang.Long">
-        delete from entity
+    <update id="deleteById" parameterType="java.lang.Long">
+        update entity set
+            is_delete = 1
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
-    </delete>
+    </update>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.Entity">
+    <update id="updateById" parameterType="com.ic.er.bean.entity.EntityDO">
         update entity
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="view_id != null">
-                view_id = #{view_id,jdbcType=BIGINT},
+            <if test="viewId != null">
+                view_id = #{viewId,jdbcType=BIGINT},
             </if>
-            <if test="is_delete != null">
-                is_delete = #{is_delete,jdbcType=TINYINT},
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=TINYINT},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT}

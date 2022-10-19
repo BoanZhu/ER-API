@@ -36,7 +36,7 @@ public class ER {
             viewMapper = sqlSession.getMapper(ViewMapper.class);
             useDB = true;
         } catch (IOException msg) {
-            resultState = ResultState.build(ResultStateCode.failOp, msg.getMessage());
+            resultState = ResultState.build(ResultStateCode.FAILRESULTCODE, msg.getMessage());
             return resultState;
         }
         return resultState;

@@ -9,11 +9,11 @@ public interface AttributeMapper {
 
     List<AttributeDO> selectByAttribute(AttributeDO attributeDO);
 
-    Long insert(AttributeDO attributeDO);
+    int insert(AttributeDO attributeDO);
 
     // rarely use, please use update to change is_delete to 1
     int deleteById(Long id);
 
-    int updateById(Long id);
+    int updateById(AttributeDO attributeDO);
 
 }
