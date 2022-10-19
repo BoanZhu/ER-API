@@ -30,10 +30,9 @@ public class Entity {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
+            this.ID = Utils.generateID();
             if (ER.useDB) {
-                this.ID = insertDB();
-            } else {
-                this.ID = Utils.generateID();
+                 insertDB();
             }
         }
     }
@@ -61,8 +60,8 @@ public class Entity {
     public static Entity TransformFromDB(EntityDO EntityDO) {
         // todo add entity_id
         List<Attribute> attributeList = Attribute.queryByAttribute(null);
-        return new Entity(EntityDO.getId(), EntityDO.getName(), EntityDO.getView_id(), attributeList,
-                 EntityDO.getGmt_create(), EntityDO.getGmt_modified());
+        return new Entity(EntityDO.getId(), EntityDO.getName(), EntityDO.getViewId(), attributeList,
+                 EntityDO.getGmtCreate(), EntityDO.getGmtModified());
     }
 
     public static List<Entity> TransListFormFromDB(List<EntityDO> doList) {
@@ -92,7 +91,7 @@ public class Entity {
     }
 
     ResultState updateDB() {
-        int res = ER.entityMapper.updateById(this.ID);
+        int res = ER.entityMapper.updateById(new EntityDO(this.ID, "", 0L, 0, new Date(), new Date()));
         if (res == 0) {
             return ResultState.ok();
         } else {

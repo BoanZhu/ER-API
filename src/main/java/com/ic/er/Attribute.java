@@ -35,15 +35,14 @@ public class Attribute {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
+            this.ID = Utils.generateID();
             if (ER.useDB) {
-                this.ID = insertDB();
-            } else {
-                this.ID = Utils.generateID();
+                insertDB();
             }
         }
     }
 
-    public Long insertDB() {
+    public int insertDB() {
         return ER.attributeMapper.insert(new AttributeDO(
                 0L,
                 this.entityID,
@@ -63,7 +62,7 @@ public class Attribute {
     }
 
     ResultState updateDB() {
-        int ret = ER.attributeMapper.updateById(this.ID);
+        int ret = ER.attributeMapper.updateById(new AttributeDO());
         return ResultState.ok();
     }
 
