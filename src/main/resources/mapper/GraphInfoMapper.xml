@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.RelationshipMapper">
+<mapper namespace="com.ic.er.dao.GraphInfoMapper">
 
     <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.GraphInfoDO">
         <id column="id" property="id"/>
@@ -108,7 +108,7 @@
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="deleteById" parameterType="java.lang.Long">
+    <update id="deleteByObjId" parameterType="java.lang.Long">
         update graph_info set
             is_delete = 1
         where related_obj_id = #{relatedObjId,jdbcType=BIGINT} and is_delete = 0

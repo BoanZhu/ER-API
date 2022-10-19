@@ -2,7 +2,6 @@ package com.ic.er;
 
 import com.ic.er.bean.entity.AttributeDO;
 import com.ic.er.bean.entity.EntityDO;
-import com.ic.er.bean.vo.AttributeVO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.Utils;

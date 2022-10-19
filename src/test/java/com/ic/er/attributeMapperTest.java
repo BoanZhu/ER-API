@@ -2,6 +2,7 @@ package com.ic.er;
 
 import com.ic.er.bean.entity.AttributeDO;
 import com.ic.er.bean.entity.EntityDO;
+import com.ic.er.common.DataType;
 import com.ic.er.dao.AttributeMapper;
 import com.ic.er.dao.EntityMapper;
 import org.apache.ibatis.io.Resources;
@@ -11,6 +12,8 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.sql.SQLException;
 import java.util.Date;
 
 import java.io.IOException;
@@ -39,6 +42,13 @@ public class attributeMapperTest {
         sqlSession = sqlSessionFactory.openSession(true);
         connection = sqlSession.getConnection();
         System.out.println(connection);
+        try {
+            ER.connectDB();
+            ER.createTables();
+        } catch (SQLException e) {
+            System.out.println(e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -66,7 +76,7 @@ public class attributeMapperTest {
 
 
         AttributeDO attributeDO = new AttributeDO(id, entityId, viewId,
-                name, dataType, isPrimary, isForeign, isDelete, gmtCreate, gmtModified);
+                name, DataType.INTEGER, isPrimary, isForeign, isDelete, gmtCreate, gmtModified);
 
         Assert.assertNotNull(sqlSession);
         AttributeMapper attributeMapper = sqlSession.getMapper(AttributeMapper.class);
@@ -97,7 +107,7 @@ public class attributeMapperTest {
 
 
         AttributeDO attributeDO = new AttributeDO(id, entityId, viewId,
-                name, dataType, isPrimary, isForeign, isDelete, gmtCreate, gmtModified);
+                name, DataType.VARCHAR, isPrimary, isForeign, isDelete, gmtCreate, gmtModified);
 
 
 
@@ -137,7 +147,7 @@ public class attributeMapperTest {
 
 
         AttributeDO attributeDO = new AttributeDO(id, entityId, viewId,
-                name, dataType, isPrimary, isForeign, isDelete, gmtCreate, gmtModified);
+                name, DataType.INTEGER, isPrimary, isForeign, isDelete, gmtCreate, gmtModified);
 
         Assert.assertNotNull(sqlSession);
         AttributeMapper attributeMapper = sqlSession.getMapper(AttributeMapper.class);

@@ -68,9 +68,9 @@ public class Attribute {
 
     // transform the data from db format to java class format
     public static Attribute TransformFromDB(AttributeDO attributeDO) {
-        return new Attribute(attributeDO.getId(), attributeDO.getEntity_id(), attributeDO.getView_id(),
-                attributeDO.getName(), attributeDO.getData_type(), attributeDO.getIs_primary(),
-                attributeDO.getIs_foreign(), attributeDO.getGmt_create(), attributeDO.getGmt_modified());
+        return new Attribute(attributeDO.getId(), attributeDO.getEntityId(), attributeDO.getViewId(),
+                attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(),
+                attributeDO.getIsForeign(), attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 
     public static List<Attribute> TransListFormFromDB(List<AttributeDO> doList) {

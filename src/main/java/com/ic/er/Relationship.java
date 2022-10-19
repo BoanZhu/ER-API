@@ -37,15 +37,14 @@ public class Relationship {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
+            this.ID = Utils.generateID();
             if (ER.useDB) {
-                this.ID = insertDB();
-            } else {
-                this.ID = Utils.generateID();
+                insertDB();
             }
         }
     }
 
-    Long insertDB() {
+    int insertDB() {
         return ER.relationshipMapper.insert(new RelationshipDO(
                 0L,
                 this.name,
@@ -91,7 +90,7 @@ public class Relationship {
     }
 
     ResultState updateDB() {
-        int res = ER.relationshipMapper.updateById(this.ID);
+        int res = ER.relationshipMapper.updateById(new RelationshipDO());
         if (res == 0) {
             return ResultState.ok();
         } else {

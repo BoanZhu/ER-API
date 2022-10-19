@@ -3,7 +3,6 @@ package com.ic.er;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ic.er.bean.entity.RelationshipDO;
 import com.ic.er.bean.entity.ViewDO;
-import com.ic.er.bean.vo.ViewVO;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.Utils;
@@ -34,10 +33,9 @@ public class View {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
+            this.ID = Utils.generateID();
             if (ER.useDB) {
-                this.ID = insertDB();
-            } else {
-                this.ID = Utils.generateID();
+                insertDB();
             }
         }
     }
@@ -92,7 +90,7 @@ public class View {
         return false;
     }
 
-    Long insertDB() {
+    int insertDB() {
         return ER.viewMapper.insert(new ViewDO(
                 0L,
                 this.name,
@@ -114,15 +112,11 @@ public class View {
         return json;
     }
 
-    ViewVO queryById() {
-        return null;
-    }
-
     public static View TransformFromDB(ViewDO ViewDO) {
         List<Entity> entityList = Entity.queryByEntity(null);
         List<Relationship> relationshipList = Relationship.queryByRelationship(null);
         return new View(ViewDO.getId(), ViewDO.getName(), entityList, relationshipList, ViewDO.getCreator(),
-                ViewDO.getGmt_create(), ViewDO.getGmt_modified());
+                ViewDO.getGmtCreate(), ViewDO.getGmtModified());
     }
 
     public static List<View> TransListFormFromDB(List<ViewDO> doList) {
@@ -148,7 +142,7 @@ public class View {
     }
 
     ResultState updateDB() {
-        int res = ER.viewMapper.updateById(this.ID);
+        int res = ER.viewMapper.updateById(new ViewDO(this.ID, "", "", 0L, 0, new Date(), new Date()));
         if (res == 0) {
             return ResultState.ok();
         } else {

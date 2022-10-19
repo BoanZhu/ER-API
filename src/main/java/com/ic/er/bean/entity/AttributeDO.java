@@ -13,22 +13,22 @@ import java.util.Date;
 public class AttributeDO {
     private Long id;
 
-    private Long entity_id;
+    private Long entityId;
 
-    private Long view_id;
+    private Long viewId;
 
     private String name;
 
-    private DataType data_type;
+    private DataType dataType;
 
-    private int is_primary;
+    private int isPrimary;
 
-    private int is_foreign;
+    private int isForeign;
 
-    private int is_delete;
+    private int isDelete;
 
-    private Date gmt_create;
+    private Date gmtCreate;
 
-    private Date gmt_modified;
+    private Date gmtModified;
 
 }

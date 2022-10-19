@@ -2,7 +2,6 @@ package com.ic.er;
 
 import com.ic.er.common.ResultState;
 import com.ic.er.common.ResultStateCode;
-import com.ic.er.util.boot;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -32,9 +31,9 @@ public class testMybatis {
 
     @Test
     public void testDBConnection() {
-        ResultState resultState = boot.connectDB();
-        Assert.assertNotNull(boot.sqlSession);
-        System.out.println(boot.sqlSession.getConnection());
+        ResultState resultState = ER.connectDB();
+        Assert.assertNotNull(ER.sqlSession);
+        System.out.println(ER.sqlSession.getConnection());
         Assert.assertEquals(resultState.getStatus(), ResultStateCode.SUCCESSRESULTCODE);
     }
 }
