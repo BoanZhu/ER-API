@@ -64,7 +64,7 @@
             <if test="gmtModified != null">
                 and gmt_modified = #{gmtModified,jdbcType=DATETIME}
             </if>
-            and is_delete = #{isDelete,jdbcType=TINYINT}
+            and is_delete = 0
         </where>
     </select>
 

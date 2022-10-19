@@ -20,5 +20,6 @@
         <mapper resource='mapper/EntityMapper.xml'/>
         <mapper resource='mapper/RelationshipMapper.xml'/>
         <mapper resource='mapper/ViewMapper.xml'/>
+        <mapper resource='mapper/GraphInfoMapper.xml'/>
     </mappers>
 </configuration>
