@@ -18,7 +18,7 @@ public class ViewDO {
 
     private Long parentId;
 
-    private int isDelete;
+    private Integer isDelete;
 
     private Date gmtCreate;
 

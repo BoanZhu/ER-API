@@ -13,7 +13,6 @@ public class TestER {
 //        ER.connectDB();
     }
 
-    @Test
     public void testCreateViewEntityRelationship() throws JsonProcessingException {
         View firstView = View.createView("first view", "tw");
 
@@ -32,7 +31,6 @@ public class TestER {
         System.out.println(firstView.ToJSON());
     }
 
-    @Test
     public void testCreateAttribute() {
         View firstView = View.createView("first view", "tw");
         Entity teacher = firstView.addEntity("teacher");

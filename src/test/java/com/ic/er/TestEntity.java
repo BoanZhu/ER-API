@@ -1,42 +1,67 @@
 package com.ic.er;
 
 
+import com.ic.er.bean.entity.EntityDO;
 import com.ic.er.common.DataType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class TestEntity {
 
-    private Entity entity;
+    private View testView;
 
     @Before
-    public void setUp() {
-        entity = new Entity(0L, "test entity", 10L, new ArrayList<>(), new Date(), new Date());
+    public void init() {
+        try {
+            ER.connectDB();
+            ER.createTables();
+        } catch (SQLException e) {
+            System.out.println(e);
+            throw new RuntimeException(e);
+        }
+        testView = View.createView("testView", "wt22");
+    }
+
+
+    @Test
+    public void addEntityTest() {
+        Entity teacher = testView.addEntity("teacher");
+        Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
     }
 
     @Test
-    public void testAddAttribute() {
-        try {
-            System.out.printf("name: %s, viewID: %d\n", entity.getName(), entity.getViewID());
-            Attribute id = entity.addAttribute("id", DataType.INTEGER, 1, 0);
-            Attribute age = entity.addAttribute("age", DataType.INTEGER, 0, 0);
-            Attribute name = entity.addAttribute("name", DataType.INTEGER, 0, 0);
-            Attribute CID = entity.addAttribute("CID", DataType.INTEGER, 0, 1);
-            for (int i = entity.getAttributeList().size() - 1; i >= 0; i--) {
-                System.out.printf("Attribute name: %s\n", entity.getAttributeList().get(i).getName());
-            }
-            System.out.println(age.getName());
-            System.out.println("--------------------");
-            entity.removeAttribute(age);
-            for (int i = entity.getAttributeList().size() - 1; i >= 0; i--) {
-                System.out.printf("Attribute name: %s\n", entity.getAttributeList().get(i).getName());
-            }
-        } catch (Throwable ex) {
-            Assert.assertEquals(ex.getCause() instanceof NullPointerException, false);
-        }
+    public void deleteEntityTest() {
+        Entity teacher = testView.addEntity("teacher");
+        Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
+
+        teacher.deleteDB();
+        Assert.assertNull(Entity.queryByID(teacher.getID()));
+    }
+
+    @Test
+    public void queryEntityTest() {
+        Entity teacher = testView.addEntity("teacher");
+        Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
+
+        Assert.assertNotNull(Entity.queryByID(teacher.getID()));
+    }
+
+    @Test
+    public void updateEntityTest() {
+        Entity teacher = testView.addEntity("teacher");
+        Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
+
+        teacher.setName("new teacher name");
+        teacher.updateDB();
+
+        Entity entity = Entity.queryByID(teacher.getID());
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(entity.getName(), "new teacher name");
     }
 }

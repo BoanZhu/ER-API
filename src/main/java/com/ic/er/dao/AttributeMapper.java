@@ -11,7 +11,6 @@ public interface AttributeMapper {
 
     int insert(AttributeDO attributeDO);
 
-    // rarely use, please use update to change is_delete to 1
     int deleteById(Long id);
 
     int updateById(AttributeDO attributeDO);

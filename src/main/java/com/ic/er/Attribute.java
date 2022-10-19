@@ -3,6 +3,7 @@ package com.ic.er;
 import com.ic.er.bean.entity.AttributeDO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.ResultState;
+import com.ic.er.common.ResultStateCode;
 import com.ic.er.common.Utils;
 import com.ic.er.dao.AttributeMapper;
 import lombok.Data;
@@ -35,38 +36,40 @@ public class Attribute {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
-            this.ID = Utils.generateID();
             if (ER.useDB) {
-                insertDB();
+                this.insertDB();
+            } else {
+                this.ID = Utils.generateID();
             }
         }
     }
 
-    public int insertDB() {
-        return ER.attributeMapper.insert(new AttributeDO(
-                0L,
-                this.entityID,
-                this.viewID,
-                this.name,
-                this.dataType,
-                this.isPrimary,
-                this.isForeign,
-                0,
-                this.gmtCreate,
-                this.gmtModified));
+    int insertDB() {
+        AttributeDO aDo = new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, this.gmtModified);
+        int ret = ER.attributeMapper.insert(aDo);
+        this.ID = aDo.getId();
+        return ret;
     }
 
     ResultState deleteDB() {
         int ret = ER.attributeMapper.deleteById(this.ID);
-        return ResultState.ok();
+        if (ret != 0) {
+            return ResultState.ok();
+        } else {
+            return ResultState.build(ResultStateCode.Success, "delete fail");
+        }
     }
 
     ResultState updateDB() {
-        int ret = ER.attributeMapper.updateById(new AttributeDO());
-        return ResultState.ok();
+        int ret = ER.attributeMapper.updateById(new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, new Date()));
+        if (ret != 0) {
+            return ResultState.ok();
+        } else {
+            return ResultState.build(ResultStateCode.Success, "update fail");
+        }
     }
 
-    // transform the data from db format to java class format
+    // transform the data from db format (xxxDO) to java class format
     public static Attribute TransformFromDB(AttributeDO attributeDO) {
         return new Attribute(attributeDO.getId(), attributeDO.getEntityId(), attributeDO.getViewId(),
                 attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(),
@@ -83,6 +86,15 @@ public class Attribute {
 
     public static List<Attribute> queryByAttribute(AttributeDO attributeDO) {
         return TransListFormFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
+    }
+
+    public static Attribute queryByID(Long ID) {
+        List<Attribute> attributeList = TransListFormFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
+        if (attributeList.size() != 0) {
+            return attributeList.get(0);
+        } else {
+            return null;
+        }
     }
 
 }

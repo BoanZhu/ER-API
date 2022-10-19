@@ -34,6 +34,6 @@ public class testMybatis {
         ResultState resultState = ER.connectDB();
         Assert.assertNotNull(ER.sqlSession);
         System.out.println(ER.sqlSession.getConnection());
-        Assert.assertEquals(resultState.getStatus(), ResultStateCode.SUCCESSRESULTCODE);
+        Assert.assertEquals(resultState.getStatus(), ResultStateCode.Success);
     }
 }

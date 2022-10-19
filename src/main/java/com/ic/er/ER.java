@@ -10,6 +10,7 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.log4j.BasicConfigurator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,9 +38,10 @@ public class ER {
             entityMapper = sqlSession.getMapper(EntityMapper.class);
             relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
             viewMapper = sqlSession.getMapper(ViewMapper.class);
+            BasicConfigurator.configure();
             useDB = true;
         } catch (IOException msg) {
-            resultState = ResultState.build(ResultStateCode.FAILRESULTCODE, msg.getMessage());
+            resultState = ResultState.build(ResultStateCode.Failure, msg.getMessage());
             return resultState;
         }
         return resultState;

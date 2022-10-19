@@ -64,12 +64,9 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.AttributeDO">
+    <insert id="insert" parameterType="com.ic.er.bean.entity.AttributeDO" useGeneratedKeys="true" keyProperty="id">
         insert into attribute
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
             <if test="entityId != null">
                 entity_id,
             </if>
@@ -90,9 +87,6 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
             <if test="entityId != null">
                 #{entityId,jdbcType=BIGINT},
             </if>

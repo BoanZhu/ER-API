@@ -68,7 +68,7 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.RelationshipDO">
+    <insert id="insert" parameterType="com.ic.er.bean.entity.RelationshipDO" useGeneratedKeys="true" keyProperty="id">
         insert into relationship
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">

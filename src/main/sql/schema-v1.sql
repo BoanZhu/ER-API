@@ -58,6 +58,7 @@ DROP TABLE IF EXISTS `graph_info`;
 CREATE TABLE `graph_info` (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'graph id',
     `related_obj_id` bigint NOT NULL COMMENT 'related object id',
+    `related_obj_type` tinyint NOT NULL COMMENT 'type of the related object, 1: Attribute, 2: Entity, 3: Relationship',
     `layout_x` NUMERIC(8,3) NOT NULL COMMENT 'x position on the view',
     `layout_y` NUMERIC(8,3) NOT NULL COMMENT 'y position on the view',
     `width` NUMERIC(8,3) NOT NULL COMMENT 'the width of object',

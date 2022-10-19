@@ -1,4 +1,4 @@
-package com.ic.er;
+package com.ic.er.mapper;
 
 import com.ic.er.bean.entity.RelationshipDO;
 import com.ic.er.common.Cardinality;

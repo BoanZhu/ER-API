@@ -45,7 +45,7 @@ public class Relationship {
     }
 
     int insertDB() {
-        return ER.relationshipMapper.insert(new RelationshipDO(
+        RelationshipDO relationshipDO = new RelationshipDO(
                 0L,
                 this.name,
                 this.viewID,
@@ -57,7 +57,10 @@ public class Relationship {
                 0,
                 this.gmtCreate,
                 this.gmtModified
-        ));
+        );
+        int ret = ER.relationshipMapper.insert(relationshipDO);
+        this.ID = relationshipDO.getId();
+        return ret;
     }
 
     public static Relationship TransformFromDB(RelationshipDO relationshipDO) {

@@ -27,7 +27,7 @@ public class RelationshipDO {
 
     private Cardinality cardinality;
 
-    private int isDelete;
+    private Integer isDelete;
 
     private Date gmtCreate;
 

@@ -91,7 +91,7 @@ public class View {
     }
 
     int insertDB() {
-        return ER.viewMapper.insert(new ViewDO(
+        ViewDO viewDO = new ViewDO(
                 0L,
                 this.name,
                 this.creator,
@@ -99,7 +99,10 @@ public class View {
                 0,
                 this.gmtCreate,
                 this.gmtModified
-        ));
+        );
+        int ret = ER.viewMapper.insert(viewDO);
+        this.ID = viewDO.getId();
+        return ret;
     }
 
     public static List<View> queryAll() {
