@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head><meta charset="UTF-8">
+    <title>Create View</title>
+    <link rel="stylesheet" type="text/css" href="css/dashboard.css">
+    <script type = "text/javascript" src="js/go-debug.js"></script>
+    <script type = "text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>
+    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
+
+</head>
+<body>
+<nav>
+    <!--			<img src="img/imageu.jpg" width="258" height="82" style = "float:left;">-->
+    <ul class="nav_ul clear_fix">
+        <li class="one"></li>
+        <b>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>Delete View</a></li>
+            <li><a href="createView.html"><span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Save new sub-view</a></li>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>Rename</a></li>
+        </b>
+    </ul>
+</nav>
+
+<div id="myDiagramDiv" class = "diagram"></div>
+
+<div class="platte" id="myPaletteDiv" >
+</div>
+
+
+<div class="banner"><div class="inner"></div></div>
+
+<div id="buttons">
+    <button id="loadButton" onclick="load()">Load</button>
+
+    <button id="SaveButton" onclick="save()" disabled="">Save</button>
+</div>
+
+<textarea id="mySavedModel" style="width:100%;height:240px">
+{ "class": "GraphLinksModel",
+  "copiesArrays": true,
+  "copiesArrayObjects": true,
+  "nodeDataArray": [
+{"key":"Products","items":[{"name":"ProductID","iskey":true,"figure":"Decision","color":"#be4b15"},{"name":"ProductName","iskey":false,"figure":"Hexagon","color":"#6ea5f8"},{"name":"SupplierID","iskey":false,"figure":"Decision","color":"purple"},{"name":"CategoryID","iskey":false,"figure":"Decision","color":"purple"}],"location":{"class":"go.Point","x":-905.441681610523,"y":-29.922811407391464}},
+{"key":"Suppliers","items":[{"name":"SupplierID","iskey":true,"figure":"Decision","color":"#be4b15"},{"name":"CompanyName","iskey":false,"figure":"Hexagon","color":"#6ea5f8"},{"name":"ContactName","iskey":false,"figure":"Hexagon","color":"#6ea5f8"},{"name":"Address","iskey":false,"figure":"Hexagon","color":"#6ea5f8"}],"location":{"class":"go.Point","x":-1472.350018298561,"y":-105.79224133183979}},
+{"key":"Categories","items":[{"name":"CategoryID","iskey":true,"figure":"Decision","color":"#be4b15"},{"name":"CategoryName","iskey":false,"figure":"Hexagon","color":"#6ea5f8"},{"name":"Description","iskey":false,"figure":"Hexagon","color":"#6ea5f8"},{"name":"Picture","iskey":false,"figure":"TriangleUp","color":"#faadc1"}],"location":{"class":"go.Point","x":-987.4442912524521,"y":-381.1624322383951}}
+],
+  "linkDataArray": [
+{"from":"Products","to":"Suppliers","text":"0..N","toText":"1"},
+{"from":"Products","to":"Categories","text":"0..N","toText":"1"}
+]}
+</textarea>
+
+<footer>ERAPI.Copyright ©2021 | Imperial college london-Group projecy</footer>
+
+</body>
+<script type = "text/javascript">
+    $(function (){
+        //hide all subtitle
+        $(".nav_menu").each(function (){
+            $(this).children(".nav_content").hide();
+
+        });
+        //add the click event of all the content
+        $(".nav_title").each(function (){
+            $(this).click(function (){
+                var nav = $(this).parent(".nav_menu").children(".nav_content");
+                if (nav.css("display")!="none"){
+                    nav.slideUp();
+                }else{
+                    nav.slideDown();
+                }
+            });
+        });
+    });
+</script>
+<script id="code">
+
+    function init() {
+        const $ = go.GraphObject.make;  // for conciseness in defining templates
+        myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
+            {
+                allowDelete: true,
+                allowCopy: false,
+                initialAutoScale: go.Diagram.Uniform,
+                layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
+                "undoManager.isEnabled": true,
+                "draggingTool.dragsLink": true,
+            });
+
+        var colors = {
+            'red': '#be4b15',
+            'green': '#52ce60',
+            'blue': '#6ea5f8',
+            'lightred': '#fd8852',
+            'lightblue': '#afd4fe',
+            'lightgreen': '#b9e986',
+            'pink': '#faadc1',
+            'purple': '#d689ff',
+            'orange': '#fdb400',
+        }
+
+        myDiagram.addDiagramListener("Modified", e => {
+            var button = document.getElementById("SaveButton");
+            if (button) button.disabled = !myDiagram.isModified;
+            var idx = document.title.indexOf("*");
+            if (myDiagram.isModified) {
+                if (idx < 0) document.title += "*";
+            } else {
+                if (idx >= 0) document.title = document.title.slice(0, idx);
+            }
+        });
+
+        // Common text styling
+        function textStyle() {
+            return {
+                margin: 6,
+                wrap: go.TextBlock.WrapFit,
+                textAlign: "center",
+                editable: true,
+            }
+        }
+
+        // the template for each attribute in a node's array of item data
+        var itemTempl =
+            $(go.Panel, "Horizontal",
+                $(go.Shape,
+                    { desiredSize: new go.Size(15, 15), strokeJoin: "round", strokeWidth: 3, stroke: null, margin: 2 },
+                    new go.Binding("figure", "figure"),
+                    new go.Binding("fill", "color"),
+                    new go.Binding("stroke", "color")),
+                $(go.TextBlock, textStyle(),
+                    {
+                        stroke: "#333333",
+                        font: "bold 14px sans-serif"
+                    },
+                    new go.Binding("text", "name").makeTwoWay())
+            );
+
+        // define the Node template, representing an entity
+        myDiagram.nodeTemplate =
+            $(go.Node, "Auto",  // the whole node panel
+                {
+                    selectionAdorned: true,
+                    resizable: true,
+                    layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+                    fromSpot: go.Spot.AllSides,
+                    toSpot: go.Spot.AllSides,
+                    isShadowed: true,
+                    shadowOffset: new go.Point(3, 3),
+                    shadowColor: "#C5C1AA"
+                },
+                new go.Binding("location", "location").makeTwoWay(),
+                // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
+                // clear out any desiredSize set by the ResizingTool.
+                new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
+                // define the node's outer shape, which will surround the Table
+                $(go.Shape, "RoundedRectangle",
+                    { fill: 'white', stroke: "#eeeeee", strokeWidth: 3 }),
+                // $("Button",
+                //     {
+                //         alignment: go.Spot.BottomRight,
+                //         click: addAttribute
+                //     },  // this function is defined below
+                //     new go.Binding("visible", "", a => !a.diagram.isReadOnly).ofObject(),
+                //     $(go.Shape, "PlusLine", { desiredSize: new go.Size(10, 10)})
+                // ),
+                // the table header
+                $(go.Panel, "Table",
+                    { margin: 8, stretch: go.GraphObject.Fill },
+                    $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                    $(go.TextBlock,textStyle(),
+                        {
+                            row: 0, alignment: go.Spot.Center,
+                            margin: new go.Margin(0, 24, 0, 2),  // leave room for Button
+                            font: "bold 16px sans-serif"
+                        },
+                        new go.Binding("text", "key").makeTwoWay()),
+                    // the collapse/expand button
+                    $("PanelExpanderButton", "LIST",  // the name of the element whose visibility this button toggles
+                        { row: 0, alignment: go.Spot.TopLeft }),
+                    // the list of Panels, each showing an attribute
+                    $(go.Panel, "Vertical",
+                        {
+                            name: "LIST",
+                            row: 1,
+                            padding: 3,
+                            alignment: go.Spot.TopLeft,
+                            defaultAlignment: go.Spot.Left,
+                            stretch: go.GraphObject.Horizontal,
+                            itemTemplate: itemTempl
+                        },
+                        new go.Binding("itemArray", "items").makeTwoWay())
+                ) // end Table Panel
+            );
+
+
+        // define the Link template, representing a relationship
+        myDiagram.linkTemplate = $(go.Link,  // the whole link panel
+            {
+                selectionAdorned: true,
+                layerName: "Foreground",
+                reshapable: true,
+                routing: go.Link.AvoidsNodes,
+                corner: 5,
+                curve: go.Link.JumpOver
+            },
+            $(go.Shape,  // the link shape
+                {stroke: "#303B45", strokeWidth: 2.5 }),
+            $(go.TextBlock, textStyle(), // the "from" label
+                {
+                    textAlign: "center",
+                    font: "bold 14px sans-serif",
+                    stroke: "#1967B3",
+                    segmentIndex: 0,
+                    segmentOffset: new go.Point(NaN, NaN),
+                    segmentOrientation: go.Link.OrientUpright
+                },
+                new go.Binding("text", "text").makeTwoWay()),
+            $(go.TextBlock, textStyle(), // the "to" label
+                {
+                    textAlign: "center",
+                    font: "bold 14px sans-serif",
+                    stroke: "#1967B3",
+                    segmentIndex: -1,
+                    segmentOffset: new go.Point(NaN, NaN),
+                    segmentOrientation: go.Link.OrientUpright
+                },
+                new go.Binding("text", "toText").makeTwoWay())
+        );
+
+        myDiagram.model = new go.GraphLinksModel(
+            {
+                copiesArrays: true,
+                copiesArrayObjects: true,
+                nodeDataArray: [],
+                linkDataArray: []
+            });
+
+        function addRelationship(){
+
+        }
+
+        function addAttribute(e, obj) {
+            var adorn = obj.part;
+            if (adorn === null) return;
+            e.handled = true;
+            var arr = adorn.adornedPart.data.items;
+            myDiagram.startTransaction("add item");
+            myDiagram.model.addArrayItem(arr, {});
+            myDiagram.commitTransaction("add item");
+        }
+
+        //palette
+        myDiagram.nodeTemplateMap.add("Entity",myDiagram.nodeTemplate);
+
+        var palette =
+            $(go.Palette, "myPaletteDiv",  // create a new Palette in the HTML DIV element
+                {
+                    // share the template map with the Palette
+                    nodeTemplateMap: myDiagram.nodeTemplateMap,
+                    autoScale: go.Diagram.Uniform  // everything always fits in viewport
+                });
+        // bind node and relation to the left
+        palette.model.nodeDataArray = [
+            //entity
+            {key: "Entity", items: [{"name":"template","isKey":true,"figure":"Decision","color":"#be4b15"}]}
+            //relation
+
+        ];
+
+        load()
+
+    }
+
+    function load() {
+        myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
+    }
+
+    function save() {
+        document.getElementById("mySavedModel").value = myDiagram.model.toJson();
+        myDiagram.isModified = false;
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+</script>
+</html>

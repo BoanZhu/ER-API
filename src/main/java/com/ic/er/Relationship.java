@@ -61,11 +61,11 @@ public class Relationship {
     }
 
     public static Relationship TransformFromDB(RelationshipDO relationshipDO) {
-        return new Relationship(relationshipDO.getId(), relationshipDO.getName(), relationshipDO.getView_id(),
-                relationshipDO.getFirst_entity_id(), relationshipDO.getSecond_entity_id(),
-                relationshipDO.getFirst_attribute_id(), relationshipDO.getSecond_attribute_id(),
+        return new Relationship(relationshipDO.getId(), relationshipDO.getName(), relationshipDO.getViewId(),
+                relationshipDO.getFirstEntityId(), relationshipDO.getSecondEntityId(),
+                relationshipDO.getFirstAttributeId(), relationshipDO.getSecondAttributeId(),
                 relationshipDO.getCardinality(),
-                relationshipDO.getGmt_create(), relationshipDO.getGmt_modified());
+                relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
     }
 
     public static List<Relationship> TransListFormFromDB(List<RelationshipDO> doList) {

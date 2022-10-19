@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head><meta charset="UTF-8">
+    <title>index</title>
+    <link rel="stylesheet" type="text/css" href="css/dashboard.css">
+    <script type = "text/javascript" src="js/jquery-3.2.1.js"></script>
+</head>
+
+<body>
+<nav>
+    <!--			<img src="img/imageu.jpg" width="258" height="82" style = "float:left;">-->
+    <ul class="nav_ul clear_fix">
+        <li class="one"></li>
+        <b>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>TBD</a></li>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>TBD</a></li>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>TBD</a></li>
+        </b>
+    </ul>
+</nav>
+
+<div class = "welcome"> welcome to ER API </div>
+
+<div class="leftNv" >
+    <div class="left_container">
+        <div class = "nav_menu">
+            <div class = "nav_title">View</div>
+            <div class = "nav_content">
+                <a href = "#" onclick="searchView()">Search View</a>
+                <a href="drawingView.html" onclick="viewName()">Draw new View</a>
+                <script>
+                    function searchView() {
+                        var person=prompt("Please enter View name","Harry Potter");
+                        if (person!=null && person!="")
+                        {
+                            // x="你好 " + person + "! 今天感觉如何?";
+                            // document.getElementById("demo").innerHTML=x;
+                        }}
+                    function viewName() {
+                        var person=prompt("Please enter View name","Draco Malfoy");
+                        if (person!=null && person!="")
+                        {
+                            // x="你好 " + person + "! 今天感觉如何?";
+                            // document.getElementById("demo").innerHTML=x;
+                        }}
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="banner"><div class="inner"></div></div>
+
+
+<div class="searchView" style="display: none;"><input id = "searchViewName" type="text" class="attribute"></div>
+
+<footer>ERAPI.Copyright ©2021 | Imperial college london-Group projecy</footer>
+
+</body>
+<script type = "text/javascript">
+
+    $("body").on("click", "#search", function () {
+        window.prompt();
+    });
+
+    $(function (){
+        //hide all subtitle
+        $(".nav_menu").each(function (){
+            $(this).children(".nav_content").hide();
+
+        });
+        //add the click event of all the content
+        $(".nav_title").each(function (){
+            $(this).click(function (){
+                var nav = $(this).parent(".nav_menu").children(".nav_content");
+                if (nav.css("display")!="none"){
+                    nav.slideUp();
+                }else{
+                    nav.slideDown();
+                }
+            });
+        });
+
+    });
+</script>
+</html>

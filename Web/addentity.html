@@ -1,0 +1,99 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Add or Remove Input Fields Dynamically</title>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type = "text/javascript" src="js/jquery-3.2.1.js"></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      margin-top: 1%;
+      justify-content: center;
+      align-items: center;
+    }
+    #rowAdder {
+      margin-left: 17px;
+    }
+  </style>
+</head>
+
+<body>
+<div style="width:40%;top:200px">
+  <form>
+      <div id="entity" class = "entity">
+          <div class="entityName"><p>entity name</p><input id = "ename" type="text" class="attribute"></div>
+          <p>attributes</p>
+          <div id="newInput" class = "newInput"></div>
+      <button id="rowAdder" type="button" class="btn btn-dark"><span></span>ADD</button>
+      <button id="addEntity" type="button" class="btn btn-dark"><span></span>CREATE</button>
+      </div>
+  </form>
+</div>
+
+<script type="text/javascript">
+
+
+  $("#rowAdder").click(function () {
+    newRowAdd =
+            '<div class="newInput"><div class="attribute" id = "attribute">' +
+            '<input type="text" class="attribute_input"></input>'+
+            '<button class="btn btn-danger" id="DeleteRow" type="button">Delete</button>'+
+            '<input type="radio" class = "r" name = "primaryKey" id="key">is_key</input></div>'+'</div></div>';
+    $('#newInput').append(newRowAdd);
+  });
+
+  $("body").on("click", "#DeleteRow", function () {
+    $(this).parents("#attribute").remove();
+  });
+
+  $("body").on("click", "#addEntity", function () {
+
+      const entity = {};
+      const key = document.getElementById("ename").value;
+      let items = [{ name: "ProductID", iskey: true, figure: "Decision", color:"red"}];
+      items = [];
+      entity.key = key;
+
+      $(".attribute").each(function (){
+
+          /*
+          initialize the attribute dict
+           */
+          let attribute_dict = {};
+          let attribute_name = "";
+          //TODO:not allow if entity is empty
+          attribute_name = $(this).children(".attribute_input").val();
+
+          if (attribute_name !== undefined) {
+              //TODO:not allow if attribute is empty
+              console.log(attribute_name); //test. TODO:delete
+              attribute_dict.name = attribute_name;
+              let is_primaryKey =  true;
+              is_primaryKey = $('#r').is(':checked') ? true : false;
+              console.log(is_primaryKey);
+
+              if (is_primaryKey==1){
+                  attribute_dict.iskey = true;
+                  attribute_dict.figure = "TriangleUp";
+                  attribute_dict.color = "red";
+              }else{
+                  attribute_dict.iskey = false;
+                  attribute_dict.figure = "Decision";
+                  attribute_dict.color = "blue"
+              }
+              items.push(attribute_dict);
+          }
+          entity.items = items;
+          console.log(entity);
+
+
+      });
+
+  });
+</script>
+</body>
+
+</html>
