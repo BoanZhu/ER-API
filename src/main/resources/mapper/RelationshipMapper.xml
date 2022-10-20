@@ -10,8 +10,6 @@
         <result column="view_id" property="viewId"/>
         <result column="first_entity_id" property="firstEntityId"/>
         <result column="second_entity_id" property="secondEntityId"/>
-        <result column="first_attribute_id" property="firstAttributeId"/>
-        <result column="second_attribute_id" property="secondAttributeId"/>
         <result column="cardinality" property="cardinality"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -19,19 +17,19 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, view_id, first_entity_id, second_entity_id, first_attribute_id, second_attribute_id, cardinality
+        id, name, view_id, first_entity_id, second_entity_id, cardinality
     </sql>
 
     <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
+        id,name,view_id,first_entity_id,second_entity_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByRelationship" parameterType="com.ic.er.bean.entity.RelationshipDO" resultMap="BaseResultMap">
         select
-        id,name,view_id,first_entity_id,second_entity_id,first_attribute_id,second_attribute_id,cardinality,is_delete,gmt_create,gmt_modified
+        id,name,view_id,first_entity_id,second_entity_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
         <where>
             <if test="id != null">
@@ -48,12 +46,6 @@
             </if>
             <if test="secondEntityId != null">
                 and second_entity_id = #{secondEntityId,jdbcType=BIGINT}
-            </if>
-            <if test="firstAttributeId != null">
-                and first_attribute_id = #{firstAttributeId,jdbcType=BIGINT}
-            </if>
-            <if test="secondAttributeId != null">
-                and second_attribute_id = #{secondAttributeId,jdbcType=BIGINT}
             </if>
             <if test="cardinality != null">
                 and cardinality = #{cardinality,jdbcType=SMALLINT}
@@ -83,12 +75,6 @@
             <if test="secondEntityId != null">
                 second_entity_id,
             </if>
-            <if test="firstAttributeId != null">
-                first_attribute_id,
-            </if>
-            <if test="secondAttributeId != null">
-                second_attribute_id,
-            </if>
             <if test="cardinality != null">
                 cardinality,
             </if>
@@ -105,12 +91,6 @@
             </if>
             <if test="secondEntityId != null">
                 #{secondEntityId,jdbcType=BIGINT},
-            </if>
-            <if test="firstAttributeId != null">
-                #{firstAttributeId,jdbcType=BIGINT},
-            </if>
-            <if test="secondAttributeId != null">
-                #{secondAttributeId,jdbcType=BIGINT},
             </if>
             <if test="cardinality != null">
                 #{cardinality.value,jdbcType=SMALLINT},
@@ -138,12 +118,6 @@
             </if>
             <if test="secondEntityId != null">
                 second_entity_id = #{secondEntityId,jdbcType=BIGINT},
-            </if>
-            <if test="firstAttributeId != null">
-                first_attribute_id = #{firstAttributeId,jdbcType=BIGINT},
-            </if>
-            <if test="secondAttributeId != null">
-                second_attribute_id = #{secondAttributeId,jdbcType=BIGINT},
             </if>
             <if test="cardinality != null">
                 cardinality = #{cardinality.value,jdbcType=SMALLINT},

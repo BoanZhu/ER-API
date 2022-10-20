@@ -37,7 +37,7 @@ public class TestView {
         student.addAttribute("name", DataType.VARCHAR, 0, 0);
         student.addAttribute("grade", DataType.INTEGER, 0, 0);
 
-        Relationship ts = testView.createRelationship("teaches", teacher.getID(), student.getID(), Cardinality.OneToMany);
+        Relationship ts = testView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
 
         View dbView = View.queryByID(testView.getID());
         Assert.assertNotNull(dbView);
@@ -50,7 +50,7 @@ public class TestView {
         View firstView = ER.createView("first view", "tw");
         String newViewName = "new view name";
         firstView.setName(newViewName);
-        firstView.updateDB();
+        firstView.update();
 
         View newView = View.queryByID(1L);
         Assert.assertEquals(newView.getName(), newViewName);
@@ -69,6 +69,19 @@ public class TestView {
     }
 
     @Test
+    public void deleteEntityTest() {
+        View firstView = ER.createView("first view", "tw");
+        Entity firstEntity = firstView.addEntity("teacher");
+        Assert.assertNotNull(firstEntity);
+
+        firstView.deleteEntity(firstEntity);
+
+        View newView = View.queryByID(1L);
+        Assert.assertEquals(newView.getEntityList().size(), 0);
+        Assert.assertNull(Entity.queryByID(firstEntity.getID()));
+    }
+
+    @Test
     public void queryViewTest() {
         View firstView = ER.createView("first view", "tw");
         View secondView = ER.createView("first view", "tw");
@@ -79,5 +92,32 @@ public class TestView {
         ER.useDB = false;
         views = View.queryAll();
         Assert.assertEquals(views.size(), 2);
+    }
+
+    @Test
+    public void relationshipTest() {
+        View firstView = ER.createView("first view", "tw");
+
+        Entity teacher = firstView.addEntity("teacher");
+        teacher.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
+        teacher.addAttribute("name", DataType.VARCHAR, 0, 0);
+        teacher.addAttribute("age", DataType.INTEGER, 0, 0);
+
+        Entity student = firstView.addEntity("student");
+        student.addAttribute("student_id", DataType.VARCHAR, 1, 0);
+        student.addAttribute("name", DataType.VARCHAR, 0, 0);
+        student.addAttribute("grade", DataType.INTEGER, 0, 0);
+
+        Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
+        Assert.assertNotNull(ts);
+
+        ts.setName("new relationship name");
+        ts.update();
+        Assert.assertEquals(Relationship.queryByID(ts.getID()).getName(), "new relationship name");
+
+
+        firstView.deleteRelationship(ts);
+        Assert.assertEquals(firstView.getRelationshipList().size(), 0);
+        Assert.assertNull(Relationship.queryByID(ts.getID()));
     }
 }

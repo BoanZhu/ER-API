@@ -1,5 +1,6 @@
 package com.ic.er;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ic.er.bean.entity.AttributeDO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.ResultState;
@@ -15,14 +16,19 @@ import java.util.UUID;
 
 @Data
 public class Attribute {
+    @JsonIgnore
     private Long ID;
+    @JsonIgnore
     private Long entityID;
+    @JsonIgnore
     private Long viewID;
     private String name;
     private DataType dataType;
     private int isPrimary;
     private int isForeign;
+    @JsonIgnore
     private Date gmtCreate;
+    @JsonIgnore
     private Date gmtModified;
     public Attribute(Long ID, Long entityID, Long viewID, String name, DataType dataType,
                      int isPrimary, int isForeign, Date gmtCreate, Date gmtModified) {
@@ -44,14 +50,14 @@ public class Attribute {
         }
     }
 
-    int insertDB() {
+    private int insertDB() {
         AttributeDO aDo = new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, this.gmtModified);
         int ret = ER.attributeMapper.insert(aDo);
         this.ID = aDo.getId();
         return ret;
     }
 
-    ResultState deleteDB() {
+    protected ResultState deleteDB() {
         int ret = ER.attributeMapper.deleteById(this.ID);
         if (ret != 0) {
             return ResultState.ok();
@@ -60,7 +66,7 @@ public class Attribute {
         }
     }
 
-    ResultState updateDB() {
+    public ResultState updateDB() {
         int ret = ER.attributeMapper.updateById(new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, new Date()));
         if (ret != 0) {
             return ResultState.ok();

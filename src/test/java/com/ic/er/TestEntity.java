@@ -1,16 +1,12 @@
 package com.ic.er;
 
 
-import com.ic.er.bean.entity.EntityDO;
 import com.ic.er.common.DataType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class TestEntity {
 
@@ -58,10 +54,24 @@ public class TestEntity {
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
         teacher.setName("new teacher name");
-        teacher.updateDB();
+        teacher.update();
 
         Entity entity = Entity.queryByID(teacher.getID());
         Assert.assertNotNull(entity);
         Assert.assertEquals(entity.getName(), "new teacher name");
+    }
+
+    @Test
+    public void attributeTest() {
+        Entity teacher = testView.addEntity("teacher");
+        Attribute teacherID = teacher.addAttribute("teacher_id", DataType.INTEGER, 1, 0);
+        Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
+
+        teacher.setName("new teacher name");
+        teacher.update();
+
+        teacher.deleteAttribute(teacherID);
+        Assert.assertEquals(teacher.getAttributeList().size(), 0);
+        Assert.assertNull(Attribute.queryByID(teacherID.getID()));
     }
 }
