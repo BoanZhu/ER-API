@@ -7,11 +7,20 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.sql.SQLException;
+
 public class TestER {
 
     @Before
     public void setUp() {
-//        ER.connectDB();
+        try {
+            ER.connectDB();
+            ER.createTables();
+        } catch (SQLException e) {
+            System.out.println(e);
+            throw new RuntimeException(e);
+        }
     }
     @Test
     public void createViewTest() {
@@ -27,10 +36,8 @@ public class TestER {
         Assert.assertEquals(ER.queryAll().size(), 0);
     }
 
-
-    public void jsonTest() {
-        View testView = ER.createView("testView", "wt22");
-
+    @Test
+    public void jsonTest() throws JsonProcessingException, FileNotFoundException {
         View firstView = ER.createView("first view", "tw");
 
         Entity teacher = firstView.addEntity("teacher");
@@ -43,9 +50,9 @@ public class TestER {
         student.addAttribute("name", DataType.VARCHAR, 0, 0);
         student.addAttribute("grade", DataType.INTEGER, 0, 0);
 
-        Relationship ts = firstView.createRelationship("teaches", teacher.getID(), student.getID(), Cardinality.OneToMany);
+        Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
 
-        System.out.println(firstView);
+        firstView.ToJSONFile();
     }
 
 }

@@ -33,8 +33,6 @@ CREATE TABLE `relationship` (
     `view_id` bigint NOT NULL COMMENT 'related view id',
     `first_entity_id` bigint NOT NULL COMMENT 'the first entity in the relationship',
     `second_entity_id` bigint NOT NULL COMMENT 'the second entity in the relationship',
-    `first_attribute_id` bigint NOT NULL DEFAULT 0 COMMENT 'the first attribute in the relationship',
-    `second_attribute_id` bigint NOT NULL DEFAULT 0 COMMENT 'the second attribute in the relationship',
     `cardinality` smallint NOT NULL COMMENT '0-one to one, 1-one to many, 2-many to many, 3-many to one',
     `is_delete` tinyint NOT NULL DEFAULT 0 COMMENT '0-undeleted，1-delete，default 0',
     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create times',

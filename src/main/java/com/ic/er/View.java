@@ -1,5 +1,6 @@
 package com.ic.er;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ic.er.bean.entity.ViewDO;
 import com.ic.er.common.Cardinality;
@@ -9,18 +10,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.Data;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Data
 public class View {
+    @JsonIgnore
     private Long ID;
     private String name;
     private List<Entity> entityList;
     private List<Relationship> relationshipList;
     private String creator;
+    @JsonIgnore
     private Date gmtCreate;
+    @JsonIgnore
     private Date gmtModified;
     public View(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, String creator, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
@@ -42,49 +48,42 @@ public class View {
     public Entity addEntity(String entityName) {
         Entity entity = new Entity(0L, entityName, this.ID, new ArrayList<>(), new Date(), new Date());
         this.entityList.add(entity);
-        this.setGmtModified(new Date(System.currentTimeMillis()));
         if (ER.useDB) {
-            this.updateDB();
+            this.update();
         }
         return entity;
     }
 
-    public boolean removeEntity(Entity entity) {
+    public boolean deleteEntity(Entity entity) {
+        this.entityList.remove(entity);
         if (ER.useDB) {
             entity.deleteDB();
-        }
-        this.entityList.remove(entity);
-        this.setGmtModified(new Date(System.currentTimeMillis()));
-        if (ER.useDB) {
-            this.updateDB();
+            this.update();
         }
         return false;
     }
 
-    public Relationship createRelationship(String relationshipName, Long firstEntityID, Long secondEntityID,
+    public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity,
                                            Cardinality cardinality) {
         Relationship relationship = new Relationship(0L, relationshipName, this.ID,
-                firstEntityID, secondEntityID, 0L, 0L, cardinality, new Date(), new Date());
+                firstEntity, secondEntity, cardinality, new Date(), new Date());
         this.getRelationshipList().add(relationship);
         if (ER.useDB) {
-            this.updateDB();
+            this.update();
         }
         return relationship;
     }
 
-    public boolean removeRelationship(Relationship relationship) {
+    public boolean deleteRelationship(Relationship relationship) {
+        this.getRelationshipList().remove(relationship);
         if (ER.useDB) {
             relationship.deleteDB();
-        }
-        this.getRelationshipList().remove(relationship);
-        this.setGmtModified(new Date(System.currentTimeMillis()));
-        if (ER.useDB) {
-            this.updateDB();
+            this.update();
         }
         return false;
     }
 
-    int insertDB() {
+    private int insertDB() {
         ViewDO viewDO = new ViewDO(0L, this.name, this.creator, 0L, 0, this.gmtCreate, this.gmtModified);
         int ret = ER.viewMapper.insert(viewDO);
         this.ID = viewDO.getId();
@@ -95,10 +94,12 @@ public class View {
         return TransListFormFromDB(ER.viewMapper.selectAll());
     }
 
-    public String ToJSON() throws JsonProcessingException {
+    public void ToJSONFile() throws JsonProcessingException, FileNotFoundException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(this);
-        return json;
+        PrintWriter out = new PrintWriter(String.format("%s.json", this.getName()));
+        out.println(json);
+        out.flush();
     }
 
     private static View TransformFromDB(ViewDO ViewDO) {
@@ -130,7 +131,7 @@ public class View {
         }
     }
 
-    public ResultState deleteDB() {
+    protected ResultState deleteDB() {
         int res = ER.viewMapper.deleteById(this.ID);
         if (res == 0) {
             return ResultState.ok();
@@ -139,7 +140,8 @@ public class View {
         }
     }
 
-    ResultState updateDB() {
+    public ResultState update() {
+        // use setXXX first, so in memory update is already done, only left with update db
         int res = ER.viewMapper.updateById(new ViewDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
         if (res == 0) {
             return ResultState.ok();

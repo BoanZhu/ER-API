@@ -1,5 +1,6 @@
 package com.ic.er;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ic.er.bean.entity.AttributeDO;
 import com.ic.er.bean.entity.EntityDO;
 import com.ic.er.common.DataType;
@@ -10,15 +11,18 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 public class Entity {
+    @JsonIgnore
     private Long ID;
     private String name;
+    @JsonIgnore
     private Long viewID;
     private List<Attribute> attributeList;
+    @JsonIgnore
     private Date gmtCreate;
+    @JsonIgnore
     private Date gmtModified;
 
     public Entity(Long ID, String name, Long viewID, List<Attribute> attributeList, Date gmtCreate, Date gmtModified) {
@@ -41,18 +45,17 @@ public class Entity {
                         int isPrimary, int isForeign) {
         Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, isForeign, new Date(), new Date());
         this.attributeList.add(attribute);
-        this.setGmtModified(new Date());
         if (ER.useDB) {
-            this.updateDB();
+            this.update();
         }
         return attribute;
     }
 
-    public boolean removeAttribute(Attribute attribute) {
+    public boolean deleteAttribute(Attribute attribute) {
         this.attributeList.remove(attribute);
-        this.setGmtModified(new Date(System.currentTimeMillis()));
         if (ER.useDB) {
-            this.updateDB();
+            attribute.deleteDB();
+            this.update();
         }
         return false;
     }
@@ -85,14 +88,14 @@ public class Entity {
         }
     }
 
-    public int insertDB() {
+    private int insertDB() {
         EntityDO entityDO = new EntityDO(0L, this.name, this.viewID, 0, this.gmtCreate, this.gmtModified);
         int ret = ER.entityMapper.insert(entityDO);
         this.ID = entityDO.getId();
         return ret;
     }
 
-    ResultState deleteDB() {
+    protected ResultState deleteDB() {
         int res = ER.entityMapper.deleteById(this.ID);
         if (res == 0) {
             return ResultState.ok();
@@ -101,7 +104,7 @@ public class Entity {
         }
     }
 
-    ResultState updateDB() {
+    public ResultState update() {
         int res = ER.entityMapper.updateById(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
         if (res == 0) {
             return ResultState.ok();

@@ -44,7 +44,7 @@ public class testRelationMapper {
     public void testQueryRelationByRelation(){
         Assert.assertNotNull(sqlSession);
         RelationshipDO relationshipDO = new RelationshipDO(null,"relation4",
-                null,null,null,null,null,
+                null,null,null,
                 Cardinality.OneToMany,0,null,null);
         List<RelationshipDO> res = relationMapper.selectByRelationship(relationshipDO);
         System.out.println(res);
@@ -54,7 +54,7 @@ public class testRelationMapper {
     public void testCreateRelation(){
         Assert.assertNotNull(sqlSession);
         RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(11),"relation4",
-                Long.valueOf(4),Long.valueOf(4),Long.valueOf(3),Long.valueOf(4),Long.valueOf(4),
+                Long.valueOf(4),Long.valueOf(4),Long.valueOf(3),
                 Cardinality.OneToMany,0,new Date(),new Date());
         Assert.assertEquals(relationMapper.insert(relationshipDO),1);
     }
@@ -69,7 +69,7 @@ public class testRelationMapper {
     public void testUpdateRelation(){
         Assert.assertNotNull(sqlSession);
         RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(4),"relation4update",
-                Long.valueOf(3),Long.valueOf(4),Long.valueOf(3),Long.valueOf(4),Long.valueOf(4),
+                Long.valueOf(3),Long.valueOf(4),Long.valueOf(3),
                 Cardinality.OneToMany,0,new Date(),new Date());
         Assert.assertEquals(relationMapper.updateById(relationshipDO),1);
     }

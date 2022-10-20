@@ -21,10 +21,6 @@ public class RelationshipDO {
 
     private Long secondEntityId;
 
-    private Long firstAttributeId;
-
-    private Long secondAttributeId;
-
     private Cardinality cardinality;
 
     private Integer isDelete;
