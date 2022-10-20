@@ -24,4 +24,8 @@ public class ViewDO {
 
     private Date gmtModified;
 
+    public ViewDO(Long ID) {
+        this.id = ID;
+    }
+
 }

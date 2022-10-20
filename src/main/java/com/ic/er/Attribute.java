@@ -70,13 +70,13 @@ public class Attribute {
     }
 
     // transform the data from db format (xxxDO) to java class format
-    public static Attribute TransformFromDB(AttributeDO attributeDO) {
+    private static Attribute TransformFromDB(AttributeDO attributeDO) {
         return new Attribute(attributeDO.getId(), attributeDO.getEntityId(), attributeDO.getViewId(),
                 attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(),
                 attributeDO.getIsForeign(), attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 
-    public static List<Attribute> TransListFormFromDB(List<AttributeDO> doList) {
+    private static List<Attribute> TransListFormFromDB(List<AttributeDO> doList) {
         List<Attribute> ret = new ArrayList<>();
         for (AttributeDO attributeDO : doList) {
             ret.add(TransformFromDB(attributeDO));
@@ -90,11 +90,10 @@ public class Attribute {
 
     public static Attribute queryByID(Long ID) {
         List<Attribute> attributeList = TransListFormFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
-        if (attributeList.size() != 0) {
-            return attributeList.get(0);
-        } else {
+        if (attributeList.size() == 0) {
             return null;
+        } else {
+            return attributeList.get(0);
         }
     }
-
 }

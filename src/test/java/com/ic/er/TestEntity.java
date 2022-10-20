@@ -25,7 +25,7 @@ public class TestEntity {
             System.out.println(e);
             throw new RuntimeException(e);
         }
-        testView = View.createView("testView", "wt22");
+        testView = ER.createView("testView", "wt22");
     }
 
 

@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.*;
 
 public class ER {
     public static SqlSession sqlSession;
@@ -25,6 +26,7 @@ public class ER {
     public static EntityMapper entityMapper;
     public static RelationshipMapper relationshipMapper;
     public static ViewMapper viewMapper;
+    private static Map<Long, View> allViewsMap = new HashMap<>();
 
     public static ResultState connectDB(){
         ResultState resultState = null;
@@ -114,5 +116,25 @@ public class ER {
                 "    `height` NUMERIC(8,3) NOT NULL COMMENT 'the height of object',\n" +
                 "    PRIMARY KEY (`id`)\n" +
                 ");");
+    }
+
+    public static View createView(String name, String creator) {
+        View view = new View(0L, name, new ArrayList<>(), new ArrayList<>(), creator, new Date(), new Date());
+        allViewsMap.put(view.getID(), view);
+        return view;
+    }
+
+
+    public static void deleteView(View view) {
+        view.deleteDB();
+        allViewsMap.remove(view.getID());
+    }
+
+    public static List<View> queryAll() {
+        if (ER.useDB) {
+            return View.queryAll();
+        } else {
+            return new ArrayList<>(allViewsMap.values());
+        }
     }
 }

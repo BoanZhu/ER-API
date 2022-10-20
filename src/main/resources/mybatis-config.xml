@@ -7,6 +7,10 @@
     <settings>
         <setting name="logImpl" value="LOG4J"/>
     </settings>
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
+                     javaType="com.ic.er.common.Cardinality"/>
+    </typeHandlers>
     <environments default='development'>
         <environment id='development'>
             <transactionManager type='JDBC'/>

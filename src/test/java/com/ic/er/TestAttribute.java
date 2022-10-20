@@ -26,12 +26,12 @@ public class TestAttribute {
             System.out.println(e);
             throw new RuntimeException(e);
         }
-        testView = View.createView("testView", "wt22");
+        testView = ER.createView("testView", "wt22");
         testEntity = testView.addEntity("teacher");
     }
 
     @Test
-    public void insertTest() {
+    public void addAttributeTest() {
         Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
         Attribute a2 = testEntity.addAttribute("name", DataType.VARCHAR, 0, 0);
         Attribute a3 = testEntity.addAttribute("age", DataType.INTEGER, 0, 0);

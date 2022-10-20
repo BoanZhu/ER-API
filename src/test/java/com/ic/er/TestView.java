@@ -1,0 +1,83 @@
+package com.ic.er;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ic.er.common.Cardinality;
+import com.ic.er.common.DataType;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.sql.SQLException;
+import java.util.List;
+
+public class TestView {
+
+    @Before
+    public void init() {
+        try {
+            ER.connectDB();
+            ER.createTables();
+        } catch (SQLException e) {
+            System.out.println(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void createViewTest() {
+        View testView = ER.createView("testView", "wt22");
+
+        Entity teacher = testView.addEntity("teacher");
+        teacher.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
+        teacher.addAttribute("name", DataType.VARCHAR, 0, 0);
+        teacher.addAttribute("age", DataType.INTEGER, 0, 0);
+
+        Entity student = testView.addEntity("student");
+        student.addAttribute("student_id", DataType.VARCHAR, 1, 0);
+        student.addAttribute("name", DataType.VARCHAR, 0, 0);
+        student.addAttribute("grade", DataType.INTEGER, 0, 0);
+
+        Relationship ts = testView.createRelationship("teaches", teacher.getID(), student.getID(), Cardinality.OneToMany);
+
+        View dbView = View.queryByID(testView.getID());
+        Assert.assertNotNull(dbView);
+        Assert.assertEquals(dbView.getEntityList().size(), 2);
+        Assert.assertEquals(dbView.getRelationshipList().size(), 1);
+    }
+
+    @Test
+    public void updateViewTest() {
+        View firstView = ER.createView("first view", "tw");
+        String newViewName = "new view name";
+        firstView.setName(newViewName);
+        firstView.updateDB();
+
+        View newView = View.queryByID(1L);
+        Assert.assertEquals(newView.getName(), newViewName);
+    }
+
+    @Test
+    public void deleteViewTest() {
+        View firstView = ER.createView("first view", "tw");
+        firstView = View.queryByID(1L);
+        Assert.assertNotNull(firstView);
+
+        firstView.deleteDB();
+
+        View newView = View.queryByID(1L);
+        Assert.assertNull(newView);
+    }
+
+    @Test
+    public void queryViewTest() {
+        View firstView = ER.createView("first view", "tw");
+        View secondView = ER.createView("first view", "tw");
+
+        List<View> views = View.queryAll();
+        Assert.assertEquals(views.size(), 2);
+
+        ER.useDB = false;
+        views = View.queryAll();
+        Assert.assertEquals(views.size(), 2);
+    }
+}

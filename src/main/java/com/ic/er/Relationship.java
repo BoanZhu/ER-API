@@ -37,9 +37,10 @@ public class Relationship {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
-            this.ID = Utils.generateID();
             if (ER.useDB) {
                 insertDB();
+            } else {
+                this.ID = Utils.generateID();
             }
         }
     }
@@ -47,23 +48,15 @@ public class Relationship {
     int insertDB() {
         RelationshipDO relationshipDO = new RelationshipDO(
                 0L,
-                this.name,
-                this.viewID,
-                this.firstEntityID,
-                this.secondEntityID,
-                this.firstAttributeID,
-                this.secondAttributeID,
-                this.cardinality,
-                0,
-                this.gmtCreate,
-                this.gmtModified
-        );
+                this.name, this.viewID, this.firstEntityID, this.secondEntityID,
+                this.firstAttributeID, this.secondAttributeID, this.cardinality,
+                0, this.gmtCreate, this.gmtModified);
         int ret = ER.relationshipMapper.insert(relationshipDO);
         this.ID = relationshipDO.getId();
         return ret;
     }
 
-    public static Relationship TransformFromDB(RelationshipDO relationshipDO) {
+    private static Relationship TransformFromDB(RelationshipDO relationshipDO) {
         return new Relationship(relationshipDO.getId(), relationshipDO.getName(), relationshipDO.getViewId(),
                 relationshipDO.getFirstEntityId(), relationshipDO.getSecondEntityId(),
                 relationshipDO.getFirstAttributeId(), relationshipDO.getSecondAttributeId(),
@@ -71,7 +64,7 @@ public class Relationship {
                 relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
     }
 
-    public static List<Relationship> TransListFormFromDB(List<RelationshipDO> doList) {
+    private static List<Relationship> TransListFormFromDB(List<RelationshipDO> doList) {
         List<Relationship> ret = new ArrayList<>();
         for (RelationshipDO RelationshipDO : doList) {
             ret.add(TransformFromDB(RelationshipDO));
@@ -81,6 +74,15 @@ public class Relationship {
 
     public static List<Relationship> queryByRelationship(RelationshipDO RelationshipDO) {
         return TransListFormFromDB(ER.relationshipMapper.selectByRelationship(RelationshipDO));
+    }
+
+    public static Relationship queryByID(Long ID) {
+        List<Relationship> relationships = queryByRelationship(new RelationshipDO(ID));
+        if (relationships.size() == 0) {
+            return null;
+        } else {
+            return relationships.get(0);
+        }
     }
 
     ResultState deleteDB() {
@@ -93,7 +95,7 @@ public class Relationship {
     }
 
     ResultState updateDB() {
-        int res = ER.relationshipMapper.updateById(new RelationshipDO());
+        int res = ER.relationshipMapper.updateById(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntityID, this.secondEntityID, this.firstAttributeID, this.secondAttributeID, this.cardinality, 0, this.gmtCreate, this.gmtModified));
         if (res == 0) {
             return ResultState.ok();
         } else {

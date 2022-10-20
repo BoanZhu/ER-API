@@ -33,4 +33,12 @@ public class RelationshipDO {
 
     private Date gmtModified;
 
+    public RelationshipDO(Long ID) {
+        this.id = ID;
+    }
+    public RelationshipDO(Long firstEntityId, Long secondEntityId) {
+        this.firstEntityId = firstEntityId;
+        this.secondEntityId = secondEntityId;
+    }
+
 }
