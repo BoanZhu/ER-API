@@ -127,7 +127,7 @@ nav ul {
     height: 40px;
     width: 100%;
     color:white;
-    font-size: 20px;
+    font-size: 30px;
     text-align: center;
     line-height: 40px;
     text-decoration: none;
@@ -138,9 +138,9 @@ nav ul {
     width: 100%;
     background-color: #0c1119;
     text-align: center;
-    font-size: 20px;
-
+    font-size: 25px;
 }
+
 .leftNv .left_container .nav_menu .nav_content>a{
     display: block;
     height: 30px;

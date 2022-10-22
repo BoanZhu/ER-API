@@ -15,24 +15,21 @@
     <ul class="nav_ul clear_fix">
         <li class="one"></li>
         <b>
-            <li><a href="xx.html"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>Delete View</a></li>
+            <li><a href="xx.html" onclick="deleteView()"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>Delete View</a></li>
             <li><a href="createView.html"><span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Save new sub-view</a></li>
-            <li><a href="xx.html"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>Rename</a></li>
+            <li><a href="xx.html" onclick="renameView()"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>Rename</a></li>
         </b>
     </ul>
 </nav>
 
 <div id="myDiagramDiv" class = "diagram"></div>
 
-<div class="platte" id="myPaletteDiv" >
-</div>
-
+<div class="platte" id="myPaletteDiv" ></div>
 
 <div class="banner"><div class="inner"></div></div>
 
 <div id="buttons">
     <button id="loadButton" onclick="load()">Load</button>
-
     <button id="SaveButton" onclick="save()" disabled="">Save</button>
 </div>
 
@@ -54,28 +51,7 @@
 <footer>ERAPI.Copyright ©2021 | Imperial college london-Group projecy</footer>
 
 </body>
-<script type = "text/javascript">
-    $(function (){
-        //hide all subtitle
-        $(".nav_menu").each(function (){
-            $(this).children(".nav_content").hide();
-
-        });
-        //add the click event of all the content
-        $(".nav_title").each(function (){
-            $(this).click(function (){
-                var nav = $(this).parent(".nav_menu").children(".nav_content");
-                if (nav.css("display")!="none"){
-                    nav.slideUp();
-                }else{
-                    nav.slideDown();
-                }
-            });
-        });
-    });
-</script>
 <script id="code">
-
     function init() {
         const $ = go.GraphObject.make;  // for conciseness in defining templates
         myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
@@ -268,18 +244,83 @@
             //relation
 
         ];
-
-        load()
+        load();
 
     }
+    /*
+API 1: get all the entity and relationship
+ */
+
+    // var model ="";
+    // var tmpString="";
+    //
+    // $.getJSON("getAllViewUrl", function(entities){
+    // model = json_value;
+    //
+    // });
+
+
+
+
 
     function load() {
+
         myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
     }
 
     function save() {
         document.getElementById("mySavedModel").value = myDiagram.model.toJson();
         myDiagram.isModified = false;
+    }
+
+    function deleteView() {
+        let name = location.href.substring(location.href.indexOf("name=")+1,location.href.indexOf("id")-2);
+        let id = location.href.substring(location.href.indexOf("id=")+1);
+
+        var new_name = prompt("Please enter new view name", name);
+        if (new_name != selected_name && new_name != "" && new_name != null) {
+            var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+            httpRequest.open('POST', 'url', true); //第二步：打开连接
+            httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+            httpRequest.send('&name=' + name + '&id=' + id);//发送请求 将情头体写在send中
+
+            /**
+             * 获取数据后的处理程序
+             */
+            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                    var json = httpRequest.responseText;//获取到服务端返回的数据
+                    console.log(json);
+                }
+            };
+        }
+
+    }
+
+
+    function renameView() {
+
+        let name = location.href.substring(location.href.indexOf("name=")+1,location.href.indexOf("id")-2);
+        let id = location.href.substring(location.href.indexOf("id=")+1);
+
+        var new_name = prompt("Please enter new view name", name);
+        if (new_name != selected_name && new_name != "" && new_name != null) {
+            var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+            httpRequest.open('POST', 'url', true); //第二步：打开连接
+            httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+            httpRequest.send('newname = ' + new_name + '&name=' + name + '&id=' + id);//发送请求 将情头体写在send中
+
+            /**
+             * 获取数据后的处理程序
+             */
+            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                    var json = httpRequest.responseText;//获取到服务端返回的数据
+                    console.log(json);
+                }
+            };
+            location.reload();
+        }
     }
 
     window.addEventListener('DOMContentLoaded', init);
