@@ -6,8 +6,9 @@ function init() {
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
             layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
+            "draggingTool.dragsLink": false,
+            "draggingTool.isGridSnapEnabled": false,
             "undoManager.isEnabled": true,
-            "draggingTool.dragsLink": true,
         });
 
     var colors = {
@@ -66,11 +67,13 @@ function init() {
                 selectionAdorned: true,
                 resizable: true,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
-                fromSpot: go.Spot.AllSides,
-                toSpot: go.Spot.AllSides,
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
-                shadowColor: colors.lightblue
+                shadowColor: colors.lightblue,
+                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                }
+
             },
             new go.Binding("location", "location").makeTwoWay(),
             // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
@@ -78,7 +81,18 @@ function init() {
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
             // define the node's outer shape, which will surround the Table
             $(go.Shape, "RoundedRectangle",
-                { fill: 'white', stroke: colors.lightblue, strokeWidth: 3 }),
+                {
+                    fill: 'white',
+                    portId: "",
+                    stroke: colors.lightblue,
+                    cursor: "pointer",
+                    fromSpot: go.Spot.AllSides,
+                    toSpot: go.Spot.AllSides,
+                    strokeWidth: 3,
+                    fromLinkableDuplicates: false, toLinkableDuplicates: false
+                },
+            new go.Binding("fromLinkable", "from").makeTwoWay(),
+            new go.Binding("toLinkable", "to").makeTwoWay()),
             // $("Button",
             //     {
             //         alignment: go.Spot.BottomRight,
@@ -118,6 +132,7 @@ function init() {
 
             ) // end Table Panel
         );
+
 
 
     // define the Link template, representing a relationship
