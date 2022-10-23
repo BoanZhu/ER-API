@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head><meta charset="UTF-8">
+    <title>index</title>
+    <link rel="stylesheet" type="text/css" href="css/dashboard.css">
+    <script type = "text/javascript" src="js/jquery-3.2.1.js"></script>
+</head>
+
+<body>
+<nav>
+    <!--			<img src="img/imageu.jpg" width="258" height="82" style = "float:left;">-->
+    <ul class="nav_ul clear_fix">
+        <li class="one"></li>
+        <b>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>TBD</a></li>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>TBD</a></li>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>TBD</a></li>
+        </b>
+    </ul>
+</nav>
+
+<div class = "welcome"> welcome to ER API </div>
+
+<div class="leftNv" >
+    <div class="left_container">
+        <div class = "nav_menu">
+            <div class = "nav_title">View</div>
+            <div class = "nav_content">
+                <input list="viewsList" id = "vInput" style="font-size: 20px;" placeholder="Select a Model">
+                <datalist id="viewsList">
+                    <option value="Edge" id = "wdac">
+                    <option value="Firefox">
+                    <option value="Chrome">
+                </datalist>
+
+                <a href = "#" onclick="showView()">Show</a>
+                <a href = "#" onclick="RenameView()">Rename As</a>
+                <a href = "#" onclick="deleteView()">Delete</a>
+
+                <a href="drawingView.html" onclick="drawView()">Draw</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="banner"><div class="inner"></div></div>
+
+
+<div class="searchView" style="display: none;"><input id = "searchViewName" type="text" class="attribute"></div>
+
+<footer>ERAPI.Copyright ©2021 | Imperial college london-Group projecy</footer>
+
+</body>
+<script type = "text/javascript">
+
+    function showView() {
+
+        var selected_name =  $('#vInput').val();
+        var selected_id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+
+        var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+        httpRequest.open('POST', 'url', true); //第二步：打开连接
+        httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+        httpRequest.send('name='+selected_name+'&id='+selected_id);//发送请求 将情头体写在send中
+
+        /**
+         * 获取数据后的处理程序
+         */
+        httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+            if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                var json = httpRequest.responseText;//获取到服务端返回的数据
+
+                console.log(json);
+
+                window.location.replace("drawingView.html?name="+ selected_name+"&id="+selected_id);
+            }
+        };
+    }
+
+
+    function RenameView() {
+
+        var selected_name =  $('#vInput').val();
+        var selected_id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+
+        var new_name=prompt("Please enter new view name",selected_name);
+        if (new_name!=selected_name && new_name!="" && new_name!=null)
+        {
+            var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+            httpRequest.open('POST', 'url', true); //第二步：打开连接
+            httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+            httpRequest.send('newname = '+new_name +'&name='+selected_name+'&id='+selected_id);//发送请求 将情头体写在send中
+
+            /**
+             * 获取数据后的处理程序
+             */
+            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                    var json = httpRequest.responseText;//获取到服务端返回的数据
+                    console.log(json);
+                }
+            };
+            location.reload();
+        }
+    }
+    function deleteView() {
+
+        var selected_name =  $('#vInput').val();
+        var selected_id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+
+        var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+        httpRequest.open('POST', 'url', true); //第二步：打开连接
+        httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+        httpRequest.send('name='+selected_name+'&id='+selected_id);//发送请求 将情头体写在send中
+
+        /**
+         * 获取数据后的处理程序
+         */
+        httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+            if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                var json = httpRequest.responseText;//获取到服务端返回的数据
+                console.log(json);
+            }
+        };
+
+        //reload page
+        location.reload();
+
+
+    }
+    function drawView(){
+        var view=prompt("Please enter new view name","Draco");
+        if (new_name!=null && new_name!="")
+        {
+            var selected_name =  $('#vInput').val();
+            var selected_id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+
+            var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+            httpRequest.open('POST', 'url', true); //第二步：打开连接
+            httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+            httpRequest.send('name='+selected_name+'&id='+selected_id);//发送请求 将情头体写在send中
+
+            /**
+             * 获取数据后的处理程序
+             */
+            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                    var json = httpRequest.responseText;//获取到服务端返回的数据
+                    view_name = json.name;
+                    view_id = json.id;
+                    console.log(json);
+                    window.location.replace("drawingView.html?name="+ view_name+"&id="+view_id);
+                }
+            };
+        }
+    }
+
+
+
+
+    /*
+    API 1: get all the view name and value id, target: load the window and with delete and rename
+     */
+
+    // var listString ="";
+    // var tmpString="";
+    //
+    // $.getJSON("getAllViewUrl", function(entities){
+    //     $.each(entities.allEntities, function(i, entity){
+    //         tmpString = '<option id = '+entity.id+' value = '+entity.name+'></option>';
+    //         $("viewsList").prepend(tmpString);
+    //     });
+    // });
+
+
+    $(function (){
+        //hide all subtitle
+        $(".nav_menu").each(function (){
+            $(this).children(".nav_content").hide();
+
+        });
+        //add the click event of all the content
+        $(".nav_title").each(function (){
+            $(this).click(function (){
+                var nav = $(this).parent(".nav_menu").children(".nav_content");
+                if (nav.css("display")!="none"){
+                    nav.slideUp();
+                }else{
+                    nav.slideDown();
+                }
+            });
+        });
+
+    });
+</script>
+</html>
