@@ -132,6 +132,19 @@ function init() {
         },
         $(go.Shape,  // the link shape
             {stroke: "#303B45", strokeWidth: 2.5 }),
+        $(go.Panel, "Auto",  // this whole Panel is a link label
+            $(go.Shape, "Diamond", { fill: "yellow", stroke: "gray",width: 100, height: 40 }),
+            $(go.TextBlock, textStyle(),
+                {   margin: 3,
+                    textAlign: "center",
+                    segmentIndex: -2,
+                    segmentOffset: new go.Point(NaN, NaN),
+                    segmentOrientation: go.Link.OrientUpright,
+                    font: "bold 14px sans-serif",
+                    stroke: "#1967B3",
+                },
+                new go.Binding("text", "relation").makeTwoWay())
+        ),
         $(go.TextBlock, textStyle(), // the "from" label
             {
                 textAlign: "center",
