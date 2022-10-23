@@ -65,7 +65,7 @@ function init() {
         $(go.Node, "Auto",  // the whole node panel
             {
                 selectionAdorned: true,
-                resizable: true,
+                resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
