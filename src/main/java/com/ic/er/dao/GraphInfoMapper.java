@@ -1,6 +1,6 @@
 package com.ic.er.dao;
 
-import com.ic.er.dto.entity.GraphInfoDO;
+import com.ic.er.entity.GraphInfoDO;
 
 public interface GraphInfoMapper {
 

@@ -1,9 +1,11 @@
 package com.ic.er.dao;
 
-import com.ic.er.dto.entity.AttributeDO;
+import com.ic.er.entity.AttributeDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+@Mapper
 public interface AttributeMapper {
     AttributeDO selectByID(Long ID);
 

@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.GraphInfoMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.dto.entity.GraphInfoDO">
+    <resultMap id="BaseResultMap" type="com.ic.er.entity.GraphInfoDO">
         <id column="id" property="ID"/>
         <result column="related_obj_id" property="relatedObjID"/>
         <result column="layout_x" property="layoutX"/>
@@ -31,7 +31,7 @@
         where related_obj_id = #{relatedObjID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByGraphInfo" parameterType="com.ic.er.dto.entity.GraphInfoDO" resultMap="BaseResultMap">
+    <select id="selectByGraphInfo" parameterType="com.ic.er.entity.GraphInfoDO" resultMap="BaseResultMap">
         select
         id, related_obj_id,layout_x,layout_y,width,height,is_delete,gmt_create,gmt_modified
         from graph_info
@@ -58,7 +58,7 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.dto.entity.GraphInfoDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.ic.er.entity.GraphInfoDO" useGeneratedKeys="true" keyProperty="id">
         insert into graph_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="ID != null">
@@ -114,7 +114,7 @@
         where related_obj_id = #{relatedObjID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.dto.entity.GraphInfoDO">
+    <update id="updateByID" parameterType="com.ic.er.entity.GraphInfoDO">
         update relationship
         <set>
             <if test="layoutX != null">
@@ -133,7 +133,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByObjID" parameterType="com.ic.er.dto.entity.GraphInfoDO">
+    <update id="updateByObjID" parameterType="com.ic.er.entity.GraphInfoDO">
         update relationship
         <set>
             <if test="layoutX != null">

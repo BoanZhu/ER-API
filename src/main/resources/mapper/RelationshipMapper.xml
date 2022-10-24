@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.RelationshipMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.dto.entity.RelationshipDO">
+    <resultMap id="BaseResultMap" type="com.ic.er.entity.RelationshipDO">
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="view_id" property="viewID"/>
@@ -27,7 +27,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByRelationship" parameterType="com.ic.er.dto.entity.RelationshipDO" resultMap="BaseResultMap">
+    <select id="selectByRelationship" parameterType="com.ic.er.entity.RelationshipDO" resultMap="BaseResultMap">
         select
         id,name,view_id,first_entity_id,second_entity_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
@@ -60,7 +60,7 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.dto.entity.RelationshipDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="com.ic.er.entity.RelationshipDO" useGeneratedKeys="true" keyProperty="ID">
         insert into relationship
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -104,7 +104,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.dto.entity.RelationshipDO">
+    <update id="updateByID" parameterType="com.ic.er.entity.RelationshipDO">
         update relationship
         <set>
             <if test="name != null">

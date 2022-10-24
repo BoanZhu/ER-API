@@ -1,6 +1,6 @@
 package com.ic.er;
 
-import com.ic.er.dto.entity.AttributeDO;
+import com.ic.er.entity.AttributeDO;
 import com.ic.er.common.DataType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,14 +15,9 @@ public class TestAttribute {
     private Entity testEntity;
 
     @Before
-    public void init() {
-        try {
-            ER.connectDB();
-            ER.createTables();
-        } catch (SQLException e) {
-            System.out.println(e);
-            throw new RuntimeException(e);
-        }
+    public void init() throws Exception {
+        ER.connectDB();
+        ER.createTables();
         testView = ER.createView("testView", "wt22");
         testEntity = testView.addEntity("teacher");
     }

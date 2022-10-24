@@ -13,14 +13,9 @@ import java.util.List;
 public class TestView {
 
     @Before
-    public void init() {
-        try {
-            ER.connectDB();
-            ER.createTables();
-        } catch (SQLException e) {
-            System.out.println(e);
-            throw new RuntimeException(e);
-        }
+    public void init() throws Exception {
+        ER.connectDB();
+        ER.createTables();
     }
 
     @Test

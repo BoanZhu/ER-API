@@ -1,13 +1,17 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ic.er.dto.entity.AttributeDO;
+import com.ic.er.Exception.ERException;
+import com.ic.er.entity.AttributeDO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.ResultStateCode;
 import com.ic.er.common.Utils;
 import lombok.Data;
+import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.ibatis.jdbc.SQL;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,28 +52,24 @@ public class Attribute {
         }
     }
 
-    private int insertDB() {
-        AttributeDO aDo = new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, this.gmtModified);
-        int ret = ER.attributeMapper.insert(aDo);
-        this.ID = aDo.getID();
-        return ret;
-    }
-
-    protected ResultState deleteDB() {
-        int ret = ER.attributeMapper.deleteByID(this.ID);
-        if (ret != 0) {
-            return ResultState.ok();
-        } else {
-            return ResultState.build(ResultStateCode.Success, "delete fail");
+    private void insertDB() throws PersistenceException{
+        try {
+            AttributeDO aDo = new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, this.gmtModified);
+            int ret = ER.attributeMapper.insert(aDo);
+            this.ID = aDo.getID();
+        } catch (PersistenceException e) {
+            throw new ERException("insertDB fail", e);
         }
     }
 
-    public ResultState updateDB() {
+    protected void deleteDB() {
+        ER.attributeMapper.deleteByID(this.ID);
+    }
+
+    public void updateDB() throws ERException {
         int ret = ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, new Date()));
-        if (ret != 0) {
-            return ResultState.ok();
-        } else {
-            return ResultState.build(ResultStateCode.Success, "update fail");
+        if (ret == 0) {
+            throw new ERException(String.format("cannot find Attribute with ID: %d", this.ID));
         }
     }
 
@@ -92,10 +92,10 @@ public class Attribute {
         return TransListFormFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
     }
 
-    public static Attribute queryByID(Long ID) {
+    public static Attribute queryByID(Long ID) throws ERException {
         List<Attribute> attributeList = TransListFormFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
         if (attributeList.size() == 0) {
-            return null;
+            throw new ERException(String.format("Attribute with ID: %d not found ", ID));
         } else {
             return attributeList.get(0);
         }

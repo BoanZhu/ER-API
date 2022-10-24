@@ -2,7 +2,7 @@ package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ic.er.dto.entity.ViewDO;
+import com.ic.er.entity.ViewDO;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.Utils;

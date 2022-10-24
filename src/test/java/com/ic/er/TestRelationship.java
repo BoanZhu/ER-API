@@ -1,6 +1,6 @@
 package com.ic.er;
 
-import com.ic.er.dto.entity.RelationshipDO;
+import com.ic.er.entity.RelationshipDO;
 import com.ic.er.common.Cardinality;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,14 +16,9 @@ public class TestRelationship {
     private Entity student;
 
     @Before
-    public void init() {
-        try {
-            ER.connectDB();
-            ER.createTables();
-        } catch (SQLException e) {
-            System.out.println(e);
-            throw new RuntimeException(e);
-        }
+    public void init() throws Exception {
+        ER.connectDB();
+        ER.createTables();
         testView = ER.createView("testView", "wt22");
         teacher = testView.addEntity("teacher");
         student = testView.addEntity("student");

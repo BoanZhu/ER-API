@@ -2,7 +2,7 @@ package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.ic.er.dto.entity.RelationshipDO;
+import com.ic.er.entity.RelationshipDO;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.RelationshipSerializer;
 import com.ic.er.common.ResultState;
@@ -84,13 +84,8 @@ public class Relationship {
         }
     }
 
-    protected ResultState deleteDB() {
-        int res = ER.relationshipMapper.deleteByID(this.ID);
-        if (res == 0) {
-            return ResultState.ok();
-        } else {
-            return ResultState.build(1, "db error");
-        }
+    protected void deleteDB() {
+        ER.relationshipMapper.deleteByID(this.ID);
     }
 
     public ResultState update() {

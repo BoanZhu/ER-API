@@ -1,6 +1,6 @@
 package com.ic.er.mapper;
 
-import com.ic.er.dto.entity.ViewDO;
+import com.ic.er.entity.ViewDO;
 import com.ic.er.dao.ViewMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;

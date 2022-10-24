@@ -1,8 +1,8 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ic.er.dto.entity.AttributeDO;
-import com.ic.er.dto.entity.EntityDO;
+import com.ic.er.entity.AttributeDO;
+import com.ic.er.entity.EntityDO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.Utils;

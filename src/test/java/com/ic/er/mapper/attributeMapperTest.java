@@ -1,7 +1,7 @@
 package com.ic.er.mapper;
 
 import com.ic.er.ER;
-import com.ic.er.dto.entity.AttributeDO;
+import com.ic.er.entity.AttributeDO;
 import com.ic.er.common.DataType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,14 +24,9 @@ import java.util.List;
  */
 public class attributeMapperTest {
     @Before
-    public void init() throws IOException {
-        try {
-            ER.connectDB();
-            ER.createTables();
-        } catch (SQLException e) {
-            System.out.println(e);
-            throw new RuntimeException(e);
-        }
+    public void init() throws Exception {
+        ER.connectDB();
+        ER.createTables();
     }
 
     @Test
