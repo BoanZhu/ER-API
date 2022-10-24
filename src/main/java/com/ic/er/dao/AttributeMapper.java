@@ -1,18 +1,18 @@
 package com.ic.er.dao;
 
-import com.ic.er.bean.entity.AttributeDO;
+import com.ic.er.dto.entity.AttributeDO;
 
 import java.util.List;
 
 public interface AttributeMapper {
-    AttributeDO selectById(Long id);
+    AttributeDO selectByID(Long ID);
 
     List<AttributeDO> selectByAttribute(AttributeDO attributeDO);
 
     int insert(AttributeDO attributeDO);
 
-    int deleteById(Long id);
+    int deleteByID(Long ID);
 
-    int updateById(AttributeDO attributeDO);
+    int updateByID(AttributeDO attributeDO);
 
 }

@@ -1,18 +1,16 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ic.er.bean.entity.AttributeDO;
+import com.ic.er.dto.entity.AttributeDO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.ResultStateCode;
 import com.ic.er.common.Utils;
-import com.ic.er.dao.AttributeMapper;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 public class Attribute {
@@ -53,12 +51,12 @@ public class Attribute {
     private int insertDB() {
         AttributeDO aDo = new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, this.gmtModified);
         int ret = ER.attributeMapper.insert(aDo);
-        this.ID = aDo.getId();
+        this.ID = aDo.getID();
         return ret;
     }
 
     protected ResultState deleteDB() {
-        int ret = ER.attributeMapper.deleteById(this.ID);
+        int ret = ER.attributeMapper.deleteByID(this.ID);
         if (ret != 0) {
             return ResultState.ok();
         } else {
@@ -67,7 +65,7 @@ public class Attribute {
     }
 
     public ResultState updateDB() {
-        int ret = ER.attributeMapper.updateById(new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, new Date()));
+        int ret = ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, new Date()));
         if (ret != 0) {
             return ResultState.ok();
         } else {
@@ -77,7 +75,7 @@ public class Attribute {
 
     // transform the data from db format (xxxDO) to java class format
     private static Attribute TransformFromDB(AttributeDO attributeDO) {
-        return new Attribute(attributeDO.getId(), attributeDO.getEntityId(), attributeDO.getViewId(),
+        return new Attribute(attributeDO.getID(), attributeDO.getEntityID(), attributeDO.getViewID(),
                 attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(),
                 attributeDO.getIsForeign(), attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }

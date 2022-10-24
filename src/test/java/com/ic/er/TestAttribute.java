@@ -1,15 +1,12 @@
 package com.ic.er;
 
-import com.ic.er.bean.entity.AttributeDO;
+import com.ic.er.dto.entity.AttributeDO;
 import com.ic.er.common.DataType;
-import org.apache.log4j.LogManager;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 public class TestAttribute {
@@ -54,7 +51,7 @@ public class TestAttribute {
     @Test
     public void selectByIdTest(){
         Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
-        AttributeDO aDo = ER.attributeMapper.selectById(a1.getID());
+        AttributeDO aDo = ER.attributeMapper.selectByID(a1.getID());
         Assert.assertNotNull(aDo);
     }
     @Test

@@ -1,6 +1,6 @@
 package com.ic.er.mapper;
 
-import com.ic.er.bean.entity.ViewDO;
+import com.ic.er.dto.entity.ViewDO;
 import com.ic.er.dao.ViewMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -9,13 +9,10 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeAll;
 
-import javax.swing.text.View;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -45,7 +42,7 @@ public class testViewMapper {
     @Test
     public void testQueryById(){
         Assert.assertNotNull(sqlSession);
-        ViewDO viewDO = viewMapper.selectById(Long.valueOf(3));
+        ViewDO viewDO = viewMapper.selectByID(Long.valueOf(3));
         System.out.println(viewDO);
     }
     @Test
@@ -58,7 +55,7 @@ public class testViewMapper {
     @Test
     public void testDeleteView(){
         Assert.assertNotNull(sqlSession);
-        Assert.assertEquals(viewMapper.deleteById(Long.valueOf(2)),1);
+        Assert.assertEquals(viewMapper.deleteByID(Long.valueOf(2)),1);
     }
 
     @Test
@@ -74,7 +71,7 @@ public class testViewMapper {
     public void testUpdateView(){
         Assert.assertNotNull(sqlSession);
         ViewDO viewDO = new ViewDO(Long.valueOf(3),"view3update","creator3update", Long.valueOf(1),0, new Date(),new Date());
-        Assert.assertEquals(viewMapper.updateById(viewDO),1);
+        Assert.assertEquals(viewMapper.updateByID(viewDO),1);
     }
 
 }

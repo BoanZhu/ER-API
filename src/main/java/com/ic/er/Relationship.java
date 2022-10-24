@@ -1,9 +1,8 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.ic.er.bean.entity.RelationshipDO;
+import com.ic.er.dto.entity.RelationshipDO;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.RelationshipSerializer;
 import com.ic.er.common.ResultState;
@@ -53,13 +52,13 @@ public class Relationship {
                 0L, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.cardinality,
                 0, this.gmtCreate, this.gmtModified);
         int ret = ER.relationshipMapper.insert(relationshipDO);
-        this.ID = relationshipDO.getId();
+        this.ID = relationshipDO.getID();
         return ret;
     }
 
     private static Relationship TransformFromDB(RelationshipDO relationshipDO) {
-        return new Relationship(relationshipDO.getId(), relationshipDO.getName(), relationshipDO.getViewId(),
-                Entity.queryByID(relationshipDO.getFirstEntityId()), Entity.queryByID(relationshipDO.getSecondEntityId()),
+        return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getViewID(),
+                Entity.queryByID(relationshipDO.getFirstEntityID()), Entity.queryByID(relationshipDO.getSecondEntityID()),
                 relationshipDO.getCardinality(),
                 relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
     }
@@ -86,7 +85,7 @@ public class Relationship {
     }
 
     protected ResultState deleteDB() {
-        int res = ER.relationshipMapper.deleteById(this.ID);
+        int res = ER.relationshipMapper.deleteByID(this.ID);
         if (res == 0) {
             return ResultState.ok();
         } else {
@@ -95,7 +94,7 @@ public class Relationship {
     }
 
     public ResultState update() {
-        int res = ER.relationshipMapper.updateById(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.cardinality, 0, this.gmtCreate, this.gmtModified));
+        int res = ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.cardinality, 0, this.gmtCreate, this.gmtModified));
         if (res == 0) {
             return ResultState.ok();
         } else {

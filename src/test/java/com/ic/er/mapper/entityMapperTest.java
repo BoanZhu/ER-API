@@ -1,6 +1,6 @@
 package com.ic.er.mapper;
 
-import com.ic.er.bean.entity.EntityDO;
+import com.ic.er.dto.entity.EntityDO;
 import com.ic.er.dao.EntityMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -94,7 +94,7 @@ public class entityMapperTest {
 
         Assert.assertNotNull(sqlSession);
         EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.selectById(id);
+        entityMapper.selectByID(id);
     }
 
 
@@ -112,7 +112,7 @@ public class entityMapperTest {
 
         Assert.assertNotNull(sqlSession);
         EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.updateById(entityDo);
+        entityMapper.updateByID(entityDo);
     }
     @Test
     public void deleteByIdTest() {
@@ -121,7 +121,7 @@ public class entityMapperTest {
 
         Assert.assertNotNull(sqlSession);
         EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.deleteById(id);
+        entityMapper.deleteByID(id);
     }
 
 

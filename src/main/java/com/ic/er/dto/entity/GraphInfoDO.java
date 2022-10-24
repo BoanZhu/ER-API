@@ -1,4 +1,4 @@
-package com.ic.er.bean.entity;
+package com.ic.er.dto.entity;
 
 
 import lombok.AllArgsConstructor;
@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GraphInfoDO {
 
-    private Long id;
+    private Long ID;
 
-    private Long relatedObjId;
+    private Long relatedObjID;
 
     private Double layoutX;
 

@@ -1,4 +1,4 @@
-package com.ic.er.bean.dto;
+package com.ic.er.dto;
 
 public class RelationshipDTO {
     private Long id;

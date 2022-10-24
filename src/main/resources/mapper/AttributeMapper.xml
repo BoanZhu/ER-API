@@ -4,10 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.AttributeMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.AttributeDO">
-        <id column="id" property="id"/>
-        <result column="entity_id" property="entityId"/>
-        <result column="view_id" property="viewId"/>
+    <resultMap id="BaseResultMap" type="com.ic.er.dto.entity.AttributeDO">
+        <id column="id" property="ID"/>
+        <result column="entity_id" property="entityID"/>
+        <result column="view_id" property="viewID"/>
         <result column="name" property="name"/>
         <result column="data_type" property="dataType"/>
         <result column="is_primary" property="isPrimary"/>
@@ -21,26 +21,26 @@
         id, entity_id, view_id, name, data_type, is_primary, is_foreign
     </sql>
 
-    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
         from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByAttribute" parameterType="com.ic.er.bean.entity.AttributeDO" resultMap="BaseResultMap">
+    <select id="selectByAttribute" parameterType="com.ic.er.dto.entity.AttributeDO" resultMap="BaseResultMap">
         select
         id,entity_id,view_id,name,data_type,is_primary,is_foreign,is_delete,gmt_create,gmt_modified
         from attribute
         <where>
-            <if test="id != null">
-                and id = #{id,jdbcType=BIGINT}
+            <if test="ID != null">
+                and id = #{ID,jdbcType=BIGINT}
             </if>
-            <if test="entityId != null">
-                and entity_id = #{entityId,jdbcType=BIGINT}
+            <if test="entityID != null">
+                and entity_id = #{entityID,jdbcType=BIGINT}
             </if>
-            <if test="viewId != null">
-                and view_id = #{viewId,jdbcType=BIGINT}
+            <if test="viewID != null">
+                and view_id = #{viewID,jdbcType=BIGINT}
             </if>
             <if test="name != null">
                 and name = #{name,jdbcType=VARCHAR}
@@ -64,13 +64,13 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.AttributeDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.ic.er.dto.entity.AttributeDO" useGeneratedKeys="true" keyProperty="ID">
         insert into attribute
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="entityId != null">
+            <if test="entityID != null">
                 entity_id,
             </if>
-            <if test="viewId != null">
+            <if test="viewID != null">
                 view_id,
             </if>
             <if test="name != null">
@@ -87,11 +87,11 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="entityId != null">
-                #{entityId,jdbcType=BIGINT},
+            <if test="entityID != null">
+                #{entityID,jdbcType=BIGINT},
             </if>
-            <if test="viewId != null">
-                #{viewId,jdbcType=BIGINT},
+            <if test="viewID != null">
+                #{viewID,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
@@ -108,20 +108,20 @@
         </trim>
     </insert>
 
-    <update id="deleteById" parameterType="java.lang.Long">
+    <update id="deleteByID" parameterType="java.lang.Long">
         update attribute set
             is_delete = 1
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.AttributeDO">
+    <update id="updateByID" parameterType="com.ic.er.dto.entity.AttributeDO">
         update attribute
         <set>
-            <if test="entityId != null">
-                entity_id = #{entityId,jdbcType=BIGINT},
+            <if test="entityID != null">
+                entity_id = #{entityID,jdbcType=BIGINT},
             </if>
-            <if test="viewId != null">
-                view_id = #{viewId,jdbcType=BIGINT},
+            <if test="viewID != null">
+                view_id = #{viewID,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
@@ -136,6 +136,6 @@
                 is_foreign = #{isForeign,jdbcType=TINYINT},
             </if>
         </set>
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 </mapper>
