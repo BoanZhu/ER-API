@@ -4,11 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.ViewMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.ViewDO">
-        <id column="id" property="id"/>
+    <resultMap id="BaseResultMap" type="com.ic.er.dto.entity.ViewDO">
+        <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="creator" property="creator"/>
-        <result column="parent_id" property="parentId"/>
+        <result column="parent_id" property="parentID"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
@@ -24,13 +24,13 @@
         from view where is_delete = 0
     </select>
 
-    <select id="selectByView" parameterType="com.ic.er.bean.entity.ViewDO" resultMap="BaseResultMap">
+    <select id="selectByView" parameterType="com.ic.er.dto.entity.ViewDO" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
         from view
         <where>
-            <if test="id != null">
-                id = #{id,jdbcType=BIGINT}
+            <if test="ID != null">
+                id = #{ID,jdbcType=BIGINT}
             </if>
             <if test="name != null">
                 and name = #{name,jdbcType=VARCHAR}
@@ -38,8 +38,8 @@
             <if test="creator != null">
                 and creator = #{creator,jdbcType=VARCHAR}
             </if>
-            <if test="parentId != null">
-                and parent_id = #{parentId,jdbcType=BIGINT}
+            <if test="parentID != null">
+                and parent_id = #{parentID,jdbcType=BIGINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -51,14 +51,14 @@
         </where>
     </select>
 
-    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
         from view
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
     
-    <insert id="insert" parameterType="com.ic.er.bean.entity.ViewDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.ic.er.dto.entity.ViewDO" useGeneratedKeys="true" keyProperty="ID">
         insert into view
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -67,7 +67,7 @@
             <if test="creator != null">
                 creator,
             </if>
-            <if test="parentId != null">
+            <if test="parentID != null">
                 parent_id,
             </if>
         </trim>
@@ -78,19 +78,19 @@
             <if test="creator != null">
                 #{creator,jdbcType=VARCHAR},
             </if>
-            <if test="parentId != null">
-                #{parentId,jdbcType=BIGINT},
+            <if test="parentID != null">
+                #{parentID,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>
 
-    <update id="deleteById" parameterType="java.lang.Long">
+    <update id="deleteByID" parameterType="java.lang.Long">
         update view set
         is_delete = 1
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.ViewDO">
+    <update id="updateByID" parameterType="com.ic.er.dto.entity.ViewDO">
         update view
         <set>
             <if test="name != null">
@@ -99,11 +99,11 @@
             <if test="creator != null">
                 creator = #{creator,jdbcType=VARCHAR},
             </if>
-            <if test="parentId != null">
-                parent_id = #{parentId,jdbcType=BIGINT},
+            <if test="parentID != null">
+                parent_id = #{parentID,jdbcType=BIGINT},
             </if>
         </set>
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
 </mapper>

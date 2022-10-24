@@ -1,6 +1,6 @@
 package com.ic.er.dao;
 
-import com.ic.er.bean.entity.ViewDO;
+import com.ic.er.dto.entity.ViewDO;
 
 import java.util.List;
 
@@ -9,13 +9,13 @@ public interface ViewMapper {
 
     List<ViewDO> selectByView(ViewDO viewDO);
 
-    ViewDO selectById(Long id);
+    ViewDO selectByID(Long ID);
 
     int insert(ViewDO viewDO);
 
     // rarely use, please use update to change is_delete to 1
-    int deleteById(Long id);
+    int deleteByID(Long ID);
 
-    int updateById(ViewDO viewDO);
+    int updateByID(ViewDO viewDO);
 
 }

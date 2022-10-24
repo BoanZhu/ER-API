@@ -1,8 +1,8 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ic.er.bean.entity.AttributeDO;
-import com.ic.er.bean.entity.EntityDO;
+import com.ic.er.dto.entity.AttributeDO;
+import com.ic.er.dto.entity.EntityDO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.Utils;
@@ -61,8 +61,8 @@ public class Entity {
     }
 
     private static Entity TransformFromDB(EntityDO entityDO) {
-        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getId(), entityDO.getViewId()));
-        return new Entity(entityDO.getId(), entityDO.getName(), entityDO.getViewId(), attributeList,
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), entityDO.getViewID()));
+        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getViewID(), attributeList,
                  entityDO.getGmtCreate(), entityDO.getGmtModified());
     }
 
@@ -91,12 +91,12 @@ public class Entity {
     private int insertDB() {
         EntityDO entityDO = new EntityDO(0L, this.name, this.viewID, 0, this.gmtCreate, this.gmtModified);
         int ret = ER.entityMapper.insert(entityDO);
-        this.ID = entityDO.getId();
+        this.ID = entityDO.getID();
         return ret;
     }
 
     protected ResultState deleteDB() {
-        int res = ER.entityMapper.deleteById(this.ID);
+        int res = ER.entityMapper.deleteByID(this.ID);
         if (res == 0) {
             return ResultState.ok();
         } else {
@@ -105,7 +105,7 @@ public class Entity {
     }
 
     public ResultState update() {
-        int res = ER.entityMapper.updateById(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
+        int res = ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
         if (res == 0) {
             return ResultState.ok();
         } else {

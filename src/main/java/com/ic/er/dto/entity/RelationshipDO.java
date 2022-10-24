@@ -1,4 +1,4 @@
-package com.ic.er.bean.entity;
+package com.ic.er.dto.entity;
 
 import com.ic.er.common.Cardinality;
 import lombok.AllArgsConstructor;
@@ -11,15 +11,15 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RelationshipDO {
-    private Long id;
+    private Long ID;
 
     private String name;
 
-    private Long viewId;
+    private Long viewID;
 
-    private Long firstEntityId;
+    private Long firstEntityID;
 
-    private Long secondEntityId;
+    private Long secondEntityID;
 
     private Cardinality cardinality;
 
@@ -30,11 +30,11 @@ public class RelationshipDO {
     private Date gmtModified;
 
     public RelationshipDO(Long ID) {
-        this.id = ID;
+        this.ID = ID;
     }
-    public RelationshipDO(Long firstEntityId, Long secondEntityId) {
-        this.firstEntityId = firstEntityId;
-        this.secondEntityId = secondEntityId;
+    public RelationshipDO(Long firstEntityID, Long secondEntityID) {
+        this.firstEntityID = firstEntityID;
+        this.secondEntityID = secondEntityID;
     }
 
 }

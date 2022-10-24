@@ -1,6 +1,6 @@
 package com.ic.er;
 
-import com.ic.er.bean.entity.RelationshipDO;
+import com.ic.er.dto.entity.RelationshipDO;
 import com.ic.er.common.Cardinality;
 import org.junit.Assert;
 import org.junit.Before;

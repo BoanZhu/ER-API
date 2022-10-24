@@ -4,12 +4,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.RelationshipMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.RelationshipDO">
-        <id column="id" property="id"/>
+    <resultMap id="BaseResultMap" type="com.ic.er.dto.entity.RelationshipDO">
+        <id column="id" property="ID"/>
         <result column="name" property="name"/>
-        <result column="view_id" property="viewId"/>
-        <result column="first_entity_id" property="firstEntityId"/>
-        <result column="second_entity_id" property="secondEntityId"/>
+        <result column="view_id" property="viewID"/>
+        <result column="first_entity_id" property="firstEntityID"/>
+        <result column="second_entity_id" property="secondEntityID"/>
         <result column="cardinality" property="cardinality"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -20,32 +20,32 @@
         id, name, view_id, first_entity_id, second_entity_id, cardinality
     </sql>
 
-    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         id,name,view_id,first_entity_id,second_entity_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByRelationship" parameterType="com.ic.er.bean.entity.RelationshipDO" resultMap="BaseResultMap">
+    <select id="selectByRelationship" parameterType="com.ic.er.dto.entity.RelationshipDO" resultMap="BaseResultMap">
         select
         id,name,view_id,first_entity_id,second_entity_id,cardinality,is_delete,gmt_create,gmt_modified
         from relationship
         <where>
-            <if test="id != null">
-                and id = #{id,jdbcType=BIGINT}
+            <if test="ID != null">
+                and id = #{ID,jdbcType=BIGINT}
             </if>
             <if test="name != null">
                 and name = #{name,jdbcType=VARCHAR}
             </if>
-            <if test="viewId != null">
-                and view_id = #{viewId,jdbcType=BIGINT}
+            <if test="viewID != null">
+                and view_id = #{viewID,jdbcType=BIGINT}
             </if>
-            <if test="firstEntityId != null">
-                and first_entity_id = #{firstEntityId,jdbcType=BIGINT}
+            <if test="firstEntityID != null">
+                and first_entity_id = #{firstEntityID,jdbcType=BIGINT}
             </if>
-            <if test="secondEntityId != null">
-                and second_entity_id = #{secondEntityId,jdbcType=BIGINT}
+            <if test="secondEntityID != null">
+                and second_entity_id = #{secondEntityID,jdbcType=BIGINT}
             </if>
             <if test="cardinality != null">
                 and cardinality = #{cardinality,jdbcType=SMALLINT}
@@ -60,19 +60,19 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.RelationshipDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.ic.er.dto.entity.RelationshipDO" useGeneratedKeys="true" keyProperty="ID">
         insert into relationship
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
                 name,
             </if>
-            <if test="viewId != null">
+            <if test="viewID != null">
                 view_id,
             </if>
-            <if test="firstEntityId != null">
+            <if test="firstEntityID != null">
                 first_entity_id,
             </if>
-            <if test="secondEntityId != null">
+            <if test="secondEntityID != null">
                 second_entity_id,
             </if>
             <if test="cardinality != null">
@@ -83,14 +83,14 @@
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
-            <if test="viewId != null">
-                #{viewId,jdbcType=BIGINT},
+            <if test="viewID != null">
+                #{viewID,jdbcType=BIGINT},
             </if>
-            <if test="firstEntityId != null">
-                #{firstEntityId,jdbcType=BIGINT},
+            <if test="firstEntityID != null">
+                #{firstEntityID,jdbcType=BIGINT},
             </if>
-            <if test="secondEntityId != null">
-                #{secondEntityId,jdbcType=BIGINT},
+            <if test="secondEntityID != null">
+                #{secondEntityID,jdbcType=BIGINT},
             </if>
             <if test="cardinality != null">
                 #{cardinality.value,jdbcType=SMALLINT},
@@ -98,31 +98,31 @@
         </trim>
     </insert>
 
-    <update id="deleteById" parameterType="java.lang.Long">
+    <update id="deleteByID" parameterType="java.lang.Long">
         update relationship set
             is_delete = 1
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.RelationshipDO">
+    <update id="updateByID" parameterType="com.ic.er.dto.entity.RelationshipDO">
         update relationship
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="viewId != null">
-                view_id = #{viewId,jdbcType=BIGINT},
+            <if test="viewID != null">
+                view_id = #{viewID,jdbcType=BIGINT},
             </if>
-            <if test="firstEntityId != null">
-                first_entity_id = #{firstEntityId,jdbcType=BIGINT},
+            <if test="firstEntityID != null">
+                first_entity_id = #{firstEntityID,jdbcType=BIGINT},
             </if>
-            <if test="secondEntityId != null">
-                second_entity_id = #{secondEntityId,jdbcType=BIGINT},
+            <if test="secondEntityID != null">
+                second_entity_id = #{secondEntityID,jdbcType=BIGINT},
             </if>
             <if test="cardinality != null">
                 cardinality = #{cardinality.value,jdbcType=SMALLINT},
             </if>
         </set>
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 </mapper>

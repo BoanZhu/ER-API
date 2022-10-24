@@ -4,10 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.EntityMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.EntityDO">
-        <id column="id" property="id"/>
+    <resultMap id="BaseResultMap" type="com.ic.er.dto.entity.EntityDO">
+        <id column="id" property="ID"/>
         <result column="name" property="name"/>
-        <result column="view_id" property="viewId"/>
+        <result column="view_id" property="viewID"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
@@ -17,26 +17,26 @@
         id, name, view_id
     </sql>
 
-    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
             id,name,view_id,is_delete,gmt_create,gmt_modified
         from entity
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByEntity" parameterType="com.ic.er.bean.entity.EntityDO" resultMap="BaseResultMap">
+    <select id="selectByEntity" parameterType="com.ic.er.dto.entity.EntityDO" resultMap="BaseResultMap">
         select
         id,name,view_id,is_delete,gmt_create,gmt_modified
         from entity
         <where>
-            <if test="id != null">
-                and id = #{id,jdbcType=BIGINT}
+            <if test="ID != null">
+                and id = #{ID,jdbcType=BIGINT}
             </if>
             <if test="name != null">
                 and name = #{name,jdbcType=VARCHAR}
             </if>
-            <if test="viewId != null">
-                and view_id = #{viewId,jdbcType=BIGINT}
+            <if test="viewID != null">
+                and view_id = #{viewID,jdbcType=BIGINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -48,13 +48,13 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.EntityDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.ic.er.dto.entity.EntityDO" useGeneratedKeys="true" keyProperty="ID">
         insert into entity
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
                 name,
             </if>
-            <if test="viewId != null">
+            <if test="viewID != null">
                 view_id,
             </if>
         </trim>
@@ -62,28 +62,28 @@
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
-            <if test="viewId != null">
-                #{viewId,jdbcType=BIGINT},
+            <if test="viewID != null">
+                #{viewID,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>
 
-    <update id="deleteById" parameterType="java.lang.Long">
+    <update id="deleteByID" parameterType="java.lang.Long">
         update entity set
             is_delete = 1
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.EntityDO">
+    <update id="updateByID" parameterType="com.ic.er.dto.entity.EntityDO">
         update entity
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="viewId != null">
-                view_id = #{viewId,jdbcType=BIGINT},
+            <if test="viewID != null">
+                view_id = #{viewID,jdbcType=BIGINT},
             </if>
         </set>
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 </mapper>

@@ -4,9 +4,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.GraphInfoMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.GraphInfoDO">
-        <id column="id" property="id"/>
-        <result column="related_obj_id" property="relatedObjId"/>
+    <resultMap id="BaseResultMap" type="com.ic.er.dto.entity.GraphInfoDO">
+        <id column="id" property="ID"/>
+        <result column="related_obj_id" property="relatedObjID"/>
         <result column="layout_x" property="layoutX"/>
         <result column="layout_y" property="layoutY"/>
         <result column="width" property="width"/>
@@ -17,35 +17,35 @@
         id, related_obj_id, layout_x, layout_y, width, height
     </sql>
 
-    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
             id, related_obj_id,layout_x,layout_y,width,height,is_delete,gmt_create,gmt_modified
         from graph_info
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByRelatedObjId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByRelatedObjID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
             id, related_obj_id,layout_x,layout_y,width,height,is_delete,gmt_create,gmt_modified
         from graph_info
-        where related_obj_id = #{relatedObjId,jdbcType=BIGINT} and is_delete = 0
+        where related_obj_id = #{relatedObjID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByGraphInfo" parameterType="com.ic.er.bean.entity.GraphInfoDO" resultMap="BaseResultMap">
+    <select id="selectByGraphInfo" parameterType="com.ic.er.dto.entity.GraphInfoDO" resultMap="BaseResultMap">
         select
         id, related_obj_id,layout_x,layout_y,width,height,is_delete,gmt_create,gmt_modified
         from graph_info
         <where>
-            <if test="id != null">
-                and id = #{id,jdbcType=BIGINT}
+            <if test="ID != null">
+                and id = #{ID,jdbcType=BIGINT}
             </if>
-            <if test="related_obj_id != null">
-                and related_obj_id = #{relatedObjId,jdbcType=BIGINT}
+            <if test="relatedObjID != null">
+                and related_obj_id = #{relatedObjID,jdbcType=BIGINT}
             </if>
-            <if test="layout_x != null">
+            <if test="layoutX != null">
                 and layout_x = #{layoutX,jdbcType=NUMERIC}
             </if>
-            <if test="layout_y != null">
+            <if test="layoutY != null">
                 and layout_y = #{layoutY,jdbcType=NUMERIC}
             </if>
             <if test="width != null">
@@ -58,16 +58,16 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.GraphInfoDO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.ic.er.dto.entity.GraphInfoDO" useGeneratedKeys="true" keyProperty="id">
         insert into graph_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="ID != null">
                 id,
             </if>
-            <if test="related_obj_id != null">
+            <if test="relatedObjID != null">
                 related_obj_id,
             </if>
-            <if test="layout_x != null">
+            <if test="layoutX != null">
                 layout_x,
             </if>
             <if test="layout_y != null">
@@ -81,16 +81,16 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
+            <if test="ID != null">
+                #{ID,jdbcType=BIGINT},
             </if>
-            <if test="related_obj_id != null">
-                #{relatedObjId,jdbcType=BIGINT}
+            <if test="relatedObjID != null">
+                #{relatedObjID,jdbcType=BIGINT}
             </if>
-            <if test="layout_x != null">
+            <if test="layoutX != null">
                 #{layoutX,jdbcType=NUMERIC}
             </if>
-            <if test="layout_y != null">
+            <if test="layoutY != null">
                 #{layoutY,jdbcType=NUMERIC}
             </if>
             <if test="width != null">
@@ -102,22 +102,22 @@
         </trim>
     </insert>
 
-    <update id="deleteById" parameterType="java.lang.Long">
+    <update id="deleteByID" parameterType="java.lang.Long">
         update graph_info set
             is_delete = 1
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="deleteByObjId" parameterType="java.lang.Long">
+    <update id="deleteByObjID" parameterType="java.lang.Long">
         update graph_info set
             is_delete = 1
-        where related_obj_id = #{relatedObjId,jdbcType=BIGINT} and is_delete = 0
+        where related_obj_id = #{relatedObjID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.GraphInfoDO">
+    <update id="updateByID" parameterType="com.ic.er.dto.entity.GraphInfoDO">
         update relationship
         <set>
-            <if test="layout_x != null">
+            <if test="layoutX != null">
                 layout_x = #{layoutX,jdbcType=NUMERIC},
             </if>
             <if test="layout_y != null">
@@ -130,13 +130,13 @@
                 height = #{height,jdbcType=NUMERIC},
             </if>
         </set>
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByObjId" parameterType="com.ic.er.bean.entity.GraphInfoDO">
+    <update id="updateByObjID" parameterType="com.ic.er.dto.entity.GraphInfoDO">
         update relationship
         <set>
-            <if test="layout_x != null">
+            <if test="layoutX != null">
                 layout_x = #{layoutX,jdbcType=NUMERIC},
             </if>
             <if test="layout_y != null">
@@ -149,6 +149,6 @@
                 height = #{height,jdbcType=NUMERIC},
             </if>
         </set>
-        where related_obj_id = #{relatedObjId,jdbcType=BIGINT} and is_delete = 0
+        where related_obj_id = #{relatedObjID,jdbcType=BIGINT} and is_delete = 0
     </update>
 </mapper>

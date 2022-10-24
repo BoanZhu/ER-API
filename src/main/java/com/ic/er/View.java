@@ -2,7 +2,7 @@ package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ic.er.bean.entity.ViewDO;
+import com.ic.er.dto.entity.ViewDO;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.Utils;
@@ -86,7 +86,7 @@ public class View {
     private int insertDB() {
         ViewDO viewDO = new ViewDO(0L, this.name, this.creator, 0L, 0, this.gmtCreate, this.gmtModified);
         int ret = ER.viewMapper.insert(viewDO);
-        this.ID = viewDO.getId();
+        this.ID = viewDO.getID();
         return ret;
     }
 
@@ -105,7 +105,7 @@ public class View {
     private static View TransformFromDB(ViewDO ViewDO) {
         List<Entity> entityList = Entity.queryByEntity(null);
         List<Relationship> relationshipList = Relationship.queryByRelationship(null);
-        return new View(ViewDO.getId(), ViewDO.getName(), entityList, relationshipList, ViewDO.getCreator(),
+        return new View(ViewDO.getID(), ViewDO.getName(), entityList, relationshipList, ViewDO.getCreator(),
                 ViewDO.getGmtCreate(), ViewDO.getGmtModified());
     }
 
@@ -132,7 +132,7 @@ public class View {
     }
 
     protected ResultState deleteDB() {
-        int res = ER.viewMapper.deleteById(this.ID);
+        int res = ER.viewMapper.deleteByID(this.ID);
         if (res == 0) {
             return ResultState.ok();
         } else {
@@ -142,7 +142,7 @@ public class View {
 
     public ResultState update() {
         // use setXXX first, so in memory update is already done, only left with update db
-        int res = ER.viewMapper.updateById(new ViewDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
+        int res = ER.viewMapper.updateByID(new ViewDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
         if (res == 0) {
             return ResultState.ok();
         } else {

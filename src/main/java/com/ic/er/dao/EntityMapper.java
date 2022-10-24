@@ -1,19 +1,19 @@
 package com.ic.er.dao;
 
-import com.ic.er.bean.entity.EntityDO;
+import com.ic.er.dto.entity.EntityDO;
 
 import java.util.List;
 
 public interface EntityMapper {
-    EntityDO selectById(Long id);
+    EntityDO selectByID(Long ID);
 
     List<EntityDO> selectByEntity(EntityDO entityDO);
 
     int insert(EntityDO entityDO);
 
     // rarely use, please use update to change is_delete to 1
-    int deleteById(Long id);
+    int deleteByID(Long ID);
 
-    int updateById(EntityDO entityDO);
+    int updateByID(EntityDO entityDO);
 
 }

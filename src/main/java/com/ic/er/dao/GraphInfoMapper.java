@@ -1,24 +1,23 @@
 package com.ic.er.dao;
 
-import com.ic.er.bean.entity.GraphInfoDO;
-import java.util.List;
+import com.ic.er.dto.entity.GraphInfoDO;
 
 public interface GraphInfoMapper {
 
-    GraphInfoDO selectById(Long id);
+    GraphInfoDO selectByID(Long ID);
 
-    GraphInfoDO selectByRelatedObjId(Long relatedObjId);
+    GraphInfoDO selectByRelatedObjID(Long relatedObjID);
 
     GraphInfoDO selectByGraphInfo(GraphInfoDO graphInfoDO);
 
     int insert(GraphInfoDO graphInfoDO);
 
-    int deleteById(Long id);
+    int deleteByID(Long ID);
 
-    int deleteByObjId(long relatedObjId);
+    int deleteByObjID(long relatedObjID);
 
-    int updateById(GraphInfoDO graphInfoDO);
+    int updateByID(GraphInfoDO graphInfoDO);
 
-    int updateByObjId(GraphInfoDO graphInfoDO);
+    int updateByObjID(GraphInfoDO graphInfoDO);
 
 }

@@ -1,4 +1,4 @@
-package com.ic.er.bean.entity;
+package com.ic.er.dto.entity;
 
 import com.ic.er.common.DataType;
 import lombok.AllArgsConstructor;
@@ -11,11 +11,11 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AttributeDO {
-    private Long id;
+    private Long ID;
 
-    private Long entityId;
+    private Long entityID;
 
-    private Long viewId;
+    private Long viewID;
 
     private String name;
 
@@ -31,12 +31,12 @@ public class AttributeDO {
 
     private Date gmtModified;
 
-    public AttributeDO(Long id) {
-        this.id = id;
+    public AttributeDO(Long ID) {
+        this.ID = ID;
     }
-    public AttributeDO(Long entityId, Long viewId) {
-        this.entityId = entityId;
-        this.viewId = viewId;
+    public AttributeDO(Long entityID, Long viewID) {
+        this.entityID = entityID;
+        this.viewID = viewID;
     }
 
 }

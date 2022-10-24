@@ -1,15 +1,8 @@
 package com.ic.er.mapper;
 
 import com.ic.er.ER;
-import com.ic.er.bean.entity.AttributeDO;
-import com.ic.er.bean.entity.EntityDO;
+import com.ic.er.dto.entity.AttributeDO;
 import com.ic.er.common.DataType;
-import com.ic.er.dao.AttributeMapper;
-import com.ic.er.dao.EntityMapper;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,8 +11,6 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
 import java.util.List;
 
 
@@ -72,9 +63,9 @@ public class attributeMapperTest {
         int ret = ER.attributeMapper.insert(attributeDO);
         int ret2 = ER.attributeMapper.insert(attributeDO2);
         int ret3 = ER.attributeMapper.insert(attributeDO3);
-        System.out.printf("ret: %d, ID: %d\n", ret, attributeDO.getId());
-        System.out.printf("ret2: %d, ID: %d\n", ret2, attributeDO2.getId());
-        System.out.printf("ret3: %d, ID: %d\n", ret3, attributeDO3.getId());
+        System.out.printf("ret: %d, ID: %d\n", ret, attributeDO.getID());
+        System.out.printf("ret2: %d, ID: %d\n", ret2, attributeDO2.getID());
+        System.out.printf("ret3: %d, ID: %d\n", ret3, attributeDO3.getID());
     }
     @Test
     public void selectByAttributeTest() {
@@ -85,11 +76,11 @@ public class attributeMapperTest {
         Assert.assertEquals(ret, 1);
         List<AttributeDO> attributeDOList = ER.attributeMapper.selectByAttribute(attributeDO);
         Assert.assertEquals(attributeDOList.size(), 1);
-        Assert.assertEquals(attributeDOList.get(0).getEntityId(), entityId);
+        Assert.assertEquals(attributeDOList.get(0).getEntityID(), entityId);
 
-        attributeDOList = ER.attributeMapper.selectByAttribute(new AttributeDO(attributeDO.getId()));
+        attributeDOList = ER.attributeMapper.selectByAttribute(new AttributeDO(attributeDO.getID()));
         Assert.assertEquals(attributeDOList.size(), 1);
-        Assert.assertEquals(attributeDOList.get(0).getEntityId(), entityId);
+        Assert.assertEquals(attributeDOList.get(0).getEntityID(), entityId);
     }
     @Test
     public void selectByIdTest(){
@@ -100,9 +91,9 @@ public class attributeMapperTest {
         AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, 1, 1, 0, null, null);
         int ret = ER.attributeMapper.insert(attributeDO);
         Assert.assertEquals(ret, 1);
-        Assert.assertEquals(attributeDO.getEntityId(), entityID);
+        Assert.assertEquals(attributeDO.getEntityID(), entityID);
 
-        AttributeDO aDo = ER.attributeMapper.selectById(attributeDO.getId());
+        AttributeDO aDo = ER.attributeMapper.selectByID(attributeDO.getID());
         Assert.assertNotNull(aDo);
     }
     @Test
@@ -114,16 +105,16 @@ public class attributeMapperTest {
         AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, 1, 1, 0, null, null);
         int ret = ER.attributeMapper.insert(attributeDO);
         Assert.assertEquals(ret, 1);
-        Assert.assertEquals(attributeDO.getEntityId(), entityID);
+        Assert.assertEquals(attributeDO.getEntityID(), entityID);
 
         // update
-        attributeDO.setEntityId(newEntityID);
-        ER.attributeMapper.updateById(attributeDO);
+        attributeDO.setEntityID(newEntityID);
+        ER.attributeMapper.updateByID(attributeDO);
 
         // query
         List<AttributeDO> attributeDOList = ER.attributeMapper.selectByAttribute(attributeDO);
         Assert.assertEquals(attributeDOList.size(), 1);
-        Assert.assertEquals(attributeDOList.get(0).getEntityId(), newEntityID);
+        Assert.assertEquals(attributeDOList.get(0).getEntityID(), newEntityID);
     }
     @Test
     public void deleteByIdTest(){
@@ -133,10 +124,10 @@ public class attributeMapperTest {
         AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, 1, 1, 0, null, null);
         int ret = ER.attributeMapper.insert(attributeDO);
         Assert.assertEquals(ret, 1);
-        Assert.assertEquals(attributeDO.getEntityId(), entityID);
+        Assert.assertEquals(attributeDO.getEntityID(), entityID);
 
         // delete
-        ER.attributeMapper.deleteById(attributeDO.getId());
+        ER.attributeMapper.deleteByID(attributeDO.getID());
 
         // query to verify
         List<AttributeDO> attributeDOList = ER.attributeMapper.selectByAttribute(attributeDO);
