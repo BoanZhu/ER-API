@@ -197,21 +197,18 @@ function init() {
     }
     myDiagram.addDiagramListener("TextEdited",(e) => {
 
-        /*record the text editor information
-         */
-        const relationId = e.subject.part.qb.key;
-        const fromEntityName = e.subject.part.qb.from;
-        const toEntityName = e.subject.part.qb.to;
-        const fromCardinality = e.subject.part.qb.fromText;
-        const toCardinality = e.subject.part.qb.toText;
-        const relationName = e.subject.part.qb.relation;
+        if ("relation" in e.subject.part.qb) { // identify the changed textBlock
+            const relationId = e.subject.part.qb.key;
+            const fromEntityName = e.subject.part.qb.from;
+            const toEntityName = e.subject.part.qb.to;
+            const fromCardinality = e.subject.part.qb.fromText;
+            const toCardinality = e.subject.part.qb.toText;
+            const relationName = e.subject.part.qb.relation;
 
-        /*send to backend
-         */
-
-        // TODO: test API access
-        // modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
-        console.log(e.subject.text);
+            // TODO: test API access
+            // modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
+            console.log(e.subject.text);
+        }
     });
 
 
