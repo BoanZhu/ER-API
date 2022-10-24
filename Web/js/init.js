@@ -1,3 +1,4 @@
+
 function init() {
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
@@ -23,6 +24,8 @@ function init() {
         'orange': '#fdb400',
     }
 
+
+
     myDiagram.addDiagramListener("Modified", e => {
         var button = document.getElementById("SaveButton");
         if (button) button.disabled = !myDiagram.isModified;
@@ -40,7 +43,7 @@ function init() {
             margin: 6,
             wrap: go.TextBlock.WrapFit,
             textAlign: "center",
-            editable: false,
+            editable: true,
         }
     }
 
@@ -103,7 +106,6 @@ function init() {
             // ),
 
             // the table header
-            //todo list去掉了
             $(go.Panel, "Table",
                 { margin: 8, stretch: go.GraphObject.Fill },
                 $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
@@ -169,7 +171,7 @@ function init() {
                 segmentOffset: new go.Point(NaN, NaN),
                 segmentOrientation: go.Link.OrientUpright
             },
-            new go.Binding("text", "text").makeTwoWay()),
+            new go.Binding("text", "fromText").makeTwoWay()),
         $(go.TextBlock, textStyle(), // the "to" label
             {
                 textAlign: "center",
@@ -193,6 +195,56 @@ function init() {
     function addRelationship(){
 
     }
+    myDiagram.addDiagramListener("TextEdited",(e) => {
+
+        /*record the text editor information
+         */
+        const relationId = e.subject.part.qb.key;
+        const fromEntityName = e.subject.part.qb.from;
+        const toEntityName = e.subject.part.qb.to;
+        const fromCardinality = e.subject.part.qb.fromText;
+        const toCardinality = e.subject.part.qb.toText;
+        const relationName = e.subject.part.qb.relation;
+
+        /*send to backend
+         */
+
+        // TODO: test API access
+        // modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
+        console.log(e.subject.text);
+    });
+
+
+    myDiagram.addModelChangedListener(function(evt) {
+        // ignore unimportant Transaction events
+        if (!evt.isTransactionFinished) return;
+        var txn = evt.object;  // a Transaction
+        if (txn === null) return;
+
+        // iterate over all of the actual ChangedEvents of the Transaction
+        txn.changes.each(function(e) {
+            //record relation insertions and removals
+            if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
+
+                const fromEntityName = e.newValue.from;
+                const toEntityName = e.newValue.to;
+
+                // TODO: test API access
+                // e.newValue.key = createRelation(fromEntityName,toEntityName);
+                console.log(e.newValue.key);
+
+            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
+
+                const fromEntityName = e.oldValue.from;
+                const toEntityName = e.oldValue.to;
+                const relationId = e.oldValue.key;
+
+                // TODO: test API access
+                // deleteRelation(relationId,fromEntityName,toEntityName);
+                console.log(evt.propertyName + " removed link: " + e.oldValue);
+            }
+        });
+    });
 
     function addAttribute(e, obj) {
         var adorn = obj.part;
@@ -224,3 +276,71 @@ function init() {
 
     load()
 }  // end init
+
+/*
+Relation functions
+ */
+function modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName) {
+
+    const viewId =  location.href.substring(location.href.indexOf("id=")+1);
+    const httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+    httpRequest.open('POST', 'url', true); //第二步：打开连接
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+    httpRequest.send( 'viewId = ' + viewId +
+        '&relationId = ' + relationId +
+        '&fromEntityName=' + fromEntityName +
+        '&toEntityName=' + toEntityName+
+        '&fromCardinality=' + fromCardinality+
+        '&toCardinality=' + toCardinality+
+        '&relationName=' + relationName);//发送请求 将情头体写在send中
+
+    httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+        if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+            var json = httpRequest.responseText;//获取到服务端返回的数据
+            console.log(json);
+        }
+    };
+}
+
+function createRelation(fromEntityName, toEntityName) { //return request ID
+
+    const viewId =  location.href.substring(location.href.indexOf("id=")+1);
+    const httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+    httpRequest.open('POST', 'url', true); //第二步：打开连接
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+    httpRequest.send('viewId = ' + viewId +
+        '&fromEntityName=' + fromEntityName +
+        '&toEntityName=' + toEntityName);//发送请求 将情头体写在send中
+
+    httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+        if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+            var json = httpRequest.responseText;//获取到服务端返回的数据
+            console.log(json);
+            return json.relationId;
+        } else{
+            alert("oops! something goes wrong");
+        }
+    };
+    return undefined;
+}
+
+function deleteRelation(relationId,fromEntityName,toEntityName) {
+
+    const viewId =  location.href.substring(location.href.indexOf("id=")+1);
+    const httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+    httpRequest.open('POST', 'url', true); //第二步：打开连接
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
+    httpRequest.send('viewId = ' + viewId +
+        '&relationId = ' + relationId +
+        '&fromEntityName=' + fromEntityName +
+        '&toEntityName=' + toEntityName);//发送请求 将情头体写在send中
+
+    httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+        if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+        } else{
+            alert("oops! something goes wrong");
+        }
+    };
+}
+
+
