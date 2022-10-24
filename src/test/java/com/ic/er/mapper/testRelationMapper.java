@@ -1,6 +1,6 @@
 package com.ic.er.mapper;
 
-import com.ic.er.dto.entity.RelationshipDO;
+import com.ic.er.entity.RelationshipDO;
 import com.ic.er.common.Cardinality;
 import com.ic.er.dao.RelationshipMapper;
 import org.apache.ibatis.io.Resources;

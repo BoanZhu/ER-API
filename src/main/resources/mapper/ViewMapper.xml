@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.ViewMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.dto.entity.ViewDO">
+    <resultMap id="BaseResultMap" type="com.ic.er.entity.ViewDO">
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="creator" property="creator"/>
@@ -24,7 +24,7 @@
         from view where is_delete = 0
     </select>
 
-    <select id="selectByView" parameterType="com.ic.er.dto.entity.ViewDO" resultMap="BaseResultMap">
+    <select id="selectByView" parameterType="com.ic.er.entity.ViewDO" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
         from view
@@ -58,7 +58,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
     
-    <insert id="insert" parameterType="com.ic.er.dto.entity.ViewDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="com.ic.er.entity.ViewDO" useGeneratedKeys="true" keyProperty="ID">
         insert into view
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -90,7 +90,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.dto.entity.ViewDO">
+    <update id="updateByID" parameterType="com.ic.er.entity.ViewDO">
         update view
         <set>
             <if test="name != null">

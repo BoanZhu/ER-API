@@ -1,6 +1,7 @@
-package com.ic.er.dto.entity;
+package com.ic.er.entity;
 
 
+import com.ic.er.common.RelatedObjType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,8 @@ public class GraphInfoDO {
     private Long ID;
 
     private Long relatedObjID;
+
+    private RelatedObjType relatedObjType;
 
     private Double layoutX;
 

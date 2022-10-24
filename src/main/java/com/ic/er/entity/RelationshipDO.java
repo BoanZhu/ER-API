@@ -1,4 +1,4 @@
-package com.ic.er.dto.entity;
+package com.ic.er.entity;
 
 import com.ic.er.common.Cardinality;
 import lombok.AllArgsConstructor;

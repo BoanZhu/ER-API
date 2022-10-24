@@ -1,6 +1,6 @@
 package com.ic.er.dao;
 
-import com.ic.er.dto.entity.RelationshipDO;
+import com.ic.er.entity.RelationshipDO;
 
 import java.util.List;
 

@@ -13,14 +13,9 @@ import java.sql.SQLException;
 public class TestER {
 
     @Before
-    public void setUp() {
-        try {
-            ER.connectDB();
-            ER.createTables();
-        } catch (SQLException e) {
-            System.out.println(e);
-            throw new RuntimeException(e);
-        }
+    public void setUp() throws Exception {
+        ER.connectDB();
+        ER.createTables();
     }
     @Test
     public void createViewTest() {
