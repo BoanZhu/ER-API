@@ -18,9 +18,9 @@
     <ul class="nav_ul clear_fix">
         <li class="one"></li>
         <b>
-            <li><a href="xx.html" onclick="deleteView()"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>Delete View</a></li>
-            <li><a href="createView.html"><span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Save new sub-view</a></li>
-            <li><a href="xx.html" onclick="renameView()"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>Rename</a></li>
+            <li><a onclick="deleteView()"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>Delete View</a></li>
+            <li><a onclick="drawView()"><span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Save new sub-view</a></li>
+            <li><a onclick="renameView()"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>Rename</a></li>
         </b>
     </ul>
 </nav>
@@ -174,12 +174,31 @@ API 1: get all the entity and relationship
         document.getElementById("mySavedModel").value = myDiagram.model.toJson();
         myDiagram.isModified = false;
     }
+/*
+ view operations
+ */
+    function drawView() {
+        var new_name = prompt("Please enter new view name", "Draco");
+        if (new_name != null && new_name != "") {
+            $.getJSON("http://localhost:8000/drawView?" + "viewName=" + new_name+"&callback=?", function (res) {
+                //todo 重定向 viewId param
+                var viewId = res.id;
+                window.location.replace("drawingView.html?name=" + new_name + "&id=" + viewId);
+            }).fail(function (failure) {
+                if (failure.status == 400) {
+                    console.log("fail status:" + failure.status);
+                }
+            });
+        }
+
+    }
 
     function deleteView() {
+        //todo offset
         let name = location.href.substring(location.href.indexOf("name=")+1,location.href.indexOf("id")-2);
         let id = location.href.substring(location.href.indexOf("id=")+1);
 
-        $.getJSON("http://localhost:8000/deleteView?" + "&viewName=" +name+"&viewId" + id,function (res) {
+        $.getJSON("http://localhost:8000/deleteView?" + "&viewName=" +name+"&viewId=" + id+"&callback=?",function (res) {
         }).fail(function (failure) {
             if (failure.status == 400) {
                 console.log("fail status:" + failure.status);
@@ -189,13 +208,13 @@ API 1: get all the entity and relationship
 
 
     function renameView() {
-
+        //todo offset
         let name = location.href.substring(location.href.indexOf("name=")+1,location.href.indexOf("id")-2);
         let id = location.href.substring(location.href.indexOf("id=")+1);
 
         var new_name = prompt("Please enter new view name", name);
-        if (new_name != selected_name && new_name != "" && new_name != null) {
-            $.getJSON("http://localhost:8000/RenameView?" + "id=" + id + "&viewName=" + name + "&newViewName=" +new_name, function (res) {
+        if (new_name != name && new_name != "" && new_name != null) {
+            $.getJSON("http://localhost:8000/renameView?" + "id=" + id + "&viewName=" + name + "&newViewName=" +new_name+"&callback=?", function (res) {
             }).fail(function (failure) {
                 if (failure.status == 400) {
                     console.log("fail status:" + failure.status);

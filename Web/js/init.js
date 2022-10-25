@@ -1,4 +1,5 @@
 
+
 function init() {
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element

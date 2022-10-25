@@ -41,6 +41,8 @@ function openEditEntity(){
     popBox.style.display = "block";
 }
 
+
+
 function closeEditEntity(){
     let popDiv = document.getElementById("popDiv");
     popDiv.style.display = "none";
