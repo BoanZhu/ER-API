@@ -198,6 +198,7 @@ API 1: get all the entity and relationship
         let name = location.href.substring(location.href.indexOf("name=")+1,location.href.indexOf("id")-2);
         let id = location.href.substring(location.href.indexOf("id=")+1);
 
+
         $.getJSON("http://localhost:8000/deleteView?" + "&viewName=" +name+"&viewId=" + id+"&callback=?",function (res) {
         }).fail(function (failure) {
             if (failure.status == 400) {

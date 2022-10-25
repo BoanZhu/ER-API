@@ -58,6 +58,7 @@ function editEntity(){
     //todo status
     $.getJSON("http://localhost:8000/editEntity?"+"id="+entityId+"&newName="+newName+"&originalName="+originalName, function(res){
         //todo return state
+
     }).fail(function (failure){
         if(failure.status == 400){
             console.log("fail status:"+failure.status);
