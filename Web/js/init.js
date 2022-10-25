@@ -1,3 +1,4 @@
+
 function init() {
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
@@ -255,7 +256,7 @@ function init() {
                 // const entityName = e.oldValue.entityName;
 
                 // TODO: test API access
-                // deleteRelation(relationId,fromEntityName,toEntityName);
+                // deleteRelation(relationId);
                 console.log(evt.propertyName + " removed link: " + e.oldValue);
             }
 
@@ -320,64 +321,46 @@ Relation functions
 function modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName) {
 
     const viewId =  location.href.substring(location.href.indexOf("id=")+1);
-    const httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
-    httpRequest.open('POST', 'url', true); //第二步：打开连接
-    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
-    httpRequest.send( 'viewId = ' + viewId +
-        '&relationId = ' + relationId +
-        '&fromEntityName=' + fromEntityName +
-        '&toEntityName=' + toEntityName+
-        '&fromCardinality=' + fromCardinality+
-        '&toCardinality=' + toCardinality+
-        '&relationName=' + relationName);//发送请求 将情头体写在send中
 
-    httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
-        if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
-            var json = httpRequest.responseText;//获取到服务端返回的数据
-            console.log(json);
+    $.getJSON("http://localhost:8000/createRelation?" + "&viewId=" + viewId + "&relationId = " + relationId +
+        "&fromEntityName=" + fromEntityName +
+        "&toEntityName=" + toEntityName+
+        "&fromCardinality=" + fromCardinality+
+        "&toCardinality=" + toCardinality+
+        "&relationName=" + relationName,function (res) {
+    }).fail(function (failure) {
+        if (failure.status == 400) {
+            console.log("fail status:" + failure.status);
         }
-    };
+    });
 }
 
-function createRelation(fromEntityName, toEntityName) { //return request ID
+function createRelation(fromEntityId, toEntityId) { //return request ID
 
     const viewId =  location.href.substring(location.href.indexOf("id=")+1);
-    const httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
-    httpRequest.open('POST', 'url', true); //第二步：打开连接
-    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
-    httpRequest.send('viewId = ' + viewId +
-        '&fromEntityName=' + fromEntityName +
-        '&toEntityName=' + toEntityName);//发送请求 将情头体写在send中
+    var relationId;
 
-    httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
-        if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
-            var json = httpRequest.responseText;//获取到服务端返回的数据
-            console.log(json);
-            return json.relationId;
-        } else{
-            alert("oops! something goes wrong");
+    $.getJSON("http://localhost:8000/createRelation?" + "&viewId=" + viewId + "&fromEntityId" + fromEntityId+"toEntityId"+toEntityId,function (res) {
+        //todo get the relationId
+        relationId;
+    }).fail(function (failure) {
+        if (failure.status == 400) {
+            console.log("fail status:" + failure.status);
         }
-    };
-    return undefined;
+    });
 }
 
-function deleteRelation(relationId,fromEntityName,toEntityName) {
+function deleteRelation(relationId) {
 
-    const viewId =  location.href.substring(location.href.indexOf("id=")+1);
-    const httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
-    httpRequest.open('POST', 'url', true); //第二步：打开连接
-    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
-    httpRequest.send('viewId = ' + viewId +
-        '&relationId = ' + relationId +
-        '&fromEntityName=' + fromEntityName +
-        '&toEntityName=' + toEntityName);//发送请求 将情头体写在send中
-
-    httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
-        if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
-        } else{
-            alert("oops! something goes wrong");
+    const viewId = location.href.substring(location.href.indexOf("id=") + 1);
+    $.getJSON("http://localhost:8000/deleteRelation?" + "id=" + relationId + "&viewId=" + viewId, function (res) {
+    }).fail(function (failure) {
+        if (failure.status == 400) {
+            console.log("fail status:" + failure.status);
         }
-    };
+    });
 }
+
+
 
 

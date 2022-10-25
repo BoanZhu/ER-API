@@ -179,24 +179,12 @@ API 1: get all the entity and relationship
         let name = location.href.substring(location.href.indexOf("name=")+1,location.href.indexOf("id")-2);
         let id = location.href.substring(location.href.indexOf("id=")+1);
 
-        var new_name = prompt("Please enter new view name", name);
-        if (new_name != selected_name && new_name != "" && new_name != null) {
-            var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
-            httpRequest.open('POST', 'url', true); //第二步：打开连接
-            httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
-            httpRequest.send('&name=' + name + '&id=' + id);//发送请求 将情头体写在send中
-
-            /**
-             * 获取数据后的处理程序
-             */
-            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
-                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
-                    var json = httpRequest.responseText;//获取到服务端返回的数据
-                    console.log(json);
-                }
-            };
-        }
-
+        $.getJSON("http://localhost:8000/deleteView?" + "&viewName=" +name+"&viewId" + id,function (res) {
+        }).fail(function (failure) {
+            if (failure.status == 400) {
+                console.log("fail status:" + failure.status);
+            }
+        });
     }
 
 
@@ -207,26 +195,17 @@ API 1: get all the entity and relationship
 
         var new_name = prompt("Please enter new view name", name);
         if (new_name != selected_name && new_name != "" && new_name != null) {
-            var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
-            httpRequest.open('POST', 'url', true); //第二步：打开连接
-            httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头 注：post方式必须设置请求头（在建立连接后设置请求头）
-            httpRequest.send('newname = ' + new_name + '&name=' + name + '&id=' + id);//发送请求 将情头体写在send中
-
-            /**
-             * 获取数据后的处理程序
-             */
-            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
-                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
-                    var json = httpRequest.responseText;//获取到服务端返回的数据
-                    console.log(json);
+            $.getJSON("http://localhost:8000/RenameView?" + "id=" + id + "&viewName=" + name + "&newViewName=" +new_name, function (res) {
+            }).fail(function (failure) {
+                if (failure.status == 400) {
+                    console.log("fail status:" + failure.status);
                 }
-            };
+            });
             location.reload();
         }
     }
 
     window.addEventListener('DOMContentLoaded', init);
-
     addEntityOptions("datalist");
 </script>
 </html>
