@@ -93,10 +93,44 @@
     border: #12040c;
     border:1px;
 }
-#popDiv p{
+#popDeleteDiv p{
     text-align: center;
     font-size: 25px;
     font-weight: bold;
 }
 
+#addAttributeDiv{
+    display: none;
+    background-color: #ffffff;
+    z-index: 11;
+    width: 500px;
+    height: 100px;
+    position:fixed;
+    top:0;
+    right:0;
+    left:0;
+    bottom:0;
+    margin:auto;
+    border: #10488d;
+    border:10px;
+}
+/* close button */
+#addAttributeDiv .close a {
+    font-size: 15px;
+    color: #000000;
+}
+/* 弹出界面的关闭按钮 */
+#addAttributeDiv .close{
+    text-align: right;
+    margin-right: 0px;
+    margin-top: 0px;
+    background-color: #c8dbe7;
+    border: #12040c;
+    border:1px;
+}
+#addAttributeDiv p{
+    text-align: center;
+    font-size: 25px;
+    font-weight: bold;
+}
 

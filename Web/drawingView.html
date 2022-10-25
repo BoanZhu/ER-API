@@ -49,7 +49,7 @@
         </button>
     </div>
     <div class="design" id="attribute1">
-        <button class="sidebar-button" id="addAttribute" onclick="addAttribute()">
+        <button class="sidebar-button" id="addAttribute" onclick="openAddAttribute()">
             <div class="navto-nav">Add Attribute</div>
         </button>
     </div>
@@ -88,6 +88,23 @@
     </div>
 </div>
 
+<!--Add Attribute Pop-->
+<div id="addAttributeDiv">
+    <div class="close">
+        <a href="javascript:void(0)" onclick="closeAddAttribute()">close</a>
+    </div>
+    <div>
+        <input style="font-size: 12px" id="entityForAttributeNameChoice" type="text" list="typelist" placeholder="please choose the Entity">
+        <datalist class="entity-options" id="entityList">
+        </datalist>
+    </div>
+    <div>
+        <form method="get">
+            <p style="font-size:12px;text-align: left">Attribute Name: <input type="text" id="newAttributeName"/></p>
+            <input type="button" onclick="addAttribute()" value="Submit"/>
+        </form>
+    </div>
+</div>
 
 <div class="banner"><div class="inner"></div></div>
 

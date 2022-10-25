@@ -44,24 +44,7 @@ function init() {
         }
     }
 
-    // the template for each attribute in a node's array of item data
-    // var itemTempl =
-    //     $(go.Panel, "Horizontal",
-    //         $(go.Shape,
-    //             { desiredSize: new go.Size(15, 15), strokeJoin: "round", strokeWidth: 3, stroke: null, margin: 2 },
-    //             new go.Binding("figure", "figure"),
-    //             new go.Binding("fill", "color"),
-    //             new go.Binding("stroke", "color")),
-    //         $(go.TextBlock, textStyle(),
-    //             {
-    //                 stroke: "#333333",
-    //                 font: "bold 14px sans-serif"
-    //             },
-    //             new go.Binding("text", "name").makeTwoWay())
-    //     );
-
     // define the Node template, representing an entity
-    // myDiagram.nodeTemplate =
     var entityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
@@ -94,14 +77,6 @@ function init() {
                 },
             new go.Binding("fromLinkable", "from").makeTwoWay(),
             new go.Binding("toLinkable", "to").makeTwoWay()),
-            // $("Button",
-            //     {
-            //         alignment: go.Spot.BottomRight,
-            //         click: addAttribute
-            //     },  // this function is defined below
-            //     new go.Binding("visible", "", a => !a.diagram.isReadOnly).ofObject(),
-            //     $(go.Shape, "PlusLine", { desiredSize: new go.Size(10, 10)})
-            // ),
 
             // the table header
             $(go.Panel, "Table",
@@ -111,32 +86,18 @@ function init() {
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
-                        font: "bold 16px sans-serif"
+                        font: "bold 16px sans-serif",
+                        editable: false
                     },
                     new go.Binding("text", "key").makeTwoWay()),
-                // // the collapse/expand button
-                // $("PanelExpanderButton", "LIST",  // the name of the element whose visibility this button toggles
-                //     { row: 0, alignment: go.Spot.TopLeft }),
-                // // the list of Panels, each showing an attribute
-                // $(go.Panel, "Vertical",
-                //     {
-                //         name: "LIST",
-                //         row: 1,
-                //         padding: 3,
-                //         alignment: go.Spot.TopLeft,
-                //         defaultAlignment: go.Spot.Left,
-                //         stretch: go.GraphObject.Horizontal,
-                //         itemTemplate: itemTempl
-                //     },
-                //     new go.Binding("itemArray", "items").makeTwoWay())
-
+                    new go.Binding("text","id")
             ) // end Table Panel
         );
     // default template
     myDiagram.nodeTemplate = entityTemplate;
 
     // define the Link template, representing a relationship
-    myDiagram.linkTemplate = $(go.Link,  // the whole link panel
+    var relationLink = $(go.Link,  // the whole link panel
         {
             selectionAdorned: true,
             layerName: "Foreground",
@@ -182,6 +143,48 @@ function init() {
             new go.Binding("text", "toText").makeTwoWay())
     );
 
+    var normalLink = $(go.Link,
+        {
+            selectionAdorned: true,
+            layerName: "Foreground",
+            reshapable: true,
+            routing: go.Link.AvoidsNodes,
+            corner: 5,
+            curve: go.Link.JumpOver
+        },
+        $(go.Shape,  // the link shape
+            {stroke: "#e8c446", strokeWidth: 2.5 }),
+        //todo to delete
+        $(go.TextBlock, textStyle(), // the "from" label
+            {
+                textAlign: "center",
+                font: "bold 14px sans-serif",
+                stroke: "#1967B3",
+                segmentIndex: 0,
+                segmentOffset: new go.Point(NaN, NaN),
+                segmentOrientation: go.Link.OrientUpright
+            },
+            new go.Binding("text", "fromText").makeTwoWay()),
+        $(go.TextBlock, textStyle(), // the "to" label
+            {
+                textAlign: "center",
+                font: "bold 14px sans-serif",
+                stroke: "#1967B3",
+                segmentIndex: -1,
+                segmentOffset: new go.Point(NaN, NaN),
+                segmentOrientation: go.Link.OrientUpright
+            },
+            new go.Binding("text", "toText").makeTwoWay())
+    );
+
+    var linkTemplateMap = new go.Map();
+    linkTemplateMap.add("relationLink", relationLink);
+    linkTemplateMap.add("normalLink",normalLink);
+    // default
+    linkTemplateMap.add("",relationLink);
+
+    myDiagram.linkTemplateMap = linkTemplateMap;
+
     myDiagram.model = new go.GraphLinksModel(
         {
             copiesArrays: true,
@@ -189,10 +192,6 @@ function init() {
             nodeDataArray: [],
             linkDataArray: []
         });
-
-    function addRelationship(){
-
-    }
 
     myDiagram.addDiagramListener("TextEdited",(e) => {
 
@@ -252,24 +251,6 @@ function init() {
         myDiagram.commitTransaction("add item");
     }
 
-    //palette
-    // myDiagram.nodeTemplateMap.add("Entity",myDiagram.nodeTemplate);
-
-    // var palette =
-    //     $(go.Palette, "myPaletteDiv",  // create a new Palette in the HTML DIV element
-    //         {
-    //             // share the template map with the Palette
-    //             nodeTemplateMap: myDiagram.nodeTemplateMap,
-    //             autoScale: go.Diagram.Uniform  // everything always fits in viewport
-    //         });
-    //
-    // // bind node and relation to the left
-    // palette.model.nodeDataArray = [
-    //     //entity
-    //     {key: "Entity", items: [{"name":"template","isKey":true,"figure":"Decision","color":"#be4b15"}]},
-    //     //relation
-    // ];
-
     // attribute node template
     var attributeTemplate =$(go.Node, "Auto",
         {
@@ -296,7 +277,8 @@ function init() {
             new go.Binding("toLinkable", "to").makeTwoWay()),
         // the table header
         $(go.TextBlock,
-            new go.Binding("text","key")
+            new go.Binding("text","key"),
+            new go.Binding("text","id")
         )
     );
 
