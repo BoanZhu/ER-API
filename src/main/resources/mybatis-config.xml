@@ -10,6 +10,8 @@
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
                      javaType="com.ic.er.common.Cardinality"/>
+        <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
+                     javaType="com.ic.er.common.RelatedObjType"/>
     </typeHandlers>
     <environments default='development'>
         <environment id='development'>
@@ -27,6 +29,6 @@
         <mapper resource='mapper/EntityMapper.xml'/>
         <mapper resource='mapper/RelationshipMapper.xml'/>
         <mapper resource='mapper/ViewMapper.xml'/>
-        <mapper resource='mapper/GraphInfoMapper.xml'/>
+        <mapper resource='mapper/LayoutInfoMapper.xml'/>
     </mappers>
 </configuration>

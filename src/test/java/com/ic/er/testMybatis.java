@@ -30,10 +30,9 @@ public class testMybatis {
     }
 
     @Test
-    public void testDBConnection() {
-        ResultState resultState = ER.connectDB();
+    public void testDBConnection() throws IOException {
+        ER.connectDB();
         Assert.assertNotNull(ER.sqlSession);
         System.out.println(ER.sqlSession.getConnection());
-        Assert.assertEquals(resultState.getStatus(), ResultStateCode.Success);
     }
 }

@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
-import java.sql.SQLException;
 
 public class TestER {
 
@@ -20,15 +19,15 @@ public class TestER {
     @Test
     public void createViewTest() {
         View testView = ER.createView("testView", "wt22");
-        Assert.assertEquals(ER.queryAll().size(), 1);
+        Assert.assertEquals(ER.queryAllView().size(), 1);
     }
 
     @Test
     public void deleteViewTest() {
         View testView = ER.createView("testView", "wt22");
-        Assert.assertEquals(ER.queryAll().size(), 1);
+        Assert.assertEquals(ER.queryAllView().size(), 1);
         ER.deleteView(testView);
-        Assert.assertEquals(ER.queryAll().size(), 0);
+        Assert.assertEquals(ER.queryAllView().size(), 0);
     }
 
     @Test

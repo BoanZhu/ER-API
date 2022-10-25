@@ -9,6 +9,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.Date;
 
 import java.io.IOException;
@@ -16,10 +17,8 @@ import java.io.InputStream;
 import java.sql.Connection;
 
 /**
- *
  * @author wendi
  * @data 15/10/2022
- *
  */
 public class entityMapperTest {
     public static SqlSession sqlSession;
@@ -41,28 +40,29 @@ public class entityMapperTest {
 
         long id = Long.valueOf(456);
         String name = "b";
-        long viewId = Long.valueOf(2234);
+        long viewID = Long.valueOf(2234);
         Date create = new Date();
         Date modify = new Date();
         int isDelete = 0;
 
-        EntityDO entity = new EntityDO(id,name,viewId,isDelete,create,modify);
+        EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
 
         Assert.assertNotNull(sqlSession);
         EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
         entityMapper.insert(entity);
     }
+
     @Test
     public void insertEntityTest() {
 
         long id = 12334;
         String name = "b";
-        long viewId = 789;
+        long viewID = 789;
         Date create = new Date();
         Date modify = new Date();
         int isDelete = 0;
 
-        EntityDO entity = new EntityDO(id,name,viewId,isDelete,create,modify);
+        EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
 
         Assert.assertNotNull(sqlSession);
         EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
@@ -74,13 +74,12 @@ public class entityMapperTest {
 
         long id = Long.valueOf(12334);
         String name = null;
-        long viewId = Long.valueOf(789);
+        long viewID = Long.valueOf(789);
         Date create = null;
         Date modify = null;
         int isDelete = 0;
 
-        EntityDO entity = new EntityDO(id,name,viewId,isDelete,create,modify);
-
+        EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
 
 
         Assert.assertNotNull(sqlSession);
@@ -89,7 +88,7 @@ public class entityMapperTest {
     }
 
     @Test
-    public void selectByIdTest() {
+    public void selectByIDTest() {
         Long id = Long.valueOf(123);
 
         Assert.assertNotNull(sqlSession);
@@ -99,23 +98,24 @@ public class entityMapperTest {
 
 
     @Test
-    public void updateByIdTest() {
+    public void updateByIDTest() {
 
         long id = Long.valueOf(123);
         String name = "b";
-        long viewId = Long.valueOf(456);
+        long viewID = Long.valueOf(456);
         Date create = new Date();
         Date modify = new Date();
         int isDelete = 0;
 
-        EntityDO entityDo = new EntityDO(id,name,viewId,isDelete,create,modify);
+        EntityDO entityDo = new EntityDO(id, name, viewID, isDelete, create, modify);
 
         Assert.assertNotNull(sqlSession);
         EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
         entityMapper.updateByID(entityDo);
     }
+
     @Test
-    public void deleteByIdTest() {
+    public void deleteByIDTest() {
 
         long id = Long.valueOf(123);
 
@@ -123,9 +123,6 @@ public class entityMapperTest {
         EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
         entityMapper.deleteByID(id);
     }
-
-
-
 
 
 }

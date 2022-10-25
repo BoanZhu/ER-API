@@ -2,21 +2,21 @@ package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ic.er.Exception.ERException;
+import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.AttributeDO;
 import com.ic.er.common.DataType;
-import com.ic.er.common.ResultState;
-import com.ic.er.common.ResultStateCode;
 import com.ic.er.common.Utils;
+import com.ic.er.entity.LayoutInfoDO;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.apache.ibatis.jdbc.SQL;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class Attribute {
     @JsonIgnore
     private Long ID;
@@ -28,12 +28,14 @@ public class Attribute {
     private DataType dataType;
     private int isPrimary;
     private int isForeign;
+    private LayoutInfo layoutInfo;
     @JsonIgnore
     private Date gmtCreate;
     @JsonIgnore
     private Date gmtModified;
+
     public Attribute(Long ID, Long entityID, Long viewID, String name, DataType dataType,
-                     int isPrimary, int isForeign, Date gmtCreate, Date gmtModified) {
+                     int isPrimary, int isForeign, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.entityID = entityID;
         this.viewID = viewID;
@@ -41,6 +43,7 @@ public class Attribute {
         this.dataType = dataType;
         this.isPrimary = isPrimary;
         this.isForeign = isForeign;
+        this.layoutInfo = layoutInfo;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
@@ -50,12 +53,26 @@ public class Attribute {
                 this.ID = Utils.generateID();
             }
         }
+        if (this.layoutInfo == null) {
+            this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.ATTRIBUTE, 0.0, 0.0, 0.0, 0.0);
+        }
     }
 
-    private void insertDB() throws PersistenceException{
+    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
+        this.layoutInfo.setLayoutX(layoutX);
+        this.layoutInfo.setLayoutY(layoutY);
+        this.layoutInfo.setHeight(height);
+        this.layoutInfo.setWidth(width);
+        this.layoutInfo.update();
+    }
+
+    private void insertDB() throws PersistenceException {
         try {
             AttributeDO aDo = new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.attributeMapper.insert(aDo);
+            if (ret == 0) {
+                throw new ERException("insertDB fail");
+            }
             this.ID = aDo.getID();
         } catch (PersistenceException e) {
             throw new ERException("insertDB fail", e);
@@ -75,9 +92,10 @@ public class Attribute {
 
     // transform the data from db format (xxxDO) to java class format
     private static Attribute TransformFromDB(AttributeDO attributeDO) {
+        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(attributeDO.getID(), RelatedObjType.ATTRIBUTE);
         return new Attribute(attributeDO.getID(), attributeDO.getEntityID(), attributeDO.getViewID(),
                 attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(),
-                attributeDO.getIsForeign(), attributeDO.getGmtCreate(), attributeDO.getGmtModified());
+                attributeDO.getIsForeign(), layoutInfo, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 
     private static List<Attribute> TransListFormFromDB(List<AttributeDO> doList) {

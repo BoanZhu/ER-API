@@ -1,5 +1,7 @@
 package com.ic.er;
 
+import com.ic.er.Exception.ERException;
+import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.AttributeDO;
 import com.ic.er.common.DataType;
 import org.junit.Assert;
@@ -31,6 +33,7 @@ public class TestAttribute {
         System.out.printf("a2 ID: %d\n", a2.getID());
         System.out.printf("a3 ID: %d\n", a3.getID());
     }
+
     @Test
     public void updateTest() {
         Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
@@ -43,14 +46,16 @@ public class TestAttribute {
         Assert.assertEquals(attributeList.size(), 1);
         Assert.assertEquals(attributeList.get(0).getName(), newName);
     }
+
     @Test
-    public void selectByIdTest(){
+    public void selectByIDTest() {
         Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
-        AttributeDO aDo = ER.attributeMapper.selectByID(a1.getID());
-        Assert.assertNotNull(aDo);
+        Attribute attribute = Attribute.queryByID(a1.getID());
+        Assert.assertNotNull(attribute);
     }
-    @Test
-    public void deleteByIdTest(){
+
+    @Test(expected = ERException.class)
+    public void deleteByIDTest() {
         Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
 
         // delete

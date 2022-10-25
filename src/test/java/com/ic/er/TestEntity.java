@@ -1,6 +1,7 @@
 package com.ic.er;
 
 
+import com.ic.er.Exception.ERException;
 import com.ic.er.common.DataType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +27,7 @@ public class TestEntity {
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
     }
 
-    @Test
+    @Test(expected = ERException.class)
     public void deleteEntityTest() {
         Entity teacher = testView.addEntity("teacher");
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
@@ -56,7 +57,7 @@ public class TestEntity {
         Assert.assertEquals(entity.getName(), "new teacher name");
     }
 
-    @Test
+    @Test(expected = ERException.class)
     public void attributeTest() {
         Entity teacher = testView.addEntity("teacher");
         Attribute teacherID = teacher.addAttribute("teacher_id", DataType.INTEGER, 1, 0);

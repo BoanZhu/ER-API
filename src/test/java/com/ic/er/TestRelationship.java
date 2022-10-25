@@ -1,5 +1,6 @@
 package com.ic.er;
 
+import com.ic.er.Exception.ERException;
 import com.ic.er.entity.RelationshipDO;
 import com.ic.er.common.Cardinality;
 import org.junit.Assert;
@@ -33,13 +34,12 @@ public class TestRelationship {
         Assert.assertEquals(relationship.getID(), Long.valueOf(1L));
     }
 
-    @Test
+    @Test(expected = ERException.class)
     public void deleteRelationshipTest() {
         Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
         Assert.assertNotNull(relationship);
         relationship.deleteDB();
         Relationship relationship1 = Relationship.queryByID(1L);
-        Assert.assertNull(relationship1);
     }
 
     @Test
