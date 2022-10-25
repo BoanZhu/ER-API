@@ -36,42 +36,43 @@ public class testViewMapper {
     public void testQueryAllViews() {
         Assert.assertNotNull(sqlSession);
         List<ViewDO> viewDOList = viewMapper.selectAll();
-        Assert.assertEquals(1,viewDOList.size());
+        Assert.assertEquals(1, viewDOList.size());
     }
 
     @Test
-    public void testQueryById(){
+    public void testQueryByID() {
         Assert.assertNotNull(sqlSession);
         ViewDO viewDO = viewMapper.selectByID(Long.valueOf(3));
         System.out.println(viewDO);
     }
+
     @Test
-    public void testCreateView(){
+    public void testCreateView() {
         Assert.assertNotNull(sqlSession);
-        ViewDO viewDO = new ViewDO(Long.valueOf(2),"view3","creator3", Long.valueOf(1),0, new Date(),new Date());
-        Assert.assertEquals(viewMapper.insert(viewDO),1);
+        ViewDO viewDO = new ViewDO(Long.valueOf(2), "view3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
+        Assert.assertEquals(viewMapper.insert(viewDO), 1);
     }
 
     @Test
-    public void testDeleteView(){
+    public void testDeleteView() {
         Assert.assertNotNull(sqlSession);
-        Assert.assertEquals(viewMapper.deleteByID(Long.valueOf(2)),1);
+        Assert.assertEquals(viewMapper.deleteByID(Long.valueOf(2)), 1);
     }
 
     @Test
-    public void testQueryView(){
+    public void testQueryView() {
         Assert.assertNotNull(sqlSession);
-        ViewDO viewDO = new ViewDO(null,"view1",null, null,0, null,null);
+        ViewDO viewDO = new ViewDO(null, "view1", null, null, 0, null, null);
         List<ViewDO> res = viewMapper.selectByView(viewDO);
         System.out.println(res);
 
     }
 
     @Test
-    public void testUpdateView(){
+    public void testUpdateView() {
         Assert.assertNotNull(sqlSession);
-        ViewDO viewDO = new ViewDO(Long.valueOf(3),"view3update","creator3update", Long.valueOf(1),0, new Date(),new Date());
-        Assert.assertEquals(viewMapper.updateByID(viewDO),1);
+        ViewDO viewDO = new ViewDO(Long.valueOf(3), "view3update", "creator3update", Long.valueOf(1), 0, new Date(), new Date());
+        Assert.assertEquals(viewMapper.updateByID(viewDO), 1);
     }
 
 }

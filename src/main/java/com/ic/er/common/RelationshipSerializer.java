@@ -28,6 +28,7 @@ public class RelationshipSerializer extends StdSerializer<Relationship> {
         jgen.writeStringField("firstEntity", relationship.getFirstEntity().getName());
         jgen.writeStringField("secondEntity", relationship.getSecondEntity().getName());
         jgen.writeStringField("cardinality", relationship.getCardinality().toString());
+        jgen.writeObjectField("layoutInfo", relationship.getLayoutInfo());
         jgen.writeEndObject();
     }
 }

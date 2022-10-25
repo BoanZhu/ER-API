@@ -8,27 +8,27 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
-import java.sql.SQLException;
 
 public class TestER {
 
     @Before
     public void setUp() throws Exception {
-        ER.connectDB();
+        ER.connectDB(true);
         ER.createTables();
     }
+
     @Test
     public void createViewTest() {
         View testView = ER.createView("testView", "wt22");
-        Assert.assertEquals(ER.queryAll().size(), 1);
+        Assert.assertEquals(ER.queryAllView().size(), 1);
     }
 
     @Test
     public void deleteViewTest() {
         View testView = ER.createView("testView", "wt22");
-        Assert.assertEquals(ER.queryAll().size(), 1);
+        Assert.assertEquals(ER.queryAllView().size(), 1);
         ER.deleteView(testView);
-        Assert.assertEquals(ER.queryAll().size(), 0);
+        Assert.assertEquals(ER.queryAllView().size(), 0);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class TestER {
 
         Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
 
-        firstView.ToJSONFile();
+        firstView.ToJSON();
     }
 
 }

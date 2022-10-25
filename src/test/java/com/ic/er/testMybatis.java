@@ -1,7 +1,5 @@
 package com.ic.er;
 
-import com.ic.er.common.ResultState;
-import com.ic.er.common.ResultStateCode;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -30,10 +28,9 @@ public class testMybatis {
     }
 
     @Test
-    public void testDBConnection() {
-        ResultState resultState = ER.connectDB();
+    public void testDBConnection() throws IOException {
+        ER.connectDB(true);
         Assert.assertNotNull(ER.sqlSession);
         System.out.println(ER.sqlSession.getConnection());
-        Assert.assertEquals(resultState.getStatus(), ResultStateCode.Success);
     }
 }

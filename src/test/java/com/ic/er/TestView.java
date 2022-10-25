@@ -1,20 +1,23 @@
 package com.ic.er;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ic.er.Exception.ERException;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.DataType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.SQLException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class TestView {
 
     @Before
     public void init() throws Exception {
-        ER.connectDB();
+        ER.connectDB(true);
         ER.createTables();
     }
 
@@ -44,14 +47,13 @@ public class TestView {
     public void updateViewTest() {
         View firstView = ER.createView("first view", "tw");
         String newViewName = "new view name";
-        firstView.setName(newViewName);
-        firstView.update();
+        firstView.updateInfo(newViewName);
 
         View newView = View.queryByID(1L);
         Assert.assertEquals(newView.getName(), newViewName);
     }
 
-    @Test
+    @Test(expected = ERException.class)
     public void deleteViewTest() {
         View firstView = ER.createView("first view", "tw");
         firstView = View.queryByID(1L);
@@ -63,7 +65,7 @@ public class TestView {
         Assert.assertNull(newView);
     }
 
-    @Test
+    @Test(expected = ERException.class)
     public void deleteEntityTest() {
         View firstView = ER.createView("first view", "tw");
         Entity firstEntity = firstView.addEntity("teacher");
@@ -89,7 +91,7 @@ public class TestView {
         Assert.assertEquals(views.size(), 2);
     }
 
-    @Test
+    @Test(expected = ERException.class)
     public void relationshipTest() {
         View firstView = ER.createView("first view", "tw");
 
@@ -106,13 +108,19 @@ public class TestView {
         Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
         Assert.assertNotNull(ts);
 
-        ts.setName("new relationship name");
-        ts.update();
+        ts.updateInfo("new relationship name", null, null, null);
         Assert.assertEquals(Relationship.queryByID(ts.getID()).getName(), "new relationship name");
 
 
         firstView.deleteRelationship(ts);
         Assert.assertEquals(firstView.getRelationshipList().size(), 0);
         Assert.assertNull(Relationship.queryByID(ts.getID()));
+    }
+
+    @Test
+    public void loadFromJSONTest() throws IOException {
+        String content = Files.readString(Path.of("first view.json"), Charset.defaultCharset());
+        View view = View.loadFromJSON(content);
+        System.out.println(view);
     }
 }

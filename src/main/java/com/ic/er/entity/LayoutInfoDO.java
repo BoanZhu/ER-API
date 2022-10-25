@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GraphInfoDO {
+public class LayoutInfoDO {
 
     private Long ID;
 
@@ -23,6 +23,14 @@ public class GraphInfoDO {
 
     private Double height;
 
-    private Double length;
+    private Double width;
 
+    public LayoutInfoDO(Long id) {
+        this.ID = id;
+    }
+
+    public LayoutInfoDO(Long relatedObjID, RelatedObjType relatedObjType) {
+        this.relatedObjID = relatedObjID;
+        this.relatedObjType = relatedObjType;
+    }
 }

@@ -1,11 +1,6 @@
 package com.ic.er;
 
-import com.ic.er.common.ResultState;
-import com.ic.er.common.ResultStateCode;
-import com.ic.er.dao.AttributeMapper;
-import com.ic.er.dao.EntityMapper;
-import com.ic.er.dao.RelationshipMapper;
-import com.ic.er.dao.ViewMapper;
+import com.ic.er.dao.*;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -18,7 +13,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
@@ -29,27 +23,23 @@ public class ER {
     public static EntityMapper entityMapper;
     public static RelationshipMapper relationshipMapper;
     public static ViewMapper viewMapper;
+    public static LayoutInfoMapper layoutInfoMapper;
     private static Map<Long, View> allViewsMap = new HashMap<>();
 
-    public static ResultState connectDB(){
-        ResultState resultState = null;
-        try {
-            InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
-            SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
-            SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
-            sqlSession = sqlSessionFactory.openSession(true);
-            resultState = ResultState.ok();
-            attributeMapper = sqlSession.getMapper(AttributeMapper.class);
-            entityMapper = sqlSession.getMapper(EntityMapper.class);
-            relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
-            viewMapper = sqlSession.getMapper(ViewMapper.class);
+    public static void connectDB(boolean useDBLog) throws IOException {
+        InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
+        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
+        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
+        sqlSession = sqlSessionFactory.openSession(true);
+        attributeMapper = sqlSession.getMapper(AttributeMapper.class);
+        entityMapper = sqlSession.getMapper(EntityMapper.class);
+        relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
+        viewMapper = sqlSession.getMapper(ViewMapper.class);
+        layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
+        if (useDBLog) {
             BasicConfigurator.configure();
-            useDB = true;
-        } catch (IOException msg) {
-            resultState = ResultState.build(ResultStateCode.Failure, msg.getMessage());
-            return resultState;
         }
-        return resultState;
+        useDB = true;
     }
 
     public static void createTables() throws Exception {
@@ -71,7 +61,7 @@ public class ER {
         allViewsMap.remove(view.getID());
     }
 
-    public static List<View> queryAll() {
+    public static List<View> queryAllView() {
         if (ER.useDB) {
             return View.queryAll();
         } else {

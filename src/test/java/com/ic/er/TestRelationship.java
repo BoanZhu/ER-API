@@ -1,12 +1,12 @@
 package com.ic.er;
 
+import com.ic.er.Exception.ERException;
 import com.ic.er.entity.RelationshipDO;
 import com.ic.er.common.Cardinality;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class TestRelationship {
@@ -17,7 +17,7 @@ public class TestRelationship {
 
     @Before
     public void init() throws Exception {
-        ER.connectDB();
+        ER.connectDB(true);
         ER.createTables();
         testView = ER.createView("testView", "wt22");
         teacher = testView.addEntity("teacher");
@@ -33,13 +33,12 @@ public class TestRelationship {
         Assert.assertEquals(relationship.getID(), Long.valueOf(1L));
     }
 
-    @Test
+    @Test(expected = ERException.class)
     public void deleteRelationshipTest() {
         Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
         Assert.assertNotNull(relationship);
         relationship.deleteDB();
         Relationship relationship1 = Relationship.queryByID(1L);
-        Assert.assertNull(relationship1);
     }
 
     @Test
@@ -50,9 +49,7 @@ public class TestRelationship {
         String newName = "new name";
         Cardinality newCardi = Cardinality.ManyToMany;
 
-        relationship.setName(newName);
-        relationship.setCardinality(newCardi);
-        relationship.update();
+        relationship.updateInfo(newName, null, null, newCardi);
         Relationship relationship1 = Relationship.queryByID(1L);
         Assert.assertNotNull(relationship1);
         Assert.assertEquals(relationship1.getName(), newName);
