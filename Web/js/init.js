@@ -212,15 +212,16 @@ function init() {
     });
 
     myDiagram.addDiagramListener("SelectionMoved",(e) => {
-        console.log("true");
 
-        // if ("key" in e.subject.part.qb) { // identify the changed textBlock
-        //     // const relationId = e.subject.part.qb.key;
-        //
-        //     // TODO: test API access
-        //     // modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
-        //     console.log(e.subject.text);
-        // }
+        const selectNode = e.diagram.selection.first();
+        const entityId = selectNode.key;
+        const entityLocationX = selectNode.location.x;
+        const entityLocationY = selectNode.location.y;
+
+        moveEntity(entityId,entityLocationX,entityLocationY);
+
+
+
     });
 
     myDiagram.addModelChangedListener(function(evt) {
