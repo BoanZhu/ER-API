@@ -53,8 +53,13 @@ function editEntity(){
     //original key
     var originalName = entityId.split(":")[1];
     // send new entity name to backend
+    //todo status
     $.getJSON("http://localhost:8000/editEntity?"+"id="+entityId+"&newName="+newName+"&originalName="+originalName, function(res){
         //todo return state
+    }).fail(function (failure){
+        if(failure.status == 400){
+            console.log("fail status:"+failure.status);
+        }
     });
     // get the node
     var node = myDiagram.findNodeForKey(originalName);
@@ -63,7 +68,6 @@ function editEntity(){
     node.findNodesConnected().each(
         function(otherNode){
             //todo 删除旧的link
-
             // node.findLinksTo(otherNode).each(function (l){});
             // console.log(otherNode.data.key);
             myDiagram.model.addLinkData({from:newName,to:otherNode.data.key});
@@ -92,11 +96,17 @@ function deleteEntity(){
     var entityName = document.getElementById("deleteEntityNameChoice").value;
     if(entityName){
         // console.log("the entity to delete is "+entityName);
+        //todo 解析entity名称
         const originalName = entityName.split(":")[1];
+        const entityId = entityName.split(":")[0];
+        $.getJSON("http://localhost:8000/deleteEntity?"+"id="+entityId+"&callback=?", function(res){
+            //todo return state
+            console.log("delete entity status:"+res.testInfo);
+        });
+        console.log("delete");
         var node = myDiagram.findNodeForKey(originalName);
         myDiagram.remove(node);
         var newJson = myDiagram.model.toJSON();
-        console.log(newJson);
         myDiagram.model = go.Model.fromJson(newJson);
         document.getElementById("mySavedModel").value = myDiagram.model.toJson();
         closeDeleteEntity();

@@ -89,8 +89,7 @@ function init() {
                         font: "bold 16px sans-serif",
                         editable: false
                     },
-                    new go.Binding("text", "key").makeTwoWay()),
-                    new go.Binding("text","id")
+                    new go.Binding("text", "key").makeTwoWay())
             ) // end Table Panel
         );
     // default template
@@ -299,8 +298,7 @@ function init() {
             new go.Binding("toLinkable", "to").makeTwoWay()),
         // the table header
         $(go.TextBlock,
-            new go.Binding("text","key"),
-            new go.Binding("text","id")
+            new go.Binding("text","key")
         )
     );
 
