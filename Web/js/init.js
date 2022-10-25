@@ -2,6 +2,7 @@
 
 function init() {
     const $ = go.GraphObject.make;  // for conciseness in defining templates
+
     myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
         {
             allowDelete: true,
@@ -206,7 +207,6 @@ function init() {
             const relationName = e.subject.part.qb.relation;
             //todo 检测两个节点类型是不是一样
 
-            // TODO: test API access
             // modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
             console.log(e.subject.text);
         }
@@ -237,7 +237,6 @@ function init() {
                 const fromEntityName = e.newValue.from;
                 const toEntityName = e.newValue.to;
 
-                // TODO: test API access
                 // e.newValue.key = createRelation(fromEntityName,toEntityName);
                 console.log(e.newValue.key);
 
@@ -247,23 +246,12 @@ function init() {
                 const toEntityName = e.oldValue.to;
                 const relationId = e.oldValue.key;
 
-                // TODO: test API access
                 // deleteRelation(relationId,fromEntityName,toEntityName);
                 console.log(evt.propertyName + " removed link: " + e.oldValue);
             }
 
         });
     });
-
-    function addAttribute(e, obj) {
-        var adorn = obj.part;
-        if (adorn === null) return;
-        e.handled = true;
-        var arr = adorn.adornedPart.data.items;
-        myDiagram.startTransaction("add item");
-        myDiagram.model.addArrayItem(arr, {});
-        myDiagram.commitTransaction("add item");
-    }
 
     // attribute node template
     var attributeTemplate =$(go.Node, "Auto",
