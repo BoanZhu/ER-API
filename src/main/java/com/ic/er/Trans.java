@@ -1,10 +1,7 @@
 package com.ic.er;
 
 import com.ic.er.common.RelatedObjType;
-import com.ic.er.entity.AttributeDO;
-import com.ic.er.entity.LayoutInfoDO;
-import com.ic.er.entity.RelationshipDO;
-import com.ic.er.entity.ViewDO;
+import com.ic.er.entity.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +12,7 @@ public class Trans {
         return new LayoutInfo(layoutInfoDO.getID(), layoutInfoDO.getRelatedObjID(), layoutInfoDO.getRelatedObjType(), layoutInfoDO.getLayoutX(), layoutInfoDO.getLayoutY(), layoutInfoDO.getHeight(), layoutInfoDO.getWidth());
     }
 
-    protected static List<LayoutInfo> TransListFormDB(List<LayoutInfoDO> doList) {
+    protected static List<LayoutInfo> TransLayoutInfoListFormDB(List<LayoutInfoDO> doList) {
         List<LayoutInfo> ret = new ArrayList<>();
         for (LayoutInfoDO LayoutInfoDO : doList) {
             ret.add(TransformFromDB(LayoutInfoDO));
@@ -30,20 +27,29 @@ public class Trans {
                 attributeDO.getIsForeign(), layoutInfo, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 
-    protected static <T> T TransformFromDB(T element) {
-        if (returnType.equals(Boolean.class)) {
-
-        }
-        return new LayoutInfo(layoutInfoDO.getID(), layoutInfoDO.getRelatedObjID(), layoutInfoDO.getRelatedObjType(), layoutInfoDO.getLayoutX(), layoutInfoDO.getLayoutY(), layoutInfoDO.getHeight(), layoutInfoDO.getWidth());
-    }
-
-    protected static <T> List<T> TransListFromDB(List<T> doList) {
-        List<T> ret = new ArrayList<>();
-        for (T element : doList) {
-            ret.add(TransformFromDB(element));
+    protected static List<Attribute> TransAttributeListFromDB(List<AttributeDO> doList) {
+        List<Attribute> ret = new ArrayList<>();
+        for (AttributeDO attributeDO : doList) {
+            ret.add(TransformFromDB(attributeDO));
         }
         return ret;
     }
+
+    protected static Entity TransformFromDB(EntityDO entityDO) {
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), entityDO.getViewID()));
+        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), RelatedObjType.ENTITY);
+        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getViewID(), attributeList, layoutInfo,
+                entityDO.getGmtCreate(), entityDO.getGmtModified());
+    }
+
+    protected static List<Entity> TransEntityListFormFromDB(List<EntityDO> doList) {
+        List<Entity> ret = new ArrayList<>();
+        for (EntityDO EntityDO : doList) {
+            ret.add(TransformFromDB(EntityDO));
+        }
+        return ret;
+    }
+
 
     protected static Relationship TransformFromDB(RelationshipDO relationshipDO) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(relationshipDO.getID(), RelatedObjType.RELATIONSHIP);
@@ -53,7 +59,7 @@ public class Trans {
                 relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
     }
 
-    protected static List<Relationship> TransListFromDB(List<RelationshipDO> doList) {
+    protected static List<Relationship> TransRelationshipListFromDB(List<RelationshipDO> doList) {
         List<Relationship> ret = new ArrayList<>();
         for (RelationshipDO RelationshipDO : doList) {
             ret.add(TransformFromDB(RelationshipDO));
@@ -68,7 +74,7 @@ public class Trans {
                 ViewDO.getGmtCreate(), ViewDO.getGmtModified());
     }
 
-    protected static List<View> TransListFromDB(List<ViewDO> doList) {
+    protected static List<View> TransViewListFromDB(List<ViewDO> doList) {
         List<View> ret = new ArrayList<>();
         for (ViewDO ViewDO : doList) {
             ret.add(TransformFromDB(ViewDO));

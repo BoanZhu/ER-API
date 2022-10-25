@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -56,9 +55,6 @@ public class Attribute {
         }
     }
 
-    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) throws ERException {
-        this.layoutInfo.update(layoutX, layoutY, height, width);
-    }
 
     private void insertDB() throws PersistenceException {
         try {
@@ -96,12 +92,16 @@ public class Attribute {
         }
     }
 
+    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) throws ERException {
+        this.layoutInfo.update(layoutX, layoutY, height, width);
+    }
+
     public static List<Attribute> queryByAttribute(AttributeDO attributeDO) {
-        return Trans.TransListFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
+        return Trans.TransAttributeListFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
     }
 
     public static Attribute queryByID(Long ID) throws ERException {
-        List<Attribute> attributeList = Trans.TransListFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
+        List<Attribute> attributeList = Trans.TransAttributeListFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
         if (attributeList.size() == 0) {
             throw new ERException(String.format("Attribute with ID: %d not found ", ID));
         } else {
