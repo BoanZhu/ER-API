@@ -210,6 +210,19 @@ function init() {
         }
     });
 
+    myDiagram.addDiagramListener("SelectionMoved",(e) => {
+
+        const selectNode = e.diagram.selection.first();
+        const entityId = selectNode.key;
+        const entityLocationX = selectNode.location.x;
+        const entityLocationY = selectNode.location.y;
+
+        moveEntity(entityId,entityLocationX,entityLocationY);
+
+
+
+    });
+
     myDiagram.addModelChangedListener(function(evt) {
         // ignore unimportant Transaction events
         if (!evt.isTransactionFinished) return;
@@ -237,7 +250,16 @@ function init() {
                 // TODO: test API access
                 // deleteRelation(relationId,fromEntityName,toEntityName);
                 console.log(evt.propertyName + " removed link: " + e.oldValue);
+            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+
+                // const entityId = e.oldValue.key;
+                // const entityName = e.oldValue.entityName;
+
+                // TODO: test API access
+                // deleteRelation(relationId,fromEntityName,toEntityName);
+                console.log(evt.propertyName + " removed link: " + e.oldValue);
             }
+
         });
     });
 
