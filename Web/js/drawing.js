@@ -70,7 +70,6 @@ function editEntity(){
             myDiagram.model.addLinkData({from:newName,to:otherNode.data.key});
         }
     )
-
     //edit node info
     node.data.key = newName;
     var newJson = myDiagram.model.toJSON();
@@ -104,3 +103,19 @@ function deleteEntity(){
         closeDeleteEntity();
     }
 }
+
+/*
+    attributes
+ */
+//
+function addAttribute(){
+    var location=new go.Point(-1000+100*Math.random(),100*Math.random());
+    var newAttr={"key":"newAttr","location":location,category:"Attribute"};
+    myDiagram.model.addNodeData(newAttr);
+
+    var newJson = myDiagram.model.toJSON();
+    document.getElementById("mySavedModel").value = newJson;
+
+    //todo 传数据给backend
+}
+

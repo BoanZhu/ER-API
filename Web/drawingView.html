@@ -48,6 +48,11 @@
             <div class="navto-nav">Delete Entity</div>
         </button>
     </div>
+    <div class="design" id="attribute1">
+        <button class="sidebar-button" id="addAttribute" onclick="addAttribute()">
+            <div class="navto-nav">Add Attribute</div>
+        </button>
+    </div>
 </div>
 
 <!--Edit Entity Pop-->
@@ -145,7 +150,6 @@ API 1: get all the entity and relationship
     // });
 
     function load() {
-
         myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
     }
 
