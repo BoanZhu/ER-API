@@ -5,16 +5,16 @@ import com.ic.er.Exception.ERException;
 import com.ic.er.common.RelatedObjType;
 import com.ic.er.common.Utils;
 import com.ic.er.entity.LayoutInfoDO;
+import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
+@Getter
 public class LayoutInfo {
     @JsonIgnore
     private Long ID;
@@ -27,7 +27,7 @@ public class LayoutInfo {
     private Double height;
     private Double width;
 
-    public LayoutInfo(Long ID, Long relatedObjID, RelatedObjType relatedObjType, Double layoutX, Double layoutY, Double height, Double width) {
+    protected LayoutInfo(Long ID, Long relatedObjID, RelatedObjType relatedObjType, Double layoutX, Double layoutY, Double height, Double width) {
         this.ID = ID;
         this.relatedObjID = relatedObjID;
         this.relatedObjType = relatedObjType;
@@ -44,21 +44,9 @@ public class LayoutInfo {
         }
     }
 
-    private static LayoutInfo TransformFromDB(LayoutInfoDO layoutInfoDO) {
-        return new LayoutInfo(layoutInfoDO.getID(), layoutInfoDO.getRelatedObjID(), layoutInfoDO.getRelatedObjType(), layoutInfoDO.getLayoutX(), layoutInfoDO.getLayoutY(), layoutInfoDO.getHeight(), layoutInfoDO.getWidth());
-    }
-
-    private static List<LayoutInfo> TransListFormFromDB(List<LayoutInfoDO> doList) {
-        List<LayoutInfo> ret = new ArrayList<>();
-        for (LayoutInfoDO LayoutInfoDO : doList) {
-            ret.add(TransformFromDB(LayoutInfoDO));
-        }
-        return ret;
-    }
-
     public static List<LayoutInfo> queryByLayoutInfo(LayoutInfoDO layoutInfoDO) {
         List<LayoutInfoDO> LayoutInfoDOList = ER.layoutInfoMapper.selectByLayoutInfo(layoutInfoDO);
-        return TransListFormFromDB(LayoutInfoDOList);
+        return Trans.TransListFormDB(LayoutInfoDOList);
     }
 
     public static LayoutInfo queryByObjIDAndObjType(Long relatedObjID, RelatedObjType relatedObjType) {
@@ -92,7 +80,19 @@ public class LayoutInfo {
         }
     }
 
-    public void update() throws ERException {
+    public void update(Double layoutX, Double layoutY, Double height, Double width) throws ERException {
+        if (layoutX != null) {
+            this.layoutX = layoutX;
+        }
+        if (layoutX != null) {
+            this.layoutY = layoutY;
+        }
+        if (layoutX != null) {
+            this.height = height;
+        }
+        if (layoutX != null) {
+            this.width = width;
+        }
         int ret = ER.layoutInfoMapper.updateByID(new LayoutInfoDO(this.ID, this.relatedObjID, this.relatedObjType, this.layoutX, this.layoutY, this.height, this.width));
         if (ret == 0) {
             throw new ERException(String.format("cannot find LayoutInfo with ID: %d", this.ID));

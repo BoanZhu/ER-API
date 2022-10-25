@@ -1,6 +1,5 @@
 package com.ic.er;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ic.er.Exception.ERException;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.DataType;
@@ -12,14 +11,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.List;
 
 public class TestView {
 
     @Before
     public void init() throws Exception {
-        ER.connectDB();
+        ER.connectDB(true);
         ER.createTables();
     }
 
@@ -49,8 +47,7 @@ public class TestView {
     public void updateViewTest() {
         View firstView = ER.createView("first view", "tw");
         String newViewName = "new view name";
-        firstView.setName(newViewName);
-        firstView.update();
+        firstView.updateInfo(newViewName);
 
         View newView = View.queryByID(1L);
         Assert.assertEquals(newView.getName(), newViewName);
@@ -111,8 +108,7 @@ public class TestView {
         Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
         Assert.assertNotNull(ts);
 
-        ts.setName("new relationship name");
-        ts.update();
+        ts.updateInfo("new relationship name", null, null, null);
         Assert.assertEquals(Relationship.queryByID(ts.getID()).getName(), "new relationship name");
 
 

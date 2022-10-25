@@ -1,14 +1,12 @@
 package com.ic.er;
 
 import com.ic.er.Exception.ERException;
-import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.AttributeDO;
 import com.ic.er.common.DataType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class TestAttribute {
@@ -18,7 +16,7 @@ public class TestAttribute {
 
     @Before
     public void init() throws Exception {
-        ER.connectDB();
+        ER.connectDB(true);
         ER.createTables();
         testView = ER.createView("testView", "wt22");
         testEntity = testView.addEntity("teacher");
@@ -39,12 +37,16 @@ public class TestAttribute {
         Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
 
         String newName = "new_teacher_id";
-        a1.setName(newName);
-        a1.updateDB();
+        a1.updateInfo(newName, null, null, null);
+        a1.updateLayoutInfo(1.0, 2.0, 3.0, 4.0);
 
         List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(a1.getID()));
         Assert.assertEquals(attributeList.size(), 1);
         Assert.assertEquals(attributeList.get(0).getName(), newName);
+        Assert.assertEquals(attributeList.get(0).getLayoutInfo().getLayoutX(), Double.valueOf(1.0));
+        Assert.assertEquals(attributeList.get(0).getLayoutInfo().getLayoutY(), Double.valueOf(2.0));
+        Assert.assertEquals(attributeList.get(0).getLayoutInfo().getHeight(), Double.valueOf(3.0));
+        Assert.assertEquals(attributeList.get(0).getLayoutInfo().getWidth(), Double.valueOf(4.0));
     }
 
     @Test

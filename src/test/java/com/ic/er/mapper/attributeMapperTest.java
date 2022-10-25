@@ -7,10 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.SQLException;
 import java.util.Date;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -21,7 +19,7 @@ import java.util.List;
 public class attributeMapperTest {
     @Before
     public void init() throws Exception {
-        ER.connectDB();
+        ER.connectDB(true);
         ER.createTables();
     }
 

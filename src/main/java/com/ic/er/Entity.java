@@ -6,18 +6,15 @@ import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.AttributeDO;
 import com.ic.er.entity.EntityDO;
 import com.ic.er.common.DataType;
-import com.ic.er.common.ResultState;
 import com.ic.er.common.Utils;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
+@Getter
 public class Entity {
     @JsonIgnore
     private Long ID;
@@ -31,15 +28,7 @@ public class Entity {
     @JsonIgnore
     private Date gmtModified;
 
-    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
-        this.layoutInfo.setLayoutX(layoutX);
-        this.layoutInfo.setLayoutY(layoutY);
-        this.layoutInfo.setHeight(height);
-        this.layoutInfo.setWidth(width);
-        this.layoutInfo.update();
-    }
-
-    public Entity(Long ID, String name, Long viewID, List<Attribute> attributeList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+    protected Entity(Long ID, String name, Long viewID, List<Attribute> attributeList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.viewID = viewID;
@@ -59,11 +48,15 @@ public class Entity {
         }
     }
 
+    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
+        this.layoutInfo.update(layoutX, layoutY, height, width);
+    }
+
     public Attribute addAttribute(String attributeName, DataType dataType, int isPrimary, int isForeign) {
         Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, isForeign, null, new Date(), new Date());
         this.attributeList.add(attribute);
         if (ER.useDB) {
-            this.update();
+            this.updateInfo(null);
         }
         return attribute;
     }
@@ -72,7 +65,7 @@ public class Entity {
         this.attributeList.remove(attribute);
         if (ER.useDB) {
             attribute.deleteDB();
-            this.update();
+            this.updateInfo(null);
         }
         return false;
     }
@@ -123,7 +116,10 @@ public class Entity {
         ER.entityMapper.deleteByID(this.ID);
     }
 
-    public void update() throws ERException {
+    public void updateInfo(String name) throws ERException {
+        if (name != null) {
+            this.name = name;
+        }
         int ret = ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
         if (ret == 0) {
             throw new ERException(String.format("cannot find Attribute with ID: %d", this.ID));

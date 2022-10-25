@@ -4,19 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ic.er.Exception.ERException;
 import com.ic.er.common.*;
-import com.ic.er.dao.LayoutInfoMapper;
 import com.ic.er.entity.RelationshipDO;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Data
+@Getter
 @JsonSerialize(using = RelationshipSerializer.class)
-@NoArgsConstructor
 public class Relationship {
     @JsonIgnore
     private Long ID;
@@ -32,7 +29,7 @@ public class Relationship {
     @JsonIgnore
     private Date gmtModified;
 
-    public Relationship(Long ID, String name, Long viewID, Entity firstEntity, Entity secondEntity, Cardinality cardinality, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+    protected Relationship(Long ID, String name, Long viewID, Entity firstEntity, Entity secondEntity, Cardinality cardinality, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.viewID = viewID;
@@ -55,11 +52,7 @@ public class Relationship {
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
-        this.layoutInfo.setLayoutX(layoutX);
-        this.layoutInfo.setLayoutY(layoutY);
-        this.layoutInfo.setHeight(height);
-        this.layoutInfo.setWidth(width);
-        this.layoutInfo.update();
+        this.layoutInfo.update(layoutX, layoutY, height, width);
     }
 
     private void insertDB() {
@@ -77,21 +70,6 @@ public class Relationship {
         }
     }
 
-    private static Relationship TransformFromDB(RelationshipDO relationshipDO) {
-        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(relationshipDO.getID(), RelatedObjType.RELATIONSHIP);
-        return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getViewID(),
-                Entity.queryByID(relationshipDO.getFirstEntityID()), Entity.queryByID(relationshipDO.getSecondEntityID()),
-                relationshipDO.getCardinality(), layoutInfo,
-                relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
-    }
-
-    private static List<Relationship> TransListFormFromDB(List<RelationshipDO> doList) {
-        List<Relationship> ret = new ArrayList<>();
-        for (RelationshipDO RelationshipDO : doList) {
-            ret.add(TransformFromDB(RelationshipDO));
-        }
-        return ret;
-    }
 
     public static List<Relationship> queryByRelationship(RelationshipDO RelationshipDO) {
         return TransListFormFromDB(ER.relationshipMapper.selectByRelationship(RelationshipDO));
@@ -110,8 +88,20 @@ public class Relationship {
         ER.relationshipMapper.deleteByID(this.ID);
     }
 
-    public void update() {
-        int res = ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.cardinality, 0, this.gmtCreate, this.gmtModified));
+    public void updateInfo(String name, Entity firstEntity, Entity secondEntity, Cardinality cardinality) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (firstEntity != null) {
+            this.firstEntity = firstEntity;
+        }
+        if (secondEntity != null) {
+            this.secondEntity = secondEntity;
+        }
+        if (cardinality != null) {
+            this.cardinality = cardinality;
+        }
+        int res = ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.cardinality, 0, this.gmtCreate, new Date()));
         if (res == 0) {
             throw new ERException(String.format("cannot find Relationship with ID: %d", this.ID));
         }

@@ -7,22 +7,17 @@ import com.ic.er.Exception.ERException;
 import com.ic.er.common.ViewDeserializer;
 import com.ic.er.entity.ViewDO;
 import com.ic.er.common.Cardinality;
-import com.ic.er.common.ResultState;
 import com.ic.er.common.Utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
+@Getter
 @JsonDeserialize(using = ViewDeserializer.class)
 public class View {
     @JsonIgnore
@@ -36,7 +31,7 @@ public class View {
     @JsonIgnore
     private Date gmtModified;
 
-    public View(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, String creator, Date gmtCreate, Date gmtModified) {
+    protected View(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, String creator, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.entityList = entityList;
@@ -57,7 +52,7 @@ public class View {
         Entity entity = new Entity(0L, entityName, this.ID, new ArrayList<>(), null, new Date(), new Date());
         this.entityList.add(entity);
         if (ER.useDB) {
-            this.update();
+            this.updateInfo(null);
         }
         return entity;
     }
@@ -66,7 +61,7 @@ public class View {
         this.entityList.remove(entity);
         if (ER.useDB) {
             entity.deleteDB();
-            this.update();
+            this.updateInfo(null);
         }
         return false;
     }
@@ -77,7 +72,7 @@ public class View {
                 firstEntity, secondEntity, cardinality, null, new Date(), new Date());
         this.getRelationshipList().add(relationship);
         if (ER.useDB) {
-            this.update();
+            this.updateInfo(null);
         }
         return relationship;
     }
@@ -86,7 +81,7 @@ public class View {
         this.getRelationshipList().remove(relationship);
         if (ER.useDB) {
             relationship.deleteDB();
-            this.update();
+            this.updateInfo(null);
         }
         return false;
     }
@@ -108,9 +103,14 @@ public class View {
         return TransListFormFromDB(ER.viewMapper.selectAll());
     }
 
-    public String ToJSON() throws JsonProcessingException {
+    public String ToJSON() {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(this);
+        String json;
+        try {
+            json = ow.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         return json;
     }
 
@@ -124,20 +124,6 @@ public class View {
         }
     }
 
-    private static View TransformFromDB(ViewDO ViewDO) {
-        List<Entity> entityList = Entity.queryByEntity(null);
-        List<Relationship> relationshipList = Relationship.queryByRelationship(null);
-        return new View(ViewDO.getID(), ViewDO.getName(), entityList, relationshipList, ViewDO.getCreator(),
-                ViewDO.getGmtCreate(), ViewDO.getGmtModified());
-    }
-
-    private static List<View> TransListFormFromDB(List<ViewDO> doList) {
-        List<View> ret = new ArrayList<>();
-        for (ViewDO ViewDO : doList) {
-            ret.add(TransformFromDB(ViewDO));
-        }
-        return ret;
-    }
 
     public static List<View> queryByView(ViewDO ViewDO) {
         List<ViewDO> viewDOList = ER.viewMapper.selectByView(ViewDO);
@@ -157,7 +143,10 @@ public class View {
         ER.viewMapper.deleteByID(this.ID);
     }
 
-    public void update() {
+    public void updateInfo(String name) {
+        if (name != null) {
+            this.name = name;
+        }
         int ret = ER.viewMapper.updateByID(new ViewDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
         if (ret == 0) {
             throw new ERException(String.format("cannot find Attribute with ID: %d", this.ID));

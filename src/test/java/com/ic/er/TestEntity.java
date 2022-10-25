@@ -7,15 +7,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.SQLException;
-
 public class TestEntity {
 
     private View testView;
 
     @Before
     public void init() throws Exception {
-        ER.connectDB();
+        ER.connectDB(true);
         ER.createTables();
         testView = ER.createView("testView", "wt22");
     }
@@ -49,8 +47,7 @@ public class TestEntity {
         Entity teacher = testView.addEntity("teacher");
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
-        teacher.setName("new teacher name");
-        teacher.update();
+        teacher.updateInfo("new teacher name");
 
         Entity entity = Entity.queryByID(teacher.getID());
         Assert.assertNotNull(entity);
@@ -63,8 +60,7 @@ public class TestEntity {
         Attribute teacherID = teacher.addAttribute("teacher_id", DataType.INTEGER, 1, 0);
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
-        teacher.setName("new teacher name");
-        teacher.update();
+        teacher.updateInfo("new teacher name");
 
         teacher.deleteAttribute(teacherID);
         Assert.assertEquals(teacher.getAttributeList().size(), 0);

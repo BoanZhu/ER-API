@@ -1,7 +1,5 @@
 package com.ic.er;
 
-import com.ic.er.common.ResultState;
-import com.ic.er.common.ResultStateCode;
 import com.ic.er.dao.*;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -28,7 +26,7 @@ public class ER {
     public static LayoutInfoMapper layoutInfoMapper;
     private static Map<Long, View> allViewsMap = new HashMap<>();
 
-    public static void connectDB() throws IOException {
+    public static void connectDB(boolean useDBLog) throws IOException {
         InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
         SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
         SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
@@ -38,7 +36,9 @@ public class ER {
         relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
         viewMapper = sqlSession.getMapper(ViewMapper.class);
         layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
-        BasicConfigurator.configure();
+        if (useDBLog) {
+            BasicConfigurator.configure();
+        }
         useDB = true;
     }
 

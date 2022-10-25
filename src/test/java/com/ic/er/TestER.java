@@ -13,9 +13,10 @@ public class TestER {
 
     @Before
     public void setUp() throws Exception {
-        ER.connectDB();
+        ER.connectDB(true);
         ER.createTables();
     }
+
     @Test
     public void createViewTest() {
         View testView = ER.createView("testView", "wt22");
@@ -46,7 +47,7 @@ public class TestER {
 
         Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
 
-        firstView.ToJSONFile();
+        firstView.ToJSON();
     }
 
 }
