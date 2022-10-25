@@ -1,4 +1,3 @@
-
 function init() {
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
@@ -23,8 +22,6 @@ function init() {
         'purple': '#d689ff',
         'orange': '#fdb400',
     }
-
-
 
     myDiagram.addDiagramListener("Modified", e => {
         var button = document.getElementById("SaveButton");
@@ -64,7 +61,8 @@ function init() {
     //     );
 
     // define the Node template, representing an entity
-    myDiagram.nodeTemplate =
+    // myDiagram.nodeTemplate =
+    var entityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
                 selectionAdorned: true,
@@ -134,8 +132,8 @@ function init() {
 
             ) // end Table Panel
         );
-
-
+    // default template
+    myDiagram.nodeTemplate = entityTemplate;
 
     // define the Link template, representing a relationship
     myDiagram.linkTemplate = $(go.Link,  // the whole link panel
@@ -192,15 +190,20 @@ function init() {
             linkDataArray: []
         });
 
+    function addRelationship(){
+
+    }
+
     myDiagram.addDiagramListener("TextEdited",(e) => {
 
-        if ("from" in e.subject.part.qb) { // identify the changed textBlock
+        if ("relation" in e.subject.part.qb) { // identify the changed textBlock
             const relationId = e.subject.part.qb.key;
             const fromEntityName = e.subject.part.qb.from;
             const toEntityName = e.subject.part.qb.to;
             const fromCardinality = e.subject.part.qb.fromText;
             const toCardinality = e.subject.part.qb.toText;
             const relationName = e.subject.part.qb.relation;
+            //todo 检测两个节点类型是不是一样
 
             // TODO: test API access
             // modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
@@ -287,6 +290,45 @@ function init() {
     //     {key: "Entity", items: [{"name":"template","isKey":true,"figure":"Decision","color":"#be4b15"}]},
     //     //relation
     // ];
+
+    // attribute node template
+    var attributeTemplate =$(go.Node, "Auto",
+        {
+            selectionAdorned: true,
+            resizable: false,
+            layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+            linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
+                return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+            }
+        },
+        new go.Binding("location", "location").makeTwoWay(),
+        $(go.Shape, "Circle",
+            {
+                fill: 'lightblue',
+                portId: "",
+                stroke: colors.lightblue,
+                cursor: "pointer",
+                fromSpot: go.Spot.AllSides,
+                toSpot: go.Spot.AllSides,
+                strokeWidth: 3,
+                fromLinkableDuplicates: false, toLinkableDuplicates: false
+            },
+            new go.Binding("fromLinkable", "from").makeTwoWay(),
+            new go.Binding("toLinkable", "to").makeTwoWay()),
+        // the table header
+        $(go.TextBlock,
+            new go.Binding("text","key")
+        )
+    );
+
+    // add all template
+    var templateMap = new go.Map();
+    templateMap.add("Entity", entityTemplate);
+    templateMap.add("Attribute",attributeTemplate);
+    // default
+    templateMap.add("",entityTemplate);
+
+    myDiagram.nodeTemplateMap = templateMap;
 
     load()
 }  // end init
