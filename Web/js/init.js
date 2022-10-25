@@ -192,12 +192,9 @@ function init() {
             linkDataArray: []
         });
 
-    function addRelationship(){
-
-    }
     myDiagram.addDiagramListener("TextEdited",(e) => {
 
-        if ("relation" in e.subject.part.qb) { // identify the changed textBlock
+        if ("from" in e.subject.part.qb) { // identify the changed textBlock
             const relationId = e.subject.part.qb.key;
             const fromEntityName = e.subject.part.qb.from;
             const toEntityName = e.subject.part.qb.to;
@@ -211,6 +208,17 @@ function init() {
         }
     });
 
+    myDiagram.addDiagramListener("SelectionMoved",(e) => {
+        console.log("true");
+
+        // if ("key" in e.subject.part.qb) { // identify the changed textBlock
+        //     // const relationId = e.subject.part.qb.key;
+        //
+        //     // TODO: test API access
+        //     // modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
+        //     console.log(e.subject.text);
+        // }
+    });
 
     myDiagram.addModelChangedListener(function(evt) {
         // ignore unimportant Transaction events
@@ -239,7 +247,16 @@ function init() {
                 // TODO: test API access
                 // deleteRelation(relationId,fromEntityName,toEntityName);
                 console.log(evt.propertyName + " removed link: " + e.oldValue);
+            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+
+                // const entityId = e.oldValue.key;
+                // const entityName = e.oldValue.entityName;
+
+                // TODO: test API access
+                // deleteRelation(relationId,fromEntityName,toEntityName);
+                console.log(evt.propertyName + " removed link: " + e.oldValue);
             }
+
         });
     });
 
