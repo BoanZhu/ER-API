@@ -210,18 +210,16 @@ function init() {
         }
     });
 
-    myDiagram.addDiagramListener("SelectionMoved",(e) => {
-
-        const selectNode = e.diagram.selection.first();
-        const entityId = selectNode.key;
-        const entityLocationX = selectNode.location.x;
-        const entityLocationY = selectNode.location.y;
-
-        moveEntity(entityId,entityLocationX,entityLocationY);
-
-
-
-    });
+    // myDiagram.addDiagramListener("SelectionMoved",(e) => {
+    //
+    //     const selectNode = e.diagram.selection.first();
+    //     const entityId = selectNode.key;
+    //     const entityLocationX = selectNode.location.x;
+    //     const entityLocationY = selectNode.location.y;
+    //
+    //     moveEntity(entityId,entityLocationX,entityLocationY);
+    //
+    // });
 
     myDiagram.addModelChangedListener(function(evt) {
         // ignore unimportant Transaction events
@@ -249,14 +247,6 @@ function init() {
 
                 // TODO: test API access
                 // deleteRelation(relationId,fromEntityName,toEntityName);
-                console.log(evt.propertyName + " removed link: " + e.oldValue);
-            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
-
-                // const entityId = e.oldValue.key;
-                // const entityName = e.oldValue.entityName;
-
-                // TODO: test API access
-                // deleteRelation(relationId);
                 console.log(evt.propertyName + " removed link: " + e.oldValue);
             }
 
@@ -342,12 +332,13 @@ function createRelation(fromEntityId, toEntityId) { //return request ID
 
     $.getJSON("http://localhost:8000/createRelation?" + "&viewId=" + viewId + "&fromEntityId" + fromEntityId+"toEntityId"+toEntityId,function (res) {
         //todo get the relationId
-        relationId;
+        relationId = res.id;
     }).fail(function (failure) {
         if (failure.status == 400) {
             console.log("fail status:" + failure.status);
         }
     });
+    return relationId;
 }
 
 function deleteRelation(relationId) {
