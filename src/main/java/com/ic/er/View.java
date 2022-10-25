@@ -100,7 +100,7 @@ public class View {
     }
 
     public static List<View> queryAll() {
-        return TransListFormFromDB(ER.viewMapper.selectAll());
+        return Trans.TransViewListFromDB(ER.viewMapper.selectAll());
     }
 
     public String ToJSON() {
@@ -127,7 +127,7 @@ public class View {
 
     public static List<View> queryByView(ViewDO ViewDO) {
         List<ViewDO> viewDOList = ER.viewMapper.selectByView(ViewDO);
-        return TransListFormFromDB(viewDOList);
+        return Trans.TransViewListFromDB(viewDOList);
     }
 
     public static View queryByID(Long ID) {

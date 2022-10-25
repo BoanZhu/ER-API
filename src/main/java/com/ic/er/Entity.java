@@ -48,9 +48,6 @@ public class Entity {
         }
     }
 
-    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
-        this.layoutInfo.update(layoutX, layoutY, height, width);
-    }
 
     public Attribute addAttribute(String attributeName, DataType dataType, int isPrimary, int isForeign) {
         Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, isForeign, null, new Date(), new Date());
@@ -68,35 +65,6 @@ public class Entity {
             this.updateInfo(null);
         }
         return false;
-    }
-
-    private static Entity TransformFromDB(EntityDO entityDO) {
-        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), entityDO.getViewID()));
-        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), RelatedObjType.ENTITY);
-        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getViewID(), attributeList, layoutInfo,
-                entityDO.getGmtCreate(), entityDO.getGmtModified());
-    }
-
-    private static List<Entity> TransListFormFromDB(List<EntityDO> doList) {
-        List<Entity> ret = new ArrayList<>();
-        for (EntityDO EntityDO : doList) {
-            ret.add(TransformFromDB(EntityDO));
-        }
-        return ret;
-    }
-
-    public static List<Entity> queryByEntity(EntityDO entityDO) {
-        List<EntityDO> entityDOList = ER.entityMapper.selectByEntity(entityDO);
-        return TransListFormFromDB(entityDOList);
-    }
-
-    public static Entity queryByID(Long ID) {
-        List<Entity> entityDOList = queryByEntity(new EntityDO(ID));
-        if (entityDOList.size() == 0) {
-            throw new ERException(String.format("Entity with ID: %d not found ", ID));
-        } else {
-            return entityDOList.get(0);
-        }
     }
 
     private void insertDB() {
@@ -125,4 +93,23 @@ public class Entity {
             throw new ERException(String.format("cannot find Attribute with ID: %d", this.ID));
         }
     }
+
+    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
+        this.layoutInfo.update(layoutX, layoutY, height, width);
+    }
+
+    public static List<Entity> queryByEntity(EntityDO entityDO) {
+        List<EntityDO> entityDOList = ER.entityMapper.selectByEntity(entityDO);
+        return Trans.TransEntityListFormFromDB(entityDOList);
+    }
+
+    public static Entity queryByID(Long ID) {
+        List<Entity> entityDOList = queryByEntity(new EntityDO(ID));
+        if (entityDOList.size() == 0) {
+            throw new ERException(String.format("Entity with ID: %d not found ", ID));
+        } else {
+            return entityDOList.get(0);
+        }
+    }
+
 }

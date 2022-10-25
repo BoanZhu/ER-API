@@ -51,9 +51,6 @@ public class Relationship {
         }
     }
 
-    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
-        this.layoutInfo.update(layoutX, layoutY, height, width);
-    }
 
     private void insertDB() {
         try {
@@ -70,9 +67,8 @@ public class Relationship {
         }
     }
 
-
     public static List<Relationship> queryByRelationship(RelationshipDO RelationshipDO) {
-        return TransListFormFromDB(ER.relationshipMapper.selectByRelationship(RelationshipDO));
+        return Trans.TransRelationshipListFromDB(ER.relationshipMapper.selectByRelationship(RelationshipDO));
     }
 
     public static Relationship queryByID(Long ID) throws ERException {
@@ -106,4 +102,9 @@ public class Relationship {
             throw new ERException(String.format("cannot find Relationship with ID: %d", this.ID));
         }
     }
+
+    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
+        this.layoutInfo.update(layoutX, layoutY, height, width);
+    }
+
 }

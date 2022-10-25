@@ -46,7 +46,7 @@ public class LayoutInfo {
 
     public static List<LayoutInfo> queryByLayoutInfo(LayoutInfoDO layoutInfoDO) {
         List<LayoutInfoDO> LayoutInfoDOList = ER.layoutInfoMapper.selectByLayoutInfo(layoutInfoDO);
-        return Trans.TransListFormDB(LayoutInfoDOList);
+        return Trans.TransLayoutInfoListFormDB(LayoutInfoDOList);
     }
 
     public static LayoutInfo queryByObjIDAndObjType(Long relatedObjID, RelatedObjType relatedObjType) {
