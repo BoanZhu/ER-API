@@ -24,9 +24,9 @@ public class TestAttribute {
 
     @Test
     public void addAttributeTest() {
-        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
-        Attribute a2 = testEntity.addAttribute("name", DataType.VARCHAR, 0, 0);
-        Attribute a3 = testEntity.addAttribute("age", DataType.INTEGER, 0, 0);
+        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1);
+        Attribute a2 = testEntity.addAttribute("name", DataType.VARCHAR, 0);
+        Attribute a3 = testEntity.addAttribute("age", DataType.INTEGER, 0);
         System.out.printf("a1 ID: %d\n", a1.getID());
         System.out.printf("a2 ID: %d\n", a2.getID());
         System.out.printf("a3 ID: %d\n", a3.getID());
@@ -34,10 +34,9 @@ public class TestAttribute {
 
     @Test
     public void updateTest() {
-        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
-
+        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1);
         String newName = "new_teacher_id";
-        a1.updateInfo(newName, null, null, null);
+        a1.updateInfo(newName, null, null);
         a1.updateLayoutInfo(1.0, 2.0, 3.0, 4.0);
 
         List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(a1.getID()));
@@ -51,14 +50,14 @@ public class TestAttribute {
 
     @Test
     public void selectByIDTest() {
-        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
+        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1);
         Attribute attribute = Attribute.queryByID(a1.getID());
         Assert.assertNotNull(attribute);
     }
 
     @Test(expected = ERException.class)
     public void deleteByIDTest() {
-        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
+        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1);
 
         // delete
         a1.deleteDB();

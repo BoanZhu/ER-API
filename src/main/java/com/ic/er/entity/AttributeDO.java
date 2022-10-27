@@ -12,28 +12,19 @@ import java.util.Date;
 @NoArgsConstructor
 public class AttributeDO {
     private Long ID;
-
     private Long entityID;
-
     private Long viewID;
-
     private String name;
-
     private DataType dataType;
-
     private Integer isPrimary;
-
-    private Integer isForeign;
-
     private Integer isDelete;
-
     private Date gmtCreate;
-
     private Date gmtModified;
 
     public AttributeDO(Long ID) {
         this.ID = ID;
     }
+
     public AttributeDO(Long entityID, Long viewID) {
         this.entityID = entityID;
         this.viewID = viewID;

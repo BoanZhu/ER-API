@@ -24,7 +24,6 @@ public class Attribute {
     private String name;
     private DataType dataType;
     private int isPrimary;
-    private int isForeign;
     private LayoutInfo layoutInfo;
     @JsonIgnore
     private Date gmtCreate;
@@ -32,14 +31,13 @@ public class Attribute {
     private Date gmtModified;
 
     protected Attribute(Long ID, Long entityID, Long viewID, String name, DataType dataType,
-                        int isPrimary, int isForeign, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+                        int isPrimary, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.entityID = entityID;
         this.viewID = viewID;
         this.name = name;
         this.dataType = dataType;
         this.isPrimary = isPrimary;
-        this.isForeign = isForeign;
         this.layoutInfo = layoutInfo;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
@@ -58,7 +56,7 @@ public class Attribute {
 
     private void insertDB() throws PersistenceException {
         try {
-            AttributeDO aDo = new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, this.gmtModified);
+            AttributeDO aDo = new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.attributeMapper.insert(aDo);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -73,7 +71,7 @@ public class Attribute {
         ER.attributeMapper.deleteByID(this.ID);
     }
 
-    public void updateInfo(String name, DataType dataType, Integer isPrimary, Integer isForeign) throws ERException {
+    public void updateInfo(String name, DataType dataType, Integer isPrimary) throws ERException {
         if (name != null) {
             this.name = name;
         }
@@ -83,10 +81,7 @@ public class Attribute {
         if (isPrimary != null) {
             this.isPrimary = isPrimary;
         }
-        if (isForeign != null) {
-            this.isForeign = isForeign;
-        }
-        int ret = ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, this.isForeign, 0, this.gmtCreate, new Date()));
+        int ret = ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.entityID, this.viewID, this.name, this.dataType, this.isPrimary, 0, this.gmtCreate, new Date()));
         if (ret == 0) {
             throw new ERException(String.format("cannot find Attribute with ID: %d", this.ID));
         }

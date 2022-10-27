@@ -21,7 +21,8 @@ public class RelationshipDO {
 
     private Long secondEntityID;
 
-    private Cardinality cardinality;
+    private Cardinality firstCardinality;
+    private Cardinality secondCardinality;
 
     private Integer isDelete;
 
@@ -32,6 +33,7 @@ public class RelationshipDO {
     public RelationshipDO(Long ID) {
         this.ID = ID;
     }
+
     public RelationshipDO(Long firstEntityID, Long secondEntityID) {
         this.firstEntityID = firstEntityID;
         this.secondEntityID = secondEntityID;

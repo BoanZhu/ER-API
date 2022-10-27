@@ -9,9 +9,8 @@
     </settings>
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
-                     javaType="com.ic.er.common.Cardinality"/>
-        <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
                      javaType="com.ic.er.common.RelatedObjType"/>
+        <typeHandler handler="com.ic.er.common.CardinalityEnumTypeHandler"/>
     </typeHandlers>
     <environments default='development'>
         <environment id='development'>

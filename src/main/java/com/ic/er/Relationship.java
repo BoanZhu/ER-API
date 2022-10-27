@@ -22,20 +22,22 @@ public class Relationship {
     private Long viewID;
     private Entity firstEntity;
     private Entity secondEntity;
-    private Cardinality cardinality;
+    private Cardinality firstCardinality;
+    private Cardinality secondCardinality;
     private LayoutInfo layoutInfo;
     @JsonIgnore
     private Date gmtCreate;
     @JsonIgnore
     private Date gmtModified;
 
-    protected Relationship(Long ID, String name, Long viewID, Entity firstEntity, Entity secondEntity, Cardinality cardinality, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+    protected Relationship(Long ID, String name, Long viewID, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.viewID = viewID;
         this.firstEntity = firstEntity;
         this.secondEntity = secondEntity;
-        this.cardinality = cardinality;
+        this.firstCardinality = firstCardinality;
+        this.secondCardinality = secondCardinality;
         this.layoutInfo = layoutInfo;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
@@ -55,7 +57,7 @@ public class Relationship {
     private void insertDB() {
         try {
             RelationshipDO relationshipDO = new RelationshipDO(
-                    0L, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.cardinality,
+                    0L, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality,
                     0, this.gmtCreate, this.gmtModified);
             int ret = ER.relationshipMapper.insert(relationshipDO);
             if (ret == 0) {
@@ -84,7 +86,7 @@ public class Relationship {
         ER.relationshipMapper.deleteByID(this.ID);
     }
 
-    public void updateInfo(String name, Entity firstEntity, Entity secondEntity, Cardinality cardinality) {
+    public void updateInfo(String name, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality) {
         if (name != null) {
             this.name = name;
         }
@@ -94,10 +96,13 @@ public class Relationship {
         if (secondEntity != null) {
             this.secondEntity = secondEntity;
         }
-        if (cardinality != null) {
-            this.cardinality = cardinality;
+        if (firstCardinality != null) {
+            this.firstCardinality = firstCardinality;
         }
-        int res = ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.cardinality, 0, this.gmtCreate, new Date()));
+        if (secondCardinality != null) {
+            this.secondCardinality = secondCardinality;
+        }
+        int res = ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality, 0, this.gmtCreate, new Date()));
         if (res == 0) {
             throw new ERException(String.format("cannot find Relationship with ID: %d", this.ID));
         }

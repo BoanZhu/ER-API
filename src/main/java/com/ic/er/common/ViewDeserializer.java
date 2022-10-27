@@ -40,8 +40,7 @@ public class ViewDeserializer extends StdDeserializer<View> {
                 String attributeName = attributeJSONNode.get("name").textValue();
                 DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
                 Integer attributeIsPrimary = attributeJSONNode.get("isPrimary").intValue();
-                Integer attributeIsForeign = attributeJSONNode.get("isForeign").intValue();
-                entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeIsForeign);
+                entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary);
                 entityNameMap.put(entityName, entity);
             }
             JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
@@ -52,8 +51,9 @@ public class ViewDeserializer extends StdDeserializer<View> {
             String relationshipName = relationshipJSONNode.get("name").textValue();
             String firstEntityName = relationshipJSONNode.get("firstEntity").textValue();
             String secondEntityName = relationshipJSONNode.get("secondEntity").textValue();
-            String cardinality = relationshipJSONNode.get("cardinality").textValue();
-            Relationship relationship = view.createRelationship(relationshipName, entityNameMap.get(firstEntityName), entityNameMap.get(secondEntityName), Cardinality.valueOf(cardinality));
+            String firstCardinality = relationshipJSONNode.get("firstCardinality").textValue();
+            String secondCardinality = relationshipJSONNode.get("secondCardinality").textValue();
+            Relationship relationship = view.createRelationship(relationshipName, entityNameMap.get(firstEntityName), entityNameMap.get(secondEntityName), Cardinality.getFromValue(firstCardinality), Cardinality.getFromValue(secondCardinality));
             JsonNode layoutInfoJSONNode = relationshipJSONNode.get("layoutInfo");
             relationship.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), layoutInfoJSONNode.get("height").asDouble(), layoutInfoJSONNode.get("width").asDouble());
         }
