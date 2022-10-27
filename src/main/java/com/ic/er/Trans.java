@@ -24,7 +24,7 @@ public class Trans {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(attributeDO.getID(), RelatedObjType.ATTRIBUTE);
         return new Attribute(attributeDO.getID(), attributeDO.getEntityID(), attributeDO.getViewID(),
                 attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(),
-                layoutInfo, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
+                layoutInfo, 0.0, 0.0, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 
     protected static List<Attribute> TransAttributeListFromDB(List<AttributeDO> doList) {
@@ -38,7 +38,7 @@ public class Trans {
     protected static Entity TransformFromDB(EntityDO entityDO) {
         List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), entityDO.getViewID()));
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), RelatedObjType.ENTITY);
-        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getViewID(), attributeList, layoutInfo,
+        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getViewID(), attributeList, layoutInfo, null, null,
                 entityDO.getGmtCreate(), entityDO.getGmtModified());
     }
 

@@ -18,7 +18,6 @@ public class TestView {
     @Before
     public void init() throws Exception {
         ER.connectDB(true);
-        ER.createTables();
     }
 
     @Test
@@ -28,12 +27,12 @@ public class TestView {
         Entity teacher = testView.addEntity("teacher");
         teacher.addAttribute("teacher_id", DataType.VARCHAR, 1);
         teacher.addAttribute("name", DataType.VARCHAR, 0);
-        teacher.addAttribute("age", DataType.INTEGER, 0);
+        teacher.addAttribute("age", DataType.INT, 0);
 
         Entity student = testView.addEntity("student");
         student.addAttribute("student_id", DataType.VARCHAR, 1);
         student.addAttribute("name", DataType.VARCHAR, 0);
-        student.addAttribute("grade", DataType.INTEGER, 0);
+        student.addAttribute("grade", DataType.INT, 0);
 
         Relationship ts = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
 
@@ -98,12 +97,12 @@ public class TestView {
         Entity teacher = firstView.addEntity("teacher");
         teacher.addAttribute("teacher_id", DataType.VARCHAR, 1);
         teacher.addAttribute("name", DataType.VARCHAR, 0);
-        teacher.addAttribute("age", DataType.INTEGER, 0);
+        teacher.addAttribute("age", DataType.INT, 0);
 
         Entity student = firstView.addEntity("student");
         student.addAttribute("student_id", DataType.VARCHAR, 1);
         student.addAttribute("name", DataType.VARCHAR, 0);
-        student.addAttribute("grade", DataType.INTEGER, 0);
+        student.addAttribute("grade", DataType.INT, 0);
 
         Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(ts);

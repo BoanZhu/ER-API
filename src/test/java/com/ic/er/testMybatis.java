@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class testMybatis {
 
@@ -28,7 +29,7 @@ public class testMybatis {
     }
 
     @Test
-    public void testDBConnection() throws IOException {
+    public void testDBConnection() throws IOException, SQLException {
         ER.connectDB(true);
         Assert.assertNotNull(ER.sqlSession);
         System.out.println(ER.sqlSession.getConnection());

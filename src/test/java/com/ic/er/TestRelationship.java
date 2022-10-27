@@ -18,7 +18,6 @@ public class TestRelationship {
     @Before
     public void init() throws Exception {
         ER.connectDB(true);
-        ER.createTables();
         testView = ER.createView("testView", "wt22");
         teacher = testView.addEntity("teacher");
         student = testView.addEntity("student");

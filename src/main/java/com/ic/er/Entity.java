@@ -26,7 +26,7 @@ public class Entity {
     @JsonIgnore
     private Date gmtModified;
 
-    protected Entity(Long ID, String name, Long viewID, List<Attribute> attributeList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+    protected Entity(Long ID, String name, Long viewID, List<Attribute> attributeList, LayoutInfo layoutInfo, Double layoutX, Double layoutY, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.viewID = viewID;
@@ -42,17 +42,20 @@ public class Entity {
             }
         }
         if (this.layoutInfo == null) {
-            this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.ENTITY, 0.0, 0.0, 0.0, 0.0);
+            this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.ENTITY, layoutX, layoutY, 0.0, 0.0);
         }
     }
 
 
     public Attribute addAttribute(String attributeName, DataType dataType, int isPrimary) {
-        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, null, new Date(), new Date());
+        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, null, 0.0, 0.0, new Date(), new Date());
         this.attributeList.add(attribute);
-        if (ER.useDB) {
-            this.updateInfo(null);
-        }
+        return attribute;
+    }
+
+    public Attribute addAttribute(String attributeName, DataType dataType, int isPrimary, Double layoutX, Double layoutY) {
+        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, null, layoutX, layoutY, new Date(), new Date());
+        this.attributeList.add(attribute);
         return attribute;
     }
 
@@ -60,7 +63,6 @@ public class Entity {
         this.attributeList.remove(attribute);
         if (ER.useDB) {
             attribute.deleteDB();
-            this.updateInfo(null);
         }
         return false;
     }
@@ -79,6 +81,9 @@ public class Entity {
     }
 
     protected void deleteDB() {
+        for (Attribute attribute : attributeList) {
+            attribute.deleteDB();
+        }
         ER.entityMapper.deleteByID(this.ID);
     }
 
