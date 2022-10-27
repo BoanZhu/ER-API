@@ -3,14 +3,12 @@ package com.ic.er;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ic.er.Exception.ERException;
 import com.ic.er.common.RelatedObjType;
-import com.ic.er.entity.AttributeDO;
 import com.ic.er.entity.EntityDO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.Utils;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -49,8 +47,8 @@ public class Entity {
     }
 
 
-    public Attribute addAttribute(String attributeName, DataType dataType, int isPrimary, int isForeign) {
-        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, isForeign, null, new Date(), new Date());
+    public Attribute addAttribute(String attributeName, DataType dataType, int isPrimary) {
+        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, null, new Date(), new Date());
         this.attributeList.add(attribute);
         if (ER.useDB) {
             this.updateInfo(null);

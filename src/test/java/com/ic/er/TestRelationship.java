@@ -28,14 +28,14 @@ public class TestRelationship {
 
     @Test
     public void createRelationshipTest() {
-        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
+        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
         Assert.assertEquals(relationship.getID(), Long.valueOf(1L));
     }
 
     @Test(expected = ERException.class)
     public void deleteRelationshipTest() {
-        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
+        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
         relationship.deleteDB();
         Relationship relationship1 = Relationship.queryByID(1L);
@@ -43,23 +43,23 @@ public class TestRelationship {
 
     @Test
     public void updateRelationshipTest() {
-        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
+        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
 
         String newName = "new name";
-        Cardinality newCardi = Cardinality.ManyToMany;
+        Cardinality newCardi = Cardinality.OneToMany;
 
-        relationship.updateInfo(newName, null, null, newCardi);
+        relationship.updateInfo(newName, null, null, newCardi, newCardi);
         Relationship relationship1 = Relationship.queryByID(1L);
         Assert.assertNotNull(relationship1);
         Assert.assertEquals(relationship1.getName(), newName);
-        Assert.assertEquals(relationship1.getCardinality(), newCardi);
+        Assert.assertEquals(relationship1.getFirstCardinality(), newCardi);
     }
 
     @Test
     public void queryRelationshipTest() {
-        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
-        Relationship relationship2 = testView.createRelationship("teaches2", teacher, student, Cardinality.OneToMany);
+        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        Relationship relationship2 = testView.createRelationship("teaches2", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
         Assert.assertNotNull(relationship2);
 

@@ -26,16 +26,16 @@ public class TestView {
         View testView = ER.createView("testView", "wt22");
 
         Entity teacher = testView.addEntity("teacher");
-        teacher.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
-        teacher.addAttribute("name", DataType.VARCHAR, 0, 0);
-        teacher.addAttribute("age", DataType.INTEGER, 0, 0);
+        teacher.addAttribute("teacher_id", DataType.VARCHAR, 1);
+        teacher.addAttribute("name", DataType.VARCHAR, 0);
+        teacher.addAttribute("age", DataType.INTEGER, 0);
 
         Entity student = testView.addEntity("student");
-        student.addAttribute("student_id", DataType.VARCHAR, 1, 0);
-        student.addAttribute("name", DataType.VARCHAR, 0, 0);
-        student.addAttribute("grade", DataType.INTEGER, 0, 0);
+        student.addAttribute("student_id", DataType.VARCHAR, 1);
+        student.addAttribute("name", DataType.VARCHAR, 0);
+        student.addAttribute("grade", DataType.INTEGER, 0);
 
-        Relationship ts = testView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
+        Relationship ts = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
 
         View dbView = View.queryByID(testView.getID());
         Assert.assertNotNull(dbView);
@@ -96,31 +96,24 @@ public class TestView {
         View firstView = ER.createView("first view", "tw");
 
         Entity teacher = firstView.addEntity("teacher");
-        teacher.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
-        teacher.addAttribute("name", DataType.VARCHAR, 0, 0);
-        teacher.addAttribute("age", DataType.INTEGER, 0, 0);
+        teacher.addAttribute("teacher_id", DataType.VARCHAR, 1);
+        teacher.addAttribute("name", DataType.VARCHAR, 0);
+        teacher.addAttribute("age", DataType.INTEGER, 0);
 
         Entity student = firstView.addEntity("student");
-        student.addAttribute("student_id", DataType.VARCHAR, 1, 0);
-        student.addAttribute("name", DataType.VARCHAR, 0, 0);
-        student.addAttribute("grade", DataType.INTEGER, 0, 0);
+        student.addAttribute("student_id", DataType.VARCHAR, 1);
+        student.addAttribute("name", DataType.VARCHAR, 0);
+        student.addAttribute("grade", DataType.INTEGER, 0);
 
-        Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
+        Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(ts);
 
-        ts.updateInfo("new relationship name", null, null, null);
+        ts.updateInfo("new relationship name", null, null, null, null);
         Assert.assertEquals(Relationship.queryByID(ts.getID()).getName(), "new relationship name");
 
 
         firstView.deleteRelationship(ts);
         Assert.assertEquals(firstView.getRelationshipList().size(), 0);
         Assert.assertNull(Relationship.queryByID(ts.getID()));
-    }
-
-    @Test
-    public void loadFromJSONTest() throws IOException {
-        String content = Files.readString(Path.of("first view.json"), Charset.defaultCharset());
-        View view = View.loadFromJSON(content);
-        System.out.println(view);
     }
 }

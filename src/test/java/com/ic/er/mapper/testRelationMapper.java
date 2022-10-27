@@ -41,36 +41,36 @@ public class testRelationMapper {
     }
 
     @Test
-    public void testQueryRelationByRelation(){
+    public void testQueryRelationByRelation() {
         Assert.assertNotNull(sqlSession);
-        RelationshipDO relationshipDO = new RelationshipDO(null,"relation4",
-                null,null,null,
-                Cardinality.OneToMany,0,null,null);
+        RelationshipDO relationshipDO = new RelationshipDO(null, "relation4",
+                null, null, null,
+                Cardinality.ZeroToMany, Cardinality.ZeroToMany, 0, null, null);
         List<RelationshipDO> res = relationMapper.selectByRelationship(relationshipDO);
         System.out.println(res);
     }
 
     @Test
-    public void testCreateRelation(){
+    public void testCreateRelation() {
         Assert.assertNotNull(sqlSession);
-        RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(11),"relation4",
-                Long.valueOf(4),Long.valueOf(4),Long.valueOf(3),
-                Cardinality.OneToMany,0,new Date(),new Date());
-        Assert.assertEquals(relationMapper.insert(relationshipDO),1);
+        RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(11), "relation4",
+                Long.valueOf(4), Long.valueOf(4), Long.valueOf(3),
+                Cardinality.ZeroToMany, Cardinality.ZeroToMany, 0, new Date(), new Date());
+        Assert.assertEquals(relationMapper.insert(relationshipDO), 1);
     }
 
     @Test
-    public void testDeleteRelation(){
+    public void testDeleteRelation() {
         Assert.assertNotNull(sqlSession);
-        Assert.assertEquals(relationMapper.deleteByID(Long.valueOf(11)),1);
+        Assert.assertEquals(relationMapper.deleteByID(Long.valueOf(11)), 1);
     }
 
     @Test
-    public void testUpdateRelation(){
+    public void testUpdateRelation() {
         Assert.assertNotNull(sqlSession);
-        RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(4),"relation4update",
-                Long.valueOf(3),Long.valueOf(4),Long.valueOf(3),
-                Cardinality.OneToMany,0,new Date(),new Date());
-        Assert.assertEquals(relationMapper.updateByID(relationshipDO),1);
+        RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(4), "relation4update",
+                Long.valueOf(3), Long.valueOf(4), Long.valueOf(3),
+                Cardinality.ZeroToMany, Cardinality.ZeroToMany, 0, new Date(), new Date());
+        Assert.assertEquals(relationMapper.updateByID(relationshipDO), 1);
     }
 }

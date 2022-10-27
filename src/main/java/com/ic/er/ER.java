@@ -1,5 +1,8 @@
 package com.ic.er;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ic.er.Exception.ERException;
 import com.ic.er.dao.*;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -66,6 +69,16 @@ public class ER {
             return View.queryAll();
         } else {
             return new ArrayList<>(allViewsMap.values());
+        }
+    }
+
+    public static View loadFromJSON(String json) throws ERException {
+        try {
+            View view = new ObjectMapper().readValue(json, View.class);
+            ER.allViewsMap.put(view.getID(), view);
+            return view;
+        } catch (JsonProcessingException e) {
+            throw new ERException(String.format("loadFromJSON fail, error: %s", e.getMessage()));
         }
     }
 }

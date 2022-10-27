@@ -67,9 +67,9 @@ public class View {
     }
 
     public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity,
-                                           Cardinality cardinality) {
+                                           Cardinality firstCardinality, Cardinality secondCardinality) {
         Relationship relationship = new Relationship(0L, relationshipName, this.ID,
-                firstEntity, secondEntity, cardinality, null, new Date(), new Date());
+                firstEntity, secondEntity, firstCardinality, secondCardinality, null, new Date(), new Date());
         this.getRelationshipList().add(relationship);
         if (ER.useDB) {
             this.updateInfo(null);
@@ -113,17 +113,6 @@ public class View {
         }
         return json;
     }
-
-    public static View loadFromJSON(String json) throws ERException {
-        try {
-            View view = new ObjectMapper().readValue(json, View.class);
-            System.out.println(view.toString());
-            return view;
-        } catch (JsonProcessingException e) {
-            throw new ERException(String.format("loadFromJSON fail, error: %s", e.getMessage()));
-        }
-    }
-
 
     public static List<View> queryByView(ViewDO ViewDO) {
         List<ViewDO> viewDOList = ER.viewMapper.selectByView(ViewDO);
