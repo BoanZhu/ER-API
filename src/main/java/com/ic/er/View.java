@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.ic.er.Exception.ERException;
+import com.ic.er.common.DataType;
 import com.ic.er.common.ViewDeserializer;
 import com.ic.er.entity.ViewDO;
 import com.ic.er.common.Cardinality;
@@ -49,11 +50,14 @@ public class View {
     }
 
     public Entity addEntity(String entityName) {
-        Entity entity = new Entity(0L, entityName, this.ID, new ArrayList<>(), null, new Date(), new Date());
+        Entity entity = new Entity(0L, entityName, this.ID, new ArrayList<>(), null, 0.0, 0.0, new Date(), new Date());
         this.entityList.add(entity);
-        if (ER.useDB) {
-            this.updateInfo(null);
-        }
+        return entity;
+    }
+
+    public Entity addEntity(String entityName, Double layoutX, Double layoutY) {
+        Entity entity = new Entity(0L, entityName, this.ID, new ArrayList<>(), null, layoutX, layoutY, new Date(), new Date());
+        this.entityList.add(entity);
         return entity;
     }
 
@@ -61,7 +65,6 @@ public class View {
         this.entityList.remove(entity);
         if (ER.useDB) {
             entity.deleteDB();
-            this.updateInfo(null);
         }
         return false;
     }
@@ -70,18 +73,14 @@ public class View {
                                            Cardinality firstCardinality, Cardinality secondCardinality) {
         Relationship relationship = new Relationship(0L, relationshipName, this.ID,
                 firstEntity, secondEntity, firstCardinality, secondCardinality, null, new Date(), new Date());
-        this.getRelationshipList().add(relationship);
-        if (ER.useDB) {
-            this.updateInfo(null);
-        }
+        this.relationshipList.add(relationship);
         return relationship;
     }
 
     public boolean deleteRelationship(Relationship relationship) {
-        this.getRelationshipList().remove(relationship);
+        this.relationshipList.remove(relationship);
         if (ER.useDB) {
             relationship.deleteDB();
-            this.updateInfo(null);
         }
         return false;
     }
@@ -99,10 +98,6 @@ public class View {
         }
     }
 
-    public static List<View> queryAll() {
-        return Trans.TransViewListFromDB(ER.viewMapper.selectAll());
-    }
-
     public String ToJSON() {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json;
@@ -112,6 +107,10 @@ public class View {
             throw new RuntimeException(e);
         }
         return json;
+    }
+
+    public static List<View> queryAll() {
+        return Trans.TransViewListFromDB(ER.viewMapper.selectAll());
     }
 
     public static List<View> queryByView(ViewDO ViewDO) {
@@ -129,6 +128,13 @@ public class View {
     }
 
     protected void deleteDB() {
+        // cascade delete the entities and relationships in this view
+        for (Entity entity : entityList) {
+            entity.deleteDB();
+        }
+        for (Relationship relationship : relationshipList) {
+            relationship.deleteDB();
+        }
         ER.viewMapper.deleteByID(this.ID);
     }
 

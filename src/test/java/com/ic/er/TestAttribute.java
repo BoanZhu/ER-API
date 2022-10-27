@@ -17,7 +17,6 @@ public class TestAttribute {
     @Before
     public void init() throws Exception {
         ER.connectDB(true);
-        ER.createTables();
         testView = ER.createView("testView", "wt22");
         testEntity = testView.addEntity("teacher");
     }
@@ -26,7 +25,7 @@ public class TestAttribute {
     public void addAttributeTest() {
         Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, 1);
         Attribute a2 = testEntity.addAttribute("name", DataType.VARCHAR, 0);
-        Attribute a3 = testEntity.addAttribute("age", DataType.INTEGER, 0);
+        Attribute a3 = testEntity.addAttribute("age", DataType.INT, 0);
         System.out.printf("a1 ID: %d\n", a1.getID());
         System.out.printf("a2 ID: %d\n", a2.getID());
         System.out.printf("a3 ID: %d\n", a3.getID());

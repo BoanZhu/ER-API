@@ -9,13 +9,14 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.commons.io.IOUtils;
+
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
@@ -29,7 +30,7 @@ public class ER {
     public static LayoutInfoMapper layoutInfoMapper;
     private static Map<Long, View> allViewsMap = new HashMap<>();
 
-    public static void connectDB(boolean useDBLog) throws IOException {
+    public static void connectDB(boolean useDBLog) throws SQLException, IOException {
         InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
         SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
         SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
@@ -42,14 +43,15 @@ public class ER {
         if (useDBLog) {
             BasicConfigurator.configure();
         }
+        createTables();
         useDB = true;
     }
 
-    public static void createTables() throws Exception {
+    private static void createTables() throws SQLException, IOException {
         Connection conn = sqlSession.getConnection();
         Statement stmt = conn.createStatement();
-        String content = Files.readString(Path.of("src/main/resources/sql/schema-v1.sql"), Charset.defaultCharset());
-        stmt.execute(content);
+        String sql = new String(Resources.getResourceAsStream("schema-v1.sql").readAllBytes(), StandardCharsets.UTF_8);
+        stmt.execute(sql);
     }
 
     public static View createView(String name, String creator) {
@@ -69,6 +71,14 @@ public class ER {
             return View.queryAll();
         } else {
             return new ArrayList<>(allViewsMap.values());
+        }
+    }
+
+    public static View queryViewByID(Long ID) {
+        if (ER.useDB) {
+            return View.queryByID(ID);
+        } else {
+            return allViewsMap.get(ID);
         }
     }
 

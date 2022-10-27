@@ -20,7 +20,6 @@ public class attributeMapperTest {
     @Before
     public void init() throws Exception {
         ER.connectDB(true);
-        ER.createTables();
     }
 
     @Test
@@ -43,9 +42,9 @@ public class attributeMapperTest {
         Date gmtModified = new Date();
 
 
-        AttributeDO attributeDO = new AttributeDO(0L, entityID, viewID, name, DataType.INTEGER, isPrimary, isDelete, gmtCreate, gmtModified);
-        AttributeDO attributeDO2 = new AttributeDO(0L, entityID, viewID, name, DataType.INTEGER, isPrimary, isDelete, gmtCreate, gmtModified);
-        AttributeDO attributeDO3 = new AttributeDO(0L, entityID, viewID, name, DataType.INTEGER, isPrimary, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO2 = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO3 = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, isDelete, gmtCreate, gmtModified);
 
         int ret = ER.attributeMapper.insert(attributeDO);
         int ret2 = ER.attributeMapper.insert(attributeDO2);

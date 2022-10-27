@@ -2,10 +2,14 @@ package com.ic.er.common;
 
 public enum DataType {
     UNKNOWN,
-    INTEGER,
-    FLOAT,
-    DOUBLE,
+    CHAR,
     VARCHAR,
     TEXT,
-    DATE,
+    TINYINT,
+    SMALLINT,
+    INT,
+    BIGINT,
+    FLOAT,
+    DOUBLE,
+    DATETIME,
 }

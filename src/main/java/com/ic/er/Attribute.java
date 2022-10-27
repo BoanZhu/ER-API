@@ -31,7 +31,7 @@ public class Attribute {
     private Date gmtModified;
 
     protected Attribute(Long ID, Long entityID, Long viewID, String name, DataType dataType,
-                        int isPrimary, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+                        int isPrimary, LayoutInfo layoutInfo, Double layoutX, Double layoutY, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.entityID = entityID;
         this.viewID = viewID;
@@ -49,7 +49,7 @@ public class Attribute {
             }
         }
         if (this.layoutInfo == null) {
-            this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.ATTRIBUTE, 0.0, 0.0, 0.0, 0.0);
+            this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.ATTRIBUTE, layoutX, layoutY, 0.0, 0.0);
         }
     }
 
