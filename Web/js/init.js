@@ -35,11 +35,26 @@ function init() {
             editable: true,
         }
     }
+    var addNodeAdornment =
+        $(go.Adornment, "Spot",
+            $(go.Panel, "Auto",
+                $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
+                $(go.Placeholder)),
+            // the button to create a "next" node, at the top-right corner
+            $("Button",
+                {
+                    alignment: go.Spot.TopRight,
+                    click: addAttr()  // this function is defined below
+                },
+                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })
+            )
+        );
 
     // define the Node template, representing an entity
     var entityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
+                selectionAdornmentTemplate: addNodeAdornment,
                 selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
@@ -253,15 +268,10 @@ function init() {
         function(e) { //e.diagram.lastInput.documentPoint
         entity={key:"text",location:e.diagram.lastInput.documentPoint,from:true,to:true};
         myDiagram.model.addNodeData(entity);
-    //     console.log("Double-clicked at " + e.diagram.lastInput.documentPoint);
-    //     myDiagram.model.nodeDataArray.filter(function(d) {
-    //         if(d.location === e.diagram.lastInput.documentPoint) {
-    //             console.log(d.key);
-    //         }
-    //     })
-    //
-    //         var tmp = myDiagram.findNodesByExample("text");
-    // console.log(tmp);
+
+        console.log(myDiagram.model.nodeDataArray.last);
+
+            // var tmp = myDiagram.findNodesByExample("text");
     });
 
     // attribute node template
@@ -313,6 +323,9 @@ function init() {
             if (idx >= 0) document.title = document.title.slice(0, idx);
         }
     });
+    function addAttr(){
+
+    }
 
     load()
 }  // end init
