@@ -1,3 +1,71 @@
+
+function showView() {
+
+    const selected_name =  $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+
+
+    $.getJSON("http://localhost:8000/er/view/get_by_id?" + "id=" + id, function (res) {
+        //todo
+        window.location.replace("drawingView.html?name="+ selected_name+"&id="+selected_id);
+    }).fail(function (failure) {
+        if (failure.status == 400) {
+            console.log("fail status:" + failure.status);
+        }
+    });
+
+}
+
+function RenameView() {
+
+    const selected_name =  $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+    const name=prompt("Please enter new view name",selected_name);
+
+    if (name!="" && new_name!=null)
+    {
+        $.getJSON("http://localhost:8000/er/view/update?" + "id=" + id + "&name=" + name, function (res) {
+        }).fail(function (failure) {
+            if (failure.status == 400) {
+                console.log("fail status:" + failure.status);
+            }
+        });
+        location.reload();
+    }
+}
+function deleteView() {
+
+    const selected_name =  $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+    $.getJSON("http://localhost:8000/er/view/delete" + "id=" + id, function (res) {
+    }).fail(function (failure) {
+        if (failure.status == 400) {
+            console.log("fail status:" + failure.status);
+        }
+    });
+
+    //reload page
+    location.reload();
+}
+
+function drawView() {
+    var name = prompt("Please enter new view name", "Draco");
+    if (name != null && name != "") {
+
+        $.getJSON("http://localhost:8000/er/relationship/create?" + "&name=" + name, function (res) {
+            //todo get the viewId
+            const id = res.id
+            window.location.replace("drawingView.html?name=" + name + "&id=" + id);
+        }).fail(function (failure) {
+            if (failure.status == 400) {
+                console.log("fail status:" + failure.status);
+            }
+        });
+    }
+}
+
+
+
 //添加Entity的选项
 function addEntityOptions(content){
     var listString ="";
@@ -15,15 +83,15 @@ function addEntityOptions(content){
 
 //create entity
 function createEntity(){
-    var entityName = prompt("Please Enter the Entity Name:","");
+    var name = prompt("Please Enter the Entity Name:","");
 
-    if(entityName){
-        console.log("the new entity name is "+entityName);
+    if(name){
+        console.log("the new entity name is "+name);
         //todo input check
         //1. 重复
 
         // get new entity id
-        $.getJSON("http://localhost:8000/returnNewEntityId/", function(newEntityId){
+        $.getJSON("http://localhost:8000/er/entity/create?name="+name, function(newEntityId){
            newId = newEntityId.id;
             // add node
             var location=new go.Point(-1000+100*Math.random(),100*Math.random());
@@ -164,4 +232,3 @@ function addAttribute(){
     }
     closeAddAttribute();
 }
-

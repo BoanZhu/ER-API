@@ -11,7 +11,7 @@ function init() {
             layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "undoManager.isEnabled": true,
+            "undoManager.isEnabled": true
         });
 
     var colors = {
@@ -25,18 +25,6 @@ function init() {
         'purple': '#d689ff',
         'orange': '#fdb400',
     }
-
-    myDiagram.addDiagramListener("Modified", e => {
-        var button = document.getElementById("SaveButton");
-        if (button) button.disabled = !myDiagram.isModified;
-        var idx = document.title.indexOf("*");
-        if (myDiagram.isModified) {
-            if (idx < 0) document.title += "*";
-        } else {
-            if (idx >= 0) document.title = document.title.slice(0, idx);
-        }
-    });
-
 
     // Common text styling
     function textStyle() {
@@ -91,7 +79,7 @@ function init() {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
-                        editable: false
+                        editable: true
                     },
                     new go.Binding("text", "key").makeTwoWay())
             ) // end Table Panel
@@ -112,8 +100,12 @@ function init() {
         $(go.Shape,  // the link shape
             {stroke: "#303B45", strokeWidth: 2.5 }),
         $(go.Panel, "Auto",  // this whole Panel is a link label
-            $(go.Shape, "Diamond", { fill: "yellow", stroke: "gray",width: 100, height: 40 }),
-            $(go.TextBlock, textStyle(),
+            $(go.Shape, "Diamond", {
+                fill: "yellow",
+                stroke: "gray",
+                width: 100,
+                height: 40}),
+            $(go.TextBlock,  textStyle(),
                 {   margin: 3,
                     textAlign: "center",
                     segmentIndex: -2,
@@ -253,6 +245,9 @@ function init() {
         });
     });
 
+    diagram.addDiagramListener("BackgroundDoubleClicked",
+        function(e) { showMessage("Double-clicked at " + e.diagram.lastInput.documentPoint); });
+
     // attribute node template
     var attributeTemplate =$(go.Node, "Auto",
         {
@@ -292,22 +287,33 @@ function init() {
 
     myDiagram.nodeTemplateMap = templateMap;
 
+    myDiagram.addDiagramListener("Modified", e => {
+        var button = document.getElementById("SaveButton");
+        if (button) button.disabled = !myDiagram.isModified;
+        var idx = document.title.indexOf("*");
+        if (myDiagram.isModified) {
+            if (idx < 0) document.title += "*";
+        } else {
+            if (idx >= 0) document.title = document.title.slice(0, idx);
+        }
+    });
+
     load()
 }  // end init
 
 /*
 Relation functions
  */
-function modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName) {
+function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name) {
 
     const viewId =  location.href.substring(location.href.indexOf("id=")+1);
 
-    $.getJSON("http://localhost:8000/createRelation?" + "&viewId=" + viewId + "&relationId = " + relationId +
-        "&fromEntityName=" + fromEntityName +
-        "&toEntityName=" + toEntityName+
-        "&fromCardinality=" + fromCardinality+
-        "&toCardinality=" + toCardinality+
-        "&relationName=" + relationName,function (res) {
+    $.getJSON("http://localhost:8000/er/relationship/update?" + "&viewId=" + viewId + "&id = " + id +
+        "&firstEntityID=" + firstEntityID +
+        "&secondEntityID=" + secondEntityID+
+        "&firstCardinality=" + firstCardinality+
+        "&secondCardinality=" + secondCardinality+
+        "&name=" + name,function (res) {
     }).fail(function (failure) {
         if (failure.status == 400) {
             console.log("fail status:" + failure.status);
@@ -315,26 +321,25 @@ function modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,t
     });
 }
 
-function createRelation(fromEntityId, toEntityId) { //return request ID
+function createRelation(firstEntityID, secondEntityID) { //return request ID
 
-    const viewId =  location.href.substring(location.href.indexOf("id=")+1);
-    var relationId;
+    const viewID =  location.href.substring(location.href.indexOf("id=")+1);
+    var relationID;
 
-    $.getJSON("http://localhost:8000/createRelation?" + "&viewId=" + viewId + "&fromEntityId" + fromEntityId+"toEntityId"+toEntityId,function (res) {
+    $.getJSON("http://localhost:8000/er/relationship/create?" + "&viewID=" + viewID + "&fromEntityId" + firstEntityID+"toEntityId"+secondEntityID,function (res) {
         //todo get the relationId
-        relationId = res.id;
+        relationID = res.id;
     }).fail(function (failure) {
         if (failure.status == 400) {
             console.log("fail status:" + failure.status);
         }
     });
-    return relationId;
+    return relationID;
 }
 
-function deleteRelation(relationId) {
+function deleteRelation(id) {
 
-    const viewId = location.href.substring(location.href.indexOf("id=") + 1);
-    $.getJSON("http://localhost:8000/deleteRelation?" + "id=" + relationId + "&viewId=" + viewId, function (res) {
+    $.getJSON("http://localhost:8000/er/relationship/delete?" + "id=" + id, function (res) {
     }).fail(function (failure) {
         if (failure.status == 400) {
             console.log("fail status:" + failure.status);
