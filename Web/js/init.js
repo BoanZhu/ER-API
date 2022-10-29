@@ -14,7 +14,8 @@ function init() {
             "undoManager.isEnabled": true,
         });
 
-    var colors = {
+    // Common color
+    const colors = {
         'red': '#be4b15',
         'green': '#52ce60',
         'blue': '#6ea5f8',
@@ -25,7 +26,6 @@ function init() {
         'purple': '#d689ff',
         'orange': '#fdb400',
     }
-
     // Common text styling
     function textStyle() {
         return {
@@ -35,22 +35,16 @@ function init() {
             editable: true,
         }
     }
-    var addNodeAdornment =
+
+    const addNodeAdornment =
         $(go.Adornment, "Spot",
             $(go.Panel, "Auto",
                 $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
                 $(go.Placeholder)),
-            // the button to create a "next" node, at the top-right corner
-            $("Button",
-                {
-                    alignment: go.Spot.TopRight,
-                    click: addAttr()  // this function is defined below
-                },
-                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })
-            )
-        );
+            $("Button", {alignment: go.Spot.TopRight, click: addAttr()},
+                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })));
 
-    // define the Node template, representing an entity
+    // entity
     var entityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
@@ -88,8 +82,7 @@ function init() {
                     strokeWidth: 3,
                     fromLinkableDuplicates: false, toLinkableDuplicates: false
                 },
-            new go.Binding("fromLinkable", "from").makeTwoWay(),
-            new go.Binding("toLinkable", "to").makeTwoWay()),
+            new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
 
             // the table header
             $(go.Panel, "Table",
@@ -102,13 +95,13 @@ function init() {
                         font: "bold 16px sans-serif",
                         editable: true
                     },
-                    new go.Binding("text", "key").makeTwoWay())
+                    new go.Binding("text", "name").makeTwoWay())
             ) // end Table Panel
         );
     // default template
     myDiagram.nodeTemplate = entityTemplate;
 
-    // define the Link template, representing a relationship
+    // relation
     var relationLink = $(go.Link,  // the whole link panel
         {
             selectionAdorned: true,
@@ -266,7 +259,7 @@ function init() {
 
     myDiagram.addDiagramListener("BackgroundDoubleClicked",
         function(e) { //e.diagram.lastInput.documentPoint
-        entity={key:"text",location:e.diagram.lastInput.documentPoint,from:true,to:true};
+        entity={name:"text",location:e.diagram.lastInput.documentPoint,from:true,to:true};
         myDiagram.model.addNodeData(entity);
 
         console.log(myDiagram.model.nodeDataArray.last);
@@ -300,7 +293,7 @@ function init() {
             new go.Binding("toLinkable", "to").makeTwoWay()),
         // the table header
         $(go.TextBlock,
-            new go.Binding("text","key")
+            new go.Binding("text","name")
         )
     );
 
