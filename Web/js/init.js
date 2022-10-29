@@ -11,7 +11,7 @@ function init() {
             layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "undoManager.isEnabled": true
+            "undoManager.isEnabled": true,
         });
 
     var colors = {
@@ -48,6 +48,12 @@ function init() {
                 shadowColor: colors.lightblue,
                 linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
                     return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                },
+                doubleClick: function(e, node) {
+                    // . . . now node is the Node that was double-clicked
+                    var data = node.data;
+                    // now data has all of the custom app-specific properties that you have
+                    // supplied for that node, in the Model.nodeDataArray
                 }
 
             },
@@ -189,7 +195,6 @@ function init() {
         });
 
     myDiagram.addDiagramListener("TextEdited",(e) => {
-
         if ("relation" in e.subject.part.qb) { // identify the changed textBlock
             const relationId = e.subject.part.qb.key;
             const fromEntityName = e.subject.part.qb.from;
@@ -241,12 +246,23 @@ function init() {
                 // deleteRelation(relationId,fromEntityName,toEntityName);
                 console.log(evt.propertyName + " removed link: " + e.oldValue);
             }
-
         });
     });
 
-    diagram.addDiagramListener("BackgroundDoubleClicked",
-        function(e) { showMessage("Double-clicked at " + e.diagram.lastInput.documentPoint); });
+    myDiagram.addDiagramListener("BackgroundDoubleClicked",
+        function(e) { //e.diagram.lastInput.documentPoint
+        entity={key:"text",location:e.diagram.lastInput.documentPoint,from:true,to:true};
+        myDiagram.model.addNodeData(entity);
+    //     console.log("Double-clicked at " + e.diagram.lastInput.documentPoint);
+    //     myDiagram.model.nodeDataArray.filter(function(d) {
+    //         if(d.location === e.diagram.lastInput.documentPoint) {
+    //             console.log(d.key);
+    //         }
+    //     })
+    //
+    //         var tmp = myDiagram.findNodesByExample("text");
+    // console.log(tmp);
+    });
 
     // attribute node template
     var attributeTemplate =$(go.Node, "Auto",
