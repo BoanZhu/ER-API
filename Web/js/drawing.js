@@ -247,7 +247,7 @@ function test(){
     Obj = JSON.stringify(Obj);
 
     $.ajax({
-        type : "POST",
+        type : "GET",
         url : "http://localhost:8000/er/view/get_by_id",
         traditional : true,
         data : {
