@@ -252,16 +252,16 @@ function init() {
         }
     });
 
-    // myDiagram.addDiagramListener("SelectionMoved",(e) => {
+    myDiagram.addDiagramListener("SelectionMoved",(e) => {
     //
     //     const selectNode = e.diagram.selection.first();
-    //     const entityId = selectNode.key;
+    //     const id = selectNode.key; //TODO:cannot get the name
     //     const entityLocationX = selectNode.location.x;
     //     const entityLocationY = selectNode.location.y;
+    //     updateEntity(id,entityLocationX,entityLocationY);
     //
-    //     moveEntity(entityId,entityLocationX,entityLocationY);
-    //
-    // });
+     //   console.log("true");
+    });
 
     myDiagram.addModelChangedListener(function(evt) {
         // ignore unimportant Transaction events
