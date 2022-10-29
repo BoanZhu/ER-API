@@ -11,6 +11,7 @@ function init() {
             layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
+            "clickCreatingTool.archetypeNodeData": { name:"new node",from:true,to:true},
             "undoManager.isEnabled": true,
         });
 
@@ -48,6 +49,7 @@ function init() {
     var entityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
+                locationSpot: go.Spot.Center,
                 selectionAdornmentTemplate: addNodeAdornment,
                 selectionAdorned: true,
                 resizable: false,
@@ -98,8 +100,48 @@ function init() {
                     new go.Binding("text", "name").makeTwoWay())
             ) // end Table Panel
         );
+
     // default template
     myDiagram.nodeTemplate = entityTemplate;
+
+    // attribute template
+    var attributeTemplate =$(go.Node, "Auto",
+        {
+            selectionAdorned: true,
+            resizable: false,
+            layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+            linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
+                return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+            }
+        },
+        new go.Binding("location", "location").makeTwoWay(),
+        $(go.Shape, "Circle",
+            {
+                fill: 'lightblue',
+                portId: "",
+                stroke: colors.lightblue,
+                cursor: "pointer",
+                fromSpot: go.Spot.AllSides,
+                toSpot: go.Spot.AllSides,
+                strokeWidth: 3,
+                fromLinkableDuplicates: false, toLinkableDuplicates: false
+            },
+            new go.Binding("fromLinkable", "from").makeTwoWay(),
+            new go.Binding("toLinkable", "to").makeTwoWay()),
+        // the table header
+        $(go.TextBlock,
+            new go.Binding("text","name")
+        )
+    );
+
+    // add all template
+    var templateMap = new go.Map();
+    templateMap.add("Entity", entityTemplate);
+    templateMap.add("Attribute",attributeTemplate);
+    // default
+    templateMap.add("",entityTemplate);
+
+    myDiagram.nodeTemplateMap = templateMap;
 
     // relation
     var relationLink = $(go.Link,  // the whole link panel
@@ -191,7 +233,6 @@ function init() {
     linkTemplateMap.add("normalLink",normalLink);
     // default
     linkTemplateMap.add("",relationLink);
-
     myDiagram.linkTemplateMap = linkTemplateMap;
 
     myDiagram.model = new go.GraphLinksModel(
@@ -211,8 +252,7 @@ function init() {
             const toCardinality = e.subject.part.qb.toText;
             const relationName = e.subject.part.qb.relation;
             //todo 检测两个节点类型是不是一样
-
-            // modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
+            //modifyRelation(relationId,fromEntityName,toEntityName,fromCardinality,toCardinality,relationName);
             console.log(e.subject.text);
         }
     });
@@ -236,76 +276,34 @@ function init() {
 
         // iterate over all of the actual ChangedEvents of the Transaction
         txn.changes.each(function(e) {
-            //record relation insertions and removals
-            if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
 
+            if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
+                //create relation
                 const fromEntityName = e.newValue.from;
                 const toEntityName = e.newValue.to;
-
                 // e.newValue.key = createRelation(fromEntityName,toEntityName);
                 console.log(e.newValue.key);
 
             } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
-
+                // delete relation
                 const fromEntityName = e.oldValue.from;
                 const toEntityName = e.oldValue.to;
                 const relationId = e.oldValue.key;
 
                 // deleteRelation(relationId,fromEntityName,toEntityName);
                 console.log(evt.propertyName + " removed link: " + e.oldValue);
+            } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
+                //create entity
+                const name = e.newValue.name;
+                const layoutX = e.newValue.location.x;
+                const layoutY = e.newValue.location.y;
+                // e.newValue.key = createEntity(name,layoutX,layoutY);
+            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+                const id = e.oldValue.key;
+                deleteEntity(id);
             }
         });
     });
-
-    myDiagram.addDiagramListener("BackgroundDoubleClicked",
-        function(e) { //e.diagram.lastInput.documentPoint
-        entity={name:"text",location:e.diagram.lastInput.documentPoint,from:true,to:true};
-        myDiagram.model.addNodeData(entity);
-
-        console.log(myDiagram.model.nodeDataArray.last);
-
-            // var tmp = myDiagram.findNodesByExample("text");
-    });
-
-    // attribute node template
-    var attributeTemplate =$(go.Node, "Auto",
-        {
-            selectionAdorned: true,
-            resizable: false,
-            layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
-            linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
-            }
-        },
-        new go.Binding("location", "location").makeTwoWay(),
-        $(go.Shape, "Circle",
-            {
-                fill: 'lightblue',
-                portId: "",
-                stroke: colors.lightblue,
-                cursor: "pointer",
-                fromSpot: go.Spot.AllSides,
-                toSpot: go.Spot.AllSides,
-                strokeWidth: 3,
-                fromLinkableDuplicates: false, toLinkableDuplicates: false
-            },
-            new go.Binding("fromLinkable", "from").makeTwoWay(),
-            new go.Binding("toLinkable", "to").makeTwoWay()),
-        // the table header
-        $(go.TextBlock,
-            new go.Binding("text","name")
-        )
-    );
-
-    // add all template
-    var templateMap = new go.Map();
-    templateMap.add("Entity", entityTemplate);
-    templateMap.add("Attribute",attributeTemplate);
-    // default
-    templateMap.add("",entityTemplate);
-
-    myDiagram.nodeTemplateMap = templateMap;
-
     myDiagram.addDiagramListener("Modified", e => {
         var button = document.getElementById("SaveButton");
         if (button) button.disabled = !myDiagram.isModified;
@@ -322,6 +320,35 @@ function init() {
 
     load()
 }  // end init
+
+
+
+/*
+Entity functions
+*/
+
+function createEntity(name,layoutX,layoutY){
+    /*
+    create function
+     */
+}
+
+function deleteEntity(id){
+    /*
+    delete function
+     */
+}
+
+function updateEntity(name,viewID,layoutX,layoutY){
+    /*
+     update function
+     */
+}
+
+/*
+
+ */
+
 
 /*
 Relation functions
