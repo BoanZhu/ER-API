@@ -5,6 +5,10 @@
     <link rel="stylesheet" type="text/css" href="css/dashboard.css">
     <script type = "text/javascript" src="js/jquery-3.2.1.js"></script>
     <script src="./js/drawing.js?v=1.19"></script>
+    <script src="./js/index.js"></script>
+    <script type = "text/javascript" src="js/go-debug.js"></script>
+    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>
+    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
 </head>
 
 <body>
@@ -20,7 +24,7 @@
     </ul>
 </nav>
 
-<div class = "welcome"> welcome to ER API </div>
+<div class = "welcome" id = "model"></div>
 
 <div class="leftNv" >
     <div class="left_container">
@@ -34,7 +38,8 @@
                     <option value="Chrome">
                 </datalist>
 
-                <a href = "#" onclick="showView()">Show</a>
+                <a href = "#" onclick="showModel()">show</a>
+                <a href = "#" onclick="changeView()">change</a>
                 <a href = "#" onclick="RenameView()">Rename As</a>
                 <a href = "#" onclick="deleteView()">Delete</a>
                 <a href = "#" onclick="test()">test</a>
@@ -48,47 +53,9 @@
 <div class="banner"><div class="inner"></div></div>
 
 
-<div class="searchView" style="display: none;"><input id = "searchViewName" type="text" class="attribute"></div>
+<div class="searchView" style="display: none;"></div>
 
 <footer>ERAPI.Copyright ©2021 | Imperial college london-Group projecy</footer>
 
 </body>
-<script type = "text/javascript">
-
-
-    /*
-    API 1: get all the view name and value id, target: load the window and with delete and rename
-     */
-
-    // var listString ="";
-    // var tmpString="";
-    //
-    // $.getJSON("getAllViewUrl", function(entities){
-    //     $.each(entities.allEntities, function(i, entity){
-    //         tmpString = '<option id = '+entity.id+' value = '+entity.name+'></option>';
-    //         $("viewsList").prepend(tmpString);
-    //     });
-    // });
-
-
-    $(function (){
-        //hide all subtitle
-        $(".nav_menu").each(function (){
-            $(this).children(".nav_content").hide();
-
-        });
-        //add the click event of all the content
-        $(".nav_title").each(function (){
-            $(this).click(function (){
-                var nav = $(this).parent(".nav_menu").children(".nav_content");
-                if (nav.css("display")!="none"){
-                    nav.slideUp();
-                }else{
-                    nav.slideDown();
-                }
-            });
-        });
-
-    });
-</script>
 </html>

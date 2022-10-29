@@ -1,18 +1,75 @@
 
-function showView() {
-
-    const selected_name =  $('#vInput').val();
-    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
 
 
-    $.getJSON("http://localhost:8000/er/view/get_by_id?" + "id=" + id, function (res) {
-        //todo
-        window.location.replace("drawingView.html?name="+ selected_name+"&id="+selected_id);
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
-        }
-    });
+function getView() {
+    // const selected_name =  $('#vInput').val();
+    // const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+    //
+    //
+    // $.getJSON("http://localhost:8000/er/view/get_by_id?" + "id=" + id, function (res) {
+    //     //resolve the json format
+    //     var modelStr = "{ \"class\": \"GraphLinksModel\",\n" +
+    //         " \"copiesArrays\": true,\n" +
+    //         " \"copiesArrayObjects\": true,\n" +
+    //         " \"nodeDataArray\": ["
+    //     const viewName = result.data.view.name;
+    //     const viewId = id;
+    //
+    //
+    //     const entityList = result.data.view.entityList;
+    //
+    //     for(let i = 0; i < entityList.length; i++) {
+    //         var entity  = entityList[i];
+    //         var node = "{\"key\":"+entity.id+
+    //                    ",\"name\":"+entity.name+
+    //                    ",\"location\":{\"class\":\"go.Point\",\"x\":"+parseFloat(entity.layoutInfo.layoutX)+
+    //                                                         ",\"y\":"+parseFloat(entity.layoutInfo.layoutY)+
+    //             "}, \"from\": true, \"to\":true}";
+    //         if (i !== entityList.length-1){
+    //             modelStr = modelStr+node+",";
+    //         }else {
+    //             modelStr = modelStr + node;
+    //         }
+    //     };
+    //
+    //     modelStr = modelStr+"],\"linkDataArray\": [";
+    //     //relationship
+    //     const relationshipList = result.data.view.relationshipList;
+    //
+    //     for(let i = 0; i < relationshipList.length; i++) {
+    //         var relation  = relationshipList[i];
+    //         var link = "{\"key\":"+ relation.id+"," +
+    //                     "\"from\":"+ relation.firstEntityID+"," +
+    //                     "\"to\":"+ relation.secondEntityID+"," +
+    //                     "\"fromText\":"+ relation.firstCardinality+"," +
+    //                     "\"toText\":"+ relation.secondCardinality+"," +
+    //                     "\"relation\":"+ relation.name +
+    //                     "}";
+    //         if (i !== relationshipList.length-1){
+    //             modelStr = modelStr+link+",";
+    //         }else {
+    //             modelStr = modelStr + link+"]}";
+    //         }
+    //     };
+    //     //todo replace with the model
+    //     window.location.replace("drawingView.html?name="+ selected_name+"&id="+selected_id);
+    // }).fail(function (failure) {
+    //     if (failure.status == 400) {
+    //         console.log("fail status:" + failure.status);
+    //     }
+    // });
+
+    return "{ \"class\": \"GraphLinksModel\"," +
+        "  \"copiesArrays\": true," +
+        "  \"copiesArrayObjects\": true," +
+        "  \"nodeDataArray\": [" +
+        "{\"key\":3435,\"name\":\"Products\",\"location\":{\"class\":\"go.Point\",\"x\":-905.441681610523,\"y\":-29.922811407391464}, \"from\": true, \"to\":true}," +
+        "{\"key\":34,\"name\":\"Suppliers\",\"location\":{\"class\":\"go.Point\",\"x\":-1472.350018298561,\"y\":-105.79224133183979}, \"from\": true, \"to\":true}," +
+        "{\"key\":9340,\"name\":\"Categories\",\"location\":{\"class\":\"go.Point\",\"x\":-987.4442912524521,\"y\":-381.1624322383951}, \"from\": true, \"to\":true}" +
+        "],\"linkDataArray\": [" +
+        "{\"key\": 123, \"from\":3435,\"to\":34,\"fromText\":\"0..N\",\"toText\":\"1\",\"relation\":\"has\"}," +
+        "{\"key\": 456,\"from\":3435,\"to\":9340,\"fromText\":\"0..N\",\"toText\":\"1\",\"relation\":\"with\"}" +
+        "]}"
 
 }
 

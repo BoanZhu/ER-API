@@ -1,8 +1,6 @@
-
-
-function init() {
+function showModel() {
     const $ = go.GraphObject.make;  // for conciseness in defining templates
-    myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
+    myDiagram = $(go.Diagram, "model",  // must name or refer to the DIV HTML element
         {
             allowDelete: true,
             allowCopy: false,
@@ -10,42 +8,28 @@ function init() {
             layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "clickCreatingTool.archetypeNodeData": { name:"new node",from:true,to:true},
-            "undoManager.isEnabled": true,
+            "undoManager.isEnabled": false,
         });
-
-    // Common color
-    const colors = {'lightblue': '#afd4fe',}
     // Common text styling
     function textStyle() {
         return {
             margin: 6,
             wrap: go.TextBlock.WrapFit,
             textAlign: "center",
-            editable: true,
+            editable: false,
         }
     }
-
-    const addNodeAdornment =
-        $(go.Adornment, "Spot",
-            $(go.Panel, "Auto",
-                $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
-                $(go.Placeholder)),
-            $("Button", {alignment: go.Spot.TopRight, click: addAttr()},
-                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })));
-
     // entity
     var entityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
                 locationSpot: go.Spot.Center,
-                selectionAdornmentTemplate: addNodeAdornment,
                 selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
-                shadowColor: colors.lightblue,
+                shadowColor: '#afd4fe',
                 linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
                     return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
                 },
@@ -66,14 +50,14 @@ function init() {
                 {
                     fill: 'white',
                     portId: "",
-                    stroke: colors.lightblue,
+                    stroke: '#afd4fe',
                     cursor: "pointer",
                     fromSpot: go.Spot.AllSides,
                     toSpot: go.Spot.AllSides,
                     strokeWidth: 3,
                     fromLinkableDuplicates: false, toLinkableDuplicates: false
                 },
-            new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
+                new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
 
             // the table header
             $(go.Panel, "Table",
@@ -108,7 +92,7 @@ function init() {
             {
                 fill: 'lightblue',
                 portId: "",
-                stroke: colors.lightblue,
+                stroke: '#afd4fe',
                 cursor: "pointer",
                 fromSpot: go.Spot.AllSides,
                 toSpot: go.Spot.AllSides,
@@ -216,7 +200,6 @@ function init() {
             },
             new go.Binding("text", "toText").makeTwoWay())
     );
-
     var linkTemplateMap = new go.Map();
     linkTemplateMap.add("relationLink", relationLink);
     linkTemplateMap.add("normalLink",normalLink);
@@ -232,164 +215,35 @@ function init() {
             linkDataArray: []
         });
 
-    myDiagram.addDiagramListener("TextEdited",(e) => {
-        if ("relation" in e.subject.part.qb) { // identify the changed textBlock
-            const id = e.subject.part.qb.key;
-            const firstCardinality = e.subject.part.qb.fromText;
-            const firstEntityID = e.subject.part.qb.from;
-            const secondEntityID = e.subject.part.qb.to;
-            const secondCardinality = e.subject.part.qb.toText;
-            const name = e.subject.part.qb.relation;
-            //todo 检测两个节点类型是不是一样 why?
-            //modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name);
-            console.log(e.subject.text);
-        }else{
-            const id = e.subject.part.qb.key;
-            const name =  e.subject.part.qb.name;
-            const layoutX = e.subject.part.qb.location.x;
-            const layoutY = e.subject.part.qb.location.y;
-            //updateEntity(id,name,layoutX,layoutY);
-        }
-    });
+    myDiagram.model = go.Model.fromJson(getView());
 
-    // myDiagram.addDiagramListener("SelectionMoved",(e) => {
-    //
-    //     const selectNode = e.diagram.selection.first();
-    //     const entityId = selectNode.key;
-    //     const entityLocationX = selectNode.location.x;
-    //     const entityLocationY = selectNode.location.y;
-    //
-    //     moveEntity(entityId,entityLocationX,entityLocationY);
-    //
+}
+$(function (){
+
+
+    // $.getJSON("http://146.169.52.81:8080/er/view/query_all_views", function(result){
+    //     const viewList = result.data.viewList;
+    //     for (let i = 0; i < viewList.length; ++i) {
+    //         tmpString = '<option id = '+viewList[i].id+' value = '+viewList[i].name+'></option>';
+    //         $("viewsList").prepend(tmpString);
+    //     }
     // });
 
-    myDiagram.addModelChangedListener(function(evt) {
-        // ignore unimportant Transaction events
-        if (!evt.isTransactionFinished) return;
-        var txn = evt.object;  // a Transaction
-        if (txn === null) return;
+    //hide all subtitle
+    $(".nav_menu").each(function (){
+        $(this).children(".nav_content").hide();
 
-        // iterate over all of the actual ChangedEvents of the Transaction
-        txn.changes.each(function(e) {
-            if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
-                e.newValue.relation = "has";
-                //create relation
-                const firstEntityID = e.newValue.from;
-                const secondEntityID = e.newValue.to;
-                const name = e.newValue.relation;
-                // e.newValue.key = createRelation(firstEntityID,secondEntityID,name);
-                console.log(e.newValue.key);
-            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
-                // delete relation
-                const id = e.oldValue.key;
-                // deleteRelation(id);
-                console.log(evt.propertyName + " removed link: " + e.oldValue);
-            } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
-                //create entity
-                const name = e.newValue.name;
-                const layoutX = e.newValue.location.x;
-                const layoutY = e.newValue.location.y;
-                // e.newValue.key = createEntity(name,layoutX,layoutY);
-            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
-                const id = e.oldValue.key;
-                deleteEntity(id);
+    });
+    //add the click event of all the content
+    $(".nav_title").each(function (){
+        $(this).click(function (){
+            var nav = $(this).parent(".nav_menu").children(".nav_content");
+            if (nav.css("display")!="none"){
+                nav.slideUp();
+            }else{
+                nav.slideDown();
             }
         });
     });
 
-    myDiagram.addDiagramListener("Modified", e => {
-        var button = document.getElementById("SaveButton");
-        if (button) button.disabled = !myDiagram.isModified;
-        var idx = document.title.indexOf("*");
-        if (myDiagram.isModified) {
-            if (idx < 0) document.title += "*";
-        } else {
-            if (idx >= 0) document.title = document.title.slice(0, idx);
-        }
-    });
-
-    function addAttr(){
-
-    }
-
-    load()
-}  // end init
-
-
-
-/*
-Entity functions
-*/
-function createEntity(name,layoutX,layoutY){
-    /*
-    create function
-     */
-    //todo:getViewID
-}
-
-function deleteEntity(id){
-    /*
-    delete function
-     */
-}
-
-function updateEntity(id,name,layoutX,layoutY){
-    /*
-     update function
-     */
-}
-
-
-/*
-Relation functions
- */
-
-function createRelation(firstEntityID, secondEntityID,name) { //return request ID
-
-    //todo:getViewID
-
-    const viewID =  location.href.substring(location.href.indexOf("id=")+1);
-    var relationID;
-
-    $.getJSON("http://localhost:8000/er/relationship/create?" + "&viewID=" + viewID +
-        "&firstEntityID" + firstEntityID+
-        "&secondEntityID"+secondEntityID+
-        "name"+name,function (res) {
-        //todo get the relationId
-        relationID = res.id;
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
-        }
-    });
-    return relationID;
-}
-
-function modifyRelation(id,firstEntityID,secondEntityID,fromCardinality,secondCardinality,name) {
-
-    $.getJSON("http://localhost:8000/er/relationship/update?" +
-        "&id = " + id +
-        "&firstEntityID=" + firstEntityID +
-        "&secondEntityID=" + secondEntityID+
-        "&firstCardinality=" + firstCardinality+
-        "&secondCardinality=" + secondCardinality+
-        "&name=" + name,function (res) {
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
-        }
-    });
-}
-
-function deleteRelation(id) {
-    $.getJSON("http://localhost:8000/er/relationship/delete?" + "id=" + id, function (res) {
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
-        }
-    });
-}
-
-
-
-
+});
