@@ -232,3 +232,37 @@ function addAttribute(){
     }
     closeAddAttribute();
 }
+
+function test(){
+
+    var Obj = [];
+    var returnObj = new Object();//创建一个对象
+    returnObj.id = "123";
+　　 returnObj.money = 456;
+    returnObj.location.x = 456;
+    returnObj.location.y = 789;
+
+    Obj.push(returnObj);
+
+    Obj = JSON.stringify(Obj);
+
+    $.ajax({
+        type : "POST",
+        url : "http://localhost:8000/er/view/get_by_id",
+        traditional : true,
+        data : {
+            "Obj":Obj,
+        },
+        dataType : 'json',
+        success : function(result) {
+            if(result.code == 0) {
+                $(function(){
+                    var view = result.data.view;
+                    console.log("name"+result.data.view.name);
+                });
+            }
+        }, error : function(res) {
+
+        }
+    });
+}
