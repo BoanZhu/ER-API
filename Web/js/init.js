@@ -397,7 +397,35 @@ function createEntity(name,layoutX,layoutY){
     /*
     create function
      */
+
     const viewID = location.href.substring(location.href.indexOf("id=")+3);
+    var Obj ={
+        "id":viewID,
+        "name": name,
+        "layoutInfo": {
+            "layoutX": layoutX,
+            "layoutY": layoutY
+        }
+    }
+
+    Obj = JSON.stringify(Obj);
+
+    $.ajax({
+        type : "GET",
+        url : "http://146.169.52.81:8080/er/entity/create",
+        traditional : true,
+        data : {
+            "Obj":Obj,
+        },
+        withCredentials:false,
+        dataType : 'json',
+        success : function(result) {
+            if(result.code == 0) {
+                return result.id;
+            }
+        }, error : function(res) {
+        }
+    });
 }
 
 function deleteEntity(id){
@@ -418,7 +446,6 @@ Relation functions
  */
 
 function createRelation(name,firstEntityID,secondEntityID,firstCardinality,secondCardinality) { //return request ID
-    //todo:getViewID
     const viewID =  location.href.substring(location.href.indexOf("id=")+3);
     var relationID;
     $.getJSON("http://localhost:8000/er/relationship/create?" + "&viewID=" + viewID +
