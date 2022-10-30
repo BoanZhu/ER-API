@@ -10,6 +10,8 @@ function init() {
             "draggingTool.isGridSnapEnabled": false,
             "clickCreatingTool.archetypeNodeData": { name:"new node",from:true,to:true},
             "undoManager.isEnabled": true,
+            "maxSelectionCount": 1,
+            "ChangedSelection":changedSelection,
         });
 
     // Common color
@@ -96,7 +98,7 @@ function init() {
     var attributeTemplate =$(go.Node, "Auto",
         {
             selectionAdorned: true,
-            selectionAdornmentTemplate: attributeAdornment,
+            // selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
             linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
@@ -122,7 +124,9 @@ function init() {
                 font: "bold 12px monospace",
                 margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
             },
-            new go.Binding("text","name")
+            new go.Binding("text","name").makeTwoWay(),
+            //todo
+            new go.Binding("isUnderline", "underline")
         )
     );
 
@@ -335,68 +339,14 @@ function init() {
         }
     });
 
-
-    // add attribute
-    function addAttr(){
+    function changedSelection(e){
         var tmpNodes = new go.List();
-        myDiagram.startTransaction("add attributes");
-        myDiagram.nodes.each(function (node){
-            if(node.isSelected){
+        myDiagram.nodes.each(function (node) {
+            if (node.data.category == "Attribute" && node.isSelected) {
                 tmpNodes.push(node);
+                modifyAttributeClick();
             }
-        })
-        tmpNodes.each(function (part){
-            var selectedEntity = part;
-            var selectedEData =part.data;
-            // new attribute
-            var attributeData = {name:"NewA",category:"Attribute"};
-            var pos = selectedEntity.location.copy();
-            var angle = Math.random()*Math.PI*2;
-            pos.x+=Math.cos(angle)*120;
-            pos.y+=Math.sin(angle)*120;
-            attributeData.location = pos;
-            attributeData.isPrimary = 0;
-            attributeData.dataType = 0;
-            //todo for test
-            attributeData.id = 678;
-            myDiagram.model.addNodeData(attributeData);
-            // new link
-            var link = {
-                from:myDiagram.model.getKeyForNodeData(selectedEData),
-                to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink"
-            };
-            myDiagram.model.addLinkData(link);
-            const viewId =  location.href.substring(location.href.indexOf("id=")+1);
-            var info ={
-                "viewID":viewId,
-                "entityID":"345",
-                "name":"newA",
-                "dataType":0,
-                "layoutInfo":{
-                    "x":pos.x,
-                    "y":pos.y
-                }
-            }
-            info = JSON.stringify(info);
-            // $.ajax({
-            //     type : "POST",
-            //     url : "http://localhost:8000/er/attribute/create",
-            //     traditional : true,
-            //     data : info,
-            //     withCredentials:false,
-            //     dataType : 'json',
-            //     success : function(result) {
-            //         if(result.code == 0) {
-            //             $(function(){
-            //                 var node=myDiagram.model.findNodeForData(attributeData);
-            //                 node.data.keyDB = result.data.id;
-            //             });
-            //         }
-            //     }, error : function(res) {
-            //     }
-            // });
         });
-        myDiagram.commitTransaction("add attributes");
     }
 
     // edit attribute
@@ -500,6 +450,75 @@ function deleteAttribute(id){
     });
 }
 
+// add attribute
+function addAttr(){
+    var tmpNodes = new go.List();
+    myDiagram.startTransaction("add attributes");
+    myDiagram.nodes.each(function (node){
+        if(node.isSelected){
+            tmpNodes.push(node);
+        }
+    })
+    tmpNodes.each(function (part){
+        var selectedEntity = part;
+        var selectedEData =part.data;
+        // new attribute
+        var attributeData = {name:"NewA",category:"Attribute"};
+        var pos = selectedEntity.location.copy();
+        var angle = Math.random()*Math.PI*2;
+        pos.x+=Math.cos(angle)*120;
+        pos.y+=Math.sin(angle)*120;
+        attributeData.location = pos;
+        attributeData.isPrimary = false;
+        attributeData.dataType = 0;
+        attributeData.entityId = selectedEData.key;
+        // send data to backend
+        const viewId =  location.href.substring(location.href.indexOf("id=")+1);
+        var info ={
+            "viewID":viewId,
+            "entityID":"345",
+            "name":"newA",
+            "dataType":0,
+            "layoutInfo":{
+                "x":pos.x,
+                "y":pos.y
+            }
+        }
+        info = JSON.stringify(info);
+        // $.ajax({
+        //     type : "POST",
+        //     url : "http://localhost:8000/er/attribute/create",
+        //     traditional : true,
+        //     data : info,
+        //     withCredentials:false,
+        //     dataType : 'json',
+        //     success : function(result) {
+        //         if(result.code == 0) {
+        //             $(function(){
+        //                 var node=myDiagram.model.findNodeForData(attributeData);
+        //                 node.data.keyDB = result.data.id;
+        //             });
+        //         }
+        //     }, error : function(res) {
+        //     }
+        // });
+        //todo for test
+        // todo 换成后端数据
+        attributeData.key = Math.ceil(Math.random()*10000);
+        myDiagram.model.addNodeData(attributeData);
+
+        // new link
+        var link = {
+            from:myDiagram.model.getKeyForNodeData(selectedEData),
+            to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink"
+        };
+        myDiagram.model.addLinkData(link);
+
+    });
+    myDiagram.commitTransaction("add attributes");
+}
+
+// set value
 function modifyAttributeClick() {
     var tmpNodes = new go.List();
     myDiagram.startTransaction("edit attributes");
@@ -512,17 +531,18 @@ function modifyAttributeClick() {
         // attribute node
         var selectedAttribute = part;
         var selectedAData = part.data;
+        // get attribute key and entity id
         document.getElementById("selectedAttributeKey").value = selectedAData.key;
-        console.log(document.getElementById("selectedAttributeKey").value);
+        document.getElementById("entityNameInfo").value = myDiagram.findNodeForKey(selectedAData.entityId).data.name;
         if(part.data.category == 'Attribute'){
             document.getElementById("attributeNameInfo").value = selectedAData.name;
             //todo 现在假设直接是字符串
             document.getElementById("datatypeChoices").value = 'int';
-            //todo 还是要统一（01 or true，false）先用01
+            //todo 还要统一（01 or true，false）
             var isPrimary = document.getElementById("isPrimaryKey");
-            if(part.data.isPrimary==0){
-                isPrimary.checked = false;
-            }else {isPrimary.checked = true;}
+            if(part.data.isPrimary == "false"){
+                isPrimary.checked = true;
+            }else {isPrimary.checked = false;}
         }
 
     });
@@ -533,7 +553,8 @@ function modifyAttributeClick() {
 function modifyAttribute(){
     // get name, isPrimary, datatype
     const name = document.getElementById("attributeNameInfo").value;
-    const isPrimary = document.getElementById("selectedAttributeKey").checked; //0 is not a primary key
+    const isPrimary = document.getElementById("isPrimaryKey").checked;
+    console.log("primary key "+isPrimary);
     const datatype = document.getElementById("datatypeChoices").value;
     const key = document.getElementById("selectedAttributeKey").value;
     // update model
@@ -541,6 +562,14 @@ function modifyAttribute(){
     node.data.name = name;
     node.data.isPrimary = isPrimary;
     node.data.dataType = datatype;
+    // check underline
+    if(isPrimary == true){
+        // add underline
+        node.data.underline = true;
+    }else {
+        // remove underline
+        node.data.underline = false;
+    }
     var newJson = myDiagram.model.toJSON();
     myDiagram.model = go.Model.fromJson(newJson);
     document.getElementById("mySavedModel").value = myDiagram.model.toJson();
