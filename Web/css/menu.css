@@ -134,3 +134,33 @@
     font-weight: bold;
 }
 
+
+.draggable {
+    display: inline-block;
+    vertical-align: top;
+    border: 4px solid #BBB;
+    border-radius: 4px;
+    background-color: #F5F5F5;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 500;
+}
+
+.handle {
+    background-color: lightblue;
+    cursor: move;
+    text-align: center;
+    font: bold 12px sans-serif;
+}
+
+#infoDraggable {
+    font: 12px helvetica, sans-serif;
+    min-width: 213px;
+}
+
+#myInfo {
+    width: 100%;
+    overflow: hidden;
+}
+

@@ -1,5 +1,3 @@
-
-
 function init() {
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
@@ -31,8 +29,16 @@ function init() {
             $(go.Panel, "Auto",
                 $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
                 $(go.Placeholder)),
-            $("Button", {alignment: go.Spot.TopRight, click: addAttr()},
+            $("Button", {alignment: go.Spot.TopRight, click: addAttr},
                 $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })));
+
+    const attributeAdornment =
+        $(go.Adornment, "Spot",
+            $(go.Panel, "Auto",
+                $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
+                $(go.Placeholder)),
+            $("Button", {alignment: go.Spot.TopRight, click: modifyAttributeClick},
+                $(go.Shape, "MinusLine", { desiredSize: new go.Size(6, 6) })));
 
     // entity
     var entityTemplate =
@@ -97,6 +103,7 @@ function init() {
     var attributeTemplate =$(go.Node, "Auto",
         {
             selectionAdorned: true,
+            selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
             linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
@@ -112,13 +119,16 @@ function init() {
                 cursor: "pointer",
                 fromSpot: go.Spot.AllSides,
                 toSpot: go.Spot.AllSides,
-                strokeWidth: 3,
+                strokeWidth: 2,
                 fromLinkableDuplicates: false, toLinkableDuplicates: false
             },
-            new go.Binding("fromLinkable", "from").makeTwoWay(),
-            new go.Binding("toLinkable", "to").makeTwoWay()),
+                new go.Binding("fromLinkable", "from").makeTwoWay(),
+                new go.Binding("toLinkable", "to").makeTwoWay()),
         // the table header
-        $(go.TextBlock,
+        $(go.TextBlock,{
+                font: "bold 12px monospace",
+                margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
+            },
             new go.Binding("text","name")
         )
     );
@@ -292,6 +302,7 @@ function init() {
                 // e.newValue.key = createEntity(name,layoutX,layoutY);
             } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
                 const id = e.oldValue.key;
+                //todo 需要判断node类型（attribute & entity
                 deleteEntity(id);
             }
         });
@@ -308,9 +319,80 @@ function init() {
         }
     });
 
-    function addAttr(){
 
+    // add attribute
+    function addAttr(){
+        var tmpNodes = new go.List();
+        myDiagram.startTransaction("add attributes");
+        myDiagram.nodes.each(function (node){
+            if(node.isSelected){
+                tmpNodes.push(node);
+            }
+        })
+        tmpNodes.each(function (part){
+            var selectedEntity = part;
+            var selectedEData =part.data;
+            // new attribute
+            var attributeData = {name:"NewA",category:"Attribute"};
+            var pos = selectedEntity.location.copy();
+            var angle = Math.random()*Math.PI*2;
+            pos.x+=Math.cos(angle)*120;
+            pos.y+=Math.sin(angle)*120;
+            attributeData.location = pos;
+            attributeData.isPrimary = 0;
+            attributeData.dataType = 0;
+            //todo for test
+            attributeData.id = 678;
+            myDiagram.model.addNodeData(attributeData);
+            // new link
+            var link = {
+                from:myDiagram.model.getKeyForNodeData(selectedEData),
+                to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink"
+            };
+            myDiagram.model.addLinkData(link);
+            const viewId =  location.href.substring(location.href.indexOf("id=")+1);
+            var info ={
+                "viewID":viewId,
+                "entityID":"345",
+                "name":"newA",
+                "dataType":0,
+                "layoutInfo":{
+                    "x":pos.x,
+                    "y":pos.y
+                }
+            }
+            info = JSON.stringify(info);
+            // $.ajax({
+            //     type : "POST",
+            //     url : "http://localhost:8000/er/attribute/create",
+            //     traditional : true,
+            //     data : info,
+            //     withCredentials:false,
+            //     dataType : 'json',
+            //     success : function(result) {
+            //         if(result.code == 0) {
+            //             $(function(){
+            //                 var node=myDiagram.model.findNodeForData(attributeData);
+            //                 node.data.keyDB = result.data.id;
+            //             });
+            //         }
+            //     }, error : function(res) {
+            //     }
+            // });
+        });
+        myDiagram.commitTransaction("add attributes");
     }
+
+    // edit attribute
+    // var inspector = new Inspector('myInfo', myDiagram,
+    //     {
+    //         includesOwnProperties: false,
+    //         properties: {
+    //             "name": { show: Inspector.showIfPresent },
+    //             "PrimaryKey": { show: Inspector.showIfPresent  },
+    //             "DataType": { show: Inspector.showIfPresent }
+    //         }
+    //     });
 
     load()
 }  // end init
@@ -390,6 +472,67 @@ function deleteRelation(id) {
     });
 }
 
+/*
+    attribute functions
+*/
 
+function deleteAttribute(attributeID){
 
+}
+function modifyAttributeClick() {
+    var tmpNodes = new go.List();
+    myDiagram.startTransaction("edit attributes");
+    myDiagram.nodes.each(function (node) {
+        if (node.isSelected) {
+            tmpNodes.push(node);
+        }
+    })
+    tmpNodes.each(function (part) {
+        // attribute node
+        var selectedAttribute = part;
+        var selectedAData = part.data;
+        document.getElementById("selectedAttributeKey").value = selectedAData.key;
+        console.log(document.getElementById("selectedAttributeKey").value);
+        if(part.data.category == 'Attribute'){
+            document.getElementById("attributeNameInfo").value = selectedAData.name;
+            //todo 现在假设直接是字符串
+            document.getElementById("datatypeChoices").value = 'int';
+            //todo 还是要统一（01 or true，false）先用01
+            var isPrimary = document.getElementById("isPrimaryKey");
+            if(part.data.isPrimary==0){
+                isPrimary.checked = false;
+            }else {isPrimary.checked = true;}
+        }
 
+    });
+    myDiagram.commitTransaction("edit attributes");
+}
+
+//submit updates on attributes
+function modifyAttribute(){
+    // get name, isPrimary, datatype
+    const name = document.getElementById("attributeNameInfo").value;
+    const isPrimary = document.getElementById("selectedAttributeKey").checked; //0 is not a primary key
+    const datatype = document.getElementById("datatypeChoices").value;
+    const key = document.getElementById("selectedAttributeKey").value;
+    // update model
+    var node = myDiagram.findNodeForKey(key);
+    node.data.name = name;
+    node.data.isPrimary = isPrimary;
+    node.data.dataType = datatype;
+    var newJson = myDiagram.model.toJSON();
+    myDiagram.model = go.Model.fromJson(newJson);
+    document.getElementById("mySavedModel").value = myDiagram.model.toJson();
+
+    //todo: send data to backend
+    var info ={
+        "attributeID": node.data.id,
+        "name": name,
+        "dataType": datatype,
+        "isPrimay": isPrimary,
+        "layoutInfo": {
+            "layoutX": node.data.location.x,
+            "layoutY": node.data.location.y
+        }
+    }
+}

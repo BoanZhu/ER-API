@@ -127,7 +127,7 @@ function drawView() {
 function addEntityOptions(content){
     var listString ="";
     var tmpString="";
-    //todo edit url
+    //todo url
     // $.getJSON(baseUrl + "test", function(entities){
     $.getJSON("http://localhost:8000/test/", function(entities){
         $.each(entities.allEntities, function(i, entity){
@@ -149,10 +149,10 @@ function createEntity(){
 
         // get new entity id
         $.getJSON("http://localhost:8000/er/entity/create?name="+name, function(newEntityId){
-           newId = newEntityId.id;
+            newId = newEntityId.id;
             // add node
             var location=new go.Point(-1000+100*Math.random(),100*Math.random());
-            entity={key:entityName,location:location,id:newId};
+            entity={key:name,location:location,id:newId};
 
             myDiagram.model.addNodeData(entity);
             var newJson = myDiagram.model.toJSON();
@@ -291,15 +291,14 @@ function addAttribute(){
 }
 
 function test(){
-
-    var Obj = [];
-    var returnObj = new Object();//创建一个对象
-    returnObj.id = "123";
-　　 returnObj.money = 456;
-    returnObj.location.x = 456;
-    returnObj.location.y = 789;
-
-    Obj.push(returnObj);
+    var Obj ={
+        "id":"123",
+        "name":"345",
+        "location":{
+            "x":123,
+            "y":678
+        }
+    }
 
     Obj = JSON.stringify(Obj);
 
@@ -310,6 +309,7 @@ function test(){
         data : {
             "Obj":Obj,
         },
+        withCredentials:false,
         dataType : 'json',
         success : function(result) {
             if(result.code == 0) {

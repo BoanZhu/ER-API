@@ -8,6 +8,7 @@
     <script type = "text/javascript" src="js/jquery-3.2.1.js"></script>
     <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>
     <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
+    <script src="https://unpkg.com/gojs@2.2.17/extensions/DataInspector.js"></script>
     <script src="./js/init.js?v=1.19"></script>
     <script src="./js/drawing.js?v=1.19"></script>
 
@@ -26,35 +27,58 @@
 </nav>
 
 
-<div id="myDiagramDiv" class = "diagram"></div>
-
-<!--<div class="platte" id="myPaletteDiv" >-->
-<!--</div>-->
-
-<!--侧边菜单栏-->
-<div class="sidebar">
-    <div class="design" id="entity1">
-        <button class="sidebar-button" id="createEntity" onclick="createEntity()">
-            <div class="navto-nav">Create Entity</div>
-        </button>
-    </div>
-    <div class="design" id="entity2">
-        <button class="sidebar-button" id="editEntity" onclick="openEditEntity()">
-        <div class="navto-nav">Edit Entity</div>
-        </button>
-    </div>
-    <div class="design" id="entity3">
-        <button class="sidebar-button" id="deleteEntity" onclick="openDeleteEntity()">
-            <div class="navto-nav">Delete Entity</div>
-        </button>
-    </div>
-    <div class="design" id="attribute1">
-        <button class="sidebar-button" id="addAttribute" onclick="openAddAttribute()">
-            <div class="navto-nav">Add Attribute</div>
-        </button>
+<!--<div id="myDiagramDiv" class = "diagram"></div>-->
+<div id="infoDraggable" class="draggable ui-draggable" style="display: inline-block; vertical-align: top; padding: 5px; top: 80px; left: 1000px;">
+    <div id="infoDraggableHandle" class="handle ui-draggable-handle">Attribute Info</div>
+    <div>
+        <div id="myInfo" class="inspector"><table><tbody>
+        <input id="selectedAttributeKey" style="display: none">
+<!--        <tr><td>Entity Name:</td><td><input id="entityNameInfo" readonly="true"></td></tr>-->
+        <tr><td>Attribute Name:</td><td><input id="attributeNameInfo"></td></tr>
+        <tr><td>Primary Key:</td><td><input type="checkbox" name="isPrimary" id="isPrimaryKey"></td></tr>
+        <tr><td>Data Type:</td><td>
+            <input style="font-size: 12px" id="datatypeChoices" type="text" list="datatypeChoice" placeholder="please choose types">
+            <datalist id="datatypeChoice">
+                <option id="datatypeChoice1" value="int"></option>
+                <option id="datatypeChoice2" value="float">
+                <option id="datatypeChoice3" value="varchar">
+            </datalist>
+        </td></tr>
+        <tr><td><button onclick="modifyAttribute()">submit</button></td></tr>
+        </tbody></table></div>
     </div>
 </div>
 
+<div style="display: inline-block; vertical-align: top; width:1000px">
+    <div id="myDiagramDiv" style="background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
+    </div>
+</div>
+
+<!--<div class="platte" id="myPaletteDiv" >-->
+<!--</div>-->
+<!--侧边菜单栏-->
+<!--<div class="sidebar">-->
+<!--    <div class="design" id="entity1">-->
+<!--        <button class="sidebar-button" id="createEntity" onclick="createEntity()">-->
+<!--            <div class="navto-nav">Create Entity</div>-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    <div class="design" id="entity2">-->
+<!--        <button class="sidebar-button" id="editEntity" onclick="openEditEntity()">-->
+<!--        <div class="navto-nav">Edit Entity</div>-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    <div class="design" id="entity3">-->
+<!--        <button class="sidebar-button" id="deleteEntity" onclick="openDeleteEntity()">-->
+<!--            <div class="navto-nav">Delete Entity</div>-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    <div class="design" id="attribute1">-->
+<!--        <button class="sidebar-button" id="addAttribute" onclick="openAddAttribute()">-->
+<!--            <div class="navto-nav">Add Attribute</div>-->
+<!--        </button>-->
+<!--    </div>-->
+<!--</div>-->
 <!--Edit Entity Pop-->
 <div id="popDiv">
     <div class="close">
@@ -99,6 +123,12 @@
         </datalist>
     </div>
     <div>
+        <!--  是否为isPrimary      -->
+        is Primary:
+        <input type="checkbox" name="isPrimary" value="is Primary Key">
+        <!--  data type      -->
+    </div>
+    <div>
         <form method="get">
             <p style="font-size:12px;text-align: left">Attribute Name: <input type="text" id="newAttributeName"/></p>
             <input type="button" onclick="addAttribute()" value="Submit"/>
@@ -106,7 +136,9 @@
     </div>
 </div>
 
-<div class="banner"><div class="inner"></div></div>
+
+
+<!--<div class="banner"><div class="inner"></div></div>-->
 
 <div id="buttons">
     <button id="loadButton" onclick="load()">Load</button>
@@ -183,6 +215,7 @@ API 1: get all the entity and relationship
             $.getJSON("http://localhost:8000/drawView?" + "viewName=" + new_name+"&callback=?", function (res) {
                 //todo 重定向 viewId param
                 var viewId = res.id;
+                console.log(viewId);
                 window.location.replace("drawingView.html?name=" + new_name + "&id=" + viewId);
             }).fail(function (failure) {
                 if (failure.status == 400) {
