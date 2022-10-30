@@ -422,7 +422,7 @@ function createEntity(name,layoutX,layoutY){
     /*
     create function
      */
-    //todo:getViewID
+    const viewID = location.href.substring(location.href.indexOf("id=")+3);
 }
 
 function deleteEntity(id){
@@ -444,7 +444,7 @@ Relation functions
 
 function createRelation(name,firstEntityID,secondEntityID,firstCardinality,secondCardinality) { //return request ID
     //todo:getViewID
-    const viewID =  location.href.substring(location.href.indexOf("id=")+1);
+    const viewID =  location.href.substring(location.href.indexOf("id=")+3);
     var relationID;
     $.getJSON("http://localhost:8000/er/relationship/create?" + "&viewID=" + viewID +
         "&name"+name+
