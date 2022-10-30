@@ -228,12 +228,7 @@ function showModel() {
     /*
     Get the model name and id from list
      */
-    const selected_name =  $('#vInput').val();
-    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
-
-    /*
-    Get the model from database and load model
-     */
+    const id = getId();
     myDiagram.model = go.Model.fromJson(getView(id));
 }
 
@@ -310,13 +305,13 @@ function createModel() {
 }
 
 $(function (){
-    $.getJSON("http://146.169.52.81:8080/er/view/query_all_views", function(result){
-        const viewList = result.data.viewList;
-        for (let i = 0; i < viewList.length; ++i) {
-            tmpString = '<option id = '+viewList[i].id+' value = '+viewList[i].name+'></option>';
-            $("viewsList").prepend(tmpString);
-        }
-    });
+    // $.getJSON("http://146.169.52.81:8080/er/view/query_all_views", function(result){
+    //     const viewList = result.data.viewList;
+    //     for (let i = 0; i < viewList.length; ++i) {
+    //         tmpString = '<option id = '+viewList[i].id+' value = '+viewList[i].name+'></option>';
+    //         $("viewsList").prepend(tmpString);
+    //     }
+    // });
     //hide all subtitle
     $(".nav_menu").each(function (){
         $(this).children(".nav_content").hide();
@@ -335,3 +330,12 @@ $(function (){
     });
 
 });
+
+/*
+get id
+ */
+function getId(){
+    const selected_name =  $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+    return id;
+}
