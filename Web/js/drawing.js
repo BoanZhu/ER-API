@@ -18,8 +18,8 @@ function getView() {
     //         var entity  = entityList[i];
     //         var node = "{\"key\":"+entity.id+
     //                    ",\"name\":"+entity.name+
-    //                    ",\"location\":{\"class\":\"go.Point\",\"x\":"+parseFloat(entity.layoutInfo.layoutX)+
-    //                                                         ",\"y\":"+parseFloat(entity.layoutInfo.layoutY)+
+    //                    ",\"location\":{\"class\":\"go.Point\",\"x\":"+entity.layoutInfo.layoutX+
+    //                                                         ",\"y\":"+entity.layoutInfo.layoutY+
     //             "}, \"from\": true, \"to\":true}";
     //
     //         var attributeList = entity.attributeList;
@@ -37,8 +37,8 @@ function getView() {
     //             var attributeNode = "\"category\":\"Attribute\",\"name\":"+attribute.name+","+
     //                                                             "\"location\":{\"class\":\"go.Point\",\"x\":"+attribute.layoutInfo.layoutX+","+
     //                                                                                                   "\"y\":"+attribute.layoutInfo.layoutY+
-    //                                 "},\"isPrimary\":"+parseInt(isPrimary)+
-    //                                 ",\"dataType”:"+parseInt(attribute.dataType)+
+    //                                 "},\"isPrimary\":"+isPrimary+
+    //                                 ",\"dataType”:"+attribute.dataType+
     //                                 ",\"key\":"+attribute.id+"}";
     //
     //             if (i === entityList.length-1 && j === attributeList.length-1){
