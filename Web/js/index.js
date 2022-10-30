@@ -219,8 +219,6 @@ function showModel() {
 
 }
 $(function (){
-
-
     // $.getJSON("http://146.169.52.81:8080/er/view/query_all_views", function(result){
     //     const viewList = result.data.viewList;
     //     for (let i = 0; i < viewList.length; ++i) {
