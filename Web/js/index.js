@@ -224,7 +224,6 @@ function showModel() {
             linkDataArray: []
         });
 
-
     /*
     Get the model name and id from list
      */
@@ -240,7 +239,7 @@ output: redirect to the drawing.html with the name and id
 function editModel(){
     const selected_name =  $('#vInput').val();
     const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
-    window.location.href = "drawingView?name="+name+"&id="+id;
+    window.location.href = "drawingView.html?name="+name+"&id="+id;
 }
 
 /*

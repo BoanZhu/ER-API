@@ -357,10 +357,6 @@ function init() {
     // myDiagram.model = go.Model.fromJson(getView(id));
     load()
 }  // end init
-
-//load model when first accessing the page
-window.addEventListener('DOMContentLoaded', init);
-
 /*
 Top right: rename and delete model
  */

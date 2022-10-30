@@ -87,5 +87,7 @@
         document.getElementById("mySavedModel").value = myDiagram.model.toJson();
         myDiagram.isModified = false;
     }
+    //load model when first accessing the page
+    window.addEventListener('DOMContentLoaded', init);
 </script>
 </html>
