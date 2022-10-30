@@ -93,55 +93,6 @@ function getView(id) {
         "]}"
 
 }
-/*
-    attributes
- */
-// add attribute
-//delete entity
-
-function openAddAttribute(){
-    var popBox = document.getElementById("addAttributeDiv");
-    popBox.style.display = "block";
-}
-
-function closeAddAttribute(){
-    let popDiv = document.getElementById("addAttributeDiv");
-    popDiv.style.display = "none";
-}
-
-function addAttribute(){
-    //entity name & attribute name
-    var entityNameWithId = document.getElementById("entityForAttributeNameChoice").value;
-    var entityName = entityNameWithId.split(":")[1];
-    var attributeName = document.getElementById("newAttributeName").value;
-
-    //todo 判断
-    if(attributeName){
-        console.log("the new attribute name is "+attributeName);
-        //todo input check
-        //1. 重复
-
-        // get new entity id
-        $.getJSON("http://localhost:8000/returnNewAttributeId/", function(newAttributeId){
-            newId = newAttributeId.id;
-            //add attribute node
-            var location=new go.Point(-1000+100*Math.random(),100*Math.random());
-            var newAttr={"key":attributeName,"location":location,category:"Attribute",id:newId};
-            myDiagram.model.addNodeData(newAttr);
-
-            //add link between the node and the attribute
-            attributeNode = myDiagram.findNodeForKey(attributeName);
-            entityNode = myDiagram.findNodeForKey(entityName);
-            var link = {from:attributeName,to:entityName,category: "normalLink"};
-            myDiagram.model.addLinkData(link);
-
-            var newJson = myDiagram.model.toJSON();
-            document.getElementById("mySavedModel").value = newJson;
-        });
-    }
-    closeAddAttribute();
-}
-
 function test(){
     var Obj ={
         "id":"123",
