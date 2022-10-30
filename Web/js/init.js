@@ -348,18 +348,6 @@ function init() {
             }
         });
     }
-
-    // edit attribute
-    // var inspector = new Inspector('myInfo', myDiagram,
-    //     {
-    //         includesOwnProperties: false,
-    //         properties: {
-    //             "name": { show: Inspector.showIfPresent },
-    //             "PrimaryKey": { show: Inspector.showIfPresent  },
-    //             "DataType": { show: Inspector.showIfPresent }
-    //         }
-    //     });
-
     load()
 }  // end init
 
