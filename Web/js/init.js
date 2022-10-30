@@ -235,6 +235,7 @@ function init() {
             linkDataArray: []
         });
 
+    //listen edit the entity and relation name
     myDiagram.addDiagramListener("TextEdited",(e) => {
         if ("relation" in e.subject.part.qb) { // identify the changed textBlock
             const id = e.subject.part.qb.key;
@@ -243,64 +244,73 @@ function init() {
             const secondEntityID = e.subject.part.qb.to;
             const secondCardinality = e.subject.part.qb.toText;
             const name = e.subject.part.qb.relation;
-            //todo 检测两个节点类型是不是一样 why?
-            //modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name);
+            modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name);
             console.log(e.subject.text);
         }else{
             const id = e.subject.part.qb.key;
             const name =  e.subject.part.qb.name;
             const layoutX = e.subject.part.qb.location.x;
             const layoutY = e.subject.part.qb.location.y;
-            //updateEntity(id,name,layoutX,layoutY);
+            updateEntity(id,name,layoutX,layoutY);
         }
     });
 
+    //listen node movement
     myDiagram.addDiagramListener("SelectionMoved",(e) => {
-    //
-    //     const selectNode = e.diagram.selection.first();
-    //     const id = selectNode.key; //TODO:cannot get the name
-    //     const entityLocationX = selectNode.location.x;
-    //     const entityLocationY = selectNode.location.y;
-    //     updateEntity(id,entityLocationX,entityLocationY);
-    //
-     console.log("true");
+        const selectNode = e.diagram.selection.first();
+        const entityLocationX = selectNode.location.x;
+        const entityLocationY = selectNode.location.y;
+        const id = selectNode.key;
+        if (selectNode.category === "Attribute"){
+            const dataType = selectNode.qb.dataType;
+            const isPrimay = selectNode.qb.isPrimary;
+            const name = selectNode.qb.name;
+            //TODO:function update Attribue
+        }else{
+            const name = selectNode.qb.name;
+            updateEntity(id,name,entityLocationX,entityLocationY);
+        }
     });
 
+    // 1. insert, delete entity and relation 2. delete attribute
     myDiagram.addModelChangedListener(function(evt) {
         // ignore unimportant Transaction events
         if (!evt.isTransactionFinished) return;
         var txn = evt.object;  // a Transaction
         if (txn === null) return;
-
         // iterate over all of the actual ChangedEvents of the Transaction
         txn.changes.each(function(e) {
             if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
-                e.newValue.relation = "has";
-                //create relation
-                const firstEntityID = e.newValue.from;
-                const secondEntityID = e.newValue.to;
-                const name = e.newValue.relation;
-                // e.newValue.key = createRelation(firstEntityID,secondEntityID,name);
-                console.log(e.newValue.key);
+                if  (!("category" in e.newValue)) {
+                    // identity if it is normal link
+                    e.newValue.relation = "has";
+                    e.newValue.fromText = "0..N";
+                    e.newValue.toText = "N";
+                    //create relation
+                    const firstEntityID = e.newValue.from;
+                    const secondEntityID = e.newValue.to;
+                    const name = e.newValue.relation;
+                    const firstCardinality = e.newValue.fromText;
+                    const secondCardinality = e.newValue.toText;
+
+                    e.newValue.key = createRelation(name,firstEntityID,secondEntityID,firstCardinality,secondCardinality);
+                    console.log(e.newValue.key);
+                }
             } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
-                // delete relation
-                const id = e.oldValue.key;
-                // deleteRelation(id);
-                console.log(evt.propertyName + " removed link: " + e.oldValue);
+                if  (!("category" in e.oldValue)){
+                    //delete attribute
+                    const id = e.oldValue.key;
+                    deleteRelation(id);
+                }
             } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 //create entity and attribute
                 const name = e.newValue.name;
                 const layoutX = e.newValue.location.x;
                 const layoutY = e.newValue.location.y;
-                if ("category" in e.newValue){
-                    //create attribute
-
-
-                } else {
-                    //create entoty
+                if (!("category" in e.newValue)){
+                    //create entity
+                    e.newValue.key = createEntity(name,layoutX,layoutY);
                 }
-
-                // e.newValue.key = createEntity(name,layoutX,layoutY);
             } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
                 const id = e.oldValue.key;
                 if ("category" in e.oldValue){
@@ -313,6 +323,7 @@ function init() {
         });
     });
 
+    // 1. show if the model is changed(By adding * at the url)
     myDiagram.addDiagramListener("Modified", e => {
         var button = document.getElementById("SaveButton");
         if (button) button.disabled = !myDiagram.isModified;
@@ -431,17 +442,16 @@ function updateEntity(id,name,layoutX,layoutY){
 Relation functions
  */
 
-function createRelation(firstEntityID, secondEntityID,name) { //return request ID
-
+function createRelation(name,firstEntityID,secondEntityID,firstCardinality,secondCardinality) { //return request ID
     //todo:getViewID
-
     const viewID =  location.href.substring(location.href.indexOf("id=")+1);
     var relationID;
-
     $.getJSON("http://localhost:8000/er/relationship/create?" + "&viewID=" + viewID +
+        "&name"+name+
         "&firstEntityID" + firstEntityID+
         "&secondEntityID"+secondEntityID+
-        "name"+name,function (res) {
+        "&firstCardinality"+firstCardinality+
+        "&secondCardinality"+secondCardinality,function (res) {
         //todo get the relationId
         relationID = res.id;
     }).fail(function (failure) {
@@ -452,7 +462,7 @@ function createRelation(firstEntityID, secondEntityID,name) { //return request I
     return relationID;
 }
 
-function modifyRelation(id,firstEntityID,secondEntityID,fromCardinality,secondCardinality,name) {
+function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name) {
 
     $.getJSON("http://localhost:8000/er/relationship/update?" +
         "&id = " + id +

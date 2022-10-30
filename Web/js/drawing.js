@@ -122,7 +122,6 @@ function drawView() {
 }
 
 
-
 //添加Entity的选项
 function addEntityOptions(content){
     var listString ="";
@@ -136,41 +135,6 @@ function addEntityOptions(content){
         });
     });
     $(content).prepend(listString);
-}
-
-//create entity
-function createEntity(){
-    var name = prompt("Please Enter the Entity Name:","");
-
-    if(name){
-        console.log("the new entity name is "+name);
-        //todo input check
-        //1. 重复
-
-        // get new entity id
-        $.getJSON("http://localhost:8000/er/entity/create?name="+name, function(newEntityId){
-            newId = newEntityId.id;
-            // add node
-            var location=new go.Point(-1000+100*Math.random(),100*Math.random());
-            entity={key:name,location:location,id:newId};
-
-            myDiagram.model.addNodeData(entity);
-            var newJson = myDiagram.model.toJSON();
-            document.getElementById("mySavedModel").value = newJson;
-        });
-    }
-}
-
-function openEditEntity(){
-    var popBox = document.getElementById("popDiv");
-    popBox.style.display = "block";
-}
-
-
-
-function closeEditEntity(){
-    let popDiv = document.getElementById("popDiv");
-    popDiv.style.display = "none";
 }
 
 //edit entity
