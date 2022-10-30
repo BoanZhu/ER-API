@@ -55,13 +55,6 @@ function init() {
                 linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
                     return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
                 },
-                doubleClick: function(e, node) {
-                    // . . . now node is the Node that was double-clicked
-                    var data = node.data;
-                    // now data has all of the custom app-specific properties that you have
-                    // supplied for that node, in the Model.nodeDataArray
-                }
-
             },
             new go.Binding("location", "location").makeTwoWay(),
             // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
@@ -270,7 +263,7 @@ function init() {
     //     const entityLocationY = selectNode.location.y;
     //     updateEntity(id,entityLocationX,entityLocationY);
     //
-     //   console.log("true");
+     console.log("true");
     });
 
     myDiagram.addModelChangedListener(function(evt) {
@@ -295,15 +288,27 @@ function init() {
                 // deleteRelation(id);
                 console.log(evt.propertyName + " removed link: " + e.oldValue);
             } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
-                //create entity
+                //create entity and attribute
                 const name = e.newValue.name;
                 const layoutX = e.newValue.location.x;
                 const layoutY = e.newValue.location.y;
+                if ("category" in e.newValue){
+                    //create attribute
+
+
+                } else {
+                    //create entoty
+                }
+
                 // e.newValue.key = createEntity(name,layoutX,layoutY);
             } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
                 const id = e.oldValue.key;
-                //todo 需要判断node类型（attribute & entity
-                deleteEntity(id);
+                if ("category" in e.oldValue){
+                    //delete attribute
+                    deleteAttribute(id);
+                } else {
+                    deleteEntity(id);
+                }
             }
         });
     });
@@ -476,9 +481,15 @@ function deleteRelation(id) {
     attribute functions
 */
 
-function deleteAttribute(attributeID){
-
+function deleteAttribute(id){
+    $.getJSON("http://localhost:8000/er/attribute/delete?" + "id=" + id, function (res) {
+    }).fail(function (failure) {
+        if (failure.status == 400) {
+            console.log("fail status:" + failure.status);
+        }
+    });
 }
+
 function modifyAttributeClick() {
     var tmpNodes = new go.List();
     myDiagram.startTransaction("edit attributes");
