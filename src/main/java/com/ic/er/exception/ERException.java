@@ -1,4 +1,4 @@
-package com.ic.er.Exception;
+package com.ic.er.exception;
 
 public class ERException extends RuntimeException {
     public ERException() {

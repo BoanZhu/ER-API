@@ -2,15 +2,12 @@ package com.ic.er;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ic.er.Exception.ERException;
+import com.ic.er.exception.ERException;
 import com.ic.er.dao.*;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.commons.io.IOUtils;
-
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,9 +25,8 @@ public class ER {
     public static RelationshipMapper relationshipMapper;
     public static ViewMapper viewMapper;
     public static LayoutInfoMapper layoutInfoMapper;
-    private static Map<Long, View> allViewsMap = new HashMap<>();
 
-    public static void connectDB(boolean useDBLog) throws SQLException, IOException {
+    public static void initialize(boolean useDBLog) throws SQLException, IOException {
         InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
         SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
         SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
@@ -40,9 +36,6 @@ public class ER {
         relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
         viewMapper = sqlSession.getMapper(ViewMapper.class);
         layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
-        if (useDBLog) {
-            BasicConfigurator.configure();
-        }
         createTables();
         useDB = true;
     }
@@ -55,38 +48,25 @@ public class ER {
     }
 
     public static View createView(String name, String creator) {
-        View view = new View(0L, name, new ArrayList<>(), new ArrayList<>(), creator, new Date(), new Date());
-        allViewsMap.put(view.getID(), view);
-        return view;
+        return new View(0L, name, new ArrayList<>(), new ArrayList<>(), creator, new Date(), new Date());
     }
 
 
     public static void deleteView(View view) {
         view.deleteDB();
-        allViewsMap.remove(view.getID());
     }
 
     public static List<View> queryAllView() {
-        if (ER.useDB) {
-            return View.queryAll();
-        } else {
-            return new ArrayList<>(allViewsMap.values());
-        }
+        return View.queryAll();
     }
 
     public static View queryViewByID(Long ID) {
-        if (ER.useDB) {
-            return View.queryByID(ID);
-        } else {
-            return allViewsMap.get(ID);
-        }
+        return View.queryByID(ID);
     }
 
     public static View loadFromJSON(String json) throws ERException {
         try {
-            View view = new ObjectMapper().readValue(json, View.class);
-            ER.allViewsMap.put(view.getID(), view);
-            return view;
+            return new ObjectMapper().readValue(json, View.class);
         } catch (JsonProcessingException e) {
             throw new ERException(String.format("loadFromJSON fail, error: %s", e.getMessage()));
         }

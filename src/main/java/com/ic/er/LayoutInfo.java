@@ -1,26 +1,21 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ic.er.Exception.ERException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.ic.er.exception.ERException;
 import com.ic.er.common.RelatedObjType;
 import com.ic.er.common.Utils;
 import com.ic.er.entity.LayoutInfoDO;
-import lombok.AccessLevel;
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@JsonIgnoreProperties({"id", "relatedObjID", "relatedObjType", "height", "width"})
 public class LayoutInfo {
-    @JsonIgnore
     private Long ID;
-    @JsonIgnore
     private Long relatedObjID;
-    @JsonIgnore
     private RelatedObjType relatedObjType;
     private Double layoutX;
     private Double layoutY;

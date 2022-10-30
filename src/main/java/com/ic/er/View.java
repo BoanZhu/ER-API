@@ -1,11 +1,12 @@
 package com.ic.er;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.ic.er.Exception.ERException;
-import com.ic.er.common.DataType;
+import com.ic.er.exception.ERException;
 import com.ic.er.common.ViewDeserializer;
+import com.ic.er.entity.EntityDO;
+import com.ic.er.entity.RelationshipDO;
 import com.ic.er.entity.ViewDO;
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.Utils;
@@ -20,16 +21,14 @@ import java.util.List;
 
 @Getter
 @JsonDeserialize(using = ViewDeserializer.class)
+@JsonIgnoreProperties({"id", "creator", "gmtCreate", "gmtModified"})
 public class View {
-    @JsonIgnore
     private Long ID;
     private String name;
     private List<Entity> entityList;
     private List<Relationship> relationshipList;
     private String creator;
-    @JsonIgnore
     private Date gmtCreate;
-    @JsonIgnore
     private Date gmtModified;
 
     protected View(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, String creator, Date gmtCreate, Date gmtModified) {
@@ -50,39 +49,56 @@ public class View {
     }
 
     public Entity addEntity(String entityName) {
-        Entity entity = new Entity(0L, entityName, this.ID, new ArrayList<>(), null, 0.0, 0.0, new Date(), new Date());
-        this.entityList.add(entity);
-        return entity;
+        return addEntity(entityName, 0.0, 0.0);
     }
 
     public Entity addEntity(String entityName, Double layoutX, Double layoutY) {
+        if (entityName.equals("")) {
+            throw new ERException("entityName cannot be empty");
+        }
+        List<Entity> entities = Entity.queryByEntity(new EntityDO(null, entityName, this.ID, null, null, null));
+        if (entities.size() != 0) {
+            throw new ERException(String.format("entity with name: %s already exists", entityName));
+        }
         Entity entity = new Entity(0L, entityName, this.ID, new ArrayList<>(), null, layoutX, layoutY, new Date(), new Date());
         this.entityList.add(entity);
         return entity;
     }
 
-    public boolean deleteEntity(Entity entity) {
+    public void deleteEntity(Entity entity) {
         this.entityList.remove(entity);
         if (ER.useDB) {
             entity.deleteDB();
         }
-        return false;
     }
 
     public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity,
                                            Cardinality firstCardinality, Cardinality secondCardinality) {
-        Relationship relationship = new Relationship(0L, relationshipName, this.ID,
-                firstEntity, secondEntity, firstCardinality, secondCardinality, null, new Date(), new Date());
+        if (relationshipName.equals("")) {
+            throw new ERException("relationshipName cannot be empty");
+        }
+        if (Entity.queryByID(firstEntity.getID()) == null) {
+            throw new ERException(String.format("entity with ID: %d not found", firstEntity.getID()));
+        }
+        if (Entity.queryByID(secondEntity.getID()) == null) {
+            throw new ERException(String.format("entity with ID: %d not found", secondEntity.getID()));
+        }
+        if (Relationship.queryByRelationship(new RelationshipDO(firstEntity.getID(), secondEntity.getID())).size() != 0) {
+            throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
+        }
+        if (Relationship.queryByRelationship(new RelationshipDO(secondEntity.getID(), firstEntity.getID())).size() != 0) {
+            throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
+        }
+        Relationship relationship = new Relationship(0L, relationshipName, this.ID, firstEntity, secondEntity, firstCardinality, secondCardinality, null, new Date(), new Date());
         this.relationshipList.add(relationship);
         return relationship;
     }
 
-    public boolean deleteRelationship(Relationship relationship) {
+    public void deleteRelationship(Relationship relationship) {
         this.relationshipList.remove(relationship);
         if (ER.useDB) {
             relationship.deleteDB();
         }
-        return false;
     }
 
     private void insertDB() {
@@ -121,7 +137,7 @@ public class View {
     public static View queryByID(Long ID) {
         List<View> viewDOList = queryByView(new ViewDO(ID));
         if (viewDOList.size() == 0) {
-            throw new ERException(String.format("View with ID: %d not found ", ID));
+            throw new ERException(String.format("View with ID: %d not found", ID));
         } else {
             return viewDOList.get(0);
         }
@@ -142,9 +158,6 @@ public class View {
         if (name != null) {
             this.name = name;
         }
-        int ret = ER.viewMapper.updateByID(new ViewDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
-        if (ret == 0) {
-            throw new ERException(String.format("cannot find Attribute with ID: %d", this.ID));
-        }
+        ER.viewMapper.updateByID(new ViewDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
     }
 }

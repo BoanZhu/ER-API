@@ -1,8 +1,10 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ic.er.Exception.ERException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.ic.er.exception.ERException;
 import com.ic.er.common.RelatedObjType;
+import com.ic.er.entity.AttributeDO;
 import com.ic.er.entity.EntityDO;
 import com.ic.er.common.DataType;
 import com.ic.er.common.Utils;
@@ -13,17 +15,14 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
+@JsonIgnoreProperties({"id", "viewID", "gmtCreate", "gmtModified"})
 public class Entity {
-    @JsonIgnore
     private Long ID;
     private String name;
-    @JsonIgnore
     private Long viewID;
     private List<Attribute> attributeList;
     private LayoutInfo layoutInfo;
-    @JsonIgnore
     private Date gmtCreate;
-    @JsonIgnore
     private Date gmtModified;
 
     protected Entity(Long ID, String name, Long viewID, List<Attribute> attributeList, LayoutInfo layoutInfo, Double layoutX, Double layoutY, Date gmtCreate, Date gmtModified) {
@@ -47,13 +46,22 @@ public class Entity {
     }
 
 
-    public Attribute addAttribute(String attributeName, DataType dataType, int isPrimary) {
-        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, null, 0.0, 0.0, new Date(), new Date());
-        this.attributeList.add(attribute);
-        return attribute;
+    public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary) {
+        return addAttribute(attributeName, dataType, isPrimary, 0.0, 0.0);
     }
 
-    public Attribute addAttribute(String attributeName, DataType dataType, int isPrimary, Double layoutX, Double layoutY) {
+    public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary, Double layoutX, Double layoutY) {
+        if (attributeName.equals("")) {
+            throw new ERException("attributeName cannot be empty");
+        }
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.viewID, attributeName, null, null, null, null, null));
+        if (attributeList.size() != 0) {
+            throw new ERException(String.format("attribute with name: %s already exists", this.name));
+        }
+        attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.viewID, null, null, true, null, null, null));
+        if (isPrimary && attributeList.size() != 0) {
+            throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
+        }
         Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, null, layoutX, layoutY, new Date(), new Date());
         this.attributeList.add(attribute);
         return attribute;
@@ -87,14 +95,15 @@ public class Entity {
         ER.entityMapper.deleteByID(this.ID);
     }
 
-    public void updateInfo(String name) throws ERException {
+    public void updateInfo(String name) {
         if (name != null) {
             this.name = name;
         }
-        int ret = ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
-        if (ret == 0) {
-            throw new ERException(String.format("cannot find Attribute with ID: %d", this.ID));
+        List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.ID, null, null, null));
+        if (entities.size() != 0) {
+            throw new ERException(String.format("entity with name: %s already exists", name));
         }
+        ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
@@ -109,7 +118,7 @@ public class Entity {
     public static Entity queryByID(Long ID) {
         List<Entity> entityDOList = queryByEntity(new EntityDO(ID));
         if (entityDOList.size() == 0) {
-            throw new ERException(String.format("Entity with ID: %d not found ", ID));
+            throw new ERException(String.format("entity with ID: %d not found", ID));
         } else {
             return entityDOList.get(0);
         }
