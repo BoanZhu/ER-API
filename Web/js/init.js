@@ -1,4 +1,7 @@
 function init() {
+    /*
+    Get the editable model Template
+     */
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
         {
@@ -25,7 +28,6 @@ function init() {
             editable: true,
         }
     }
-
     const addNodeAdornment =
         $(go.Adornment, "Spot",
             $(go.Panel, "Auto",
@@ -348,10 +350,49 @@ function init() {
             }
         });
     }
+    /*
+    Get the current View Id and load the model
+     */
+    // const id =  location.href.substring(location.href.indexOf("id=")+3);
+    // myDiagram.model = go.Model.fromJson(getView(id));
     load()
 }  // end init
 
 
+//load model when first accessing the page
+window.addEventListener('DOMContentLoaded', init);
+
+/*
+Top right: rename and delete model
+ */
+
+//rename, get the new name and replace the new url
+function renameView() {
+    const name=prompt("Please enter new view name");
+    const id =  location.href.substring(location.href.indexOf("id=")+3);
+    if (name!=="" &&name!=null)
+    {
+        $.getJSON("http://localhost:8000/er/view/update?"+"id="+id+"&name="+name, function (res) {
+            window.location.replace("drawingView.html?name="+name+"&id="+id)
+        }).fail(function (failure) {
+            if (failure.status == 400) {
+                console.log("fail status:" + failure.status);
+            }
+        });
+    }
+}
+//deleteView(), delete this view and return to index
+function deleteView() {
+    const id =  location.href.substring(location.href.indexOf("id=")+3);
+    $.getJSON("http://localhost:8000/er/view/delete" + "id="+id, function (res) {
+        //return to index page
+        window.location.replace("index_dev.html");
+    }).fail(function (failure) {
+        if (failure.status == 400) {
+            console.log("fail status:" + failure.status);
+        }
+    });
+}
 
 /*
 Entity functions

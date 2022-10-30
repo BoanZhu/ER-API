@@ -1,4 +1,19 @@
+/*
+index.js is for the index html
+
+showModel is used to show the model at right dashboard,
+    input: selected id and name
+    output: model shown at right div
+
+anonymous function:
+    1. show all view model: output: all view name and id in the list
+    2. slide down and up function
+ */
+
 function showModel() {
+    /*
+    Model template
+     */
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram = $(go.Diagram, "model",  // must name or refer to the DIV HTML element
         {
@@ -42,8 +57,6 @@ function showModel() {
 
             },
             new go.Binding("location", "location").makeTwoWay(),
-            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
-            // clear out any desiredSize set by the ResizingTool.
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
             // define the node's outer shape, which will surround the Table
             $(go.Shape, "RoundedRectangle",
@@ -58,8 +71,6 @@ function showModel() {
                     fromLinkableDuplicates: false, toLinkableDuplicates: false
                 },
                 new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-
-            // the table header
             $(go.Panel, "Table",
                 { margin: 8, stretch: go.GraphObject.Fill },
                 $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
@@ -71,11 +82,8 @@ function showModel() {
                         editable: true
                     },
                     new go.Binding("text", "name").makeTwoWay())
-            ) // end Table Panel
+            )
         );
-
-    // default template
-    myDiagram.nodeTemplate = entityTemplate;
 
     // attribute template
     var attributeTemplate =$(go.Node, "Auto",
@@ -108,12 +116,13 @@ function showModel() {
     );
 
     // add all template
+    // default template
+    myDiagram.nodeTemplate = entityTemplate;
     var templateMap = new go.Map();
     templateMap.add("Entity", entityTemplate);
     templateMap.add("Attribute",attributeTemplate);
     // default
     templateMap.add("",entityTemplate);
-
     myDiagram.nodeTemplateMap = templateMap;
 
     // relation
@@ -215,18 +224,99 @@ function showModel() {
             linkDataArray: []
         });
 
-    myDiagram.model = go.Model.fromJson(getView());
 
+    /*
+    Get the model name and id from list
+     */
+    const selected_name =  $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+
+    /*
+    Get the model from database and load model
+     */
+    myDiagram.model = go.Model.fromJson(getView(id));
 }
-$(function (){
-    // $.getJSON("http://146.169.52.81:8080/er/view/query_all_views", function(result){
-    //     const viewList = result.data.viewList;
-    //     for (let i = 0; i < viewList.length; ++i) {
-    //         tmpString = '<option id = '+viewList[i].id+' value = '+viewList[i].name+'></option>';
-    //         $("viewsList").prepend(tmpString);
-    //     }
-    // });
 
+/*
+Continue Edit, editModel()
+get view id and view name
+output: redirect to the drawing.html with the name and id
+ */
+function editModel(){
+    const selected_name =  $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+    window.location.href = "drawingView?name="+name+"&id="+id;
+}
+
+/*
+Rename as, rename the current model, and the model list will also be changed
+renameModel():
+get view id and view name
+output: model list will be refresh
+ */
+function renameModel(){
+    const selected_name =  $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+    const name=prompt("Please enter new view name",selected_name);
+
+    if (name!=="" && name!=null&&selected_name!==name) {
+        $.getJSON("http://localhost:8000/er/view/update?"+"id="+id+"&name="+name, function (res) {
+            location.reload();
+        }).fail(function (failure) {
+            if (failure.status == 400) {
+                console.log("fail status:" + failure.status);
+            }
+        });
+    }
+}
+
+/*
+delete: delete this model
+deleteModel():
+get view id and view name
+output: model list will be refresh
+*/
+function deleteModel() {
+    const selected_name = $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+    $.getJSON("http://localhost:8000/er/view/delete"+"id=" + id, function (res) {
+        //reload page
+        location.reload();
+    }).fail(function (failure) {
+        if (failure.status == 400) {
+            console.log("fail status:" + failure.status);
+        }
+    });
+}
+/*
+Create new... jump to drawing html and create the new model
+createModel():
+input:name
+output: redirect to the html and start drawing
+
+ */
+function createModel() {
+    const name = prompt("Please enter new view name", "Draco");
+    if (name != null && name !== "") {
+        $.getJSON("http://hostname:8000/er/view/create?"+"name="+name, function (res) {
+            const id = res.id
+            window.location.replace("drawingView.html?name="+name+"&id="+id);
+        }).fail(function (failure) {
+            if (failure.status === 400) {
+                console.log("fail status:" + failure.status);
+            }
+        });
+    }
+}
+
+$(function (){
+    $.getJSON("http://146.169.52.81:8080/er/view/query_all_views", function(result){
+        const viewList = result.data.viewList;
+        for (let i = 0; i < viewList.length; ++i) {
+            tmpString = '<option id = '+viewList[i].id+' value = '+viewList[i].name+'></option>';
+            $("viewsList").prepend(tmpString);
+        }
+    });
     //hide all subtitle
     $(".nav_menu").each(function (){
         $(this).children(".nav_content").hide();
@@ -236,7 +326,7 @@ $(function (){
     $(".nav_title").each(function (){
         $(this).click(function (){
             var nav = $(this).parent(".nav_menu").children(".nav_content");
-            if (nav.css("display")!="none"){
+            if (nav.css("display")!=="none"){
                 nav.slideUp();
             }else{
                 nav.slideDown();
