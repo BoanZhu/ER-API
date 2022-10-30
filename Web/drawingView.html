@@ -35,12 +35,20 @@
         <tr><td>Entity Name:</td><td><input id="entityNameInfo" readonly="true"></td></tr>
         <tr><td>Attribute Name:</td><td><input id="attributeNameInfo"></td></tr>
         <tr><td>Primary Key:</td><td><input type="checkbox" name="isPrimary" id="isPrimaryKey"></td></tr>
+        <tr><td>Allow not null:</td><td><input type="checkbox" name="isNotNull" id="allowNotNull"></td></tr>
         <tr><td>Data Type:</td><td>
             <input style="font-size: 12px" id="datatypeChoices" type="text" list="datatypeChoice" placeholder="please choose types">
             <datalist id="datatypeChoice">
-                <option id="datatypeChoice1" value="int"></option>
-                <option id="datatypeChoice2" value="float">
-                <option id="datatypeChoice3" value="varchar">
+                <option id="datatypeChoice1" value="CHAR">
+                <option id="datatypeChoice2" value="VARCHAR">
+                <option id="datatypeChoice3" value="TEXT">
+                <option id="datatypeChoice4" value="TINYINT">
+                <option id="datatypeChoice5" value="SMALLINT">
+                <option id="datatypeChoice6" value="INT">
+                <option id="datatypeChoice7" value="BIGINT">
+                <option id="datatypeChoice8" value="FLOAT">
+                <option id="datatypeChoice9" value="DOUBLE">
+                <option id="datatypeChoice10" value="DATATIME">
             </datalist>
         </td></tr>
         <tr><td><button onclick="modifyAttribute()">submit</button></td></tr>

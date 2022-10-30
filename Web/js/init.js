@@ -495,15 +495,16 @@ function addAttr(){
         pos.y+=Math.sin(angle)*120;
         attributeData.location = pos;
         attributeData.isPrimary = false;
-        attributeData.dataType = 0;
+        attributeData.dataType = 1;
         attributeData.entityId = selectedEData.key;
+        attributeData.allowNotNull = false; //default value false：NOT allow null
         // send data to backend
         const viewId =  location.href.substring(location.href.indexOf("id=")+1);
         var info ={
             "viewID":viewId,
             "entityID":"345",
             "name":"newA",
-            "dataType":0,
+            "dataType":1, //default
             "layoutInfo":{
                 "x":pos.x,
                 "y":pos.y
@@ -543,6 +544,23 @@ function addAttr(){
     myDiagram.commitTransaction("add attributes");
 }
 
+const DATATYPE = {
+    UNKNOWN:0,
+    CHAR:1,
+    VARCHAR:2,
+    TEXT:3,
+    TINYINT:4,
+    SMALLINT:5,
+    INT:6,
+    BIGINT:7,
+    FLOAT:8,
+    DOUBLE:9,
+    DATETIME:10
+}
+let findDataType = (value, compare = (a, b) => a === b) => {
+    return Object.keys(DATATYPE).find(k => compare(DATATYPE[k], value))
+}
+
 // set value
 function modifyAttributeClick() {
     var tmpNodes = new go.List();
@@ -559,42 +577,64 @@ function modifyAttributeClick() {
         // get attribute key and entity id
         document.getElementById("selectedAttributeKey").value = selectedAData.key;
         document.getElementById("entityNameInfo").value = myDiagram.findNodeForKey(selectedAData.entityId).data.name;
-        if(part.data.category == 'Attribute'){
+        if(part.data.category === 'Attribute'){
             document.getElementById("attributeNameInfo").value = selectedAData.name;
-            //todo 现在假设直接是字符串
-            document.getElementById("datatypeChoices").value = 'int';
+            //
+            const dataType = parseInt(selectedAData.dataType);
+            document.getElementById("datatypeChoices").value = findDataType(dataType);
+            //is primary key
             //todo 还要统一（01 or true，false）
             var isPrimary = document.getElementById("isPrimaryKey");
-            if(part.data.isPrimary == "false"){
-                isPrimary.checked = true;
-            }else {isPrimary.checked = false;}
+            if(part.data.isPrimary.toString() === "false"){
+                isPrimary.checked = false;
+            }else {isPrimary.checked = true;}
+            // allow not null
+            var allowNotNull = document.getElementById("allowNotNull");
+            if(part.data.allowNotNull.toString() === "false"){
+                allowNotNull.checked = false;
+            }else {allowNotNull.checked = true;}
         }
 
     });
     myDiagram.commitTransaction("edit attributes");
 }
 
-//submit updates on attributes
+//SUBMIT updates on attributes
 function modifyAttribute(){
     // get name, isPrimary, datatype
     const name = document.getElementById("attributeNameInfo").value;
     const isPrimary = document.getElementById("isPrimaryKey").checked;
-    console.log("primary key "+isPrimary);
     const datatype = document.getElementById("datatypeChoices").value;
     const key = document.getElementById("selectedAttributeKey").value;
+    const allowNotNull = document.getElementById("allowNotNull").checked;
     // update model
-    var node = myDiagram.findNodeForKey(key);
-    node.data.name = name;
-    node.data.isPrimary = isPrimary;
-    node.data.dataType = datatype;
+    //check primary key
+    var node = myDiagram.findNodeForKey(key); // attribute
+    var entityNode = myDiagram.findNodeForKey(node.data.entityId);
+    var flag = false;
     // check underline
-    if(isPrimary == true){
+    if(isPrimary === true){
+        // check whether there is another primaryKey
+        entityNode.findNodesConnected().each(function (linkedNode){
+            if(linkedNode.data!==node.data && linkedNode.data.category === "Attribute"){
+                if(linkedNode.data.isPrimary == true){flag = true;}
+            }
+        });
+        if (flag === true){
+            alert("Submit failed, this entity already has a primary key");
+            return;
+        }
         // add underline
         node.data.underline = true;
+        node.data.isPrimary = isPrimary;
     }else {
         // remove underline
         node.data.underline = false;
     }
+    node.data.name = name;
+    node.data.dataType = DATATYPE[datatype];
+    node.data.allowNotNull = allowNotNull;
+
     var newJson = myDiagram.model.toJSON();
     myDiagram.model = go.Model.fromJson(newJson);
     document.getElementById("mySavedModel").value = myDiagram.model.toJson();
