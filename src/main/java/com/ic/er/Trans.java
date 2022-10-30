@@ -67,11 +67,11 @@ public class Trans {
         return ret;
     }
 
-    protected static View TransformFromDB(ViewDO ViewDO) {
-        List<Entity> entityList = Entity.queryByEntity(null);
-        List<Relationship> relationshipList = Relationship.queryByRelationship(null);
-        return new View(ViewDO.getID(), ViewDO.getName(), entityList, relationshipList, ViewDO.getCreator(),
-                ViewDO.getGmtCreate(), ViewDO.getGmtModified());
+    protected static View TransformFromDB(ViewDO view) {
+        List<Entity> entityList = Entity.queryByEntity(new EntityDO(null, null, view.getID(), null, null, null));
+        List<Relationship> relationshipList = Relationship.queryByRelationship(new RelationshipDO(null, null, view.getID(), null, null, null, null, null, null, null));
+        return new View(view.getID(), view.getName(), entityList, relationshipList, view.getCreator(),
+                view.getGmtCreate(), view.getGmtModified());
     }
 
     protected static List<View> TransViewListFromDB(List<ViewDO> doList) {

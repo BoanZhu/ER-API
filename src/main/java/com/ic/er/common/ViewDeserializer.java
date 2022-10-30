@@ -31,20 +31,19 @@ public class ViewDeserializer extends StdDeserializer<View> {
 
         JsonNode viewJSONNode = jp.getCodec().readTree(jp);
         String viewName = viewJSONNode.get("name").textValue();
-        String viewCreator = viewJSONNode.get("creator").textValue();
-        View view = ER.createView(viewName, viewCreator);
+        View view = ER.createView(viewName, "");
         for (JsonNode entityJSONNode : viewJSONNode.get("entityList")) {
             String entityName = entityJSONNode.get("name").textValue();
             Entity entity = view.addEntity(entityName);
             for (JsonNode attributeJSONNode : entityJSONNode.get("attributeList")) {
                 String attributeName = attributeJSONNode.get("name").textValue();
                 DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
-                Integer attributeIsPrimary = attributeJSONNode.get("isPrimary").intValue();
+                Boolean attributeIsPrimary = attributeJSONNode.get("isPrimary").booleanValue();
                 entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary);
                 entityNameMap.put(entityName, entity);
             }
             JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
-            entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), layoutInfoJSONNode.get("height").asDouble(), layoutInfoJSONNode.get("width").asDouble());
+            entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), 0.0, 0.0);
         }
 
         for (JsonNode relationshipJSONNode : viewJSONNode.get("relationshipList")) {
@@ -55,7 +54,7 @@ public class ViewDeserializer extends StdDeserializer<View> {
             String secondCardinality = relationshipJSONNode.get("secondCardinality").textValue();
             Relationship relationship = view.createRelationship(relationshipName, entityNameMap.get(firstEntityName), entityNameMap.get(secondEntityName), Cardinality.getFromValue(firstCardinality), Cardinality.getFromValue(secondCardinality));
             JsonNode layoutInfoJSONNode = relationshipJSONNode.get("layoutInfo");
-            relationship.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), layoutInfoJSONNode.get("height").asDouble(), layoutInfoJSONNode.get("width").asDouble());
+            relationship.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), 0.0, 0.0);
         }
 
         return view;

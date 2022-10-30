@@ -1,33 +1,30 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.ic.er.Exception.ERException;
+import com.ic.er.exception.ERException;
 import com.ic.er.common.*;
 import com.ic.er.entity.RelationshipDO;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Getter
 @JsonSerialize(using = RelationshipSerializer.class)
+@JsonIgnoreProperties({"id", "viewID", "gmtCreate", "gmtModified"})
 public class Relationship {
-    @JsonIgnore
     private Long ID;
     private String name;
-    @JsonIgnore
     private Long viewID;
     private Entity firstEntity;
     private Entity secondEntity;
     private Cardinality firstCardinality;
     private Cardinality secondCardinality;
     private LayoutInfo layoutInfo;
-    @JsonIgnore
     private Date gmtCreate;
-    @JsonIgnore
     private Date gmtModified;
 
     protected Relationship(Long ID, String name, Long viewID, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
@@ -92,9 +89,15 @@ public class Relationship {
         }
         if (firstEntity != null) {
             this.firstEntity = firstEntity;
+            if (Entity.queryByID(firstEntity.getID()) == null) {
+                throw new ERException(String.format("entity with ID: %d not found", firstEntity.getID()));
+            }
         }
         if (secondEntity != null) {
             this.secondEntity = secondEntity;
+            if (Entity.queryByID(secondEntity.getID()) == null) {
+                throw new ERException(String.format("entity with ID: %d not found", secondEntity.getID()));
+            }
         }
         if (firstCardinality != null) {
             this.firstCardinality = firstCardinality;
@@ -102,10 +105,13 @@ public class Relationship {
         if (secondCardinality != null) {
             this.secondCardinality = secondCardinality;
         }
-        int res = ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality, 0, this.gmtCreate, new Date()));
-        if (res == 0) {
-            throw new ERException(String.format("cannot find Relationship with ID: %d", this.ID));
+        if (firstEntity != null && secondEntity != null) {
+            List<Relationship> oldRelationshipList = Relationship.queryByRelationship(new RelationshipDO(firstEntity.getID(), secondEntity.getID()));
+            if (oldRelationshipList.size() != 0 && !oldRelationshipList.get(0).getID().equals(this.ID)) {
+                throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
+            }
         }
+        ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality, 0, this.gmtCreate, new Date()));
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {

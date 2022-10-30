@@ -16,7 +16,7 @@ public class AttributeDO {
     private Long viewID;
     private String name;
     private DataType dataType;
-    private Integer isPrimary;
+    private Boolean isPrimary;
     private Integer isDelete;
     private Date gmtCreate;
     private Date gmtModified;
