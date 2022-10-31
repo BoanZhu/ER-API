@@ -1,3 +1,5 @@
+var entityCounter = 0;
+
 function init() {
     /*
     Get the editable model Template
@@ -11,7 +13,7 @@ function init() {
             layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "clickCreatingTool.archetypeNodeData": { name:"new node",from:true,to:true},
+            "clickCreatingTool.archetypeNodeData": { name:"New Entity",from:true,to:true},
             "undoManager.isEnabled": true,
             "maxSelectionCount": 1,
             "ChangedSelection":changedSelection,
@@ -127,7 +129,6 @@ function init() {
                 margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
             },
             new go.Binding("text","name").makeTwoWay(),
-            //todo
             new go.Binding("isUnderline", "underline")
         )
     );
@@ -310,9 +311,17 @@ function init() {
                 }
             } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 //create entity and attribute
-                const name = e.newValue.name;
+                var entityName = e.newValue.name;
+                myDiagram.findNodesByExample({name:entityName}).each(
+                    function (node){
+                        node.data.name = entityName+entityCounter.toString();
+                        save();
+                        load();
+                    }
+                );
                 const layoutX = e.newValue.location.x;
                 const layoutY = e.newValue.location.y;
+                entityCounter++;
                 if (!("category" in e.newValue)){
                     //create entity
                     e.newValue.key = createEntity(name,layoutX,layoutY);
@@ -553,8 +562,7 @@ function addAttr(){
         //     }, error : function(res) {
         //     }
         // });
-        //todo for test
-        // todo 换成后端数据
+        //todo from backend
         attributeData.key = Math.ceil(Math.random()*10000);
         myDiagram.model.addNodeData(attributeData);
 
@@ -608,7 +616,6 @@ function modifyAttributeClick() {
             const dataType = parseInt(selectedAData.dataType);
             document.getElementById("datatypeChoices").value = findDataType(dataType);
             //is primary key
-            //todo 还要统一（01 or true，false）
             var isPrimary = document.getElementById("isPrimaryKey");
             if(part.data.isPrimary.toString() === "false"){
                 isPrimary.checked = false;
