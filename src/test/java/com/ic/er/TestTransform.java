@@ -1,9 +1,6 @@
 package com.ic.er;
 
-import com.ic.er.common.Cardinality;
-import com.ic.er.common.DataType;
-import com.ic.er.common.ResultState;
-import com.ic.er.common.ResultStateCode;
+import com.ic.er.common.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -70,8 +67,12 @@ public class TestTransform {
     @Test
     public void testRSToERModel() {
         Tranform tranform = new Tranform();
-        ResultState resultState = tranform.relationSchemasToERModel("org.h2.Driver", "jdbc:h2:mem:test",
-                "sa", "");
+//        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.H2, "jdbc:h2:tcp://localhost/~/test",
+//                "sa", "");
+//        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "jdbc:postgresql://db.doc.ic.ac.uk:5432/wh722",
+//                "wh722", "4jC@A3528>0N6");
+        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432" , "wh722",
+                "wh722", "4jC@A3528>0N6");
         resultState.getData();
     }
 }

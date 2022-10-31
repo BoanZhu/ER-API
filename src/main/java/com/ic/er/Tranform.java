@@ -1,6 +1,7 @@
 package com.ic.er;
 
 import com.ic.er.bean.dto.transform.TableDTO;
+import com.ic.er.common.RDBMSType;
 import com.ic.er.exception.DBConnectionException;
 import com.ic.er.common.ResultState;
 import com.ic.er.common.ResultStateCode;
@@ -15,9 +16,33 @@ import java.util.List;
 
 public class Tranform {
 
-    public ResultState relationSchemasToERModel(String driver, String dbUrl, String userName, String password){
+    public ResultState relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
+            , String userName, String password){
+        ResultState resultState;
+        String dbUrl = "";
+        try {
+            dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
+        } catch (ParseException e) {
+            resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
+            return resultState;
+        }
+
+        resultState = relationSchemasToERModel(databaseType, dbUrl, userName, password);
+
+        return resultState;
+    }
+
+    public ResultState relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password){
         Connection conn = null;
         ResultState resultState;
+        String driver = "";
+        try {
+            driver = DatabaseUtil.recognDriver(databaseType);
+        } catch (ParseException e) {
+            resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
+            return resultState;
+        }
+
         try {
             conn = DatabaseUtil.acquireDBConnection(driver, dbUrl, userName, password);
             conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -30,6 +55,7 @@ public class Tranform {
             resultState = ResultState.ok(tableDTOList);
         } catch (DBConnectionException | SQLException e) {
             resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
+            return resultState;
         }
 
         return resultState;

@@ -2,7 +2,9 @@ package com.ic.er.util;
 
 import com.ic.er.bean.dto.transform.ColumnDTO;
 import com.ic.er.bean.dto.transform.TableDTO;
+import com.ic.er.common.RDBMSType;
 import com.ic.er.exception.DBConnectionException;
+import com.ic.er.exception.ParseException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -31,13 +33,14 @@ public class DatabaseUtil {
                 TableDTO table = new TableDTO();
                 table.setName(tableName);
 
-                PreparedStatement statement = conn.prepareStatement("select * from `" + tableName + "`");
+//                ResultSet columnRs = meta.getColumns(catalog, schemaPattern, tableName, null);
+                PreparedStatement statement = conn.prepareStatement("select * from " + tableName);
                 ResultSet columnRs = statement.executeQuery();
                 ResultSetMetaData rsmd = columnRs.getMetaData();
                 List<ColumnDTO> columnDTOList = new ArrayList<>();
                 Map<String, ColumnDTO> columnTrackInTable = new HashMap<>();
 
-                for (int i = 0; i < rsmd.getColumnCount(); i++) {
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                     ColumnDTO columnDTO = new ColumnDTO();
                     String columnName = rsmd.getColumnName(i);
                     String columnDataType = rsmd.getColumnTypeName(i);
@@ -111,4 +114,37 @@ public class DatabaseUtil {
     }
 
 
+    public static String generateDatabaseURL(RDBMSType databaseType, String hostname, String portNum, String databaseName) throws ParseException {
+        if (databaseType == RDBMSType.MYSQL) {
+            return "jdbc:mysql://" + hostname + ":" + portNum + "/" + databaseName;
+        } else if (databaseType == RDBMSType.ORACLE) {
+            return "jdbc:oracle:thin:@" + hostname + ":" + portNum + ":" +databaseName;
+        } else if (databaseType == RDBMSType.DB2) {
+            return "jdbc:db2://" + hostname + ":" + portNum + "/" + databaseName;
+        } else if (databaseType == RDBMSType.H2) {
+            return "jdbc:h2:tcp://" + hostname + ":" + portNum + "/" + databaseName;
+        } else if (databaseType == RDBMSType.POSTGRESQL) {
+            return "jdbc:postgresql://" + hostname + ":" + portNum + "/" + databaseName;
+        } else if (databaseType == RDBMSType.SQLSERVER) {
+            return "jdbc:sqlserver://" + hostname + ":" + portNum + ";DatabaseName=" + databaseName;
+        }
+        throw new ParseException("Cannot recognise current RDBMS type: " + databaseType.toString());
+    }
+
+    public static String recognDriver(RDBMSType databaseType) throws ParseException {
+        if (databaseType == RDBMSType.MYSQL) {
+            return "com.mysql.jdbc.Driver";
+        } else if (databaseType == RDBMSType.ORACLE) {
+            return "oracle.jdbc.driver.OracleDriver";
+        } else if (databaseType == RDBMSType.DB2) {
+            return "com.ibm.db2.jdbc.net.DB2Driver";
+        } else if (databaseType == RDBMSType.H2) {
+            return "org.h2.Driver";
+        } else if (databaseType == RDBMSType.POSTGRESQL) {
+            return "org.postgresql.Driver";
+        } else if (databaseType == RDBMSType.SQLSERVER) {
+            return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+        }
+        throw new ParseException("Cannot recognise current RDBMS type: " + databaseType.toString());
+    }
 }
