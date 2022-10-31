@@ -8,8 +8,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
 
 public class TestTransform {
     View view;
@@ -67,5 +65,13 @@ public class TestTransform {
         ResultState resultState = tranform.ERModelToSql(view.getID());
         assert resultState.getStatus().equals(ResultStateCode.Failure);
         System.out.println(resultState.getMsg());
+    }
+
+    @Test
+    public void testRSToERModel() {
+        Tranform tranform = new Tranform();
+        ResultState resultState = tranform.relationSchemasToERModel("org.h2.Driver", "jdbc:h2:mem:test",
+                "sa", "");
+        resultState.getData();
     }
 }

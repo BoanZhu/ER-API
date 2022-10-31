@@ -27,7 +27,7 @@ public class Tranform {
             Image erDiagram = null;
 
             DatabaseUtil.closeDBConnection(conn);
-            resultState = ResultState.ok(erDiagram);
+            resultState = ResultState.ok(tableDTOList);
         } catch (DBConnectionException | SQLException e) {
             resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
         }
