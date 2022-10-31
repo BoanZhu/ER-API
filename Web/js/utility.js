@@ -94,35 +94,49 @@ function getView(id) {
 
 }
 function test(){
+    console.log("test");
     var Obj ={
-        "id":"123",
-        "name":"345",
-        "location":{
-            "x":123,
-            "y":678
-        }
+        name: "teacher"
     }
-
     Obj = JSON.stringify(Obj);
 
     $.ajax({
-        type : "GET",
-        url : "http://localhost:8000/er/view/get_by_id",
-        traditional : true,
-        data : {
-            "Obj":Obj,
-        },
-        withCredentials:false,
-        dataType : 'json',
+        type : "POST",
+        url : "http://146.169.52.81:8080/er/view/create?",
+        data : Obj,
         success : function(result) {
-            if(result.code == 0) {
-                $(function(){
-                    var view = result.data.view;
-                    console.log("name"+result.data.view.name);
-                });
-            }
-        }, error : function(res) {
-
+            console.log("true");
+            console.log(result.id);
+        }, error : function(result) {
+            console.log("false");
         }
     });
 }
+
+//
+// function test(){
+//     var Obj ={
+//         "name": "teacher",
+//         "viewID": 1,
+//         "layoutInfo": {
+//             "layoutX": 13.0,
+//             "layoutY": 25.0
+//         }
+//     }
+//     Obj = JSON.stringify(Obj);
+//
+//     $.ajax({
+//         type : "POST",
+//         url : "http://146.169.52.81:8080/er/entity/create",
+//         traditional : true,
+//         data : {
+//             "Obj":Obj,
+//         },
+//         dataType : 'json',
+//         success : function(result) {
+//             console.log("true")
+//         }, error : function(res) {
+//             console.log(res)
+//         }
+//     });
+// }

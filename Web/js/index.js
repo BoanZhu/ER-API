@@ -292,12 +292,21 @@ output: redirect to the html and start drawing
 function createModel() {
     const name = prompt("Please enter new view name", "Draco");
     if (name != null && name !== "") {
-        $.getJSON("http://hostname:8000/er/view/create?"+"name="+name, function (res) {
-            const id = res.id
-            window.location.replace("drawingView.html?name="+name+"&id="+id);
-        }).fail(function (failure) {
-            if (failure.status === 400) {
-                console.log("fail status:" + failure.status);
+        console.log("test");
+        var Obj ={
+            name: "teacher"
+        }
+        Obj = JSON.stringify(Obj);
+
+        $.ajax({
+            type : "POST",
+            url : "http://127.0.0.1:8000/er/view/create",
+            data : Obj,
+            success : function(result) {
+                console.log("true");
+                console.log(result.id);
+            }, error : function(result) {
+                console.log("false");
             }
         });
     }

@@ -411,12 +411,10 @@ function createEntity(name,layoutX,layoutY){
     Obj = JSON.stringify(Obj);
 
     $.ajax({
-        type : "GET",
-        url : "http://146.169.52.81:8080/er/entity/create",
+        type : "POST",
+        url : "http://127.0.0.1:8000/er/entity/create",
         traditional : true,
-        data : {
-            "Obj":Obj,
-        },
+        data : Obj,
         withCredentials:false,
         dataType : 'json',
         success : function(result) {
