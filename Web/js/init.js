@@ -106,7 +106,7 @@ function init() {
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
             linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                return fromNode.findLinksTo(toNode).count + toNode.findLnksTo(fromNode).count < 1;
             }
         },
         new go.Binding("location", "location").makeTwoWay(),
@@ -428,7 +428,8 @@ function createEntity(name,layoutX,layoutY){
         dataType : 'json',
         success : function(result) {
             if(result.code == 0) {
-                return result.id;
+                console.log(result);
+                // return result.id;
             }
         }, error : function(res) {
         }
@@ -548,11 +549,14 @@ function addAttr(){
         info = JSON.stringify(info);
         $.ajax({
             type : "POST",
-            url : "http://127.0.0.1:8000/er/attribute/create",
+            // url : "http://127.0.0.1:8000/er/attribute/create",
+            url: "http://146.169.52.81:8080/er/attribute/create",
+            headers: { "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
             traditional : true,
             data : info,
             withCredentials:false,
-            dataType : 'json',
+            dataType : 'application/json',
             success : function(result) {
                 if(result.code === 0) {
                     $(function(){
