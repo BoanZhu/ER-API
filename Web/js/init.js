@@ -1,5 +1,5 @@
 var entityCounter = 0;
-
+var attributeCounter=0;
 function init() {
     /*
     Get the editable model Template
@@ -522,7 +522,8 @@ function addAttr(){
         var selectedEntity = part;
         var selectedEData =part.data;
         // new attribute
-        var attributeData = {name:"NewA",category:"Attribute"};
+        var attributeData = {name:"NewA"+attributeCounter.toString(),category:"Attribute"};
+        attributeCounter++;
         var pos = selectedEntity.location.copy();
         var angle = Math.random()*Math.PI*2;
         pos.x+=Math.cos(angle)*120;
@@ -536,8 +537,8 @@ function addAttr(){
         const viewId =  location.href.substring(location.href.indexOf("id=")+1);
         var info ={
             "viewID":viewId,
-            "entityID":"345",
-            "name":"newA",
+            "entityID":attributeData.entityId,
+            "name":attributeData.name,
             "dataType":1, //default
             "layoutInfo":{
                 "x":pos.x,
@@ -545,33 +546,32 @@ function addAttr(){
             }
         }
         info = JSON.stringify(info);
-        // $.ajax({
-        //     type : "POST",
-        //     url : "http://localhost:8000/er/attribute/create",
-        //     traditional : true,
-        //     data : info,
-        //     withCredentials:false,
-        //     dataType : 'json',
-        //     success : function(result) {
-        //         if(result.code == 0) {
-        //             $(function(){
-        //                 var node=myDiagram.model.findNodeForData(attributeData);
-        //                 node.data.keyDB = result.data.id;
-        //             });
-        //         }
-        //     }, error : function(res) {
-        //     }
-        // });
-        //todo from backend
-        attributeData.key = Math.ceil(Math.random()*10000);
-        myDiagram.model.addNodeData(attributeData);
+        $.ajax({
+            type : "POST",
+            url : "http://127.0.0.1:8000/er/attribute/create",
+            traditional : true,
+            data : info,
+            withCredentials:false,
+            dataType : 'json',
+            success : function(result) {
+                if(result.code === 0) {
+                    $(function(){
+                        attributeData.key = result.data.id;
+                        myDiagram.model.addNodeData(attributeData);
+                        save();
+                        load();
+                        // new link
+                        var link = {
+                            from:myDiagram.model.getKeyForNodeData(selectedEData),
+                            to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink"
+                        };
+                        myDiagram.model.addLinkData(link);
+                    });
+                }
+            }, error : function(res) {
 
-        // new link
-        var link = {
-            from:myDiagram.model.getKeyForNodeData(selectedEData),
-            to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink"
-        };
-        myDiagram.model.addLinkData(link);
+            }
+        });
 
     });
     myDiagram.commitTransaction("add attributes");
