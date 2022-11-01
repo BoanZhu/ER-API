@@ -1,4 +1,4 @@
-var entityCounter = 400;
+var entityCounter = 0;
 var attributeCounter=0;
 function init() {
     /*
@@ -428,7 +428,7 @@ function createEntity(name,layoutX,layoutY){
     const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
     let id;
     var Obj ={
-        id:viewID,
+        viewID:viewID,
         name: name,
         layoutInfo: {
             layoutX: layoutX,
@@ -455,6 +455,11 @@ function createEntity(name,layoutX,layoutY){
 }
 
 function deleteEntity(id){
+    myDiagram.nodes.each(function (node){
+        if(("category" in node.data) && node.data.entityId === id){
+            myDiagram.model.removeNodeData(node.data);
+        }
+    });
     let Obj ={
         id: id
     }
@@ -611,7 +616,7 @@ function addAttr(){
         if(node.isSelected){
             tmpNodes.push(node);
         }
-    })
+    });
     tmpNodes.each(function (part){
         var selectedEntity = part;
         var selectedEData =part.data;
@@ -632,11 +637,13 @@ function addAttr(){
         var info ={
             "viewID":viewId,
             "entityID":attributeData.entityId,
+            "nullable":false,
             "name":attributeData.name,
             "dataType":1, //default
+            "isPrimary":false,
             "layoutInfo":{
-                "x":pos.x,
-                "y":pos.y
+                "layoutX":pos.x,
+                "layoutY":pos.y
             }
         }
         info = JSON.stringify(info);
@@ -644,6 +651,8 @@ function addAttr(){
             type : "POST",
             // url : "http://127.0.0.1:8000/er/attribute/create",
             url: "http://146.169.52.81:8080/er/attribute/create",
+            // headers: { "Access-Control-Allow-Origin": "*",
+            //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
             traditional : true,
             data : info,
             withCredentials:false,
@@ -665,7 +674,7 @@ function addAttr(){
                     });
                 }
             }, error : function(res) {
-
+                alert("creating attribute fails");
             }
         });
     });
@@ -761,6 +770,7 @@ function modifyAttribute(){
     var node = myDiagram.findNodeForKey(key); // attribute
     var entityNode = myDiagram.findNodeForKey(node.data.entityId);
     var flag = false;
+    const entityId = node.data.entityId;
     // check underline
     if(isPrimary === true){
         // check whether there is another primaryKey
@@ -783,11 +793,15 @@ function modifyAttribute(){
     node.data.name = name;
     node.data.dataType = DATATYPE[datatype];
     node.data.allowNotNull = allowNotNull;
+    const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
+
     save();
     load();
 
     var info ={
-        "attributeID": node.data.id,
+        // "attributeID": node.data.id,
+        "viewID":viewID,
+        "entityID":entityId,
         "name": name,
         "dataType": datatype,
         "isPrimay": isPrimary,
@@ -802,8 +816,8 @@ function modifyAttribute(){
         type : "POST",
         // url : "http://127.0.0.1:8000/er/attribute/update",
         url: "http://146.169.52.81:8080/er/attribute/update",
-        // headers: { "Access-Control-Allow-Origin": "*",
-        //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         traditional : true,
         data : info,
         withCredentials:false,
