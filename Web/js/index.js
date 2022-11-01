@@ -241,12 +241,19 @@ function defineModel(){
         });
 }
 
+/*
+get view id
+ */
+function getId(){
+    const selected_name =  $('#vInput').val();
+    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
+    return id;
+}
 
-
+/*
+Show model at rignt
+ */
 function showModel() {
-    /*
-   model Template
-    */
     // Get the model name and id from list
     const id = getId();
     myDiagram.model = go.Model.fromJson(getView(id));
@@ -327,6 +334,8 @@ function deleteModel() {
         }
     });
 }
+
+
 /*
 Create new... jump to drawing html and create the new model
 createModel():
@@ -357,6 +366,9 @@ function createModel() {
     }
 }
 
+/*
+Append views into view list
+ */
 function appendModel(){
     $.ajax({
         type : "GET",
@@ -385,6 +397,9 @@ function appendModel(){
 window.addEventListener('DOMContentLoaded', appendModel);
 window.addEventListener('DOMContentLoaded', defineModel);
 
+/*
+HTML list slide down
+ */
 $(function (){
     //hide all subtitle
     $(".nav_menu").each(function (){
@@ -404,12 +419,3 @@ $(function (){
     });
 
 });
-
-/*
-get id
- */
-function getId(){
-    const selected_name =  $('#vInput').val();
-    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
-    return id;
-}
