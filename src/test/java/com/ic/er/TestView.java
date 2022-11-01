@@ -21,14 +21,14 @@ public class TestView {
         View testView = ER.createView("testView", "wt22");
 
         Entity teacher = testView.addEntity("teacher");
-        teacher.addAttribute("teacher_id", DataType.VARCHAR, true);
-        teacher.addAttribute("name", DataType.VARCHAR, false);
-        teacher.addAttribute("age", DataType.INT, false);
+        teacher.addAttribute("teacher_id", DataType.VARCHAR, true, false);
+        teacher.addAttribute("name", DataType.VARCHAR, false, false);
+        teacher.addAttribute("age", DataType.INT, false, false);
 
         Entity student = testView.addEntity("student");
-        student.addAttribute("student_id", DataType.VARCHAR, true);
-        student.addAttribute("name", DataType.VARCHAR, false);
-        student.addAttribute("grade", DataType.INT, false);
+        student.addAttribute("student_id", DataType.VARCHAR, true, false);
+        student.addAttribute("name", DataType.VARCHAR, false, false);
+        student.addAttribute("grade", DataType.INT, false, false);
 
         Relationship ts = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
 
@@ -91,14 +91,14 @@ public class TestView {
         View firstView = ER.createView("first view", "tw");
 
         Entity teacher = firstView.addEntity("teacher");
-        teacher.addAttribute("teacher_id", DataType.VARCHAR, true);
-        teacher.addAttribute("name", DataType.VARCHAR, false);
-        teacher.addAttribute("age", DataType.INT, false);
+        teacher.addAttribute("teacher_id", DataType.VARCHAR, true, false);
+        teacher.addAttribute("name", DataType.VARCHAR, false, false);
+        teacher.addAttribute("age", DataType.INT, false, false);
 
         Entity student = firstView.addEntity("student");
-        student.addAttribute("student_id", DataType.VARCHAR, true);
-        student.addAttribute("name", DataType.VARCHAR, false);
-        student.addAttribute("grade", DataType.INT, false);
+        student.addAttribute("student_id", DataType.VARCHAR, true, false);
+        student.addAttribute("name", DataType.VARCHAR, false, false);
+        student.addAttribute("grade", DataType.INT, false, false);
 
         Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(ts);

@@ -14,17 +14,23 @@ import java.util.List;
 public class TestRelationship {
 
     private View testView;
+    private View secondView;
     private Entity teacher;
     private Entity student;
     private Entity classroom;
+    private Entity secondViewEntity1;
+    private Entity secondViewEntity2;
 
     @Before
     public void init() throws Exception {
         ER.initialize(true);
         testView = ER.createView("testView", "wt22");
+        secondView = ER.createView("secondView", "wt22");
         teacher = testView.addEntity("teacher");
         student = testView.addEntity("student");
         classroom = testView.addEntity("classroom");
+        secondViewEntity1 = secondView.addEntity("ent1");
+        secondViewEntity2 = secondView.addEntity("ent2");
         Assert.assertNotNull(teacher);
         Assert.assertNotNull(student);
         Assert.assertNotNull(classroom);
@@ -32,6 +38,8 @@ public class TestRelationship {
 
     @Test
     public void createRelationshipTest() {
+        assertThrows(ERException.class, () -> secondView.createRelationship("teaches", student, teacher, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
+
         Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
         Assert.assertEquals(relationship.getID(), Long.valueOf(1L));
@@ -64,6 +72,7 @@ public class TestRelationship {
 
         Relationship teachClassroom = testView.createRelationship("teaches", teacher, classroom, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         assertThrows(ERException.class, () -> teachClassroom.updateInfo(newName, teacher, student, newCardi, newCardi));
+        assertThrows(ERException.class, () -> teachClassroom.updateInfo(newName, secondViewEntity1, secondViewEntity2, newCardi, newCardi));
     }
 
     @Test

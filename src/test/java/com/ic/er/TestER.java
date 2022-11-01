@@ -31,32 +31,34 @@ public class TestER {
     }
 
     @Test
-    public void jsonTest() throws IOException {
-        View firstView = ER.createView("first view", "tw");
+    public void drawER() throws IOException {
+        View example = ER.createView("BranchAccountMovement", "tw");
 
-        Entity teacher = firstView.addEntity("teacher");
-        teacher.addAttribute("teacher_id", DataType.VARCHAR, true);
-        teacher.addAttribute("name", DataType.VARCHAR, false);
-        teacher.addAttribute("age", DataType.INT, false);
+        Entity branch = example.addEntity("branch");
+        branch.addAttribute("sortcode", DataType.INT, true, false);
+        branch.addAttribute("bname", DataType.VARCHAR, false, false);
+        branch.addAttribute("cash", DataType.DOUBLE, false, false);
 
-        Entity student = firstView.addEntity("student");
-        student.addAttribute("student_id", DataType.VARCHAR, true);
-        student.addAttribute("name", DataType.VARCHAR, false);
-        student.addAttribute("grade", DataType.INT, false);
+        Entity account = example.addEntity("account");
+        account.addAttribute("no", DataType.INT, true, false);
+        account.addAttribute("type", DataType.CHAR, false, false);
+        account.addAttribute("cname", DataType.VARCHAR, false, false);
+        account.addAttribute("rate", DataType.DOUBLE, false, true);
 
-        Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany, Cardinality.OneToMany);
+        Entity movement = example.addEntity("movement");
+        movement.addAttribute("mid", DataType.INT, true, false);
+        movement.addAttribute("amount", DataType.DOUBLE, false, false);
+        movement.addAttribute("tdate", DataType.DATETIME, false, false);
 
-        String jsonString = firstView.ToJSON();
-        FileWriter myWriter = new FileWriter("first view.json");
+        Relationship holds = example.createRelationship("holds", account, branch, Cardinality.OneToOne, Cardinality.ZeroToMany);
+        Relationship has = example.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
+
+        String jsonString = example.toJSON();
+        FileWriter myWriter = new FileWriter(String.format("%s.json", example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
 
         View view = ER.loadFromJSON(jsonString);
         Assert.assertNotNull(view);
-    }
-
-    @Test
-    public void getCardi() {
-        System.out.println(Cardinality.getFromValue("1:N"));
     }
 }

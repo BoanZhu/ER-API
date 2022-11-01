@@ -92,11 +92,17 @@ public class Relationship {
             if (Entity.queryByID(firstEntity.getID()) == null) {
                 throw new ERException(String.format("entity with ID: %d not found", firstEntity.getID()));
             }
+            if (!firstEntity.getViewID().equals(this.viewID)) {
+                throw new ERException(String.format("entity: %s does not belong to this view", firstEntity.getName()));
+            }
         }
         if (secondEntity != null) {
             this.secondEntity = secondEntity;
             if (Entity.queryByID(secondEntity.getID()) == null) {
                 throw new ERException(String.format("entity with ID: %d not found", secondEntity.getID()));
+            }
+            if (!secondEntity.getViewID().equals(this.ID)) {
+                throw new ERException(String.format("entity: %s does not belong to this view", secondEntity.getName()));
             }
         }
         if (firstCardinality != null) {

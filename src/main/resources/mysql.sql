@@ -6,6 +6,7 @@ CREATE TABLE attribute (
     name varchar(255) NOT NULL COMMENT 'attribute name',
     data_type varchar(50) NOT NULL COMMENT 'attribute type',
     is_primary tinyint NOT NULL DEFAULT 0 COMMENT '0-not a primary key, 1-primary key, default 0',
+    nullable tinyint NOT NULL DEFAULT 0 COMMENT '0-not null, 1-nullable, default 0',
     is_delete tinyint NOT NULL DEFAULT 0 COMMENT '0-undeleted，1-delete，default 0',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modified time',

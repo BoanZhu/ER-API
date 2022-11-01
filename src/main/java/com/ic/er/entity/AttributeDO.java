@@ -17,6 +17,7 @@ public class AttributeDO {
     private String name;
     private DataType dataType;
     private Boolean isPrimary;
+    private Boolean nullable;
     private Integer isDelete;
     private Date gmtCreate;
     private Date gmtModified;
