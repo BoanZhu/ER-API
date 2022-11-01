@@ -22,8 +22,8 @@ function getView(id) {
             for(let i = 0; i < entityList.length; i++) {
                 var entity  = entityList[i];
                 var node = "{\"key\":"+entity.id+
-                    ",\"name\":"+entity.name+
-                    ",\"location\":{\"class\":\"go.Point\",\"x\":"+entity.layoutInfo.layoutX+
+                    ",\"name\":\""+entity.name+
+                    "\",\"location\":{\"class\":\"go.Point\",\"x\":"+entity.layoutInfo.layoutX+
                     ",\"y\":"+entity.layoutInfo.layoutY+
                     "}, \"from\": true, \"to\":true}";
 
@@ -39,11 +39,11 @@ function getView(id) {
                     if (attribute.isPrimary){
                         isPrimary=1
                     }
-                    var attributeNode = "\"category\":\"Attribute\",\"name\":"+attribute.name+","+
+                    var attributeNode = "{\"category\":\"Attribute\",\"name\":\""+attribute.name+"\","+
                         "\"location\":{\"class\":\"go.Point\",\"x\":"+attribute.layoutInfo.layoutX+","+
                         "\"y\":"+attribute.layoutInfo.layoutY+
                         "},\"isPrimary\":"+isPrimary+
-                        ",\"dataType”:"+attribute.dataType+
+                        ",\"dataType\":"+attribute.dataType+
                         ",\"key\":"+attribute.id+"}";
 
                     if (i === entityList.length-1 && j === attributeList.length-1){
@@ -72,8 +72,8 @@ function getView(id) {
                     "\"to\":"+ relation.secondEntityID+"," +
                     "\"fromText\":"+ relation.firstCardinality+"," +
                     "\"toText\":"+ relation.secondCardinality+"," +
-                    "\"relation\":"+ relation.name +
-                    "}";
+                    "\"relation\":\""+ relation.name +
+                    "\"}";
                 if (i !== relationshipList.length-1){
                     LinkModelStr = LinkModelStr+link+",";
                 }else {
