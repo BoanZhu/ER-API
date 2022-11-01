@@ -39,7 +39,8 @@ public class ViewDeserializer extends StdDeserializer<View> {
                 String attributeName = attributeJSONNode.get("name").textValue();
                 DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
                 Boolean attributeIsPrimary = attributeJSONNode.get("isPrimary").booleanValue();
-                entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary);
+                Boolean attributeNullable = attributeJSONNode.get("nullable").booleanValue();
+                entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeNullable);
                 entityNameMap.put(entityName, entity);
             }
             JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");

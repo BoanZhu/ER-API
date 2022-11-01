@@ -11,6 +11,7 @@
         <result column="name" property="name"/>
         <result column="data_type" property="dataType"/>
         <result column="is_primary" property="isPrimary"/>
+        <result column="is_null" property="isNull"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
@@ -22,14 +23,14 @@
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,entity_id,view_id,name,data_type,is_primary,is_delete,gmt_create,gmt_modified
+        id,entity_id,view_id,name,data_type,is_primary,nullable,is_delete,gmt_create,gmt_modified
         from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByAttribute" parameterType="com.ic.er.entity.AttributeDO" resultMap="BaseResultMap">
         select
-        id,entity_id,view_id,name,data_type,is_primary,is_delete,gmt_create,gmt_modified
+        id,entity_id,view_id,name,data_type,is_primary,nullable,is_delete,gmt_create,gmt_modified
         from attribute
         <where>
             <if test="ID != null">
@@ -49,6 +50,9 @@
             </if>
             <if test="isPrimary != null">
                 and is_primary = #{isPrimary,jdbcType=TINYINT}
+            </if>
+            <if test="nullable != null">
+                and nullable = #{nullable,jdbcType=TINYINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -78,6 +82,9 @@
             <if test="isPrimary != null">
                 is_primary,
             </if>
+            <if test="nullable != null">
+                nullable,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="entityID != null">
@@ -94,6 +101,9 @@
             </if>
             <if test="isPrimary != null">
                 #{isPrimary,jdbcType=TINYINT},
+            </if>
+            <if test="nullable != null">
+                #{nullable,jdbcType=TINYINT},
             </if>
         </trim>
     </insert>
@@ -121,6 +131,9 @@
             </if>
             <if test="isPrimary != null">
                 is_primary = #{isPrimary,jdbcType=TINYINT},
+            </if>
+            <if test="nullable != null">
+                nullable = #{nullable,jdbcType=TINYINT},
             </if>
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
