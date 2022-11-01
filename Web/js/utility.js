@@ -1,5 +1,4 @@
 function getView(id) {
-
     var modelStr;
     $.ajax({
         type : "GET",
@@ -10,12 +9,11 @@ function getView(id) {
         contentType: "application/json",
         data : {ID:id},
         success : function(result) {
+            let flag = 1;
             modelStr = "{ \"class\": \"GraphLinksModel\",\n" +
                 " \"copiesArrays\": true,\n" +
                 " \"copiesArrayObjects\": true,\n" +
                 " \"nodeDataArray\": ["
-            const viewName = result.data.view.name;
-            const viewId = id;
             var LinkModelStr = "],\"linkDataArray\": [";
             const entityList = result.data.view.entityList;
             const relationshipList = result.data.view.relationshipList;
@@ -57,12 +55,13 @@ function getView(id) {
                         ",\"to\":"+attribute.id+
                         ",\"category\":\"normalLink\"}";
                     if (i === entityList.length-1 && j === attributeList.length-1 && relationshipList.length===0){
+                        flag=0;
                         LinkModelStr = LinkModelStr+currentNodeLink+"]}";
                     } else {
                         LinkModelStr = LinkModelStr+currentNodeLink+","
                     }
                 }
-            };
+            }
 
             //relationship
             for(let i = 0; i < relationshipList.length; i++) {
@@ -70,8 +69,8 @@ function getView(id) {
                 var link = "{\"key\":"+ relation.id+"," +
                     "\"from\":"+ relation.firstEntityID+"," +
                     "\"to\":"+ relation.secondEntityID+"," +
-                    "\"fromText\":"+ relation.firstCardinality+"," +
-                    "\"toText\":"+ relation.secondCardinality+"," +
+                    "\"fromText\":\""+ findRelationName(relation.firstCardinality)+"\"," +
+                    "\"toText\":\""+ findRelationName(relation.secondCardinality)+"\"," +
                     "\"relation\":\""+ relation.name +
                     "\"}";
                 if (i !== relationshipList.length-1){
@@ -79,11 +78,9 @@ function getView(id) {
                 }else {
                     LinkModelStr = LinkModelStr + link+"]}";
                 }
-            };
-            if (relationshipList.length===0){
+            }
+            if (relationshipList.length===0&& flag){
                 modelStr = modelStr+LinkModelStr+"]}";
-
-
             }else{
                 modelStr = modelStr+LinkModelStr;
             }
@@ -94,19 +91,17 @@ function getView(id) {
         }
     });
     return modelStr;
-    // return { "class": "GraphLinksModel",
-    //     "copiesArrays": true,
-    //     "copiesArrayObjects": true,
-    //     "nodeDataArray": [
-    //         {"key":3435,"name":"Products","location":{"class":"go.Point","x":-905.441681610523,"y":-29.922811407391464},"from":true,"to":true},
-    //         {"key":34,"name":"Suppliers","location":{"class":"go.Point","x":-1472.350018298561,"y":-105.79224133183979},"from":true,"to":true},
-    //         {"key":9340,"name":"Categories","location":{"class":"go.Point","x":-987.4442912524521,"y":-381.1624322383951},"from":true,"to":true},
-    //         {"name":"NewA","category":"Attribute","location":{"class":"go.Point","x":-885.0581974373832,"y":-318.57578994715294},"isPrimary":false,"dataType":1,"entityId":9340,"allowNotNull":false,"key":4090}
-    //     ],
-    //     "linkDataArray": [
-    //         {"key":123,"from":3435,"to":34,"fromText":"0..N","toText":"1","relation":"has"},
-    //         {"key":456,"from":3435,"to":9340,"fromText":"0..N","toText":"1","relation":"with"},
-    //         {"from":9340,"to":4090,"category":"normalLink"}
-    //     ]};
-
 }
+
+const RELATION = {
+    UNKNOWN:"",
+    ZeroToOne:"0:1",
+    ZeroToMany:"0:N",
+    OneToOne:"1:1",
+    OneToMany:"1:N"
+}
+function findRelationName(indexs){
+    return Object.values(RELATION)[indexs];
+}
+
+

@@ -100,7 +100,7 @@ function defineModel(){
             // selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
-            linkValidation: function (fromNode, fromGraphObject, toNode, toGraphObject) {
+            linkValidation: function (fromNode, fromGraphObject, toNode) {
                 return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
             }
         },
@@ -246,8 +246,7 @@ get view id
  */
 function getId(){
     const selected_name =  $('#vInput').val();
-    const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
-    return id;
+    return $('#viewsList option[value="' + selected_name + '"]').attr('id');
 }
 
 /*
@@ -269,7 +268,7 @@ output: redirect to the drawing.html with the name and id
 function editModel(){
     const selected_name =  $('#vInput').val();
     const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
-    window.location.href = "drawingView.html?name="+name+"&id="+id;
+    window.location.href = "drawingView.html?name="+selected_name+"&id="+id;
 }
 
 /*
@@ -285,7 +284,7 @@ function renameModel(){
 
     if (name!==""&& name!=null&&selected_name!==name) {
         let Obj ={
-            id:id,
+            viewID:id,
             name: name
         }
         Obj = JSON.stringify(Obj);

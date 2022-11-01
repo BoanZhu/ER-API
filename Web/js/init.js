@@ -255,7 +255,12 @@ function init() {
             firstCardinality = findRelationCode(firstCardinality);
             secondCardinality = findRelationCode(secondCardinality);
 
-            modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name);
+            if (typeof secondCardinality == "undefined" || typeof firstCardinality == "undefined") {
+                alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
+            }else {
+                modifyRelation(id, firstEntityID, secondEntityID, firstCardinality, secondCardinality, name);
+            }
+
         }else{
             const id = e.subject.part.qb.key;
             const name =  e.subject.part.qb.name;
@@ -291,7 +296,7 @@ function init() {
         // iterate over all of the actual ChangedEvents of the Transaction
         txn.changes.each(function(e) {
             if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
-                if  (!("category" in e.newValue)) {
+                if (!("category" in e.newValue)) {
                     // identity if it is normal link
                     e.newValue.relation = "has";
                     e.newValue.fromText = "1:1";
@@ -307,35 +312,37 @@ function init() {
                     secondCardinality = findRelationCode(secondCardinality);
                     console.log(secondCardinality);
                     console.log(firstCardinality);
-                    e.newValue.key = createRelation(name,firstEntityID,secondEntityID,firstCardinality,secondCardinality);
-                }
-            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
-                if  (!("category" in e.oldValue)){
-                    //delete attribute
-                    const id = e.oldValue.key;
-                    deleteRelation(id);
-                }
-            } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
-                e.newValue.name = e.newValue.name+entityCounter.toString();
-                const entityName = e.newValue.name;
-                const layoutX = e.newValue.location.x;
-                const layoutY = e.newValue.location.y;
-                entityCounter++;
-                if (!("category" in e.newValue)){
-                    //create entity
-                    e.newValue.key = createEntity(entityName,layoutX,layoutY);
+                    e.newValue.key = createRelation(name, firstEntityID, secondEntityID, firstCardinality, secondCardinality);
                     save();
                     load();
                 }
-            } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
-                const id = e.oldValue.key;
-                if ("category" in e.oldValue){
-                    //delete attribute
-                    deleteAttribute(id);
-                } else {
-                    deleteEntity(id);
+                } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
+                    if (!("category" in e.oldValue)) {
+                        //delete attribute
+                        const id = e.oldValue.key;
+                        deleteRelation(id);
+                    }
+                } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
+                    e.newValue.name = e.newValue.name + entityCounter.toString();
+                    const entityName = e.newValue.name;
+                    const layoutX = e.newValue.location.x;
+                    const layoutY = e.newValue.location.y;
+                    entityCounter++;
+                    if (!("category" in e.newValue)) {
+                        //create entity
+                        e.newValue.key = createEntity(entityName, layoutX, layoutY);
+                        save();
+                        load();
+                    }
+                } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+                    const id = e.oldValue.key;
+                    if ("category" in e.oldValue) {
+                        //delete attribute
+                        deleteAttribute(id);
+                    } else {
+                        deleteEntity(id);
+                    }
                 }
-            }
         });
     });
 
@@ -363,9 +370,8 @@ function init() {
     /*
     Get the current View Id and load the model
      */
-    // const id =  location.href.substring(location.href.indexOf("id=")+3);
-    // myDiagram.model = go.Model.fromJson(getView(id));
-    load()
+    const id =  location.href.substring(location.href.indexOf("id=")+3);
+    myDiagram.model = go.Model.fromJson(getView(id));
 }  // end init
 /*
 Top right: rename and delete model
@@ -378,7 +384,7 @@ function renameView() {
     if (name!=="" &&name!=null)
     {
         var Obj ={
-            id:id,
+            viewID:id,
             name: name
         }
         Obj = JSON.stringify(Obj);
@@ -479,7 +485,7 @@ function deleteEntity(id){
 
 function updateEntity(id,name,layoutX,layoutY){
     var Obj ={
-        id:id,
+        entityID:id,
         name: name,
         layoutInfo: {
             layoutX: layoutX,
@@ -537,7 +543,7 @@ function createRelation(name,firstEntityID,secondEntityID,firstCardinality,secon
 function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name) {
 
     let Obj ={
-        "id": id,
+        "relationshipID": id,
         "name": name,
         "firstEntityID": firstEntityID,
         "secondEntityID": secondEntityID,
