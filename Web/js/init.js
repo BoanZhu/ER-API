@@ -1,5 +1,5 @@
-var entityCounter = 0;
-var attributeCounter=0;
+var entityCounter = 37;
+var attributeCounter=37;
 function init() {
     /*
     Get the editable model Template
@@ -799,18 +799,17 @@ function modifyAttribute(){
     load();
 
     var info ={
-        // "attributeID": node.data.id,
-        "viewID":viewID,
-        "entityID":entityId,
+        "attributeID": node.key,
         "name": name,
-        "dataType": datatype,
-        "isPrimay": isPrimary,
-        "allowNotNull":allowNotNull,
-        "layoutInfo": {
-            "layoutX": node.data.location.x,
-            "layoutY": node.data.location.y
+        "dataType": DATATYPE[datatype],
+        isPrimay: isPrimary,
+        nullable:allowNotNull,
+        layoutInfo: {
+            layoutX: node.data.location.x.toFixed(1),
+            layoutY: node.data.location.y.toFixed(1)
         }
     }
+    console.log(info);
     info = JSON.stringify(info);
     $.ajax({
         type : "POST",
