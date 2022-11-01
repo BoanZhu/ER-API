@@ -1,4 +1,4 @@
-var entityCounter = 0;
+var entityCounter = 300;
 var attributeCounter=0;
 function init() {
     /*
@@ -246,13 +246,16 @@ function init() {
     myDiagram.addDiagramListener("TextEdited",(e) => {
         if ("relation" in e.subject.part.qb) { // identify the changed textBlock
             const id = e.subject.part.qb.key;
-            const firstCardinality = e.subject.part.qb.fromText;
+            let firstCardinality = e.subject.part.qb.fromText;
             const firstEntityID = e.subject.part.qb.from;
             const secondEntityID = e.subject.part.qb.to;
-            const secondCardinality = e.subject.part.qb.toText;
+            let secondCardinality = e.subject.part.qb.toText;
             const name = e.subject.part.qb.relation;
+
+            firstCardinality = findRelationCode(firstCardinality);
+            secondCardinality = findRelationCode(secondCardinality);
+
             modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name);
-            console.log(e.subject.text);
         }else{
             const id = e.subject.part.qb.key;
             const name =  e.subject.part.qb.name;
@@ -291,17 +294,20 @@ function init() {
                 if  (!("category" in e.newValue)) {
                     // identity if it is normal link
                     e.newValue.relation = "has";
-                    e.newValue.fromText = "0..N";
-                    e.newValue.toText = "N";
+                    e.newValue.fromText = "1:1";
+                    e.newValue.toText = "1:1";
                     //create relation
                     const firstEntityID = e.newValue.from;
                     const secondEntityID = e.newValue.to;
                     const name = e.newValue.relation;
-                    const firstCardinality = e.newValue.fromText;
-                    const secondCardinality = e.newValue.toText;
+                    let firstCardinality = e.newValue.fromText;
+                    let secondCardinality = e.newValue.toText;
 
+                    firstCardinality = findRelationCode(firstCardinality);
+                    secondCardinality = findRelationCode(secondCardinality);
+                    console.log(secondCardinality);
+                    console.log(firstCardinality);
                     e.newValue.key = createRelation(name,firstEntityID,secondEntityID,firstCardinality,secondCardinality);
-                    console.log(e.newValue.key);
                 }
             } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
                 if  (!("category" in e.oldValue)){
@@ -310,21 +316,16 @@ function init() {
                     deleteRelation(id);
                 }
             } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
-                //create entity and attribute
-                var entityName = e.newValue.name;
-                myDiagram.findNodesByExample({name:entityName}).each(
-                    function (node){
-                        node.data.name = entityName+entityCounter.toString();
-                        save();
-                        load();
-                    }
-                );
+                e.newValue.name = e.newValue.name+entityCounter.toString();
+                const entityName = e.newValue.name;
                 const layoutX = e.newValue.location.x;
                 const layoutY = e.newValue.location.y;
                 entityCounter++;
                 if (!("category" in e.newValue)){
                     //create entity
-                    e.newValue.key = createEntity(name,layoutX,layoutY);
+                    e.newValue.key = createEntity(entityName,layoutX,layoutY);
+                    save();
+                    load();
                 }
             } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
                 const id = e.oldValue.key;
@@ -376,11 +377,22 @@ function renameView() {
     const id =  location.href.substring(location.href.indexOf("id=")+3);
     if (name!=="" &&name!=null)
     {
-        $.getJSON("http://localhost:8000/er/view/update?"+"id="+id+"&name="+name+"&callback=?", function (res) {
-            window.location.replace("drawingView.html?name="+name+"&id="+id)
-        }).fail(function (failure) {
-            if (failure.status == 400) {
-                console.log("fail status:" + failure.status);
+        var Obj ={
+            id:id,
+            name: name
+        }
+        Obj = JSON.stringify(Obj);
+
+        $.ajax({
+            type : "POST",
+            headers: { "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            url : "http://146.169.52.81:8080/er/view/update",
+            contentType:"application/json",
+            data : Obj,
+            success : function(result) {
+                window.location.replace("drawingView.html?name="+name+"&id="+id);
+            }, error : function(result) {
             }
         });
     }
@@ -389,12 +401,22 @@ function renameView() {
 //deleteView(), delete this view and return to index
 function deleteView() {
     const id =  location.href.substring(location.href.indexOf("id=")+3);
-    $.getJSON("http://localhost:8000/er/view/delete" + "id="+id+"&callback=?", function (res) {
-        //return to index page
-        window.location.replace("index_dev.html");
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
+    let Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        type : "POST",
+        url : "http://146.169.52.81:8080/er/view/delete",
+        data : Obj,
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        contentType: "application/json",
+        success : function(result) {
+            console.log("true");
+            window.location.href = "index_dev.html";
+        }, error : function(result) {
+            console.log("false");
         }
     });
 }
@@ -407,45 +429,75 @@ function createEntity(name,layoutX,layoutY){
     create function
      */
 
-    const viewID = location.href.substring(location.href.indexOf("id=")+3);
+    const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
+    let id;
     var Obj ={
-        "id":viewID,
-        "name": name,
-        "layoutInfo": {
-            "layoutX": layoutX,
-            "layoutY": layoutY
+        id:viewID,
+        name: name,
+        layoutInfo: {
+            layoutX: layoutX,
+            layoutY: layoutY
         }
     }
 
     Obj = JSON.stringify(Obj);
 
     $.ajax({
+        async: false,
         type : "POST",
-        url : "http://127.0.0.1:8000/er/entity/create",
-        traditional : true,
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        url : "http://146.169.52.81:8080/er/entity/create",
+        contentType:"application/json",
         data : Obj,
-        withCredentials:false,
-        dataType : 'json',
         success : function(result) {
-            if(result.code == 0) {
-                console.log(result);
-                // return result.id;
-            }
-        }, error : function(res) {
+            id=result.data.id;
+        }, error : function(result) {
+        }
+    });
+    return id;
+}
+
+function deleteEntity(id){
+    let Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        type : "POST",
+        url : "http://146.169.52.81:8080/er/entity/delete",
+        data : Obj,
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        contentType: "application/json",
+        success : function(result) {
+        }, error : function(result) {
         }
     });
 }
 
-function deleteEntity(id){
-    /*
-    delete function
-     */
-}
-
 function updateEntity(id,name,layoutX,layoutY){
-    /*
-     update function
-     */
+    var Obj ={
+        id:id,
+        name: name,
+        layoutInfo: {
+            layoutX: layoutX,
+            layoutY: layoutY
+        }
+    }
+    Obj = JSON.stringify(Obj);
+
+    $.ajax({
+        type : "POST",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        url : "http://146.169.52.81:8080/er/view/update",
+        contentType:"application/json",
+        data : Obj,
+        success : function(result) {
+        }, error : function(result) {
+        }
+    });
 }
 
 
@@ -454,45 +506,73 @@ Relation functions
  */
 
 function createRelation(name,firstEntityID,secondEntityID,firstCardinality,secondCardinality) { //return request ID
-    const viewID =  location.href.substring(location.href.indexOf("id=")+3);
-    var relationID;
-    $.getJSON("http://localhost:8000/er/relationship/create?" + "&viewID=" + viewID +
-        "&name"+name+
-        "&firstEntityID" + firstEntityID+
-        "&secondEntityID"+secondEntityID+
-        "&firstCardinality"+firstCardinality+
-        "&secondCardinality"+secondCardinality,function (res) {
-        //todo get the relationId
-        relationID = res.id;
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
+    const viewID =  parseInt(location.href.substring(location.href.indexOf("id=")+3));
+    let id;
+    let Obj = {
+        viewID: viewID,
+        name: name,
+        firstEntityID: firstEntityID,
+        secondEntityID: secondEntityID,
+        firstCardinality: firstCardinality,
+        secondCardinality: secondCardinality
+    };
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        async: false,
+        type : "POST",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        url : "http://146.169.52.81:8080/er/relationship/create",
+        contentType:"application/json",
+        data : Obj,
+        success : function(result) {
+            id=result.data.id;
+        }, error : function(result) {
         }
     });
-    return relationID;
+    return id;
 }
 
 function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name) {
 
-    $.getJSON("http://localhost:8000/er/relationship/update?" +
-        "&id = " + id +
-        "&firstEntityID=" + firstEntityID +
-        "&secondEntityID=" + secondEntityID+
-        "&firstCardinality=" + firstCardinality+
-        "&secondCardinality=" + secondCardinality+
-        "&name=" + name,function (res) {
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
+    let Obj ={
+        "id": id,
+        "name": name,
+        "firstEntityID": firstEntityID,
+        "secondEntityID": secondEntityID,
+        "firstCardinality": firstCardinality,
+        "secondCardinality": secondCardinality
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        type : "POST",
+        url : "http://146.169.52.81:8080/er/relationship/update",
+        data : Obj,
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        contentType: "application/json",
+        success : function(result) {
+        }, error : function(result) {
         }
     });
+
+
 }
 
 function deleteRelation(id) {
-    $.getJSON("http://localhost:8000/er/relationship/delete?" + "id=" + id, function (res) {
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
+    let Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        type : "POST",
+        url : "http://146.169.52.81:8080/er/relationship/delete",
+        data : Obj,
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        contentType: "application/json",
+        success : function(result) {
+        }, error : function(result) {
         }
     });
 }
@@ -595,6 +675,28 @@ function addAttr(){
     });
     myDiagram.commitTransaction("add attributes");
 }
+
+const RCODE = {
+    UNKNOWN:0,
+    ZeroToOne:1,
+    ZeroToMany:2,
+    OneToOne:3,
+    OneToMany:4
+}
+
+const RNAME = {
+    UNKNOWN:"",
+    ZeroToOne:"0:1",
+    ZeroToMany:"0:N",
+    OneToOne:"1:1",
+    OneToMany:"1:N"
+}
+
+function findRelationCode(relationText){
+    const index = Object.values(RNAME).indexOf(relationText);
+    return Object.values(RCODE)[index];
+}
+
 
 const DATATYPE = {
     UNKNOWN:0,

@@ -10,6 +10,10 @@ anonymous function:
     2. slide down and up function
  */
 
+
+
+
+//todo:get bad request
 function showModel() {
     /*
    model Template
@@ -234,12 +238,12 @@ function showModel() {
             nodeDataArray: [],
             linkDataArray: []
         });
-    /*
-    Get the model name and id from list
-     */
+    // Get the model name and id from list
     const id = getId();
     myDiagram.model = go.Model.fromJson(getView(id));
 }
+
+
 
 /*
 Continue Edit, editModel()
@@ -264,11 +268,22 @@ function renameModel(){
     const name=prompt("Please enter new view name",selected_name);
 
     if (name!==""&& name!=null&&selected_name!==name) {
-        $.getJSON("http://localhost:8000/er/view/update?"+"id="+id+"&name="+name, function (res) {
-            location.reload();
-        }).fail(function (failure) {
-            if (failure.status == 400) {
-                console.log("fail status:" + failure.status);
+        let Obj ={
+            id:id,
+            name: name
+        }
+        Obj = JSON.stringify(Obj);
+
+        $.ajax({
+            type : "POST",
+            headers: { "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            url : "http://146.169.52.81:8080/er/view/update",
+            contentType:"application/json",
+            data : Obj,
+            success : function(result) {
+                window.location.reload();
+            }, error : function(result) {
             }
         });
     }
@@ -283,12 +298,23 @@ output: model list will be refresh
 function deleteModel() {
     const selected_name = $('#vInput').val();
     const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
-    $.getJSON("http://localhost:8000/er/view/delete"+"id=" + id, function (res) {
-        //reload page
-        location.reload();
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
+
+    var Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        type : "POST",
+        url : "http://146.169.52.81:8080/er/view/delete",
+        data : Obj,
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        contentType: "application/json",
+        success : function(result) {
+            console.log("true")
+            window.location.reload();
+        }, error : function(result) {
+            console.log("false");
         }
     });
 }
@@ -302,19 +328,19 @@ output: redirect to the html and start drawing
 function createModel() {
     const name = prompt("Please enter new view name", "Draco");
     if (name != null && name !== "") {
-        console.log("test");
         var Obj ={
-            name: "teacher"
+            name: name
         }
         Obj = JSON.stringify(Obj);
-
         $.ajax({
             type : "POST",
-            url : "http://127.0.0.1:8000/er/view/create",
+            url : "http://146.169.52.81:8080/er/view/create",
             data : Obj,
+            headers: { "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            contentType: "application/json",
             success : function(result) {
-                console.log("true");
-                console.log(result.id);
+                window.location.href = "drawingView.html?name="+name+"&id="+result.data.id;
             }, error : function(result) {
                 console.log("false");
             }
@@ -323,13 +349,25 @@ function createModel() {
 }
 
 $(function (){
-    // $.getJSON("http://146.169.52.81:8080/er/view/query_all_views", function(result){
-    //     const viewList = result.data.viewList;
-    //     for (let i = 0; i < viewList.length; ++i) {
-    //         tmpString = '<option id = '+viewList[i].id+' value = '+viewList[i].name+'></option>';
-    //         $("viewsList").prepend(tmpString);
-    //     }
-    // });
+    //todo:bad request
+    $.ajax({
+        type : "GET",
+        url : "http://146.169.52.81:8080/er/view/query_all_views",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        contentType: "application/json",
+        data : {},
+        success : function(result) {
+            const viewList = result.data.viewList;
+            for (let i = 0; i < viewList.length; ++i) {
+                var tmpString = '<option id = '+viewList[i].id+' value = '+viewList[i].name+'></option>';
+                $("viewsList").prepend(tmpString);
+            }
+        }, error : function(result) {
+            console.log("false");
+        }
+    });
+
     //hide all subtitle
     $(".nav_menu").each(function (){
         $(this).children(".nav_content").hide();
