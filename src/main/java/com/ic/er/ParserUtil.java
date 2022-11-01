@@ -116,18 +116,6 @@ public class ParserUtil {
                 tableDTOMap.put(tableDTO.getId(), tableDTO);
             } else if ((relationship.getFirstCardinality() == Cardinality.OneToOne || relationship.getFirstCardinality() == Cardinality.ZeroToOne)
                     && (relationship.getSecondCardinality() == Cardinality.OneToMany || relationship.getSecondCardinality() == Cardinality.ZeroToMany)) {
-                // one-one, many-many, create a new table
-                ColumnDTO primaryKey = firstTable.getPrimaryKey().get(0);
-                // 01-0Many, 01-1Many the foreign column can be null
-                ColumnDTO foreignColumn = new ColumnDTO(firstTable.getName()+"_"+primaryKey.getName(), primaryKey.getDataType()
-                        ,false,1,firstTable.getId(), secondTable.getId(), false);
-                if (relationship.getFirstCardinality() == Cardinality.ZeroToOne) {
-                    foreignColumn.setNullable(true);
-                }
-
-                secondTable.getColumnDTOList().add(foreignColumn);
-            } else if ((relationship.getFirstCardinality() == Cardinality.OneToMany || relationship.getFirstCardinality() == Cardinality.ZeroToMany)
-                    && (relationship.getSecondCardinality() == Cardinality.OneToOne || relationship.getSecondCardinality() == Cardinality.ZeroToOne)) {
                 ColumnDTO primaryKey = secondTable.getPrimaryKey().get(0);
                 ColumnDTO foreignColumn = new ColumnDTO(secondTable.getName()+"_"+primaryKey.getName(), primaryKey.getDataType()
                         ,false,1,secondTable.getId(), firstTable.getId(), false);
@@ -137,6 +125,18 @@ public class ParserUtil {
                 }
 
                 firstTable.getColumnDTOList().add(foreignColumn);
+
+            } else if ((relationship.getFirstCardinality() == Cardinality.OneToMany || relationship.getFirstCardinality() == Cardinality.ZeroToMany)
+                    && (relationship.getSecondCardinality() == Cardinality.OneToOne || relationship.getSecondCardinality() == Cardinality.ZeroToOne)) {
+                ColumnDTO primaryKey = firstTable.getPrimaryKey().get(0);
+                ColumnDTO foreignColumn = new ColumnDTO(firstTable.getName()+"_"+primaryKey.getName(), primaryKey.getDataType()
+                        ,false,1,firstTable.getId(), secondTable.getId(), false);
+                // 01-0Many, 01-1Many the foreign column can be null
+                if (relationship.getFirstCardinality() == Cardinality.ZeroToOne) {
+                    foreignColumn.setNullable(true);
+                }
+
+                secondTable.getColumnDTOList().add(foreignColumn);
             }
         }
 

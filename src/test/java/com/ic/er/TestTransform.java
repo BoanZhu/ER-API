@@ -53,15 +53,43 @@ public class TestTransform {
         Attribute schoolId = school.addAttribute("id", DataType.INT, false, false);
         Attribute schoolName = school.addAttribute("name", DataType.INT, false, false);
 
-        Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToMany, Cardinality.OneToOne);
-        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.OneToMany, Cardinality.ZeroToMany);
-        Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.OneToMany, Cardinality.ZeroToMany);
+        Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
+        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToMany, Cardinality.OneToMany);
+        Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.ZeroToMany, Cardinality.OneToMany);
 
 
         Tranform tranform = new Tranform();
         ResultState resultState = tranform.ERModelToSql(view.getID());
         assert resultState.getStatus().equals(ResultStateCode.Failure);
         System.out.println(resultState.getMsg());
+    }
+
+    @Test
+    public void testERModelToRSSucc2() throws IOException, SQLException {
+        ER.initialize(true);
+        view = ER.createView("testTransform1", "wd");
+        Entity branch = view.addEntity("branch");
+        Attribute sortcode = branch.addAttribute("sortcode", DataType.INT, true, false);
+        Attribute bname = branch.addAttribute("bname", DataType.VARCHAR, false, false);
+        Attribute cash = branch.addAttribute("cash", DataType.FLOAT, false, false);
+        Entity account = view.addEntity("account");
+        Attribute no = account.addAttribute("no", DataType.INT, true, false);
+        Attribute type = account.addAttribute("type", DataType.VARCHAR, false, false);
+        Attribute cname = account.addAttribute("cname", DataType.VARCHAR, false, false);
+        Attribute rate = account.addAttribute("rate", DataType.FLOAT, false, true);
+        Entity movement = view.addEntity("movement");
+        Attribute mid = movement.addAttribute("mid", DataType.INT, true, false);
+        Attribute tdate = movement.addAttribute("tdate", DataType.DATETIME, false, false);
+        Attribute amount = movement.addAttribute("amount", DataType.FLOAT, false, false);
+
+        Relationship bhar = view.createRelationship("holds", branch, account, Cardinality.ZeroToMany, Cardinality.OneToOne);
+        Relationship ahmr = view.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
+
+        Tranform tranform = new Tranform();
+        ResultState resultState = tranform.ERModelToSql(view.getID());
+        assert resultState.getStatus().equals(ResultStateCode.Success);
+        String sql = (String) resultState.getData();
+        System.out.print(sql);
     }
 
     @Test
