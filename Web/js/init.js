@@ -502,10 +502,27 @@ function deleteRelation(id) {
 */
 
 function deleteAttribute(id){
-    $.getJSON("http://localhost:8000/er/attribute/delete?" + "id=" + id, function (res) {
-    }).fail(function (failure) {
-        if (failure.status == 400) {
-            console.log("fail status:" + failure.status);
+    var info ={
+        "id":id
+    }
+    info = JSON.stringify(info);
+    $.ajax({
+        type : "POST",
+        url : "http://127.0.0.1:8000/er/attribute/delete",
+        // url: "http://146.169.52.81:8080/er/attribute/delete",
+        // headers: { "Access-Control-Allow-Origin": "*",
+        //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        traditional : true,
+        data : info,
+        withCredentials:false,
+        // dataType:"application/json",
+        dataType : "json",
+        success : function(result) {
+            if(result.code === 0) {
+                console.log(result);
+            }
+        }, error : function() {
+            console.log("delete fail");
         }
     });
 }
@@ -549,14 +566,15 @@ function addAttr(){
         info = JSON.stringify(info);
         $.ajax({
             type : "POST",
-            // url : "http://127.0.0.1:8000/er/attribute/create",
-            url: "http://146.169.52.81:8080/er/attribute/create",
-            headers: { "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            url : "http://127.0.0.1:8000/er/attribute/create",
+            // url: "http://146.169.52.81:8080/er/attribute/create",
+            // headers: { "Access-Control-Allow-Origin": "*",
+            //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
             traditional : true,
             data : info,
             withCredentials:false,
-            dataType : 'application/json',
+            // dataType : 'application/json',
+            dataType:'json',
             success : function(result) {
                 if(result.code === 0) {
                     $(function(){
@@ -576,7 +594,6 @@ function addAttr(){
 
             }
         });
-
     });
     myDiagram.commitTransaction("add attributes");
 }
@@ -653,7 +670,7 @@ function modifyAttribute(){
         // check whether there is another primaryKey
         entityNode.findNodesConnected().each(function (linkedNode){
             if(linkedNode.data!==node.data && linkedNode.data.category === "Attribute"){
-                if(linkedNode.data.isPrimary == true){flag = true;}
+                if(linkedNode.data.isPrimary === true){flag = true;}
             }
         });
         if (flag === true){
@@ -670,20 +687,38 @@ function modifyAttribute(){
     node.data.name = name;
     node.data.dataType = DATATYPE[datatype];
     node.data.allowNotNull = allowNotNull;
+    save();
+    load();
 
-    var newJson = myDiagram.model.toJSON();
-    myDiagram.model = go.Model.fromJson(newJson);
-    document.getElementById("mySavedModel").value = myDiagram.model.toJson();
-
-    //todo: send data to backend
     var info ={
         "attributeID": node.data.id,
         "name": name,
         "dataType": datatype,
         "isPrimay": isPrimary,
+        "allowNotNull":allowNotNull,
         "layoutInfo": {
             "layoutX": node.data.location.x,
             "layoutY": node.data.location.y
         }
     }
+    info = JSON.stringify(info);
+    $.ajax({
+        type : "POST",
+        url : "http://127.0.0.1:8000/er/attribute/update",
+        // url: "http://146.169.52.81:8080/er/attribute/update",
+        // headers: { "Access-Control-Allow-Origin": "*",
+        //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        traditional : true,
+        data : info,
+        withCredentials:false,
+        // dataType:"application/json",
+        dataType : "json",
+        success : function(result) {
+            if(result.code === 0) {
+                console.log(result);
+            }
+        }, error : function() {
+            console.log("update fail");
+        }
+    });
 }
