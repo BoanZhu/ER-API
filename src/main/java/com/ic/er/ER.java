@@ -2,8 +2,8 @@ package com.ic.er;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ic.er.exception.ERException;
 import com.ic.er.dao.*;
+import com.ic.er.exception.ERException;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -15,19 +15,24 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ER {
     public static SqlSession sqlSession;
-    public static boolean useDB = false;
     public static AttributeMapper attributeMapper;
     public static EntityMapper entityMapper;
     public static RelationshipMapper relationshipMapper;
     public static ViewMapper viewMapper;
     public static LayoutInfoMapper layoutInfoMapper;
 
-    public static void initialize(boolean useDBLog) throws SQLException, IOException {
-        InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
+    public static void initialize(boolean usePostgre) throws SQLException, IOException {
+        String XMLPath = "mybatis-config.xml";
+        if (usePostgre) {
+            XMLPath = "mybatis-config-postgre.xml";
+        }
+        InputStream is = Resources.getResourceAsStream(XMLPath);
         SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
         SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
         sqlSession = sqlSessionFactory.openSession(true);
@@ -36,8 +41,9 @@ public class ER {
         relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
         viewMapper = sqlSession.getMapper(ViewMapper.class);
         layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
-        createTables();
-        useDB = true;
+        if (!usePostgre) {
+            createTables();
+        }
     }
 
     private static void createTables() throws SQLException, IOException {

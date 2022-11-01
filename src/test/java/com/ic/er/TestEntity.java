@@ -1,8 +1,8 @@
 package com.ic.er;
 
 
-import com.ic.er.exception.ERException;
 import com.ic.er.common.DataType;
+import com.ic.er.exception.ERException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ public class TestEntity {
 
     @Before
     public void init() throws Exception {
-        ER.initialize(true);
+        ER.initialize(TestCommon.usePostgre);
         testView = ER.createView("testView", "wt22");
     }
 
@@ -58,7 +58,7 @@ public class TestEntity {
         assertThrows(ERException.class, () -> teacher.updateInfo("student"));
     }
 
-    @Test(expected = ERException.class)
+    @Test
     public void attributeTest() {
         Entity teacher = testView.addEntity("teacher");
         Attribute teacherID = teacher.addAttribute("teacher_id", DataType.INT, true, false);
@@ -68,6 +68,6 @@ public class TestEntity {
 
         teacher.deleteAttribute(teacherID);
         Assert.assertEquals(teacher.getAttributeList().size(), 0);
-        Assert.assertNull(Attribute.queryByID(teacherID.getID()));
+        assertThrows(ERException.class, () -> Attribute.queryByID(teacherID.getID()));
     }
 }

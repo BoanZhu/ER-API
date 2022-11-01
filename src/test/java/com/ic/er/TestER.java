@@ -2,6 +2,7 @@ package com.ic.er;
 
 import com.ic.er.common.Cardinality;
 import com.ic.er.common.DataType;
+import com.ic.er.exception.ERException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,25 +10,27 @@ import org.junit.Test;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class TestER {
 
     @Before
     public void setUp() throws Exception {
-        ER.initialize(true);
+        ER.initialize(TestCommon.usePostgre);
     }
 
     @Test
     public void createViewTest() {
         View testView = ER.createView("testView", "wt22");
-        Assert.assertEquals(ER.queryAllView().size(), 1);
+        Assert.assertNotNull(ER.queryViewByID(testView.getID()));
     }
 
     @Test
     public void deleteViewTest() {
         View testView = ER.createView("testView", "wt22");
-        Assert.assertEquals(ER.queryAllView().size(), 1);
+        Assert.assertNotEquals(ER.queryAllView().size(), 0);
         ER.deleteView(testView);
-        Assert.assertEquals(ER.queryAllView().size(), 0);
+        assertThrows(ERException.class, () -> ER.queryViewByID(testView.getID()));
     }
 
     @Test

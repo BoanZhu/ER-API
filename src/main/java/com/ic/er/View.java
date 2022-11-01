@@ -2,16 +2,15 @@ package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.ic.er.exception.ERException;
+import com.ic.er.common.Cardinality;
 import com.ic.er.common.ViewDeserializer;
 import com.ic.er.entity.EntityDO;
 import com.ic.er.entity.RelationshipDO;
 import com.ic.er.entity.ViewDO;
-import com.ic.er.common.Cardinality;
-import com.ic.er.common.Utils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.ic.er.exception.ERException;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -40,11 +39,7 @@ public class View {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
-            if (ER.useDB) {
-                insertDB();
-            } else {
-                this.ID = Utils.generateID();
-            }
+            insertDB();
         }
     }
 
@@ -67,9 +62,15 @@ public class View {
 
     public void deleteEntity(Entity entity) {
         this.entityList.remove(entity);
-        if (ER.useDB) {
-            entity.deleteDB();
+        List<Relationship> relationships = Relationship.queryByRelationship(new RelationshipDO(null, null, this.ID, entity.getID(), null, null, null, null, null, null));
+        for (Relationship relationship : relationships) {
+            deleteRelationship(relationship);
         }
+        relationships = Relationship.queryByRelationship(new RelationshipDO(null, null, this.ID, null, entity.getID(), null, null, null, null, null));
+        for (Relationship relationship : relationships) {
+            deleteRelationship(relationship);
+        }
+        entity.deleteDB();
     }
 
     public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity,
@@ -105,9 +106,7 @@ public class View {
 
     public void deleteRelationship(Relationship relationship) {
         this.relationshipList.remove(relationship);
-        if (ER.useDB) {
-            relationship.deleteDB();
-        }
+        relationship.deleteDB();
     }
 
     private void insertDB() {

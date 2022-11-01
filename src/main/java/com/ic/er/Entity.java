@@ -1,13 +1,11 @@
 package com.ic.er;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.ic.er.exception.ERException;
+import com.ic.er.common.DataType;
 import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.AttributeDO;
 import com.ic.er.entity.EntityDO;
-import com.ic.er.common.DataType;
-import com.ic.er.common.Utils;
+import com.ic.er.exception.ERException;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -34,11 +32,7 @@ public class Entity {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
-            if (ER.useDB) {
-                this.insertDB();
-            } else {
-                this.ID = Utils.generateID();
-            }
+            this.insertDB();
         }
         if (this.layoutInfo == null) {
             this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.ENTITY, layoutX, layoutY, 0.0, 0.0);
@@ -72,9 +66,7 @@ public class Entity {
 
     public boolean deleteAttribute(Attribute attribute) {
         this.attributeList.remove(attribute);
-        if (ER.useDB) {
-            attribute.deleteDB();
-        }
+        attribute.deleteDB();
         return false;
     }
 
@@ -101,9 +93,7 @@ public class Entity {
     public void updateInfo(String name) {
         if (name != null) {
             this.name = name;
-        }
-        if (name != null) {
-            List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.ID, null, null, null));
+            List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.viewID, null, null, null));
             if (entities.size() != 0 && !entities.get(0).getID().equals(this.ID)) {
                 throw new ERException(String.format("entity with name: %s already exists", name));
             }

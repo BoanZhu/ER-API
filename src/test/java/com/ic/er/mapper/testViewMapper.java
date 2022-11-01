@@ -1,78 +1,58 @@
 package com.ic.er.mapper;
 
+import com.ic.er.ER;
+import com.ic.er.TestCommon;
 import com.ic.er.entity.ViewDO;
-import com.ic.er.dao.ViewMapper;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
 public class testViewMapper {
-    public static SqlSession sqlSession;
-    public static Connection connection;
-    public static ViewMapper viewMapper;
-
     @Before
-    public void init() throws IOException {
-        InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
-        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
-        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
-        sqlSession = sqlSessionFactory.openSession(true);
-        connection = sqlSession.getConnection();
-        System.out.println(connection);
-        viewMapper = sqlSession.getMapper(ViewMapper.class);
+    public void init() throws IOException, SQLException {
+        ER.initialize(TestCommon.usePostgre);
     }
+
 
     @Test
     public void testQueryAllViews() {
-        Assert.assertNotNull(sqlSession);
-        List<ViewDO> viewDOList = viewMapper.selectAll();
+        List<ViewDO> viewDOList = ER.viewMapper.selectAll();
         Assert.assertEquals(1, viewDOList.size());
     }
 
     @Test
     public void testQueryByID() {
-        Assert.assertNotNull(sqlSession);
-        ViewDO viewDO = viewMapper.selectByID(Long.valueOf(3));
+        ViewDO viewDO = ER.viewMapper.selectByID(Long.valueOf(3));
         System.out.println(viewDO);
     }
 
     @Test
     public void testCreateView() {
-        Assert.assertNotNull(sqlSession);
         ViewDO viewDO = new ViewDO(Long.valueOf(2), "view3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
-        Assert.assertEquals(viewMapper.insert(viewDO), 1);
+        Assert.assertEquals(ER.viewMapper.insert(viewDO), 1);
     }
 
     @Test
     public void testDeleteView() {
-        Assert.assertNotNull(sqlSession);
-        Assert.assertEquals(viewMapper.deleteByID(Long.valueOf(2)), 1);
+        Assert.assertEquals(ER.viewMapper.deleteByID(Long.valueOf(2)), 1);
     }
 
     @Test
     public void testQueryView() {
-        Assert.assertNotNull(sqlSession);
         ViewDO viewDO = new ViewDO(null, "view1", null, null, 0, null, null);
-        List<ViewDO> res = viewMapper.selectByView(viewDO);
+        List<ViewDO> res = ER.viewMapper.selectByView(viewDO);
         System.out.println(res);
 
     }
 
     @Test
     public void testUpdateView() {
-        Assert.assertNotNull(sqlSession);
         ViewDO viewDO = new ViewDO(Long.valueOf(3), "view3update", "creator3update", Long.valueOf(1), 0, new Date(), new Date());
-        Assert.assertEquals(viewMapper.updateByID(viewDO), 1);
+        Assert.assertEquals(ER.viewMapper.updateByID(viewDO), 1);
     }
-
 }

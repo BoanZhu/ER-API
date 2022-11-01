@@ -12,22 +12,14 @@ import java.util.Date;
 @NoArgsConstructor
 public class RelationshipDO {
     private Long ID;
-
     private String name;
-
     private Long viewID;
-
     private Long firstEntityID;
-
     private Long secondEntityID;
-
     private Cardinality firstCardinality;
     private Cardinality secondCardinality;
-
     private Integer isDelete;
-
     private Date gmtCreate;
-
     private Date gmtModified;
 
     public RelationshipDO(Long ID) {

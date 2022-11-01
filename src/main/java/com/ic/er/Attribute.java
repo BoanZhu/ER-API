@@ -1,11 +1,10 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.ic.er.exception.ERException;
+import com.ic.er.common.DataType;
 import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.AttributeDO;
-import com.ic.er.common.DataType;
-import com.ic.er.common.Utils;
+import com.ic.er.exception.ERException;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -39,11 +38,7 @@ public class Attribute {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
-            if (ER.useDB) {
-                this.insertDB();
-            } else {
-                this.ID = Utils.generateID();
-            }
+            this.insertDB();
         }
         if (this.layoutInfo == null) {
             this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.ATTRIBUTE, layoutX, layoutY, 0.0, 0.0);
