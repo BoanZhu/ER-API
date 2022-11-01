@@ -23,7 +23,7 @@ public class Trans {
     protected static Attribute TransformFromDB(AttributeDO attributeDO) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(attributeDO.getID(), RelatedObjType.ATTRIBUTE);
         return new Attribute(attributeDO.getID(), attributeDO.getEntityID(), attributeDO.getViewID(),
-                attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(),
+                attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(), attributeDO.getNullable(),
                 layoutInfo, 0.0, 0.0, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 

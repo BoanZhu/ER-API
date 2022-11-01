@@ -61,7 +61,7 @@ public class TestEntity {
     @Test(expected = ERException.class)
     public void attributeTest() {
         Entity teacher = testView.addEntity("teacher");
-        Attribute teacherID = teacher.addAttribute("teacher_id", DataType.INT, true);
+        Attribute teacherID = teacher.addAttribute("teacher_id", DataType.INT, true, false);
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
         teacher.updateInfo("new teacher name");

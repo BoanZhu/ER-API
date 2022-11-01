@@ -46,23 +46,26 @@ public class Entity {
     }
 
 
-    public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary) {
-        return addAttribute(attributeName, dataType, isPrimary, 0.0, 0.0);
+    public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary, Boolean nullable) {
+        return addAttribute(attributeName, dataType, isPrimary, nullable, 0.0, 0.0);
     }
 
-    public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary, Double layoutX, Double layoutY) {
+    public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary, Boolean nullable, Double layoutX, Double layoutY) {
         if (attributeName.equals("")) {
             throw new ERException("attributeName cannot be empty");
         }
-        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.viewID, attributeName, null, null, null, null, null));
+        if (isPrimary && nullable) {
+            throw new ERException("primary attribute cannot be null");
+        }
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.viewID, attributeName, null, null, null, null, null, null));
         if (attributeList.size() != 0) {
             throw new ERException(String.format("attribute with name: %s already exists", this.name));
         }
-        attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.viewID, null, null, true, null, null, null));
+        attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.viewID, null, null, null, true, null, null, null));
         if (isPrimary && attributeList.size() != 0) {
             throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
         }
-        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, null, layoutX, layoutY, new Date(), new Date());
+        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, nullable, null, layoutX, layoutY, new Date(), new Date());
         this.attributeList.add(attribute);
         return attribute;
     }
@@ -99,9 +102,11 @@ public class Entity {
         if (name != null) {
             this.name = name;
         }
-        List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.ID, null, null, null));
-        if (entities.size() != 0) {
-            throw new ERException(String.format("entity with name: %s already exists", name));
+        if (name != null) {
+            List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.ID, null, null, null));
+            if (entities.size() != 0 && !entities.get(0).getID().equals(this.ID)) {
+                throw new ERException(String.format("entity with name: %s already exists", name));
+            }
         }
         ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
     }

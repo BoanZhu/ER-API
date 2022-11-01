@@ -77,6 +77,9 @@ public class View {
         if (relationshipName.equals("")) {
             throw new ERException("relationshipName cannot be empty");
         }
+        if (firstEntity.getID().equals(secondEntity.getID())) {
+            throw new ERException("relationship cannot be created on the same entity");
+        }
         if (Entity.queryByID(firstEntity.getID()) == null) {
             throw new ERException(String.format("entity with ID: %d not found", firstEntity.getID()));
         }
@@ -88,6 +91,12 @@ public class View {
         }
         if (Relationship.queryByRelationship(new RelationshipDO(secondEntity.getID(), firstEntity.getID())).size() != 0) {
             throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
+        }
+        if (!firstEntity.getViewID().equals(this.ID)) {
+            throw new ERException(String.format("entity: %s does not belong to this view", firstEntity.getName()));
+        }
+        if (!secondEntity.getViewID().equals(this.ID)) {
+            throw new ERException(String.format("entity: %s does not belong to this view", secondEntity.getName()));
         }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, firstEntity, secondEntity, firstCardinality, secondCardinality, null, new Date(), new Date());
         this.relationshipList.add(relationship);
@@ -114,7 +123,7 @@ public class View {
         }
     }
 
-    public String ToJSON() {
+    public String toJSON() {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json;
         try {

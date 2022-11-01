@@ -34,6 +34,7 @@ public class attributeMapperTest {
         String dataType = "int";
 
         Boolean isPrimary = true;
+        Boolean nullable = false;
 
         int isDelete = 0;
 
@@ -42,9 +43,9 @@ public class attributeMapperTest {
         Date gmtModified = new Date();
 
 
-        AttributeDO attributeDO = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, isDelete, gmtCreate, gmtModified);
-        AttributeDO attributeDO2 = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, isDelete, gmtCreate, gmtModified);
-        AttributeDO attributeDO3 = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO2 = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO3 = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
 
         int ret = ER.attributeMapper.insert(attributeDO);
         int ret2 = ER.attributeMapper.insert(attributeDO2);
@@ -58,7 +59,7 @@ public class attributeMapperTest {
     public void selectByAttributeTest() {
         Long entityID = 456L;
 
-        AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, true, 0, null, null);
+        AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, false, true, 0, null, null);
         int ret = ER.attributeMapper.insert(attributeDO);
         Assert.assertEquals(ret, 1);
         List<AttributeDO> attributeDOList = ER.attributeMapper.selectByAttribute(attributeDO);
@@ -76,7 +77,7 @@ public class attributeMapperTest {
         Long newEntityID = 789L;
 
         // create
-        AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, true, 0, null, null);
+        AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, false, true, 0, null, null);
         int ret = ER.attributeMapper.insert(attributeDO);
         Assert.assertEquals(ret, 1);
         Assert.assertEquals(attributeDO.getEntityID(), entityID);
@@ -91,7 +92,7 @@ public class attributeMapperTest {
         Long newEntityID = 789L;
 
         // create
-        AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, true, 0, null, null);
+        AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, false, true, 0, null, null);
         int ret = ER.attributeMapper.insert(attributeDO);
         Assert.assertEquals(ret, 1);
         Assert.assertEquals(attributeDO.getEntityID(), entityID);
@@ -111,7 +112,7 @@ public class attributeMapperTest {
         Long entityID = 456L;
 
         // create
-        AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, true, 0, null, null);
+        AttributeDO attributeDO = new AttributeDO(0L, entityID, 789L, "abc", DataType.VARCHAR, false, true, 0, null, null);
         int ret = ER.attributeMapper.insert(attributeDO);
         Assert.assertEquals(ret, 1);
         Assert.assertEquals(attributeDO.getEntityID(), entityID);

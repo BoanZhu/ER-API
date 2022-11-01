@@ -25,23 +25,25 @@ public class TestAttribute {
 
     @Test
     public void addAttributeTest() {
-        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, true);
-        Attribute a2 = testEntity.addAttribute("name", DataType.VARCHAR, false);
-        Attribute a3 = testEntity.addAttribute("age", DataType.INT, false);
+        assertThrows(ERException.class, () -> testEntity.addAttribute("testPrimaryWithNullable", DataType.INT, true, true));
+
+        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, true, false);
+        Attribute a2 = testEntity.addAttribute("name", DataType.VARCHAR, false, false);
+        Attribute a3 = testEntity.addAttribute("age", DataType.INT, false, true);
         Assert.assertNotNull(a1);
         Assert.assertNotNull(a2);
         Assert.assertNotNull(a3);
 
-        assertThrows(ERException.class, () -> testEntity.addAttribute("age", DataType.INT, false));
-        assertThrows(ERException.class, () -> testEntity.addAttribute("new primary", DataType.INT, true));
+        assertThrows(ERException.class, () -> testEntity.addAttribute("age", DataType.INT, false, false));
+        assertThrows(ERException.class, () -> testEntity.addAttribute("new primary", DataType.INT, true, false));
     }
 
     @Test
     public void updateTest() {
-        Attribute backup = testEntity.addAttribute("backup", DataType.VARCHAR, true);
-        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, false);
+        Attribute backup = testEntity.addAttribute("backup", DataType.VARCHAR, true, false);
+        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, false, false);
         String newName = "new_teacher_id";
-        a1.updateInfo(newName, null, null);
+        a1.updateInfo(newName, null, null, null);
         a1.updateLayoutInfo(1.0, 2.0, 3.0, 4.0);
 
         List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(a1.getID()));
@@ -52,20 +54,21 @@ public class TestAttribute {
         Assert.assertEquals(attributeList.get(0).getLayoutInfo().getHeight(), Double.valueOf(3.0));
         Assert.assertEquals(attributeList.get(0).getLayoutInfo().getWidth(), Double.valueOf(4.0));
 
-        assertThrows(ERException.class, () -> a1.updateInfo("backup", null, null));
-        assertThrows(ERException.class, () -> a1.updateInfo(null, null, true));
+        assertThrows(ERException.class, () -> a1.updateInfo("backup", null, null, null));
+        assertThrows(ERException.class, () -> a1.updateInfo(null, null, true, null));
+        assertThrows(ERException.class, () -> backup.updateInfo(null, null, null, true));
     }
 
     @Test
     public void selectByIDTest() {
-        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, true);
+        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, true, false);
         Attribute attribute = Attribute.queryByID(a1.getID());
         Assert.assertNotNull(attribute);
     }
 
     @Test(expected = ERException.class)
     public void deleteByIDTest() {
-        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, true);
+        Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, true, false);
 
         // delete
         a1.deleteDB();
