@@ -11,30 +11,28 @@ anonymous function:
  */
 
 
-
-
-//todo:get bad request
-function showModel() {
-    /*
-   model Template
-    */
+/*
+define model
+ */
+function defineModel(){
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram = $(go.Diagram, "model",  // must name or refer to the DIV HTML element
         {
             allowDelete: true,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
+            layout: $(go.ForceDirectedLayout, {isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "clickCreatingTool.archetypeNodeData": { name:"new node",from:true,to:true},
+            "clickCreatingTool.archetypeNodeData": {name: "new node", from: true, to: true},
             "undoManager.isEnabled": true,
             "maxSelectionCount": 1
         });
 
-    // Common color
+// Common color
     const colors = {'lightblue': '#afd4fe',}
-    // Common text styling
+
+// Common text styling
     function textStyle() {
         return {
             margin: 6,
@@ -43,7 +41,8 @@ function showModel() {
             editable: true,
         }
     }
-    // entity
+
+// entity
     var entityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
@@ -54,7 +53,7 @@ function showModel() {
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
-                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
+                linkValidation: function (fromNode, fromGraphObject, toNode, toGraphObject) {
                     return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
                 },
             },
@@ -78,9 +77,9 @@ function showModel() {
 
             // the table header
             $(go.Panel, "Table",
-                { margin: 8, stretch: go.GraphObject.Fill },
-                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-                $(go.TextBlock,textStyle(),
+                {margin: 8, stretch: go.GraphObject.Fill},
+                $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
+                $(go.TextBlock, textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
@@ -91,17 +90,17 @@ function showModel() {
             ) // end Table Panel
         );
 
-    // default template
+// default template
     myDiagram.nodeTemplate = entityTemplate;
 
-    // attribute template
-    var attributeTemplate =$(go.Node, "Auto",
+// attribute template
+    var attributeTemplate = $(go.Node, "Auto",
         {
             selectionAdorned: true,
             // selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
-            linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
+            linkValidation: function (fromNode, fromGraphObject, toNode, toGraphObject) {
                 return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
             }
         },
@@ -120,26 +119,26 @@ function showModel() {
             new go.Binding("fromLinkable", "from").makeTwoWay(),
             new go.Binding("toLinkable", "to").makeTwoWay()),
         // the table header
-        $(go.TextBlock,{
+        $(go.TextBlock, {
                 font: "bold 12px monospace",
                 margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
             },
-            new go.Binding("text","name").makeTwoWay(),
+            new go.Binding("text", "name").makeTwoWay(),
             //todo
             new go.Binding("isUnderline", "underline")
         )
     );
 
-    // add all template
+// add all template
     var templateMap = new go.Map();
     templateMap.add("Entity", entityTemplate);
-    templateMap.add("Attribute",attributeTemplate);
-    // default
-    templateMap.add("",entityTemplate);
+    templateMap.add("Attribute", attributeTemplate);
+// default
+    templateMap.add("", entityTemplate);
 
     myDiagram.nodeTemplateMap = templateMap;
 
-    // relation
+// relation
     var relationLink = $(go.Link,  // the whole link panel
         {
             selectionAdorned: true,
@@ -150,15 +149,17 @@ function showModel() {
             curve: go.Link.JumpOver
         },
         $(go.Shape,  // the link shape
-            {stroke: "#303B45", strokeWidth: 2.5 }),
+            {stroke: "#303B45", strokeWidth: 2.5}),
         $(go.Panel, "Auto",  // this whole Panel is a link label
             $(go.Shape, "Diamond", {
                 fill: "yellow",
                 stroke: "gray",
                 width: 100,
-                height: 40}),
-            $(go.TextBlock,  textStyle(),
-                {   margin: 3,
+                height: 40
+            }),
+            $(go.TextBlock, textStyle(),
+                {
+                    margin: 3,
                     textAlign: "center",
                     segmentIndex: -2,
                     segmentOffset: new go.Point(NaN, NaN),
@@ -200,7 +201,7 @@ function showModel() {
             curve: go.Link.JumpOver
         },
         $(go.Shape,  // the link shape
-            {stroke: "#e8c446", strokeWidth: 2.5 }),
+            {stroke: "#e8c446", strokeWidth: 2.5}),
         //todo to delete
         $(go.TextBlock, textStyle(), // the "from" label
             {
@@ -226,9 +227,9 @@ function showModel() {
 
     var linkTemplateMap = new go.Map();
     linkTemplateMap.add("relationLink", relationLink);
-    linkTemplateMap.add("normalLink",normalLink);
-    // default
-    linkTemplateMap.add("",relationLink);
+    linkTemplateMap.add("normalLink", normalLink);
+// default
+    linkTemplateMap.add("", relationLink);
     myDiagram.linkTemplateMap = linkTemplateMap;
 
     myDiagram.model = new go.GraphLinksModel(
@@ -238,6 +239,14 @@ function showModel() {
             nodeDataArray: [],
             linkDataArray: []
         });
+}
+
+
+
+function showModel() {
+    /*
+   model Template
+    */
     // Get the model name and id from list
     const id = getId();
     myDiagram.model = go.Model.fromJson(getView(id));
@@ -348,26 +357,35 @@ function createModel() {
     }
 }
 
-$(function (){
-    //todo:bad request
+function appendModel(){
     $.ajax({
         type : "GET",
+        async: false,
         url : "http://146.169.52.81:8080/er/view/query_all_views",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
         data : {},
         success : function(result) {
-            const viewList = result.data.viewList;
-            for (let i = 0; i < viewList.length; ++i) {
-                var tmpString = '<option id = '+viewList[i].id+' value = '+viewList[i].name+'></option>';
-                $("viewsList").prepend(tmpString);
-            }
+            let options='';
+            const views= result.data.viewList;
+             for (let i = 0; i < views.length; i++) {
+                 options += '<option id =' + views[i].id+ '  value="' + views[i].name + '" />';
+
+        }
+             console.log(options)
+            document.getElementById('viewsList').innerHTML = options;
         }, error : function(result) {
             console.log("false");
         }
     });
 
+}
+
+window.addEventListener('DOMContentLoaded', appendModel);
+window.addEventListener('DOMContentLoaded', defineModel);
+
+$(function (){
     //hide all subtitle
     $(".nav_menu").each(function (){
         $(this).children(".nav_content").hide();

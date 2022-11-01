@@ -1,19 +1,16 @@
 function getView(id) {
-    var Obj ={
-        id: 1
-    }
 
-    Obj = JSON.stringify(Obj);
-
+    var modelStr;
     $.ajax({
         type : "GET",
+        async: false,
         url : "http://146.169.52.81:8080/er/view/get_by_id",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
-        data : {id:1},
+        data : {ID:id},
         success : function(result) {
-            var modelStr = "{ \"class\": \"GraphLinksModel\",\n" +
+            modelStr = "{ \"class\": \"GraphLinksModel\",\n" +
                 " \"copiesArrays\": true,\n" +
                 " \"copiesArrayObjects\": true,\n" +
                 " \"nodeDataArray\": ["
@@ -83,26 +80,33 @@ function getView(id) {
                     LinkModelStr = LinkModelStr + link+"]}";
                 }
             };
-            modelStr = modelStr+LinkModelStr;
+            if (relationshipList.length===0){
+                modelStr = modelStr+LinkModelStr+"]}";
+
+
+            }else{
+                modelStr = modelStr+LinkModelStr;
+            }
+            console.log(modelStr);
             return modelStr;
-            window.location.replace("drawingView.html?name="+ selected_name+"&id="+selected_id);
         }, error : function(result) {
             console.log("false");
         }
     });
-    return { "class": "GraphLinksModel",
-        "copiesArrays": true,
-        "copiesArrayObjects": true,
-        "nodeDataArray": [
-            {"key":3435,"name":"Products","location":{"class":"go.Point","x":-905.441681610523,"y":-29.922811407391464},"from":true,"to":true},
-            {"key":34,"name":"Suppliers","location":{"class":"go.Point","x":-1472.350018298561,"y":-105.79224133183979},"from":true,"to":true},
-            {"key":9340,"name":"Categories","location":{"class":"go.Point","x":-987.4442912524521,"y":-381.1624322383951},"from":true,"to":true},
-            {"name":"NewA","category":"Attribute","location":{"class":"go.Point","x":-885.0581974373832,"y":-318.57578994715294},"isPrimary":false,"dataType":1,"entityId":9340,"allowNotNull":false,"key":4090}
-        ],
-        "linkDataArray": [
-            {"key":123,"from":3435,"to":34,"fromText":"0..N","toText":"1","relation":"has"},
-            {"key":456,"from":3435,"to":9340,"fromText":"0..N","toText":"1","relation":"with"},
-            {"from":9340,"to":4090,"category":"normalLink"}
-        ]};
+    return modelStr;
+    // return { "class": "GraphLinksModel",
+    //     "copiesArrays": true,
+    //     "copiesArrayObjects": true,
+    //     "nodeDataArray": [
+    //         {"key":3435,"name":"Products","location":{"class":"go.Point","x":-905.441681610523,"y":-29.922811407391464},"from":true,"to":true},
+    //         {"key":34,"name":"Suppliers","location":{"class":"go.Point","x":-1472.350018298561,"y":-105.79224133183979},"from":true,"to":true},
+    //         {"key":9340,"name":"Categories","location":{"class":"go.Point","x":-987.4442912524521,"y":-381.1624322383951},"from":true,"to":true},
+    //         {"name":"NewA","category":"Attribute","location":{"class":"go.Point","x":-885.0581974373832,"y":-318.57578994715294},"isPrimary":false,"dataType":1,"entityId":9340,"allowNotNull":false,"key":4090}
+    //     ],
+    //     "linkDataArray": [
+    //         {"key":123,"from":3435,"to":34,"fromText":"0..N","toText":"1","relation":"has"},
+    //         {"key":456,"from":3435,"to":9340,"fromText":"0..N","toText":"1","relation":"with"},
+    //         {"from":9340,"to":4090,"category":"normalLink"}
+    //     ]};
 
 }

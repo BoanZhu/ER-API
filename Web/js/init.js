@@ -1,4 +1,4 @@
-var entityCounter = 300;
+var entityCounter = 400;
 var attributeCounter=0;
 function init() {
     /*
@@ -425,10 +425,6 @@ function deleteView() {
 Entity functions
 */
 function createEntity(name,layoutX,layoutY){
-    /*
-    create function
-     */
-
     const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
     let id;
     var Obj ={
