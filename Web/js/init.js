@@ -642,8 +642,8 @@ function addAttr(){
             "dataType":1, //default
             "isPrimary":false,
             "layoutInfo":{
-                "layoutX":pos.x,
-                "layoutY":pos.y
+                "layoutX":pos.x.toFixed(1),
+                "layoutY":pos.y.toFixed(1)
             }
         }
         info = JSON.stringify(info);
