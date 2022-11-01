@@ -508,15 +508,15 @@ function deleteAttribute(id){
     info = JSON.stringify(info);
     $.ajax({
         type : "POST",
-        url : "http://127.0.0.1:8000/er/attribute/delete",
-        // url: "http://146.169.52.81:8080/er/attribute/delete",
+        // url : "http://127.0.0.1:8000/er/attribute/delete",
+        url: "http://146.169.52.81:8080/er/attribute/delete",
         // headers: { "Access-Control-Allow-Origin": "*",
         //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         traditional : true,
         data : info,
         withCredentials:false,
-        // dataType:"application/json",
         dataType : "json",
+        contentType : 'application/json',
         success : function(result) {
             if(result.code === 0) {
                 console.log(result);
@@ -566,14 +566,12 @@ function addAttr(){
         info = JSON.stringify(info);
         $.ajax({
             type : "POST",
-            url : "http://127.0.0.1:8000/er/attribute/create",
-            // url: "http://146.169.52.81:8080/er/attribute/create",
-            // headers: { "Access-Control-Allow-Origin": "*",
-            //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            // url : "http://127.0.0.1:8000/er/attribute/create",
+            url: "http://146.169.52.81:8080/er/attribute/create",
             traditional : true,
             data : info,
             withCredentials:false,
-            // dataType : 'application/json',
+            contentType : 'application/json',
             dataType:'json',
             success : function(result) {
                 if(result.code === 0) {
@@ -704,15 +702,15 @@ function modifyAttribute(){
     info = JSON.stringify(info);
     $.ajax({
         type : "POST",
-        url : "http://127.0.0.1:8000/er/attribute/update",
-        // url: "http://146.169.52.81:8080/er/attribute/update",
+        // url : "http://127.0.0.1:8000/er/attribute/update",
+        url: "http://146.169.52.81:8080/er/attribute/update",
         // headers: { "Access-Control-Allow-Origin": "*",
         //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         traditional : true,
         data : info,
         withCredentials:false,
-        // dataType:"application/json",
         dataType : "json",
+        contentType : 'application/json',
         success : function(result) {
             if(result.code === 0) {
                 console.log(result);
