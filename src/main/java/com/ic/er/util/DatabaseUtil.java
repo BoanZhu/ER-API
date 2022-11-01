@@ -47,6 +47,11 @@ public class DatabaseUtil {
                     String columnName = rsmd.getColumnName(i);
                     String columnDataType = rsmd.getColumnTypeName(i);
                     int nullable = rsmd.isNullable(i);
+                    if (nullable >= 1) {
+                        columnDTO.setNullable(true);
+                    } else {
+                        columnDTO.setNullable(false);
+                    }
                     columnDTO.setDataType(columnDataType);
                     columnDTO.setName(columnName);
                     columnDTO.setBelongTo(table.getId());

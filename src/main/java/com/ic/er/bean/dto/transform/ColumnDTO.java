@@ -24,11 +24,22 @@ public class ColumnDTO {
 
     private Long belongTo;
 
+    private boolean nullable;
+
     public void transformAttribute(Attribute attribute) {
         this.name = attribute.getName();
         this.dataType = attribute.getDataType().toString();
         this.isPrimary = attribute.getIsPrimary();
         this.isForeign = 0;
         this.foreignKeyTable = null;
+        this.nullable = attribute.getNullable();
+    }
+
+    public String nullable() {
+        if (nullable) {
+            return "NULL";
+        } else {
+            return "NOT NULL";
+        }
     }
 }

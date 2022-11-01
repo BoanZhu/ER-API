@@ -14,19 +14,19 @@ public class TestTransform {
         ER.initialize(true);
         view = ER.createView("testTransform1", "wd");
         Entity student = view.addEntity("student");
-        Attribute studentId = student.addAttribute("id", DataType.INT, true);
-        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false);
-        Attribute studentAge = student.addAttribute("age", DataType.INT, false);
+        Attribute studentId = student.addAttribute("id", DataType.INT, true, false);
+        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, false);
+        Attribute studentAge = student.addAttribute("age", DataType.INT, false, false);
         Entity teacher = view.addEntity("teacher");
-        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true);
-        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false);
-        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false);
+        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true, false);
+        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false, false);
+        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false, true);
         Entity school = view.addEntity("school");
-        Attribute schoolId = school.addAttribute("id", DataType.INT, true);
-        Attribute schoolName = school.addAttribute("name", DataType.INT, false);
+        Attribute schoolId = school.addAttribute("id", DataType.INT, true, false);
+        Attribute schoolName = school.addAttribute("name", DataType.INT, false, false);
 
-        Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
-        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToOne, Cardinality.OneToMany);
+        Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToMany, Cardinality.OneToOne);
+        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.OneToMany, Cardinality.ZeroToOne);
         Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.OneToMany, Cardinality.ZeroToMany);
 
 
@@ -42,19 +42,19 @@ public class TestTransform {
         ER.initialize(true);
         view = ER.createView("testTransform1", "wd");
         Entity student = view.addEntity("student");
-        Attribute studentId = student.addAttribute("id", DataType.INT, true);
-        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false);
-        Attribute studentAge = student.addAttribute("age", DataType.INT, false);
+        Attribute studentId = student.addAttribute("id", DataType.INT, true, false);
+        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, false);
+        Attribute studentAge = student.addAttribute("age", DataType.INT, false, false);
         Entity teacher = view.addEntity("teacher");
-        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true);
-        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false);
-        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false);
+        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true, false);
+        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false, false);
+        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false, true);
         Entity school = view.addEntity("school");
-        Attribute schoolId = school.addAttribute("id", DataType.INT, false);
-        Attribute schoolName = school.addAttribute("name", DataType.INT, false);
+        Attribute schoolId = school.addAttribute("id", DataType.INT, false, false);
+        Attribute schoolName = school.addAttribute("name", DataType.INT, false, false);
 
-        Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
-        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToOne, Cardinality.OneToMany);
+        Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToMany, Cardinality.OneToOne);
+        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.OneToMany, Cardinality.ZeroToMany);
         Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.OneToMany, Cardinality.ZeroToMany);
 
 

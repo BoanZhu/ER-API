@@ -1,8 +1,5 @@
 package com.ic.er;
 
-import com.ic.er.Entity;
-import com.ic.er.Relationship;
-import com.ic.er.View;
 import com.ic.er.bean.dto.transform.ColumnDTO;
 import com.ic.er.bean.dto.transform.TableDTO;
 import com.ic.er.common.Cardinality;
@@ -31,7 +28,7 @@ public class ParserUtil {
                     foreignKeyList.add(column);
                 } else {
                     Attribute attribute = new Attribute((long)1, (long)1, (long)1, column.getName(), null,
-                            column.isPrimary(), null, null, null, null, null);
+                            column.isPrimary(), column.isNullable(), null, null, null, null, null);
                     attributeList.add(attribute);
                 }
             }
@@ -109,23 +106,36 @@ public class ParserUtil {
                 List<ColumnDTO> primaryKey = new ArrayList<>();
                 TableDTO tableDTO = new TableDTO(Utils.generateID(), tableName, columnDTOList, primaryKey);
                 String firstTablePkName = firstTable.getName() + "_" + firstTable.getPrimaryKey().get(0).getName();
-                ColumnDTO firstTableId = new ColumnDTO(firstTablePkName, firstTable.getPrimaryKey().get(0).getDataType(), false, 1, firstTable.getId(), tableDTO.getId());
+                ColumnDTO firstTableId = new ColumnDTO(firstTablePkName, firstTable.getPrimaryKey().get(0).getDataType()
+                        , false, 1, firstTable.getId(), tableDTO.getId(), false);
                 String secondTablePkName = secondTable.getName() + "_" + secondTable.getPrimaryKey().get(0).getName();
-                ColumnDTO secondTableId = new ColumnDTO(secondTablePkName, secondTable.getPrimaryKey().get(0).getDataType(), false, 1, secondTable.getId(), tableDTO.getId());
+                ColumnDTO secondTableId = new ColumnDTO(secondTablePkName, secondTable.getPrimaryKey().get(0).getDataType()
+                        , false, 1, secondTable.getId(), tableDTO.getId(), false);
                 columnDTOList.add(firstTableId);
                 columnDTOList.add(secondTableId);
                 tableDTOMap.put(tableDTO.getId(), tableDTO);
             } else if ((relationship.getFirstCardinality() == Cardinality.OneToOne || relationship.getFirstCardinality() == Cardinality.ZeroToOne)
                     && (relationship.getSecondCardinality() == Cardinality.OneToMany || relationship.getSecondCardinality() == Cardinality.ZeroToMany)) {
-
                 // one-one, many-many, create a new table
                 ColumnDTO primaryKey = firstTable.getPrimaryKey().get(0);
-                ColumnDTO foreignColumn = new ColumnDTO(firstTable.getName()+"_"+primaryKey.getName(), primaryKey.getDataType(),false,1,firstTable.getId(), secondTable.getId());
+                // 01-0Many, 01-1Many the foreign column can be null
+                ColumnDTO foreignColumn = new ColumnDTO(firstTable.getName()+"_"+primaryKey.getName(), primaryKey.getDataType()
+                        ,false,1,firstTable.getId(), secondTable.getId(), false);
+                if (relationship.getFirstCardinality() == Cardinality.ZeroToOne) {
+                    foreignColumn.setNullable(true);
+                }
+
                 secondTable.getColumnDTOList().add(foreignColumn);
             } else if ((relationship.getFirstCardinality() == Cardinality.OneToMany || relationship.getFirstCardinality() == Cardinality.ZeroToMany)
                     && (relationship.getSecondCardinality() == Cardinality.OneToOne || relationship.getSecondCardinality() == Cardinality.ZeroToOne)) {
                 ColumnDTO primaryKey = secondTable.getPrimaryKey().get(0);
-                ColumnDTO foreignColumn = new ColumnDTO(secondTable.getName()+"_"+primaryKey.getName(), primaryKey.getDataType(),false,1,secondTable.getId(), firstTable.getId());
+                ColumnDTO foreignColumn = new ColumnDTO(secondTable.getName()+"_"+primaryKey.getName(), primaryKey.getDataType()
+                        ,false,1,secondTable.getId(), firstTable.getId(), false);
+                // 0Many-01, 0Many-11 the foreign column can be null
+                if (relationship.getSecondCardinality() == Cardinality.ZeroToOne) {
+                    foreignColumn.setNullable(true);
+                }
+
                 firstTable.getColumnDTOList().add(foreignColumn);
             }
         }

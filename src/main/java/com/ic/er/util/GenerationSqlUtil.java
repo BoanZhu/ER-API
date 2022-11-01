@@ -16,7 +16,8 @@ public class GenerationSqlUtil {
             StringBuilder constraintStatement = new StringBuilder("");
             for (ColumnDTO columnDTO : columnDTOList) {
                 sqlStatement.append("    `").append(columnDTO.getName()).append("` ")
-                        .append(columnDTO.getDataType().toUpperCase()).append(",\n");
+                        .append(columnDTO.getDataType().toUpperCase())
+                        .append(" ").append(columnDTO.nullable()).append(",\n");
 
                 if (columnDTO.isPrimary()) {
                     constraintStatement.append("    CONSTRAINT ").append(tableDTO.getName())
