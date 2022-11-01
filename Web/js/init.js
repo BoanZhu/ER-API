@@ -102,7 +102,7 @@ function init() {
     var attributeTemplate =$(go.Node, "Auto",
         {
             selectionAdorned: true,
-            // selectionAdornmentTemplate: attributeAdornment,
+            selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
             linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
