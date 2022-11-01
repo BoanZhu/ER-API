@@ -1,38 +1,23 @@
 package com.ic.er.mapper;
 
+import com.ic.er.ER;
+import com.ic.er.TestCommon;
 import com.ic.er.entity.EntityDO;
-import com.ic.er.dao.EntityMapper;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * @author wendi
  * @data 15/10/2022
  */
 public class entityMapperTest {
-    public static SqlSession sqlSession;
-    public static Connection connection;
-    public static EntityMapper entityMapper;
-
     @Before
-    public void init() throws IOException {
-        InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
-        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
-        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
-        sqlSession = sqlSessionFactory.openSession(true);
-        connection = sqlSession.getConnection();
-        System.out.println(connection);
+    public void init() throws IOException, SQLException {
+        ER.initialize(TestCommon.usePostgre);
     }
 
     @Test
@@ -47,9 +32,7 @@ public class entityMapperTest {
 
         EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
 
-        Assert.assertNotNull(sqlSession);
-        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.insert(entity);
+        ER.entityMapper.insert(entity);
     }
 
     @Test
@@ -64,9 +47,7 @@ public class entityMapperTest {
 
         EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
 
-        Assert.assertNotNull(sqlSession);
-        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.insert(entity);
+        ER.entityMapper.insert(entity);
     }
 
     @Test
@@ -81,19 +62,14 @@ public class entityMapperTest {
 
         EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
 
-
-        Assert.assertNotNull(sqlSession);
-        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.selectByEntity(entity);
+        ER.entityMapper.selectByEntity(entity);
     }
 
     @Test
     public void selectByIDTest() {
         Long id = Long.valueOf(123);
 
-        Assert.assertNotNull(sqlSession);
-        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.selectByID(id);
+        ER.entityMapper.selectByID(id);
     }
 
 
@@ -109,9 +85,7 @@ public class entityMapperTest {
 
         EntityDO entityDo = new EntityDO(id, name, viewID, isDelete, create, modify);
 
-        Assert.assertNotNull(sqlSession);
-        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.updateByID(entityDo);
+        ER.entityMapper.updateByID(entityDo);
     }
 
     @Test
@@ -119,10 +93,6 @@ public class entityMapperTest {
 
         long id = Long.valueOf(123);
 
-        Assert.assertNotNull(sqlSession);
-        EntityMapper entityMapper = sqlSession.getMapper(EntityMapper.class);
-        entityMapper.deleteByID(id);
+        ER.entityMapper.deleteByID(id);
     }
-
-
 }

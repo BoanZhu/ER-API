@@ -1,15 +1,15 @@
 package com.ic.er;
 
-import com.ic.er.exception.ERException;
-import com.ic.er.entity.AttributeDO;
 import com.ic.er.common.DataType;
+import com.ic.er.entity.AttributeDO;
+import com.ic.er.exception.ERException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestAttribute {
 
@@ -18,7 +18,7 @@ public class TestAttribute {
 
     @Before
     public void init() throws Exception {
-        ER.initialize(true);
+        ER.initialize(TestCommon.usePostgre);
         testView = ER.createView("testView", "wt22");
         testEntity = testView.addEntity("teacher");
     }
@@ -66,14 +66,13 @@ public class TestAttribute {
         Assert.assertNotNull(attribute);
     }
 
-    @Test(expected = ERException.class)
+    @Test
     public void deleteByIDTest() {
         Attribute a1 = testEntity.addAttribute("teacher_id", DataType.VARCHAR, true, false);
 
         // delete
         a1.deleteDB();
 
-        Attribute attribute = Attribute.queryByID(a1.getID());
-        Assert.assertNull(attribute);
+        assertThrows(ERException.class, () -> Attribute.queryByID(a1.getID()));
     }
 }

@@ -1,14 +1,14 @@
 package com.ic.er.mapper;
 
 import com.ic.er.ER;
-import com.ic.er.entity.AttributeDO;
+import com.ic.er.TestCommon;
 import com.ic.er.common.DataType;
+import com.ic.er.entity.AttributeDO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;
-
 import java.util.List;
 
 
@@ -19,7 +19,7 @@ import java.util.List;
 public class attributeMapperTest {
     @Before
     public void init() throws Exception {
-        ER.initialize(true);
+        ER.initialize(TestCommon.usePostgre);
     }
 
     @Test
@@ -50,9 +50,6 @@ public class attributeMapperTest {
         int ret = ER.attributeMapper.insert(attributeDO);
         int ret2 = ER.attributeMapper.insert(attributeDO2);
         int ret3 = ER.attributeMapper.insert(attributeDO3);
-        System.out.printf("ret: %d, ID: %d\n", ret, attributeDO.getID());
-        System.out.printf("ret2: %d, ID: %d\n", ret2, attributeDO2.getID());
-        System.out.printf("ret3: %d, ID: %d\n", ret3, attributeDO3.getID());
     }
 
     @Test

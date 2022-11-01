@@ -1,11 +1,9 @@
 package com.ic.er;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.ic.er.exception.ERException;
 import com.ic.er.common.RelatedObjType;
-import com.ic.er.common.Utils;
 import com.ic.er.entity.LayoutInfoDO;
+import com.ic.er.exception.ERException;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -31,11 +29,7 @@ public class LayoutInfo {
         this.height = height;
         this.width = width;
         if (this.ID == 0) {
-            if (ER.useDB) {
-                this.insertDB();
-            } else {
-                this.ID = Utils.generateID();
-            }
+            this.insertDB();
         }
     }
 

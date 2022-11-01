@@ -1,11 +1,12 @@
 package com.ic.er;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.ic.er.exception.ERException;
-import com.ic.er.common.*;
+import com.ic.er.common.Cardinality;
+import com.ic.er.common.RelatedObjType;
+import com.ic.er.common.RelationshipSerializer;
 import com.ic.er.entity.RelationshipDO;
+import com.ic.er.exception.ERException;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -39,11 +40,7 @@ public class Relationship {
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
-            if (ER.useDB) {
-                insertDB();
-            } else {
-                this.ID = Utils.generateID();
-            }
+            insertDB();
         }
         if (this.layoutInfo == null) {
             this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.RELATIONSHIP, 0.0, 0.0, 0.0, 0.0);
