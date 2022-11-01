@@ -7,12 +7,14 @@ import com.ic.er.common.ResultState;
 import com.ic.er.common.ResultStateCode;
 import com.ic.er.exception.ParseException;
 import com.ic.er.util.DatabaseUtil;
+import com.ic.er.util.DrawingUtil;
 import com.ic.er.util.GenerationSqlUtil;
 
 import java.awt.Image;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Tranform {
 
@@ -36,24 +38,20 @@ public class Tranform {
         Connection conn = null;
         ResultState resultState;
         String driver = "";
-        try {
-            driver = DatabaseUtil.recognDriver(databaseType);
-        } catch (ParseException e) {
-            resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
-            return resultState;
-        }
 
         try {
+            driver = DatabaseUtil.recognDriver(databaseType);
             conn = DatabaseUtil.acquireDBConnection(driver, dbUrl, userName, password);
             conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
             List<TableDTO> tableDTOList = DatabaseUtil.getDatabseInfo(conn);
+            View view = ParserUtil.parseAttributeToRelationship(tableDTOList);
 
-            Image erDiagram = null;
+            Image erDiagram = DrawingUtil.drawingERModel();
 
             DatabaseUtil.closeDBConnection(conn);
-            resultState = ResultState.ok(tableDTOList);
-        } catch (DBConnectionException | SQLException e) {
+            resultState = ResultState.ok(view);
+        } catch (DBConnectionException | SQLException | ParseException e) {
             resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
             return resultState;
         }
@@ -64,9 +62,9 @@ public class Tranform {
 
     public ResultState ERModelToSql(Long viewId) {
         View view = View.queryByID(viewId);
-        List<TableDTO> tableDTOList = new ArrayList<>();
+        Map<Long, TableDTO> tableDTOList;
         try {
-            tableDTOList = GenerationSqlUtil.parseRelationshipsToAttribute(view.getEntityList(), view.getRelationshipList());
+            tableDTOList = ParserUtil.parseRelationshipsToAttribute(view.getEntityList(), view.getRelationshipList());
         } catch (ParseException e) {
             return ResultState.build(ResultStateCode.Failure, e.getMessage());
         }

@@ -3,6 +3,7 @@ package com.ic.er.util;
 import com.ic.er.bean.dto.transform.ColumnDTO;
 import com.ic.er.bean.dto.transform.TableDTO;
 import com.ic.er.common.RDBMSType;
+import com.ic.er.common.Utils;
 import com.ic.er.exception.DBConnectionException;
 import com.ic.er.exception.ParseException;
 
@@ -32,6 +33,7 @@ public class DatabaseUtil {
                 String tableName = tableRs.getString("TABLE_NAME");
                 TableDTO table = new TableDTO();
                 table.setName(tableName);
+                table.setId(Utils.generateID());
 
 //                ResultSet columnRs = meta.getColumns(catalog, schemaPattern, tableName, null);
                 PreparedStatement statement = conn.prepareStatement("select * from " + tableName);
@@ -47,6 +49,7 @@ public class DatabaseUtil {
                     int nullable = rsmd.isNullable(i);
                     columnDTO.setDataType(columnDataType);
                     columnDTO.setName(columnName);
+                    columnDTO.setBelongTo(table.getId());
                     columnDTOList.add(columnDTO);
                     columnTrackInTable.put(columnName, columnDTO);
                 }
@@ -76,7 +79,7 @@ public class DatabaseUtil {
                     ColumnDTO fk = columnTrackInTable.get(name);
                     fk.setIsForeign(1);
                     String foreignTableName = foreignKeyRs.getString("PKTABLE_NAME");
-                    fk.setForeignKeyTable(tableTracker.get(foreignTableName));
+                    fk.setForeignKeyTable(tableTracker.get(foreignTableName).getId());
                 }
             }
 

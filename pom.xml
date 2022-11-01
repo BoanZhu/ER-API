@@ -94,6 +94,13 @@
             <version>5.9.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- rendering -->
+        <dependency>
+            <groupId>jgraph</groupId>
+            <artifactId>jgraph</artifactId>
+            <version>5.13.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>

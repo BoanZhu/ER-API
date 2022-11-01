@@ -43,7 +43,7 @@ public class ER {
     private static void createTables() throws SQLException, IOException {
         Connection conn = sqlSession.getConnection();
         Statement stmt = conn.createStatement();
-        String sql = new String(Resources.getResourceAsStream("schema-v1.sql").readAllBytes(), StandardCharsets.UTF_8);
+        String sql = new String(Resources.getResourceAsStream("mysql.sql").readAllBytes(), StandardCharsets.UTF_8);
         stmt.execute(sql);
     }
 

@@ -2,8 +2,10 @@ package com.ic.er.bean.dto.transform;
 
 import com.ic.er.Attribute;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ibatis.jdbc.Null;
 
 @Data
 @NoArgsConstructor
@@ -18,7 +20,9 @@ public class ColumnDTO {
 
     private int isForeign;
 
-    private TableDTO foreignKeyTable;
+    private Long foreignKeyTable;
+
+    private Long belongTo;
 
     public void transformAttribute(Attribute attribute) {
         this.name = attribute.getName();
