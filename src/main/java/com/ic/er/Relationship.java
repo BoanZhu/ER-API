@@ -98,7 +98,7 @@ public class Relationship {
             if (Entity.queryByID(secondEntity.getID()) == null) {
                 throw new ERException(String.format("entity with ID: %d not found", secondEntity.getID()));
             }
-            if (!secondEntity.getViewID().equals(this.ID)) {
+            if (!secondEntity.getViewID().equals(this.viewID)) {
                 throw new ERException(String.format("entity: %s does not belong to this view", secondEntity.getName()));
             }
         }

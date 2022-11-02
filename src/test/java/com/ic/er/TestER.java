@@ -9,6 +9,9 @@ import org.junit.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -35,7 +38,7 @@ public class TestER {
 
     @Test
     public void drawER() throws IOException {
-        View example = ER.createView("BranchAccountMovement", "tw");
+        View example = ER.createView("BranchAccountMovement", "");
 
         Entity branch = example.addEntity("branch");
         branch.addAttribute("sortcode", DataType.INT, true, false);
@@ -60,7 +63,11 @@ public class TestER {
         FileWriter myWriter = new FileWriter(String.format("%s.json", example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
+    }
 
+    @Test
+    public void loadFromJSONTest() throws IOException {
+        String jsonString = Files.readString(Path.of("BranchAccountMovement.json"), Charset.defaultCharset());
         View view = ER.loadFromJSON(jsonString);
         Assert.assertNotNull(view);
     }
