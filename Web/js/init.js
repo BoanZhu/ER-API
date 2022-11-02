@@ -1,5 +1,5 @@
-var entityCounter = 37;
-var attributeCounter=37;
+var entityCounter = 40;
+var attributeCounter=40;
 function init() {
     /*
     Get the editable model Template
@@ -836,4 +836,24 @@ function modifyAttribute(){
             console.log("update fail");
         }
     });
+}
+
+function callback(blob) {
+    var url = window.URL.createObjectURL(blob);
+    var filename = "ERModel.png";
+
+    var res = document.createElement("a");
+    res.style = "display: none";
+    res.href = url;
+    res.download = filename;
+    document.body.appendChild(res);
+    requestAnimationFrame(() => {
+        res.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(res);
+    });
+}
+
+function exportPng() {
+    var png = myDiagram.makeImageData({ background: "white", returnType: "blob", callback: callback});
 }
