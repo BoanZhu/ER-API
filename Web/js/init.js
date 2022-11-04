@@ -17,6 +17,7 @@ function init() {
             "undoManager.isEnabled": true,
             "maxSelectionCount": 1,
             "ChangedSelection":changedSelection,
+
         });
 
     // Common color
@@ -222,7 +223,7 @@ function init() {
     // relation
     var relationLink = $(go.Link,  // the whole link panel
         {
-            deletable: false,
+            // deletable: false,
             selectionAdorned: true,
             layerName: "Foreground",
             reshapable: true,
@@ -375,22 +376,37 @@ function init() {
         txn.changes.each(function(e) {
             if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
                 if (!("category" in e.newValue)) {
-                    // identity if it is normal link
-                    e.newValue.relation = "has";
-                    e.newValue.fromText = "1:1";
-                    e.newValue.toText = "1:1";
-                    //create relation
+
                     const firstEntityID = e.newValue.from;
                     const secondEntityID = e.newValue.to;
-                    const name = e.newValue.relation;
-                    let firstCardinality = e.newValue.fromText;
-                    let secondCardinality = e.newValue.toText;
 
-                    firstCardinality = findRelationCode(firstCardinality);
-                    secondCardinality = findRelationCode(secondCardinality);
-                    console.log(secondCardinality);
-                    console.log(firstCardinality);
-                    e.newValue.key = createRelation(name, firstEntityID, secondEntityID, firstCardinality, secondCardinality);
+                    const relationNodeX = (myDiagram.findNodeForKey(e.newValue.from).location.x +
+                        myDiagram.findNodeForKey(e.newValue.to).location.x)/2
+
+                    const relationNodeY = (myDiagram.findNodeForKey(e.newValue.from).location.y +
+                        myDiagram.findNodeForKey(e.newValue.to).location.y)/2;
+
+                    myDiagram.rollbackTransaction(); //rollback transcation and create new node between e-e
+                    myDiagram.model.addNodeData({"name":"test","location":{"class":"go.Point","x":relationNodeX,"y":relationNodeY}});
+                    //TODO: change the addNodeDate template with the new designed relation node and API add node function
+
+                    // // identity if it is normal link
+                    // // myDiagram.commandHandler.undo();
+                    // e.newValue.relation = "has";
+                    // e.newValue.fromText = "1:1";
+                    // e.newValue.toText = "1:1";
+                    // //create relation
+                    // const firstEntityID = e.newValue.from;
+                    // const secondEntityID = e.newValue.to;
+                    // const name = e.newValue.relation;
+                    // let firstCardinality = e.newValue.fromText;
+                    // let secondCardinality = e.newValue.toText;
+                    //
+                    // firstCardinality = findRelationCode(firstCardinality);
+                    // secondCardinality = findRelationCode(secondCardinality);
+                    // console.log(secondCardinality);
+                    // console.log(firstCardinality);
+                    // e.newValue.key = createRelation(name, firstEntityID, secondEntityID, firstCardinality, secondCardinality);
                     save();
                     load();
                 }
