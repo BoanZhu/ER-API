@@ -46,8 +46,8 @@ function init() {
             $("Button", {alignment: go.Spot.TopRight, click: modifyAttributeClick},
                 $(go.Shape, "MinusLine", { desiredSize: new go.Size(6, 6) })));
 
-    // entity
-    var entityTemplate =
+    // strong entity
+    var strongEntityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
                 locationSpot: go.Spot.Center,
@@ -95,8 +95,85 @@ function init() {
             ) // end Table Panel
         );
 
+
+    go.Shape.defineFigureGenerator("weakEntity", function(shape, w, h) {
+        var geo = new go.Geometry();
+        var fig = new go.PathFigure(0.05*w,0.05*w, true);  // clockwise
+        geo.add(fig);
+        if (w>h){
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*w,h-0.05*w)); //下划线到h点
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*w,h-0.05*w));//在0.h 画到 1.6w,h
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*w,0.05*w));
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*w,0.05*w).close());
+
+        }else{
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*h,w-0.05*h)); //下划线到h点
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*h,w-0.05*h));//在0.h 画到 1.6w,h
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*h,0.05*h));
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*h,0.05*h).close());
+
+        }
+
+        fig.add(new go.PathSegment(go.PathSegment.Move, 0,0));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0,h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, w,h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, w,0));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0,0));
+        return geo;
+    });
+
+
+    // weak entity
+    const weakEntityTemplate =
+        $(go.Node, "Auto",  // the whole node panel
+            {
+                locationSpot: go.Spot.Center,
+                selectionAdornmentTemplate: addNodeAdornment,
+                selectionAdorned: true,
+                resizable: false,
+                layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+                isShadowed: true,
+                shadowOffset: new go.Point(3, 3),
+                shadowColor: colors.lightblue,
+                linkValidation: function (fromNode, fromGraphObject, toNode, toGraphObject) {
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                },
+            },
+            new go.Binding("location", "location").makeTwoWay(),
+            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
+            // clear out any desiredSize set by the ResizingTool.
+            new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
+            // define the node's outer shape, which will surround the Table
+            $(go.Shape, "weakEntity",
+                {
+                    fill: 'white',
+                    portId: "",
+                    stroke: colors.lightblue,
+                    cursor: "pointer",
+                    fromSpot: go.Spot.AllSides,
+                    toSpot: go.Spot.AllSides,
+                    strokeWidth: 3,
+                    fromLinkableDuplicates: false, toLinkableDuplicates: false
+                },
+                new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
+
+            // the table header
+            $(go.Panel, "Table",
+                {margin: 8, stretch: go.GraphObject.Fill},
+                $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
+                $(go.TextBlock, textStyle(),
+                    {
+                        row: 0, alignment: go.Spot.Center,
+                        margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
+                        font: "bold 16px sans-serif",
+                        editable: true
+                    },
+                    new go.Binding("text", "name").makeTwoWay())
+            ) // end Table Panel
+        );
+
     // default template
-    myDiagram.nodeTemplate = entityTemplate;
+    myDiagram.nodeTemplate = strongEntityTemplate;
 
     // attribute template
     var attributeTemplate =$(go.Node, "Auto",
@@ -135,16 +212,17 @@ function init() {
 
     // add all template
     var templateMap = new go.Map();
-    templateMap.add("Entity", entityTemplate);
+    templateMap.add("Entity", strongEntityTemplate);
     templateMap.add("Attribute",attributeTemplate);
     // default
-    templateMap.add("",entityTemplate);
+    templateMap.add("",strongEntityTemplate);
 
     myDiagram.nodeTemplateMap = templateMap;
 
     // relation
     var relationLink = $(go.Link,  // the whole link panel
         {
+            deletable: false,
             selectionAdorned: true,
             layerName: "Foreground",
             reshapable: true,
