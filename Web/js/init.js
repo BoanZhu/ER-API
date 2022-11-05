@@ -12,21 +12,24 @@ function init() {
             allowDelete: true,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.ForceDirectedLayout, { isInitial: false, isOngoing: false}),
+            layout: $(go.ForceDirectedLayout, {isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "clickCreatingTool.archetypeNodeData": { name:"New Entity",from:true,to:true},
+            "clickCreatingTool.archetypeNodeData": {name: "New Entity", from: true, to: true},
             "undoManager.isEnabled": true,
             "maxSelectionCount": 1,
-            "ChangedSelection":changedSelection,
+            "ChangedSelection": changedSelection,
 
         });
 
     // Common color
     const colors =
-        {'lightblue': '#afd4fe',
-        'lightgrey':'#a4a8ad',
-        'lightyellow':'#fcffbe'}
+        {
+            'lightblue': '#afd4fe',
+            'lightgrey': '#a4a8ad',
+            'lightyellow': '#fcffbe'
+        }
+
     // Common text styling
     function textStyle() {
         return {
@@ -37,100 +40,135 @@ function init() {
         }
     }
 
+    function makeButton(text, action, visiblePredicate) {
+        return $("ContextMenuButton",
+            $(go.TextBlock, text),
+            { click: action },
+            // visiblePredicate ? new go.Binding("visible", "", (o, e) => o.diagram ? visiblePredicate(o, e) : false).ofObject() : {}
+        );
+    }
+    // strong entity node menu
+    const nodeMenu =  // context menu for each Node
+        $("ContextMenu",
+            makeButton("Add Attribute",
+                (e, obj) => addAttr()),
+            makeButton("Add Subset",
+                (e, obj) => createSubset()),
+            makeButton("Add Weak Entity",
+                (e, obj) => createWeakEntity()),
+        );
+
     /*
     All adornment
     */
-    // adornment for strong entity
-    const normalEntityAdornment =
-        $(go.Adornment, "Spot",
-            $(go.Panel, "Auto",
-                $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
-                $(go.Placeholder)),
-            $("Button", {alignment: go.Spot.TopRight, click: addAttr},
-                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })),
-            $("Button", {alignment: go.Spot.TopLeft, click: createWeakEntity},
-                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })),
-            // todo add subset
-            $("Button", {alignment: go.Spot.BottomLeft, click: createSubset},
-                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })));
-
     // adornment for weak entity
     const weakEntityAdornment =
         $(go.Adornment, "Spot",
             $(go.Panel, "Auto",
-                $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
+                $(go.Shape, {fill: null, stroke: "dodgerblue", strokeWidth: 3}),
                 $(go.Placeholder)),
             $("Button", {alignment: go.Spot.TopRight, click: addAttr},
-                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })));
+                $(go.Shape, "PlusLine", {desiredSize: new go.Size(6, 6)})));
 
-    // adornment for attribute
-    const attributeAdornment =
-        $(go.Adornment, "Spot",
-            $(go.Panel, "Auto",
-                $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
-                $(go.Placeholder)),
-            $("Button", {alignment: go.Spot.TopRight, click: modifyAttributeClick},
-                $(go.Shape, "MinusLine", { desiredSize: new go.Size(6, 6) })),
-            );
-/*
-    All Node(Entity+Attribute) templates
- */
+    // // adornment for attribute
+    // const attributeAdornment =
+    //     $(go.Adornment, "Spot",
+    //         $(go.Panel, "Auto",
+    //             $(go.Shape, {fill: null, stroke: "dodgerblue", strokeWidth: 3}),
+    //             $(go.Placeholder)),
+    //         $("Button", {alignment: go.Spot.TopRight, click: modifyAttributeClick},
+    //             $(go.Shape, "MinusLine", {desiredSize: new go.Size(6, 6)})),
+    //     );
+    /*
+     4 ports
+     */
+    const leftPort = $(go.Panel, "Vertical", {row: 1, column: 0},
+        $(go.Shape,
+            {width: 3, height: 3, portId: "L",
+                toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                fromLinkable: true,toLinkable: true}));
+    const rightPort = $(go.Panel, "Vertical", {row: 1, column: 2},
+        $(go.Shape,  // the "B" port
+            {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                fromLinkable: true,toLinkable: true}));
+    const bottomPort = $(go.Panel, "Horizontal", {row:2, column: 1},
+        $(go.Shape,  // the "B" port
+            {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                fromLinkable: true,toLinkable: true}));
+    const topPort = $(go.Panel, "Vertical",{row: 0, column: 1},
+        $(go.Shape,  // the "B" port
+            {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                fromLinkable: true,toLinkable: true}));
+    /*
+        All Node(Entity+Attribute) templates
+     */
     // strong entity template
     const entityTemplate =
-        $(go.Node, "Auto",  // the whole node panel
+        $(go.Node, "Table",  // the whole node panel
+            {
+                locationObject: "BODY",
+                locationSpot: go.Spot.Center,
+                selectionObjectName: "BODY",
+                //contextMenu
+            },
             {
                 locationSpot: go.Spot.Center,
-                selectionAdornmentTemplate: normalEntityAdornment,
+                contextMenu:nodeMenu,
                 selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
-                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                linkValidation: function (fromNode, fromGraphObject, toNode, toGraphObject) {
+                    // todo 必须要允许俩，才能改port，啊
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
                 },
             },
             new go.Binding("location", "location").makeTwoWay(),
             // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
             // clear out any desiredSize set by the ResizingTool.
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
-            // define the node's outer shape, which will surround the Table
-            $(go.Shape, "RoundedRectangle",
+            // the body
+            $(go.Panel, "Auto",
                 {
-                    fill: 'white',
-                    portId: "",
-                    stroke: colors.lightblue,
-                    cursor: "pointer",
-                    fromSpot: go.Spot.AllSides,
-                    toSpot: go.Spot.AllSides,
-                    strokeWidth: 3,
-                    fromLinkableDuplicates: false, toLinkableDuplicates: false
+                    row: 1, column: 1, name: "BODY",
                 },
-            new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-
-            // the table header
-            $(go.Panel, "Table",
-                { margin: 8, stretch: go.GraphObject.Fill },
-                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-                $(go.TextBlock,textStyle(),
+                $(go.Shape, "RoundedRectangle",
+                    {
+                        fill: 'white',
+                        portId: "",
+                        stroke: colors.lightblue,
+                        cursor: "pointer",
+                        fromSpot: go.Spot.AllSides,
+                        toSpot: go.Spot.AllSides,
+                        strokeWidth: 3,
+                        fromLinkableDuplicates: false, toLinkableDuplicates: false
+                    }),
+                $(go.TextBlock, textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
                         editable: true
                     },
-                    new go.Binding("text", "name").makeTwoWay())
-            ) // end Table Panel
+                    new go.Binding("text", "name").makeTwoWay()),
+                // new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()
+            ),// end Auto Panel Body
+            // left port
+            leftPort,rightPort,topPort,bottomPort
         );
 
     //relationNodeTemplate
-
     const relationTemplate =
-        $(go.Node, "Auto",  // the whole node panel
+        $(go.Node, "Table",  // the whole node panel
+            {
+                locationObject: "BODY",
+                locationSpot:go.Spot.Center,
+                selectionObjectName: "BODY"
+            },
             {
                 locationSpot: go.Spot.Center,
-                selectionAdornmentTemplate: normalEntityAdornment,
                 selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
@@ -138,43 +176,56 @@ function init() {
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
                 linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
                 },
             },
             new go.Binding("location", "location").makeTwoWay(),
-            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
-            // clear out any desiredSize set by the ResizingTool.
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
-            // define the node's outer shape, which will surround the Table
-            $(go.Shape, "Diamond",
-                {
-                    fill: colors.lightyellow,
-                    portId: "",
-                    stroke: colors.lightblue,
-                    cursor: "pointer",
-                    fromSpot: go.Spot.AllSides,
-                    toSpot: go.Spot.AllSides,
-                    strokeWidth: 3,
-                    fromLinkableDuplicates: false, toLinkableDuplicates: false
-                },
-                new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-
-            // the table header
-            $(go.Panel, "Table",
-                { margin: 8, stretch: go.GraphObject.Fill },
-                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-                $(go.TextBlock,textStyle(),
+            $(go.Panel,"Auto",
+                {row: 1, column: 1, name: "BODY"},
+                $(go.Shape, "Diamond",
                     {
-                        row: 0, alignment: go.Spot.Center,
-                        margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
-                        font: "bold 16px sans-serif",
-                        editable: true
+                        fill: colors.lightyellow,
+                        portId: "",
+                        stroke: colors.lightblue,
+                        cursor: "pointer",
+                        fromSpot: go.Spot.AllSides,
+                        toSpot: go.Spot.AllSides,
+                        strokeWidth: 3,
+                        fromLinkableDuplicates: false, toLinkableDuplicates: false
                     },
-                    new go.Binding("text", "name").makeTwoWay())
-            ) // end Table Panel
+                    new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
+                $(go.Panel, "Table",
+                    { margin: 8, stretch: go.GraphObject.Fill },
+                    $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                    $(go.TextBlock,textStyle(),
+                        {
+                            row: 0, alignment: go.Spot.Center,
+                            margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
+                            font: "bold 16px sans-serif",
+                            editable: true
+                        },
+                        new go.Binding("text", "name").makeTwoWay())
+                )
+            ),
+            $(go.Panel, "Vertical", {row: 1, column: 0},
+                $(go.Shape,
+                    {width: 3, height: 3, portId: "L",
+                        toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Vertical", {row: 1, column: 2},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Horizontal", {row:2, column: 1},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Vertical",{row: 0, column: 1},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                        fromLinkable: true,toLinkable: true}))
         );
-
-
 
 
     go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
@@ -206,7 +257,12 @@ function init() {
 
     // weak entity template
     const weakEntityTemplate =
-        $(go.Node, "Auto",  // the whole node panel
+        $(go.Node, "Table",  // the whole node panel
+            {
+                locationObject: "BODY",
+                locationSpot:go.Spot.Center,
+                selectionObjectName: "BODY"
+            },
             {
                 locationSpot: go.Spot.Center,
                 selectionAdornmentTemplate: weakEntityAdornment,
@@ -217,45 +273,63 @@ function init() {
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
                 linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
                 },
             },
             new go.Binding("location", "location").makeTwoWay(),
-            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
-            // clear out any desiredSize set by the ResizingTool.
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
-            // define the node's outer shape, which will surround the Table
-            $(go.Shape, "WeakEntity",
+            $(go.Panel,"Auto",
                 {
-                    fill: 'white',
-                    portId: "",
-                    stroke: colors.lightgrey,
-                    cursor: "pointer",
-                    fromSpot: go.Spot.AllSides,
-                    toSpot: go.Spot.AllSides,
-                    strokeWidth: 3,
-                    fromLinkableDuplicates: false, toLinkableDuplicates: false
+                    row: 1, column: 1, name: "BODY",
                 },
-                new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-
-            // the table header
-            $(go.Panel, "Table",
-                { margin: 8, stretch: go.GraphObject.Fill },
-                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-                $(go.TextBlock,textStyle(),
+                $(go.Shape, "WeakEntity",
+                    {
+                        fill: 'white',
+                        portId: "",
+                        stroke: colors.lightgrey,
+                        cursor: "pointer",
+                        fromSpot: go.Spot.AllSides,
+                        toSpot: go.Spot.AllSides,
+                        strokeWidth: 3,
+                        fromLinkableDuplicates: false, toLinkableDuplicates: false
+                    }),
+                $(go.TextBlock, textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
                         editable: true
                     },
-                    new go.Binding("text", "name").makeTwoWay())
-            ) // end Table Panel
-        );
+                    new go.Binding("text", "name").makeTwoWay()),
+            ), //end Auto Panel Body
+                // new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
+        $(go.Panel, "Vertical", {row: 1, column: 0},
+            $(go.Shape,
+            {width: 3, height: 3, portId: "L",
+                toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                fromLinkable: true,toLinkable: true})),
+        $(go.Panel, "Vertical", {row: 1, column: 2},
+            $(go.Shape,  // the "B" port
+            {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                fromLinkable: true,toLinkable: true})),
+        $(go.Panel, "Horizontal", {row:2, column: 1},
+            $(go.Shape,  // the "B" port
+            {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                fromLinkable: true,toLinkable: true})),
+        $(go.Panel, "Vertical",{row: 0, column: 1},
+            $(go.Shape,  // the "B" port
+            {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                fromLinkable: true,toLinkable: true}))
+);
 
     // subset template
     const subsetTemplate =
-        $(go.Node, "Auto",  // the whole node panel
+        $(go.Node, "Table",  // the whole node panel
+            {
+                locationObject: "BODY",
+                locationSpot: go.Spot.Center,
+                selectionObjectName: "BODY",
+            },
             {
                 locationSpot: go.Spot.Center,
                 selectionAdorned: true,
@@ -265,31 +339,26 @@ function init() {
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
                 linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
                 },
             },
             new go.Binding("location", "location").makeTwoWay(),
-            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
-            // clear out any desiredSize set by the ResizingTool.
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
-            // define the node's outer shape, which will surround the Table
-            $(go.Shape, "RoundedRectangle",
-                {
-                    fill: colors.lightyellow,
-                    portId: "",
-                    stroke: colors.lightyellow,
-                    cursor: "pointer",
-                    fromSpot: go.Spot.AllSides,
-                    toSpot: go.Spot.AllSides,
-                    strokeWidth: 3,
-                    fromLinkableDuplicates: false, toLinkableDuplicates: false
-                },
-                new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-
             // the table header
-            $(go.Panel, "Table",
-                { margin: 8, stretch: go.GraphObject.Fill },
-                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+            $(go.Panel, "Auto",
+                {row: 1, column: 1, name: "BODY"},
+                $(go.Shape, "RoundedRectangle",
+                    {
+                        fill: colors.lightyellow,
+                        portId: "",
+                        stroke: colors.lightyellow,
+                        cursor: "pointer",
+                        fromSpot: go.Spot.AllSides,
+                        toSpot: go.Spot.AllSides,
+                        strokeWidth: 3,
+                        fromLinkableDuplicates: false, toLinkableDuplicates: false
+                    },
+                    new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
                 $(go.TextBlock,textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
@@ -297,43 +366,84 @@ function init() {
                         font: "bold 16px sans-serif",
                         editable: true
                     },
-                    new go.Binding("text", "name").makeTwoWay())
-            ) // end Table Panel
+                    new go.Binding("text", "name").makeTwoWay()),
+                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+            ), // end Table Panel
+            $(go.Panel, "Vertical", {row: 1, column: 0},
+                $(go.Shape,
+                    {width: 3, height: 3, portId: "L",
+                        toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Vertical", {row: 1, column: 2},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Horizontal", {row:2, column: 1},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Vertical",{row: 0, column: 1},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                        fromLinkable: true,toLinkable: true}))
         );
 
     // attribute template
-    var attributeTemplate =$(go.Node, "Auto",
+    var attributeTemplate =$(go.Node, "Table",
+        {
+            locationObject: "BODY",
+            locationSpot:go.Spot.Center,
+            selectionObjectName: "BODY"
+        },
         {
             selectionAdorned: true,
-            selectionAdornmentTemplate: attributeAdornment,
+            // selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
             linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                return fromNode.findLinksTo(toNode).count + toNode.findLnksTo(fromNode).count < 1;
+                return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
             }
         },
         new go.Binding("location", "location").makeTwoWay(),
-        $(go.Shape, "Circle",
-            {
-                fill: 'lightblue',
-                portId: "",
-                stroke: colors.lightblue,
-                cursor: "pointer",
-                fromSpot: go.Spot.AllSides,
-                toSpot: go.Spot.AllSides,
-                strokeWidth: 2,
-                fromLinkableDuplicates: false, toLinkableDuplicates: false
-            },
+        $(go.Panel,"Auto",
+            {row: 1, column: 1, name: "BODY"},
+            $(go.Shape, "Circle",
+                {
+                    fill: 'lightblue',
+                    portId: "",
+                    stroke: colors.lightblue,
+                    cursor: "pointer",
+                    fromSpot: go.Spot.AllSides,
+                    toSpot: go.Spot.AllSides,
+                    strokeWidth: 2,
+                    fromLinkableDuplicates: false, toLinkableDuplicates: false
+                },
                 new go.Binding("fromLinkable", "from").makeTwoWay(),
                 new go.Binding("toLinkable", "to").makeTwoWay()),
-        // the table header
-        $(go.TextBlock,{
-                font: "bold 12px monospace",
-                margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
-            },
-            new go.Binding("text","name").makeTwoWay(),
-            new go.Binding("isUnderline", "underline")
-        )
+            $(go.TextBlock,{
+                    font: "bold 12px monospace",
+                    margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
+                },
+                new go.Binding("text","name").makeTwoWay(),
+                new go.Binding("isUnderline", "underline")
+            )),
+        $(go.Panel, "Vertical", {row: 1, column: 0},
+            $(go.Shape,
+                {width: 3, height: 3, portId: "L",
+                    toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                    fromLinkable: true,toLinkable: true})),
+        $(go.Panel, "Vertical", {row: 1, column: 2},
+            $(go.Shape,  // the "B" port
+                {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                    fromLinkable: true,toLinkable: true})),
+        $(go.Panel, "Horizontal", {row:2, column: 1},
+            $(go.Shape,  // the "B" port
+                {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                    fromLinkable: true,toLinkable: true})),
+        $(go.Panel, "Vertical",{row: 0, column: 1},
+            $(go.Shape,  // the "B" port
+                {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                    fromLinkable: true,toLinkable: true}))
     );
 
     // add all node template
@@ -359,7 +469,9 @@ function init() {
             reshapable: true,
             routing: go.Link.AvoidsNodes,
             corner: 5,
-            curve: go.Link.JumpOver
+            curve: go.Link.JumpOver,
+            relinkableFrom: true,
+            relinkableTo: true
         },
         $(go.Shape,  // the link shape
             {stroke: "#303B45", strokeWidth: 2.5 }),
@@ -409,7 +521,9 @@ function init() {
             reshapable: true,
             routing: go.Link.AvoidsNodes,
             corner: 5,
-            curve: go.Link.JumpOver
+            curve: go.Link.JumpOver,
+            relinkableFrom: true,
+            relinkableTo: true
         },
         $(go.Shape,  // the link shape
             {stroke: "#e8c446", strokeWidth: 2.5 }),
@@ -432,12 +546,14 @@ function init() {
             reshapable: true,
             routing: go.Link.AvoidsNodes,
             corner: 5,
-            curve: go.Link.JumpOver
+            curve: go.Link.JumpOver,
+            relinkableFrom: true,
+            relinkableTo: true
         },
         $(go.Shape,  // the link shape
             {stroke: "#e8c446", strokeWidth: 2.5 }),
         $(go.Shape,   // the arrowhead
-            { toArrow: "OpenTriangle", fill: null }),
+            { toArrow: "OpenTriangle", fill: null, stroke:"#e8c446",strokeWidth:2.5}),
     );
 
     var entityLink = $(go.Link,
@@ -447,7 +563,9 @@ function init() {
             reshapable: true,
             routing: go.Link.AvoidsNodes,
             corner: 5,
-            curve: go.Link.JumpOver
+            curve: go.Link.JumpOver,
+            relinkableFrom: true,
+            relinkableTo: true
         },
         $(go.Shape,  // the link shape
             {stroke: "#000000", strokeWidth: 2.5 }),
@@ -540,6 +658,8 @@ function init() {
 
                     const firstEntityID = e.newValue.from;
                     const secondEntityID = e.newValue.to;
+                    var fromPort = e.newValue.fromPort;
+                    var toPort = e.newValue.toPort;
 
                     const relationNodeX = (myDiagram.findNodeForKey(e.newValue.from).location.x +
                         myDiagram.findNodeForKey(e.newValue.to).location.x)/2
@@ -548,13 +668,13 @@ function init() {
                         myDiagram.findNodeForKey(e.newValue.to).location.y)/2;
 
                     myDiagram.rollbackTransaction(); //rollback transcation and create new node between e-e
-                    myDiagram.model.addNodeData({"key": -1, "name":"test",
+                    myDiagram.model.addNodeData({"key": 123, "name":"test",
                         "location":{"class":"go.Point","x":relationNodeX,"y":relationNodeY},category:"RelationTemplate"});
                     //TODO: change the addNodeDate template with the new designed relation node
-                    //TODO: API add node function will be catched by the listener
+                    //TODO: API add node function will be caught by the listener
 
-                    myDiagram.model.addLinkData({"from":firstEntityID,"to":-1, fromText:"1:1",category:"entityLink"});
-                    myDiagram.model.addLinkData({"from":secondEntityID,"to":-1, fromText:"1:1",category:"entityLink"})
+                    myDiagram.model.addLinkData({"from":firstEntityID,"to":123, fromText:"1:1",category:"entityLink",fromPort: fromPort,toPort: toPort});
+                    myDiagram.model.addLinkData({"from":secondEntityID,"to":123, fromText:"1:1",category:"entityLink",fromPort: toPort,toPort: fromPort})
 
                     // // identity if it is normal link
                     // // myDiagram.commandHandler.undo();
@@ -595,7 +715,6 @@ function init() {
                         load();
                     }
                 } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
-                // todo 需要判断删的是哪个节点
                     const id = e.oldValue.key;
                     if ("category" in e.oldValue) {
                         // Attribute, WeakEntity, Subset
@@ -643,7 +762,12 @@ function init() {
     Get the current View Id and load the model
      */
     const id =  location.href.substring(location.href.indexOf("id=")+3);
-    myDiagram.model = go.Model.fromJson(getView(id));
+    // myDiagram.model = go.Model.fromJson(getView(id));
+    myDiagram.model = new go.GraphLinksModel(
+        { linkFromPortIdProperty: "fromPort",
+            linkToPortIdProperty: "toPort",
+            nodeDataArray: [],
+            linkDataArray: []});
 }  // end init
 /*
 Top right: rename and delete model
@@ -715,13 +839,13 @@ function createEntity(name,layoutX,layoutY){
     }
 
     Obj = JSON.stringify(Obj);
-
     $.ajax({
         async: false,
         type : "POST",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        url : "http://146.169.52.81:8080/er/entity/create",
+        // url : "http://146.169.52.81:8080/er/entity/create",
+        url:"http://127.0.0.1:8080/er/entity/create",
         contentType:"application/json",
         data : Obj,
         success : function(result) {
@@ -927,8 +1051,8 @@ function addAttr(){
         info = JSON.stringify(info);
         $.ajax({
             type : "POST",
-            // url : "http://127.0.0.1:8000/er/attribute/create",
-            url: "http://146.169.52.81:8080/er/attribute/create",
+            url : "http://127.0.0.1:8000/er/attribute/create",
+            // url: "http://146.169.52.81:8080/er/attribute/create",
             // headers: { "Access-Control-Allow-Origin": "*",
             //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
             traditional : true,
@@ -946,7 +1070,8 @@ function addAttr(){
                         // new link
                         var link = {
                             from:myDiagram.model.getKeyForNodeData(selectedEData),
-                            to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink"
+                            to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink",
+                            fromPort:"L",toPort:"U"
                         };
                         myDiagram.model.addLinkData(link);
                     });
@@ -1137,7 +1262,7 @@ function createWeakEntity(){
         //todo: need id from backend
 
         // weakEntityData.key = result.data.id;
-        weakEntityData.key = Math.ceil(Math.random()*1000);;
+        weakEntityData.key = Math.ceil(Math.random()*1000);
         myDiagram.model.addNodeData(weakEntityData);
         // save();
         // load();
@@ -1146,7 +1271,8 @@ function createWeakEntity(){
             from:myDiagram.model.getKeyForNodeData(selectedEData),
             to:myDiagram.model.getKeyForNodeData(weakEntityData),
             toText:"1:1",
-            relation:"for",category: "relationLink"
+            relation:"for",category: "relationLink",
+            fromPort:"L",toPort:"U"
         };
         myDiagram.model.addLinkData(link);
     });
@@ -1211,7 +1337,8 @@ function createSubset(){
         // new link
         var link = {
             from:myDiagram.model.getKeyForNodeData(subsetData),
-            to:myDiagram.model.getKeyForNodeData(selectedEData),category: "subsetLink"
+            to:myDiagram.model.getKeyForNodeData(selectedEData),category: "subsetLink",
+            fromPort:"L",toPort:"U"
         };
         myDiagram.model.addLinkData(link);
     });
@@ -1260,3 +1387,7 @@ function exportPng() {
     // var testPNG = myDiagram.makeImage({ background: "white",type: "image/jpeg"});
     // console.log(testPNG);
 }
+
+/*
+port
+ */
