@@ -148,7 +148,7 @@ function init() {
             // define the node's outer shape, which will surround the Table
             $(go.Shape, "Diamond",
                 {
-                    fill: 'yellow',
+                    fill: colors.lightyellow,
                     portId: "",
                     stroke: colors.lightblue,
                     cursor: "pointer",
@@ -346,7 +346,7 @@ function init() {
     templateMap.add("Subset",subsetTemplate);
     templateMap.add("Attribute",attributeTemplate);
 
-    templateMap.add("Relation",relationTemplate);
+    templateMap.add("RelationTemplate",relationTemplate);
 
     myDiagram.nodeTemplateMap = templateMap;
 
@@ -549,7 +549,7 @@ function init() {
 
                     myDiagram.rollbackTransaction(); //rollback transcation and create new node between e-e
                     myDiagram.model.addNodeData({"key": -1, "name":"test",
-                        "location":{"class":"go.Point","x":relationNodeX,"y":relationNodeY, category:"relation"}});
+                        "location":{"class":"go.Point","x":relationNodeX,"y":relationNodeY},category:"RelationTemplate"});
                     //TODO: change the addNodeDate template with the new designed relation node
                     //TODO: API add node function will be catched by the listener
 
