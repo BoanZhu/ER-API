@@ -1,5 +1,7 @@
-var entityCounter = 40;
-var attributeCounter=40;
+var entityCounter = 0;
+var attributeCounter = 0;
+var weakEntityCounter = 0;
+var subsetCounter = 0;
 function init() {
     /*
     Get the editable model Template
@@ -21,7 +23,10 @@ function init() {
         });
 
     // Common color
-    const colors = {'lightblue': '#afd4fe',}
+    const colors =
+        {'lightblue': '#afd4fe',
+        'lightgrey':'#a4a8ad',
+        'lightyellow':'#fcffbe'}
     // Common text styling
     function textStyle() {
         return {
@@ -31,7 +36,26 @@ function init() {
             editable: true,
         }
     }
-    const addNodeAdornment =
+
+    /*
+    All adornment
+    */
+    // adornment for strong entity
+    const normalEntityAdornment =
+        $(go.Adornment, "Spot",
+            $(go.Panel, "Auto",
+                $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
+                $(go.Placeholder)),
+            $("Button", {alignment: go.Spot.TopRight, click: addAttr},
+                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })),
+            $("Button", {alignment: go.Spot.TopLeft, click: createWeakEntity},
+                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })),
+            // todo add subset
+            $("Button", {alignment: go.Spot.BottomLeft, click: createSubset},
+                $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })));
+
+    // adornment for weak entity
+    const weakEntityAdornment =
         $(go.Adornment, "Spot",
             $(go.Panel, "Auto",
                 $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
@@ -39,20 +63,24 @@ function init() {
             $("Button", {alignment: go.Spot.TopRight, click: addAttr},
                 $(go.Shape, "PlusLine", { desiredSize: new go.Size(6, 6) })));
 
+    // adornment for attribute
     const attributeAdornment =
         $(go.Adornment, "Spot",
             $(go.Panel, "Auto",
                 $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 3 }),
                 $(go.Placeholder)),
             $("Button", {alignment: go.Spot.TopRight, click: modifyAttributeClick},
-                $(go.Shape, "MinusLine", { desiredSize: new go.Size(6, 6) })));
-
-    // strong entity
-    var strongEntityTemplate =
+                $(go.Shape, "MinusLine", { desiredSize: new go.Size(6, 6) })),
+            );
+/*
+    All Node(Entity+Attribute) templates
+ */
+    // strong entity template
+    const entityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
                 locationSpot: go.Spot.Center,
-                selectionAdornmentTemplate: addNodeAdornment,
+                selectionAdornmentTemplate: normalEntityAdornment,
                 selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
@@ -97,7 +125,7 @@ function init() {
         );
 
 
-    go.Shape.defineFigureGenerator("weakEntity", function(shape, w, h) {
+    go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
         var geo = new go.Geometry();
         var fig = new go.PathFigure(0.05*w,0.05*w, true);  // clockwise
         geo.add(fig);
@@ -124,19 +152,19 @@ function init() {
     });
 
 
-    // weak entity
+    // weak entity template
     const weakEntityTemplate =
         $(go.Node, "Auto",  // the whole node panel
             {
                 locationSpot: go.Spot.Center,
-                selectionAdornmentTemplate: addNodeAdornment,
+                selectionAdornmentTemplate: weakEntityAdornment,
                 selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
-                linkValidation: function (fromNode, fromGraphObject, toNode, toGraphObject) {
+                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
                     return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
                 },
             },
@@ -145,11 +173,11 @@ function init() {
             // clear out any desiredSize set by the ResizingTool.
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
             // define the node's outer shape, which will surround the Table
-            $(go.Shape, "weakEntity",
+            $(go.Shape, "WeakEntity",
                 {
                     fill: 'white',
                     portId: "",
-                    stroke: colors.lightblue,
+                    stroke: colors.lightgrey,
                     cursor: "pointer",
                     fromSpot: go.Spot.AllSides,
                     toSpot: go.Spot.AllSides,
@@ -160,9 +188,9 @@ function init() {
 
             // the table header
             $(go.Panel, "Table",
-                {margin: 8, stretch: go.GraphObject.Fill},
-                $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
-                $(go.TextBlock, textStyle(),
+                { margin: 8, stretch: go.GraphObject.Fill },
+                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                $(go.TextBlock,textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
@@ -172,9 +200,53 @@ function init() {
                     new go.Binding("text", "name").makeTwoWay())
             ) // end Table Panel
         );
+    // subset template
+    const subsetTemplate =
+        $(go.Node, "Auto",  // the whole node panel
+            {
+                locationSpot: go.Spot.Center,
+                selectionAdorned: true,
+                resizable: false,
+                layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+                isShadowed: true,
+                shadowOffset: new go.Point(3, 3),
+                shadowColor: colors.lightblue,
+                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                },
+            },
+            new go.Binding("location", "location").makeTwoWay(),
+            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
+            // clear out any desiredSize set by the ResizingTool.
+            new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
+            // define the node's outer shape, which will surround the Table
+            $(go.Shape, "RoundedRectangle",
+                {
+                    fill: colors.lightyellow,
+                    portId: "",
+                    stroke: colors.lightyellow,
+                    cursor: "pointer",
+                    fromSpot: go.Spot.AllSides,
+                    toSpot: go.Spot.AllSides,
+                    strokeWidth: 3,
+                    fromLinkableDuplicates: false, toLinkableDuplicates: false
+                },
+                new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
 
-    // default template
-    myDiagram.nodeTemplate = strongEntityTemplate;
+            // the table header
+            $(go.Panel, "Table",
+                { margin: 8, stretch: go.GraphObject.Fill },
+                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                $(go.TextBlock,textStyle(),
+                    {
+                        row: 0, alignment: go.Spot.Center,
+                        margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
+                        font: "bold 16px sans-serif",
+                        editable: true
+                    },
+                    new go.Binding("text", "name").makeTwoWay())
+            ) // end Table Panel
+        );
 
     // attribute template
     var attributeTemplate =$(go.Node, "Auto",
@@ -211,12 +283,15 @@ function init() {
         )
     );
 
-    // add all template
+    // add all node template
     var templateMap = new go.Map();
-    templateMap.add("Entity", strongEntityTemplate);
+    // default template
+    myDiagram.nodeTemplate = entityTemplate;
+    templateMap.add("",entityTemplate);
+    templateMap.add("Entity", entityTemplate);
+    templateMap.add("WeakEntity", weakEntityTemplate);
+    templateMap.add("Subset",subsetTemplate);
     templateMap.add("Attribute",attributeTemplate);
-    // default
-    templateMap.add("",strongEntityTemplate);
 
     myDiagram.nodeTemplateMap = templateMap;
 
@@ -283,7 +358,6 @@ function init() {
         },
         $(go.Shape,  // the link shape
             {stroke: "#e8c446", strokeWidth: 2.5 }),
-        //todo to delete
         $(go.TextBlock, textStyle(), // the "from" label
             {
                 textAlign: "center",
@@ -429,10 +503,22 @@ function init() {
                         load();
                     }
                 } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+                // todo 需要判断删的是哪个节点
                     const id = e.oldValue.key;
                     if ("category" in e.oldValue) {
-                        //delete attribute
-                        deleteAttribute(id);
+                        // Attribute, WeakEntity, Subset
+                        switch(e.oldValue.category){
+                            case "Attribute"://delete attribute
+                                deleteAttribute(id);
+                                break;
+                            case "WeakEntity":
+                                deleteWeakEntity(id);
+                                break;
+                            case "Subset":
+                                deleteSubset(id);
+                                break;
+                            default:break;
+                        }
                     } else {
                         deleteEntity(id);
                     }
@@ -932,6 +1018,133 @@ function modifyAttribute(){
     });
 }
 
+/*
+operations about weak entity
+ */
+//create weak entity
+function createWeakEntity(){
+    var tmpNodes = new go.List();
+    myDiagram.startTransaction("add weakEntity");
+    myDiagram.nodes.each(function (node){
+        if(node.isSelected){
+            tmpNodes.push(node);
+        }
+    });
+    tmpNodes.each(function (part){
+        var selectedEntity = part;
+        var selectedEData =part.data;
+        // new weak entity
+        var weakEntityData = {name:"WeakE"+weakEntityCounter.toString(),category:"WeakEntity"};
+        weakEntityCounter++;
+        var pos = selectedEntity.location.copy();
+        var angle = Math.random()*Math.PI*2;
+        pos.x+=Math.cos(angle)*120;
+        pos.y+=Math.sin(angle)*120;
+        weakEntityData.location = pos;
+        weakEntityData.entityId = selectedEData.key;
+        //todo: need id from backend
+
+        // weakEntityData.key = result.data.id;
+        weakEntityData.key = Math.ceil(Math.random()*1000);;
+        myDiagram.model.addNodeData(weakEntityData);
+        // save();
+        // load();
+        // new link
+        var link = {
+            from:myDiagram.model.getKeyForNodeData(selectedEData),
+            to:myDiagram.model.getKeyForNodeData(weakEntityData),category: "normalLink"
+        };
+        myDiagram.model.addLinkData(link);
+    });
+    myDiagram.commitTransaction("add weakEntity");
+}
+//delete weak entity
+function deleteWeakEntity(id){
+    // delete all attributes of weak entity
+    myDiagram.nodes.each(function (node){
+        if(("category" in node.data) && node.data.category === "Attribute" && node.data.entityId === id){
+            myDiagram.model.removeNodeData(node.data);
+        }
+    });
+    console.log("delete weak entity"+id);
+    let Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    // $.ajax({
+    //     type : "POST",
+    //     url : "http://146.169.52.81:8080/er/entity/delete",
+    //     data : Obj,
+    //     headers: { "Access-Control-Allow-Origin": "*",
+    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+    //     contentType: "application/json",
+    //     success : function(result) {
+    //     }, error : function(result) {
+    //     }
+    // });
+}
+/*
+operations about subset
+ */
+
+function createSubset(){
+    var tmpNodes = new go.List();
+    myDiagram.startTransaction("add subset");
+    myDiagram.nodes.each(function (node){
+        if(node.isSelected){
+            tmpNodes.push(node);
+        }
+    });
+    tmpNodes.each(function (part){
+        var selectedEntity = part;
+        var selectedEData =part.data;
+        // new weak entity
+        var subsetData = {name:"Subset"+weakEntityCounter.toString(),category:"Subset"};
+        subsetCounter++;
+        var pos = selectedEntity.location.copy();
+        var angle = Math.random()*Math.PI*2;
+        pos.x+=Math.cos(angle)*120;
+        pos.y+=Math.sin(angle)*120;
+        subsetData.location = pos;
+        subsetData.entityId = selectedEData.key;
+        //todo: need id from backend
+
+        // weakEntityData.key = result.data.id;
+        subsetData.key = Math.ceil(Math.random()*1000);;
+        myDiagram.model.addNodeData(subsetData);
+        // save();
+        // load();
+        // new link
+        var link = {
+            from:myDiagram.model.getKeyForNodeData(selectedEData),
+            to:myDiagram.model.getKeyForNodeData(subsetData),category: "normalLink"
+        };
+        myDiagram.model.addLinkData(link);
+    });
+    myDiagram.commitTransaction("add subset");
+}
+
+function deleteSubset(id){
+    console.log("delete subset"+id);
+    let Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    // $.ajax({
+    //     type : "POST",
+    //     url : "http://146.169.52.81:8080/er/entity/delete",
+    //     data : Obj,
+    //     headers: { "Access-Control-Allow-Origin": "*",
+    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+    //     contentType: "application/json",
+    //     success : function(result) {
+    //     }, error : function(result) {
+    //     }
+    // });
+}
+/*
+    export files
+ */
 function callback(blob) {
     var url = window.URL.createObjectURL(blob);
     var filename = "ERModel.png";
@@ -950,4 +1163,6 @@ function callback(blob) {
 
 function exportPng() {
     var png = myDiagram.makeImageData({ background: "white", returnType: "blob", callback: callback});
+    // var testPNG = myDiagram.makeImage({ background: "white",type: "image/jpeg"});
+    // console.log(testPNG);
 }
