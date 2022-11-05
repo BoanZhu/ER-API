@@ -107,11 +107,89 @@ function init() {
                     fromLinkableDuplicates: false, toLinkableDuplicates: false
                 },
             new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
+
             // the table header
             $(go.Panel, "Table",
                 { margin: 8, stretch: go.GraphObject.Fill },
                 $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
                 $(go.TextBlock,textStyle(),
+                    {
+                        row: 0, alignment: go.Spot.Center,
+                        margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
+                        font: "bold 16px sans-serif",
+                        editable: true
+                    },
+                    new go.Binding("text", "name").makeTwoWay())
+            ) // end Table Panel
+        );
+
+
+    go.Shape.defineFigureGenerator("weakEntity", function(shape, w, h) {
+        var geo = new go.Geometry();
+        var fig = new go.PathFigure(0.05*w,0.05*w, true);  // clockwise
+        geo.add(fig);
+        if (w>h){
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*w,h-0.05*w)); //下划线到h点
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*w,h-0.05*w));//在0.h 画到 1.6w,h
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*w,0.05*w));
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*w,0.05*w).close());
+
+        }else{
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*h,w-0.05*h)); //下划线到h点
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*h,w-0.05*h));//在0.h 画到 1.6w,h
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*h,0.05*h));
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*h,0.05*h).close());
+
+        }
+
+        fig.add(new go.PathSegment(go.PathSegment.Move, 0,0));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0,h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, w,h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, w,0));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0,0));
+        return geo;
+    });
+
+
+    // weak entity
+    const weakEntityTemplate =
+        $(go.Node, "Auto",  // the whole node panel
+            {
+                locationSpot: go.Spot.Center,
+                selectionAdornmentTemplate: addNodeAdornment,
+                selectionAdorned: true,
+                resizable: false,
+                layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+                isShadowed: true,
+                shadowOffset: new go.Point(3, 3),
+                shadowColor: colors.lightblue,
+                linkValidation: function (fromNode, fromGraphObject, toNode, toGraphObject) {
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                },
+            },
+            new go.Binding("location", "location").makeTwoWay(),
+            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
+            // clear out any desiredSize set by the ResizingTool.
+            new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
+            // define the node's outer shape, which will surround the Table
+            $(go.Shape, "weakEntity",
+                {
+                    fill: 'white',
+                    portId: "",
+                    stroke: colors.lightblue,
+                    cursor: "pointer",
+                    fromSpot: go.Spot.AllSides,
+                    toSpot: go.Spot.AllSides,
+                    strokeWidth: 3,
+                    fromLinkableDuplicates: false, toLinkableDuplicates: false
+                },
+                new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
+
+            // the table header
+            $(go.Panel, "Table",
+                {margin: 8, stretch: go.GraphObject.Fill},
+                $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
+                $(go.TextBlock, textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
@@ -267,6 +345,7 @@ function init() {
     // relation
     var relationLink = $(go.Link,  // the whole link panel
         {
+            deletable: false,
             selectionAdorned: true,
             layerName: "Foreground",
             reshapable: true,
@@ -582,8 +661,7 @@ function createEntity(name,layoutX,layoutY){
         type : "POST",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        // url : "http://146.169.52.81:8080/er/entity/create",
-        url:"http://127.0.0.1:8080/er/entity/create",
+        url : "http://146.169.52.81:8080/er/entity/create",
         contentType:"application/json",
         data : Obj,
         success : function(result) {
@@ -606,8 +684,7 @@ function deleteEntity(id){
     Obj = JSON.stringify(Obj);
     $.ajax({
         type : "POST",
-        // url : "http://146.169.52.81:8080/er/entity/delete",
-        url:"http://127.0.0.1:8080/er/entity/delete",
+        url : "http://146.169.52.81:8080/er/entity/delete",
         data : Obj,
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
@@ -730,8 +807,8 @@ function deleteAttribute(id){
     info = JSON.stringify(info);
     $.ajax({
         type : "POST",
-        url : "http://127.0.0.1:8000/er/attribute/delete",
-        // url: "http://146.169.52.81:8080/er/attribute/delete",
+        // url : "http://127.0.0.1:8000/er/attribute/delete",
+        url: "http://146.169.52.81:8080/er/attribute/delete",
         // headers: { "Access-Control-Allow-Origin": "*",
         //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         traditional : true,
@@ -790,8 +867,8 @@ function addAttr(){
         info = JSON.stringify(info);
         $.ajax({
             type : "POST",
-            url : "http://127.0.0.1:8000/er/attribute/create",
-            // url: "http://146.169.52.81:8080/er/attribute/create",
+            // url : "http://127.0.0.1:8000/er/attribute/create",
+            url: "http://146.169.52.81:8080/er/attribute/create",
             // headers: { "Access-Control-Allow-Origin": "*",
             //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
             traditional : true,
