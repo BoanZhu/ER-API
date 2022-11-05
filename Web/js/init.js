@@ -124,6 +124,58 @@ function init() {
             ) // end Table Panel
         );
 
+    //relationNodeTemplate
+
+    const relationTemplate =
+        $(go.Node, "Auto",  // the whole node panel
+            {
+                locationSpot: go.Spot.Center,
+                selectionAdornmentTemplate: normalEntityAdornment,
+                selectionAdorned: true,
+                resizable: false,
+                layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+                isShadowed: true,
+                shadowOffset: new go.Point(3, 3),
+                shadowColor: colors.lightblue,
+                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
+                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;
+                },
+            },
+            new go.Binding("location", "location").makeTwoWay(),
+            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
+            // clear out any desiredSize set by the ResizingTool.
+            new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
+            // define the node's outer shape, which will surround the Table
+            $(go.Shape, "Diamond",
+                {
+                    fill: 'yellow',
+                    portId: "",
+                    stroke: colors.lightblue,
+                    cursor: "pointer",
+                    fromSpot: go.Spot.AllSides,
+                    toSpot: go.Spot.AllSides,
+                    strokeWidth: 3,
+                    fromLinkableDuplicates: false, toLinkableDuplicates: false
+                },
+                new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
+
+            // the table header
+            $(go.Panel, "Table",
+                { margin: 8, stretch: go.GraphObject.Fill },
+                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                $(go.TextBlock,textStyle(),
+                    {
+                        row: 0, alignment: go.Spot.Center,
+                        margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
+                        font: "bold 16px sans-serif",
+                        editable: true
+                    },
+                    new go.Binding("text", "name").makeTwoWay())
+            ) // end Table Panel
+        );
+
+
+
 
     go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
         var geo = new go.Geometry();
@@ -200,6 +252,7 @@ function init() {
                     new go.Binding("text", "name").makeTwoWay())
             ) // end Table Panel
         );
+
     // subset template
     const subsetTemplate =
         $(go.Node, "Auto",  // the whole node panel
@@ -293,6 +346,8 @@ function init() {
     templateMap.add("Subset",subsetTemplate);
     templateMap.add("Attribute",attributeTemplate);
 
+    templateMap.add("Relation",relationTemplate);
+
     myDiagram.nodeTemplateMap = templateMap;
 
     // relation
@@ -368,21 +423,53 @@ function init() {
                 segmentOrientation: go.Link.OrientUpright
             },
             new go.Binding("text", "fromText").makeTwoWay()),
-        $(go.TextBlock, textStyle(), // the "to" label
+    );
+
+    var subsetLink = $(go.Link,
+        {
+            selectionAdorned: true,
+            layerName: "Foreground",
+            reshapable: true,
+            routing: go.Link.AvoidsNodes,
+            corner: 5,
+            curve: go.Link.JumpOver
+        },
+        $(go.Shape,  // the link shape
+            {stroke: "#e8c446", strokeWidth: 2.5 }),
+        $(go.Shape,   // the arrowhead
+            { toArrow: "OpenTriangle", fill: null }),
+    );
+
+    var entityLink = $(go.Link,
+        {
+            selectionAdorned: true,
+            layerName: "Foreground",
+            reshapable: true,
+            routing: go.Link.AvoidsNodes,
+            corner: 5,
+            curve: go.Link.JumpOver
+        },
+        $(go.Shape,  // the link shape
+            {stroke: "#000000", strokeWidth: 2.5 }),
+        $(go.TextBlock, textStyle(), // the "from" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
                 stroke: "#1967B3",
-                segmentIndex: -1,
+                segmentIndex: 0,
                 segmentOffset: new go.Point(NaN, NaN),
                 segmentOrientation: go.Link.OrientUpright
             },
-            new go.Binding("text", "toText").makeTwoWay())
+            new go.Binding("text", "fromText").makeTwoWay()),
+
     );
+
 
     var linkTemplateMap = new go.Map();
     linkTemplateMap.add("relationLink", relationLink);
     linkTemplateMap.add("normalLink",normalLink);
+    linkTemplateMap.add("subsetLink",subsetLink);
+    linkTemplateMap.add("entityLink",entityLink);
     // default
     linkTemplateMap.add("",relationLink);
     myDiagram.linkTemplateMap = linkTemplateMap;
@@ -461,8 +548,13 @@ function init() {
                         myDiagram.findNodeForKey(e.newValue.to).location.y)/2;
 
                     myDiagram.rollbackTransaction(); //rollback transcation and create new node between e-e
-                    myDiagram.model.addNodeData({"name":"test","location":{"class":"go.Point","x":relationNodeX,"y":relationNodeY}});
-                    //TODO: change the addNodeDate template with the new designed relation node and API add node function
+                    myDiagram.model.addNodeData({"key": -1, "name":"test",
+                        "location":{"class":"go.Point","x":relationNodeX,"y":relationNodeY, category:"relation"}});
+                    //TODO: change the addNodeDate template with the new designed relation node
+                    //TODO: API add node function will be catched by the listener
+
+                    myDiagram.model.addLinkData({"from":firstEntityID,"to":-1, fromText:"1:1",category:"entityLink"});
+                    myDiagram.model.addLinkData({"from":secondEntityID,"to":-1, fromText:"1:1",category:"entityLink"})
 
                     // // identity if it is normal link
                     // // myDiagram.commandHandler.undo();
@@ -1052,7 +1144,9 @@ function createWeakEntity(){
         // new link
         var link = {
             from:myDiagram.model.getKeyForNodeData(selectedEData),
-            to:myDiagram.model.getKeyForNodeData(weakEntityData),category: "normalLink"
+            to:myDiagram.model.getKeyForNodeData(weakEntityData),
+            toText:"1:1",
+            relation:"for",category: "relationLink"
         };
         myDiagram.model.addLinkData(link);
     });
@@ -1116,8 +1210,8 @@ function createSubset(){
         // load();
         // new link
         var link = {
-            from:myDiagram.model.getKeyForNodeData(selectedEData),
-            to:myDiagram.model.getKeyForNodeData(subsetData),category: "normalLink"
+            from:myDiagram.model.getKeyForNodeData(subsetData),
+            to:myDiagram.model.getKeyForNodeData(selectedEData),category: "subsetLink"
         };
         myDiagram.model.addLinkData(link);
     });
