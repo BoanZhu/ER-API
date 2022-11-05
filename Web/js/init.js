@@ -124,7 +124,7 @@ function init() {
         );
 
 
-    go.Shape.defineFigureGenerator("weakEntity", function(shape, w, h) {
+    go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
         var geo = new go.Geometry();
         var fig = new go.PathFigure(0.05*w,0.05*w, true);  // clockwise
         geo.add(fig);
@@ -172,7 +172,7 @@ function init() {
             // clear out any desiredSize set by the ResizingTool.
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
             // define the node's outer shape, which will surround the Table
-            $(go.Shape, "RoundedRectangle",
+            $(go.Shape, "WeakEntity",
                 {
                     fill: 'white',
                     portId: "",
