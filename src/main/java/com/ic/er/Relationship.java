@@ -15,11 +15,11 @@ import java.util.List;
 
 @Getter
 @JsonSerialize(using = RelationshipSerializer.class)
-@JsonIgnoreProperties({"id", "viewID", "gmtCreate", "gmtModified"})
+@JsonIgnoreProperties({"id", "schemaID", "gmtCreate", "gmtModified"})
 public class Relationship {
     private Long ID;
     private String name;
-    private Long viewID;
+    private Long schemaID;
     private Entity firstEntity;
     private Entity secondEntity;
     private Cardinality firstCardinality;
@@ -28,10 +28,10 @@ public class Relationship {
     private Date gmtCreate;
     private Date gmtModified;
 
-    protected Relationship(Long ID, String name, Long viewID, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+    protected Relationship(Long ID, String name, Long schemaID, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
-        this.viewID = viewID;
+        this.schemaID = schemaID;
         this.firstEntity = firstEntity;
         this.secondEntity = secondEntity;
         this.firstCardinality = firstCardinality;
@@ -51,7 +51,7 @@ public class Relationship {
     private void insertDB() {
         try {
             RelationshipDO relationshipDO = new RelationshipDO(
-                    0L, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality,
+                    0L, this.name, this.schemaID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality,
                     0, this.gmtCreate, this.gmtModified);
             int ret = ER.relationshipMapper.insert(relationshipDO);
             if (ret == 0) {
@@ -89,8 +89,8 @@ public class Relationship {
             if (Entity.queryByID(firstEntity.getID()) == null) {
                 throw new ERException(String.format("entity with ID: %d not found", firstEntity.getID()));
             }
-            if (!firstEntity.getViewID().equals(this.viewID)) {
-                throw new ERException(String.format("entity: %s does not belong to this view", firstEntity.getName()));
+            if (!firstEntity.getSchemaID().equals(this.schemaID)) {
+                throw new ERException(String.format("entity: %s does not belong to this schema", firstEntity.getName()));
             }
         }
         if (secondEntity != null) {
@@ -98,8 +98,8 @@ public class Relationship {
             if (Entity.queryByID(secondEntity.getID()) == null) {
                 throw new ERException(String.format("entity with ID: %d not found", secondEntity.getID()));
             }
-            if (!secondEntity.getViewID().equals(this.viewID)) {
-                throw new ERException(String.format("entity: %s does not belong to this view", secondEntity.getName()));
+            if (!secondEntity.getSchemaID().equals(this.schemaID)) {
+                throw new ERException(String.format("entity: %s does not belong to this schema", secondEntity.getName()));
             }
         }
         if (firstCardinality != null) {
@@ -114,7 +114,7 @@ public class Relationship {
                 throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
             }
         }
-        ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.viewID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality, 0, this.gmtCreate, new Date()));
+        ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.schemaID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality, 0, this.gmtCreate, new Date()));
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {

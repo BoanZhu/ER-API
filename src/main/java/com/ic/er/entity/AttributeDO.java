@@ -13,7 +13,7 @@ import java.util.Date;
 public class AttributeDO {
     private Long ID;
     private Long entityID;
-    private Long viewID;
+    private Long schemaID;
     private String name;
     private DataType dataType;
     private Boolean isPrimary;
@@ -26,9 +26,9 @@ public class AttributeDO {
         this.ID = ID;
     }
 
-    public AttributeDO(Long entityID, Long viewID) {
+    public AttributeDO(Long entityID, Long schemaID) {
         this.entityID = entityID;
-        this.viewID = viewID;
+        this.schemaID = schemaID;
     }
 
 }

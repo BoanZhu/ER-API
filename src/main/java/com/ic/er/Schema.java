@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.ic.er.common.Cardinality;
-import com.ic.er.common.ViewDeserializer;
+import com.ic.er.common.SchemaDeserializer;
 import com.ic.er.entity.EntityDO;
 import com.ic.er.entity.RelationshipDO;
-import com.ic.er.entity.ViewDO;
+import com.ic.er.entity.SchemaDO;
 import com.ic.er.exception.ERException;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -19,9 +19,9 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
-@JsonDeserialize(using = ViewDeserializer.class)
+@JsonDeserialize(using = SchemaDeserializer.class)
 @JsonIgnoreProperties({"id", "creator", "gmtCreate", "gmtModified"})
-public class View {
+public class Schema {
     private Long ID;
     private String name;
     private List<Entity> entityList;
@@ -30,7 +30,7 @@ public class View {
     private Date gmtCreate;
     private Date gmtModified;
 
-    protected View(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, String creator, Date gmtCreate, Date gmtModified) {
+    protected Schema(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, String creator, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.entityList = entityList;
@@ -93,11 +93,11 @@ public class View {
         if (Relationship.queryByRelationship(new RelationshipDO(secondEntity.getID(), firstEntity.getID())).size() != 0) {
             throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
         }
-        if (!firstEntity.getViewID().equals(this.ID)) {
-            throw new ERException(String.format("entity: %s does not belong to this view", firstEntity.getName()));
+        if (!firstEntity.getSchemaID().equals(this.ID)) {
+            throw new ERException(String.format("entity: %s does not belong to this schema", firstEntity.getName()));
         }
-        if (!secondEntity.getViewID().equals(this.ID)) {
-            throw new ERException(String.format("entity: %s does not belong to this view", secondEntity.getName()));
+        if (!secondEntity.getSchemaID().equals(this.ID)) {
+            throw new ERException(String.format("entity: %s does not belong to this schema", secondEntity.getName()));
         }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, firstEntity, secondEntity, firstCardinality, secondCardinality, null, new Date(), new Date());
         this.relationshipList.add(relationship);
@@ -111,12 +111,12 @@ public class View {
 
     private void insertDB() {
         try {
-            ViewDO viewDO = new ViewDO(0L, this.name, this.creator, 0L, 0, this.gmtCreate, this.gmtModified);
-            int ret = ER.viewMapper.insert(viewDO);
+            SchemaDO schemaDO = new SchemaDO(0L, this.name, this.creator, 0L, 0, this.gmtCreate, this.gmtModified);
+            int ret = ER.schemaMapper.insert(schemaDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
-            this.ID = viewDO.getID();
+            this.ID = schemaDO.getID();
         } catch (PersistenceException e) {
             throw new ERException("insertDB fail", e);
         }
@@ -133,39 +133,39 @@ public class View {
         return json;
     }
 
-    public static List<View> queryAll() {
-        return Trans.TransViewListFromDB(ER.viewMapper.selectAll());
+    public static List<Schema> queryAll() {
+        return Trans.TransSchemaListFromDB(ER.schemaMapper.selectAll());
     }
 
-    public static List<View> queryByView(ViewDO ViewDO) {
-        List<ViewDO> viewDOList = ER.viewMapper.selectByView(ViewDO);
-        return Trans.TransViewListFromDB(viewDOList);
+    public static List<Schema> queryBySchema(SchemaDO SchemaDO) {
+        List<SchemaDO> schemaDOList = ER.schemaMapper.selectBySchema(SchemaDO);
+        return Trans.TransSchemaListFromDB(schemaDOList);
     }
 
-    public static View queryByID(Long ID) {
-        List<View> viewDOList = queryByView(new ViewDO(ID));
-        if (viewDOList.size() == 0) {
-            throw new ERException(String.format("View with ID: %d not found", ID));
+    public static Schema queryByID(Long ID) {
+        List<Schema> schemaDOList = queryBySchema(new SchemaDO(ID));
+        if (schemaDOList.size() == 0) {
+            throw new ERException(String.format("Schema with ID: %d not found", ID));
         } else {
-            return viewDOList.get(0);
+            return schemaDOList.get(0);
         }
     }
 
     protected void deleteDB() {
-        // cascade delete the entities and relationships in this view
+        // cascade delete the entities and relationships in this schema
         for (Entity entity : entityList) {
             entity.deleteDB();
         }
         for (Relationship relationship : relationshipList) {
             relationship.deleteDB();
         }
-        ER.viewMapper.deleteByID(this.ID);
+        ER.schemaMapper.deleteByID(this.ID);
     }
 
     public void updateInfo(String name) {
         if (name != null) {
             this.name = name;
         }
-        ER.viewMapper.updateByID(new ViewDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
+        ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
     }
 }

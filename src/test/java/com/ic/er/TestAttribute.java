@@ -13,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestAttribute {
 
-    private View testView;
+    private Schema testSchema;
     private Entity testEntity;
 
     @Before
     public void init() throws Exception {
         ER.initialize(TestCommon.usePostgre);
-        testView = ER.createView("testView", "wt22");
-        testEntity = testView.addEntity("teacher");
+        testSchema = ER.createSchema("testSchema", "wt22");
+        testEntity = testSchema.addEntity("teacher");
     }
 
     @Test

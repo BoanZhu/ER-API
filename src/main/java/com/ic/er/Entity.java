@@ -13,20 +13,20 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
-@JsonIgnoreProperties({"id", "viewID", "gmtCreate", "gmtModified"})
+@JsonIgnoreProperties({"id", "schemaID", "gmtCreate", "gmtModified"})
 public class Entity {
     private Long ID;
     private String name;
-    private Long viewID;
+    private Long schemaID;
     private List<Attribute> attributeList;
     private LayoutInfo layoutInfo;
     private Date gmtCreate;
     private Date gmtModified;
 
-    protected Entity(Long ID, String name, Long viewID, List<Attribute> attributeList, LayoutInfo layoutInfo, Double layoutX, Double layoutY, Date gmtCreate, Date gmtModified) {
+    protected Entity(Long ID, String name, Long schemaID, List<Attribute> attributeList, LayoutInfo layoutInfo, Double layoutX, Double layoutY, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
-        this.viewID = viewID;
+        this.schemaID = schemaID;
         this.attributeList = attributeList;
         this.layoutInfo = layoutInfo;
         this.gmtCreate = gmtCreate;
@@ -51,15 +51,15 @@ public class Entity {
         if (isPrimary && nullable) {
             throw new ERException("primary attribute cannot be null");
         }
-        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.viewID, attributeName, null, null, null, null, null, null));
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.schemaID, attributeName, null, null, null, null, null, null));
         if (attributeList.size() != 0) {
             throw new ERException(String.format("attribute with name: %s already exists", this.name));
         }
-        attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.viewID, null, null, null, true, null, null, null));
+        attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.schemaID, null, null, null, true, null, null, null));
         if (isPrimary && attributeList.size() != 0) {
             throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
         }
-        Attribute attribute = new Attribute(0L, this.ID, this.viewID, attributeName, dataType, isPrimary, nullable, null, layoutX, layoutY, new Date(), new Date());
+        Attribute attribute = new Attribute(0L, this.ID, this.schemaID, attributeName, dataType, isPrimary, nullable, null, layoutX, layoutY, new Date(), new Date());
         this.attributeList.add(attribute);
         return attribute;
     }
@@ -72,7 +72,7 @@ public class Entity {
 
     private void insertDB() {
         try {
-            EntityDO entityDO = new EntityDO(0L, this.name, this.viewID, 0, this.gmtCreate, this.gmtModified);
+            EntityDO entityDO = new EntityDO(0L, this.name, this.schemaID, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.entityMapper.insert(entityDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -93,12 +93,12 @@ public class Entity {
     public void updateInfo(String name) {
         if (name != null) {
             this.name = name;
-            List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.viewID, null, null, null));
+            List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.schemaID, null, null, null));
             if (entities.size() != 0 && !entities.get(0).getID().equals(this.ID)) {
                 throw new ERException(String.format("entity with name: %s already exists", name));
             }
         }
-        ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.viewID, 0, this.gmtCreate, new Date()));
+        ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.schemaID, 0, this.gmtCreate, new Date()));
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {

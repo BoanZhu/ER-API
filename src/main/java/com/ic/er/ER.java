@@ -24,7 +24,7 @@ public class ER {
     public static AttributeMapper attributeMapper;
     public static EntityMapper entityMapper;
     public static RelationshipMapper relationshipMapper;
-    public static ViewMapper viewMapper;
+    public static SchemaMapper schemaMapper;
     public static LayoutInfoMapper layoutInfoMapper;
 
     public static void initialize(boolean usePostgre) throws SQLException, IOException {
@@ -39,7 +39,7 @@ public class ER {
         attributeMapper = sqlSession.getMapper(AttributeMapper.class);
         entityMapper = sqlSession.getMapper(EntityMapper.class);
         relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
-        viewMapper = sqlSession.getMapper(ViewMapper.class);
+        schemaMapper = sqlSession.getMapper(SchemaMapper.class);
         layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
         if (!usePostgre) {
             createTables();
@@ -53,26 +53,26 @@ public class ER {
         stmt.execute(sql);
     }
 
-    public static View createView(String name, String creator) {
-        return new View(0L, name, new ArrayList<>(), new ArrayList<>(), creator, new Date(), new Date());
+    public static Schema createSchema(String name, String creator) {
+        return new Schema(0L, name, new ArrayList<>(), new ArrayList<>(), creator, new Date(), new Date());
     }
 
 
-    public static void deleteView(View view) {
-        view.deleteDB();
+    public static void deleteSchema(Schema schema) {
+        schema.deleteDB();
     }
 
-    public static List<View> queryAllView() {
-        return View.queryAll();
+    public static List<Schema> queryAllSchema() {
+        return Schema.queryAll();
     }
 
-    public static View queryViewByID(Long ID) {
-        return View.queryByID(ID);
+    public static Schema querySchemaByID(Long ID) {
+        return Schema.queryByID(ID);
     }
 
-    public static View loadFromJSON(String json) throws ERException {
+    public static Schema loadFromJSON(String json) throws ERException {
         try {
-            return new ObjectMapper().readValue(json, View.class);
+            return new ObjectMapper().readValue(json, Schema.class);
         } catch (JsonProcessingException e) {
             throw new ERException(String.format("loadFromJSON fail, error: %s", e.getMessage()));
         }

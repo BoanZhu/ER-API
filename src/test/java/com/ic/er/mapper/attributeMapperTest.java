@@ -27,7 +27,7 @@ public class attributeMapperTest {
 
         Long entityID = Long.valueOf(456);
 
-        Long viewID = Long.valueOf(789);
+        Long SchemaID = Long.valueOf(789);
 
         String name = "a";
 
@@ -43,9 +43,9 @@ public class attributeMapperTest {
         Date gmtModified = new Date();
 
 
-        AttributeDO attributeDO = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
-        AttributeDO attributeDO2 = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
-        AttributeDO attributeDO3 = new AttributeDO(0L, entityID, viewID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO = new AttributeDO(0L, entityID, SchemaID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO2 = new AttributeDO(0L, entityID, SchemaID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
+        AttributeDO attributeDO3 = new AttributeDO(0L, entityID, SchemaID, name, DataType.INT, isPrimary, nullable, isDelete, gmtCreate, gmtModified);
 
         int ret = ER.attributeMapper.insert(attributeDO);
         int ret2 = ER.attributeMapper.insert(attributeDO2);

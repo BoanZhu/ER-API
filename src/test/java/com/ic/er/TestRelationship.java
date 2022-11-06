@@ -13,24 +13,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestRelationship {
 
-    private View testView;
-    private View secondView;
+    private Schema testSchema;
+    private Schema secondSchema;
     private Entity teacher;
     private Entity student;
     private Entity classroom;
-    private Entity secondViewEntity1;
-    private Entity secondViewEntity2;
+    private Entity secondSchemaEntity1;
+    private Entity secondSchemaEntity2;
 
     @Before
     public void init() throws Exception {
         ER.initialize(TestCommon.usePostgre);
-        testView = ER.createView("testView", "wt22");
-        secondView = ER.createView("secondView", "wt22");
-        teacher = testView.addEntity("teacher");
-        student = testView.addEntity("student");
-        classroom = testView.addEntity("classroom");
-        secondViewEntity1 = secondView.addEntity("ent1");
-        secondViewEntity2 = secondView.addEntity("ent2");
+        testSchema = ER.createSchema("testSchema", "wt22");
+        secondSchema = ER.createSchema("secondSchema", "wt22");
+        teacher = testSchema.addEntity("teacher");
+        student = testSchema.addEntity("student");
+        classroom = testSchema.addEntity("classroom");
+        secondSchemaEntity1 = secondSchema.addEntity("ent1");
+        secondSchemaEntity2 = secondSchema.addEntity("ent2");
         Assert.assertNotNull(teacher);
         Assert.assertNotNull(student);
         Assert.assertNotNull(classroom);
@@ -38,25 +38,25 @@ public class TestRelationship {
 
     @Test
     public void createRelationshipTest() {
-        assertThrows(ERException.class, () -> secondView.createRelationship("teaches", student, teacher, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
+        assertThrows(ERException.class, () -> secondSchema.createRelationship("teaches", student, teacher, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
 
-        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
 
-        assertThrows(ERException.class, () -> testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
-        assertThrows(ERException.class, () -> testView.createRelationship("teaches", student, teacher, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
+        assertThrows(ERException.class, () -> testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
+        assertThrows(ERException.class, () -> testSchema.createRelationship("teaches", student, teacher, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
     }
 
     @Test
     public void deleteRelationshipTest() {
-        Relationship testEntityCascadeDelete = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        Relationship testEntityCascadeDelete = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(testEntityCascadeDelete);
-        testView.deleteEntity(teacher);
+        testSchema.deleteEntity(teacher);
         assertThrows(ERException.class, () -> Entity.queryByID(teacher.getID()));
         assertThrows(ERException.class, () -> Relationship.queryByID(testEntityCascadeDelete.getID()));
 
-        teacher = testView.addEntity("teacher");
-        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        teacher = testSchema.addEntity("teacher");
+        Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
         relationship.deleteDB();
         assertThrows(ERException.class, () -> Relationship.queryByID(relationship.getID()));
@@ -64,7 +64,7 @@ public class TestRelationship {
 
     @Test
     public void updateRelationshipTest() {
-        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
 
         String newName = "new name";
@@ -76,16 +76,16 @@ public class TestRelationship {
         Assert.assertEquals(relationship1.getName(), newName);
         Assert.assertEquals(relationship1.getFirstCardinality(), newCardi);
 
-        Relationship teachClassroom = testView.createRelationship("teaches", teacher, classroom, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        Relationship teachClassroom = testSchema.createRelationship("teaches", teacher, classroom, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         assertThrows(ERException.class, () -> teachClassroom.updateInfo(newName, teacher, student, newCardi, newCardi));
-        assertThrows(ERException.class, () -> teachClassroom.updateInfo(newName, secondViewEntity1, secondViewEntity2, newCardi, newCardi));
+        assertThrows(ERException.class, () -> teachClassroom.updateInfo(newName, secondSchemaEntity1, secondSchemaEntity2, newCardi, newCardi));
     }
 
     @Test
     public void queryRelationshipTest() {
-        Relationship relationship = testView.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
-        assertThrows(ERException.class, () -> testView.createRelationship("teaches2", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
+        assertThrows(ERException.class, () -> testSchema.createRelationship("teaches2", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
 
         Relationship relationship1 = Relationship.queryByID(relationship.getID());
         Assert.assertNotNull(relationship1);

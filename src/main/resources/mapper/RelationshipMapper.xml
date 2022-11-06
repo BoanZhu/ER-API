@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="com.ic.er.entity.RelationshipDO">
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
-        <result column="view_id" property="viewID"/>
+        <result column="schema_id" property="schemaID"/>
         <result column="first_entity_id" property="firstEntityID"/>
         <result column="second_entity_id" property="secondEntityID"/>
         <result column="first_cardinality" property="firstCardinality"/>
@@ -18,19 +18,19 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, view_id, first_entity_id, second_entity_id, first_cardinality, second_cardinality
+        id, name, schema_id, first_entity_id, second_entity_id, first_cardinality, second_cardinality
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,name,view_id,first_entity_id,second_entity_id,first_cardinality,second_cardinality,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,first_entity_id,second_entity_id,first_cardinality,second_cardinality,is_delete,gmt_create,gmt_modified
         from relationship
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByRelationship" parameterType="com.ic.er.entity.RelationshipDO" resultMap="BaseResultMap">
         select
-        id,name,view_id,first_entity_id,second_entity_id,first_cardinality,second_cardinality,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,first_entity_id,second_entity_id,first_cardinality,second_cardinality,is_delete,gmt_create,gmt_modified
         from relationship
         <where>
             <if test="ID != null">
@@ -39,8 +39,8 @@
             <if test="name != null">
                 and name = #{name,jdbcType=VARCHAR}
             </if>
-            <if test="viewID != null">
-                and view_id = #{viewID,jdbcType=BIGINT}
+            <if test="schemaID != null">
+                and schema_id = #{schemaID,jdbcType=BIGINT}
             </if>
             <if test="firstEntityID != null">
                 and first_entity_id = #{firstEntityID,jdbcType=BIGINT}
@@ -70,8 +70,8 @@
             <if test="name != null">
                 name,
             </if>
-            <if test="viewID != null">
-                view_id,
+            <if test="schemaID != null">
+                schema_id,
             </if>
             <if test="firstEntityID != null">
                 first_entity_id,
@@ -90,8 +90,8 @@
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
-            <if test="viewID != null">
-                #{viewID,jdbcType=BIGINT},
+            <if test="schemaID != null">
+                #{schemaID,jdbcType=BIGINT},
             </if>
             <if test="firstEntityID != null">
                 #{firstEntityID,jdbcType=BIGINT},
@@ -120,8 +120,8 @@
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="viewID != null">
-                view_id = #{viewID,jdbcType=BIGINT},
+            <if test="schemaID != null">
+                schema_id = #{schemaID,jdbcType=BIGINT},
             </if>
             <if test="firstEntityID != null">
                 first_entity_id = #{firstEntityID,jdbcType=BIGINT},

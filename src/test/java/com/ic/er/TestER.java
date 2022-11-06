@@ -23,22 +23,22 @@ public class TestER {
     }
 
     @Test
-    public void createViewTest() {
-        View testView = ER.createView("testView", "wt22");
-        Assert.assertNotNull(ER.queryViewByID(testView.getID()));
+    public void createSchemaTest() {
+        Schema testSchema = ER.createSchema("testSchema", "wt22");
+        Assert.assertNotNull(ER.querySchemaByID(testSchema.getID()));
     }
 
     @Test
-    public void deleteViewTest() {
-        View testView = ER.createView("testView", "wt22");
-        Assert.assertNotEquals(ER.queryAllView().size(), 0);
-        ER.deleteView(testView);
-        assertThrows(ERException.class, () -> ER.queryViewByID(testView.getID()));
+    public void deleteSchemaTest() {
+        Schema testSchema = ER.createSchema("testSchema", "wt22");
+        Assert.assertNotEquals(ER.queryAllSchema().size(), 0);
+        ER.deleteSchema(testSchema);
+        assertThrows(ERException.class, () -> ER.querySchemaByID(testSchema.getID()));
     }
 
     @Test
     public void drawER() throws IOException {
-        View example = ER.createView("BranchAccountMovement", "");
+        Schema example = ER.createSchema("BranchAccountMovement", "");
 
         Entity branch = example.addEntity("branch");
         branch.addAttribute("sortcode", DataType.INT, true, false);
@@ -68,7 +68,7 @@ public class TestER {
     @Test
     public void loadFromJSONTest() throws IOException {
         String jsonString = Files.readString(Path.of("BranchAccountMovement.json"), Charset.defaultCharset());
-        View view = ER.loadFromJSON(jsonString);
-        Assert.assertNotNull(view);
+        Schema schema = ER.loadFromJSON(jsonString);
+        Assert.assertNotNull(schema);
     }
 }

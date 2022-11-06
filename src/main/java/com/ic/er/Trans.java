@@ -22,7 +22,7 @@ public class Trans {
 
     protected static Attribute TransformFromDB(AttributeDO attributeDO) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(attributeDO.getID(), RelatedObjType.ATTRIBUTE);
-        return new Attribute(attributeDO.getID(), attributeDO.getEntityID(), attributeDO.getViewID(),
+        return new Attribute(attributeDO.getID(), attributeDO.getEntityID(), attributeDO.getSchemaID(),
                 attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(), attributeDO.getNullable(),
                 layoutInfo, 0.0, 0.0, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
@@ -36,9 +36,9 @@ public class Trans {
     }
 
     protected static Entity TransformFromDB(EntityDO entityDO) {
-        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), entityDO.getViewID()));
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), entityDO.getSchemaID()));
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), RelatedObjType.ENTITY);
-        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getViewID(), attributeList, layoutInfo, null, null,
+        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getSchemaID(), attributeList, layoutInfo, null, null,
                 entityDO.getGmtCreate(), entityDO.getGmtModified());
     }
 
@@ -53,7 +53,7 @@ public class Trans {
 
     protected static Relationship TransformFromDB(RelationshipDO relationshipDO) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(relationshipDO.getID(), RelatedObjType.RELATIONSHIP);
-        return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getViewID(),
+        return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getSchemaID(),
                 Entity.queryByID(relationshipDO.getFirstEntityID()), Entity.queryByID(relationshipDO.getSecondEntityID()),
                 relationshipDO.getFirstCardinality(), relationshipDO.getSecondCardinality(), layoutInfo,
                 relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
@@ -67,17 +67,17 @@ public class Trans {
         return ret;
     }
 
-    protected static View TransformFromDB(ViewDO view) {
-        List<Entity> entityList = Entity.queryByEntity(new EntityDO(null, null, view.getID(), null, null, null));
-        List<Relationship> relationshipList = Relationship.queryByRelationship(new RelationshipDO(null, null, view.getID(), null, null, null, null, null, null, null));
-        return new View(view.getID(), view.getName(), entityList, relationshipList, view.getCreator(),
-                view.getGmtCreate(), view.getGmtModified());
+    protected static Schema TransformFromDB(SchemaDO schema) {
+        List<Entity> entityList = Entity.queryByEntity(new EntityDO(null, null, schema.getID(), null, null, null));
+        List<Relationship> relationshipList = Relationship.queryByRelationship(new RelationshipDO(null, null, schema.getID(), null, null, null, null, null, null, null));
+        return new Schema(schema.getID(), schema.getName(), entityList, relationshipList, schema.getCreator(),
+                schema.getGmtCreate(), schema.getGmtModified());
     }
 
-    protected static List<View> TransViewListFromDB(List<ViewDO> doList) {
-        List<View> ret = new ArrayList<>();
-        for (ViewDO ViewDO : doList) {
-            ret.add(TransformFromDB(ViewDO));
+    protected static List<Schema> TransSchemaListFromDB(List<SchemaDO> doList) {
+        List<Schema> ret = new ArrayList<>();
+        for (SchemaDO SchemaDO : doList) {
+            ret.add(TransformFromDB(SchemaDO));
         }
         return ret;
     }
