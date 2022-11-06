@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ViewDO {
+public class SchemaDO {
     private Long ID;
 
     private String name;
@@ -24,7 +24,7 @@ public class ViewDO {
 
     private Date gmtModified;
 
-    public ViewDO(Long ID) {
+    public SchemaDO(Long ID) {
         this.ID = ID;
     }
 

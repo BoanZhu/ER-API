@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="com.ic.er.entity.AttributeDO">
         <id column="id" property="ID"/>
         <result column="entity_id" property="entityID"/>
-        <result column="view_id" property="viewID"/>
+        <result column="schema_id" property="schemaID"/>
         <result column="name" property="name"/>
         <result column="data_type" property="dataType"/>
         <result column="is_primary" property="isPrimary"/>
@@ -18,19 +18,19 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, entity_id, view_id, name, data_type, is_primary
+        id, entity_id, schema_id, name, data_type, is_primary
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,entity_id,view_id,name,data_type,is_primary,nullable,is_delete,gmt_create,gmt_modified
+        id,entity_id,schema_id,name,data_type,is_primary,nullable,is_delete,gmt_create,gmt_modified
         from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByAttribute" parameterType="com.ic.er.entity.AttributeDO" resultMap="BaseResultMap">
         select
-        id,entity_id,view_id,name,data_type,is_primary,nullable,is_delete,gmt_create,gmt_modified
+        id,entity_id,schema_id,name,data_type,is_primary,nullable,is_delete,gmt_create,gmt_modified
         from attribute
         <where>
             <if test="ID != null">
@@ -39,8 +39,8 @@
             <if test="entityID != null">
                 and entity_id = #{entityID,jdbcType=BIGINT}
             </if>
-            <if test="viewID != null">
-                and view_id = #{viewID,jdbcType=BIGINT}
+            <if test="schemaID != null">
+                and schema_id = #{schemaID,jdbcType=BIGINT}
             </if>
             <if test="name != null">
                 and name = #{name,jdbcType=VARCHAR}
@@ -70,8 +70,8 @@
             <if test="entityID != null">
                 entity_id,
             </if>
-            <if test="viewID != null">
-                view_id,
+            <if test="schemaID != null">
+                schema_id,
             </if>
             <if test="name != null">
                 name,
@@ -90,8 +90,8 @@
             <if test="entityID != null">
                 #{entityID,jdbcType=BIGINT},
             </if>
-            <if test="viewID != null">
-                #{viewID,jdbcType=BIGINT},
+            <if test="schemaID != null">
+                #{schemaID,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
@@ -120,8 +120,8 @@
             <if test="entityID != null">
                 entity_id = #{entityID,jdbcType=BIGINT},
             </if>
-            <if test="viewID != null">
-                view_id = #{viewID,jdbcType=BIGINT},
+            <if test="schemaID != null">
+                schema_id = #{schemaID,jdbcType=BIGINT},
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},

@@ -8,33 +8,33 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.ic.er.ER;
 import com.ic.er.Entity;
 import com.ic.er.Relationship;
-import com.ic.er.View;
+import com.ic.er.Schema;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ViewDeserializer extends StdDeserializer<View> {
+public class SchemaDeserializer extends StdDeserializer<Schema> {
 
-    public ViewDeserializer() {
+    public SchemaDeserializer() {
         this(null);
     }
 
-    public ViewDeserializer(Class<?> vc) {
+    public SchemaDeserializer(Class<?> vc) {
         super(vc);
     }
 
     @Override
-    public View deserialize(JsonParser jp, DeserializationContext ctxt)
+    public Schema deserialize(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
         Map<String, Entity> entityNameMap = new HashMap<>();
 
-        JsonNode viewJSONNode = jp.getCodec().readTree(jp);
-        String viewName = viewJSONNode.get("name").textValue();
-        View view = ER.createView(viewName, "");
-        for (JsonNode entityJSONNode : viewJSONNode.get("entityList")) {
+        JsonNode schemaJSONNode = jp.getCodec().readTree(jp);
+        String schemaName = schemaJSONNode.get("name").textValue();
+        Schema schema = ER.createSchema(schemaName, "");
+        for (JsonNode entityJSONNode : schemaJSONNode.get("entityList")) {
             String entityName = entityJSONNode.get("name").textValue();
-            Entity entity = view.addEntity(entityName);
+            Entity entity = schema.addEntity(entityName);
             for (JsonNode attributeJSONNode : entityJSONNode.get("attributeList")) {
                 String attributeName = attributeJSONNode.get("name").textValue();
                 DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
@@ -47,17 +47,17 @@ public class ViewDeserializer extends StdDeserializer<View> {
             entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), 0.0, 0.0);
         }
 
-        for (JsonNode relationshipJSONNode : viewJSONNode.get("relationshipList")) {
+        for (JsonNode relationshipJSONNode : schemaJSONNode.get("relationshipList")) {
             String relationshipName = relationshipJSONNode.get("name").textValue();
             String firstEntityName = relationshipJSONNode.get("firstEntity").textValue();
             String secondEntityName = relationshipJSONNode.get("secondEntity").textValue();
             String firstCardinality = relationshipJSONNode.get("firstCardinality").textValue();
             String secondCardinality = relationshipJSONNode.get("secondCardinality").textValue();
-            Relationship relationship = view.createRelationship(relationshipName, entityNameMap.get(firstEntityName), entityNameMap.get(secondEntityName), Cardinality.getFromValue(firstCardinality), Cardinality.getFromValue(secondCardinality));
+            Relationship relationship = schema.createRelationship(relationshipName, entityNameMap.get(firstEntityName), entityNameMap.get(secondEntityName), Cardinality.getFromValue(firstCardinality), Cardinality.getFromValue(secondCardinality));
             JsonNode layoutInfoJSONNode = relationshipJSONNode.get("layoutInfo");
             relationship.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), 0.0, 0.0);
         }
 
-        return view;
+        return schema;
     }
 }

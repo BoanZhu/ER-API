@@ -13,7 +13,7 @@ import java.util.Date;
 public class RelationshipDO {
     private Long ID;
     private String name;
-    private Long viewID;
+    private Long schemaID;
     private Long firstEntityID;
     private Long secondEntityID;
     private Cardinality firstCardinality;

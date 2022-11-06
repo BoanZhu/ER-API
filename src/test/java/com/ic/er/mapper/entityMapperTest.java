@@ -25,12 +25,12 @@ public class entityMapperTest {
 
         long id = Long.valueOf(456);
         String name = "b";
-        long viewID = Long.valueOf(2234);
+        long schemaID = Long.valueOf(2234);
         Date create = new Date();
         Date modify = new Date();
         int isDelete = 0;
 
-        EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
+        EntityDO entity = new EntityDO(id, name, schemaID, isDelete, create, modify);
 
         ER.entityMapper.insert(entity);
     }
@@ -40,12 +40,12 @@ public class entityMapperTest {
 
         long id = 12334;
         String name = "b";
-        long viewID = 789;
+        long schemaID = 789;
         Date create = new Date();
         Date modify = new Date();
         int isDelete = 0;
 
-        EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
+        EntityDO entity = new EntityDO(id, name, schemaID, isDelete, create, modify);
 
         ER.entityMapper.insert(entity);
     }
@@ -55,12 +55,12 @@ public class entityMapperTest {
 
         long id = Long.valueOf(12334);
         String name = null;
-        long viewID = Long.valueOf(789);
+        long schemaID = Long.valueOf(789);
         Date create = null;
         Date modify = null;
         int isDelete = 0;
 
-        EntityDO entity = new EntityDO(id, name, viewID, isDelete, create, modify);
+        EntityDO entity = new EntityDO(id, name, schemaID, isDelete, create, modify);
 
         ER.entityMapper.selectByEntity(entity);
     }
@@ -78,12 +78,12 @@ public class entityMapperTest {
 
         long id = Long.valueOf(123);
         String name = "b";
-        long viewID = Long.valueOf(456);
+        long schemaID = Long.valueOf(456);
         Date create = new Date();
         Date modify = new Date();
         int isDelete = 0;
 
-        EntityDO entityDo = new EntityDO(id, name, viewID, isDelete, create, modify);
+        EntityDO entityDo = new EntityDO(id, name, schemaID, isDelete, create, modify);
 
         ER.entityMapper.updateByID(entityDo);
     }

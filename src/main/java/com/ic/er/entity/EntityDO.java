@@ -14,7 +14,7 @@ public class EntityDO {
 
     private String name;
 
-    private Long viewID;
+    private Long schemaID;
 
     private Integer isDelete;
 

@@ -7,26 +7,26 @@
     <resultMap id="BaseResultMap" type="com.ic.er.entity.EntityDO">
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
-        <result column="view_id" property="viewID"/>
+        <result column="schema_id" property="schemaID"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, view_id
+        id, name, schema_id
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-            id,name,view_id,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,is_delete,gmt_create,gmt_modified
         from entity
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByEntity" parameterType="com.ic.er.entity.EntityDO" resultMap="BaseResultMap">
         select
-        id,name,view_id,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,is_delete,gmt_create,gmt_modified
         from entity
         <where>
             <if test="ID != null">
@@ -35,8 +35,8 @@
             <if test="name != null">
                 and name = #{name,jdbcType=VARCHAR}
             </if>
-            <if test="viewID != null">
-                and view_id = #{viewID,jdbcType=BIGINT}
+            <if test="schemaID != null">
+                and schema_id = #{schemaID,jdbcType=BIGINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -54,23 +54,23 @@
             <if test="name != null">
                 name,
             </if>
-            <if test="viewID != null">
-                view_id,
+            <if test="schemaID != null">
+                schema_id,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
-            <if test="viewID != null">
-                #{viewID,jdbcType=BIGINT},
+            <if test="schemaID != null">
+                #{schemaID,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>
 
     <update id="deleteByID" parameterType="java.lang.Long">
         update entity set
-            is_delete = 1
+        is_delete = 1
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
@@ -80,8 +80,8 @@
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="viewID != null">
-                view_id = #{viewID,jdbcType=BIGINT},
+            <if test="schemaID != null">
+                schema_id = #{schemaID,jdbcType=BIGINT},
             </if>
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0

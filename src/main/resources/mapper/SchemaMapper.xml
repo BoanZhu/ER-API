@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.ViewMapper">
+<mapper namespace="com.ic.er.dao.SchemaMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.entity.ViewDO">
+    <resultMap id="BaseResultMap" type="com.ic.er.entity.SchemaDO">
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="creator" property="creator"/>
@@ -21,13 +21,13 @@
     <select id="selectAll" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
-        from view where is_delete = 0
+        from schema where is_delete = 0
     </select>
 
-    <select id="selectByView" parameterType="com.ic.er.entity.ViewDO" resultMap="BaseResultMap">
+    <select id="selectBySchema" parameterType="com.ic.er.entity.SchemaDO" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
-        from view
+        from schema
         <where>
             <if test="ID != null">
                 id = #{ID,jdbcType=BIGINT}
@@ -54,12 +54,12 @@
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
-        from view
+        from schema
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
-    
-    <insert id="insert" parameterType="com.ic.er.entity.ViewDO" useGeneratedKeys="true" keyProperty="ID">
-        insert into view
+
+    <insert id="insert" parameterType="com.ic.er.entity.SchemaDO" useGeneratedKeys="true" keyProperty="ID">
+        insert into schema
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
                 name,
@@ -85,13 +85,13 @@
     </insert>
 
     <update id="deleteByID" parameterType="java.lang.Long">
-        update view set
+        update schema set
         is_delete = 1
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.entity.ViewDO">
-        update view
+    <update id="updateByID" parameterType="com.ic.er.entity.SchemaDO">
+        update schema
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},

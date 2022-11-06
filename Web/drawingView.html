@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
-<head><meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <title>Create View</title>
     <link rel="stylesheet" type="text/css" href="css/dashboard.css">
-    <script type = "text/javascript" src="js/go-debug.js"></script>
-    <script type = "text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="js/go-debug.js"></script>
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
     <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>
     <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
 
@@ -15,20 +16,24 @@
     <ul class="nav_ul clear_fix">
         <li class="one"></li>
         <b>
-            <li><a href="xx.html"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>Delete View</a></li>
-            <li><a href="createView.html"><span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Save new sub-view</a></li>
+            <li><a href="xx.html"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>Delete View</a>
+            </li>
+            <li><a href="createView.html"><span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Save new
+                sub-schema</a></li>
             <li><a href="xx.html"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span>Rename</a></li>
         </b>
     </ul>
 </nav>
 
-<div id="myDiagramDiv" class = "diagram"></div>
+<div id="myDiagramDiv" class="diagram"></div>
 
-<div class="platte" id="myPaletteDiv" >
+<div class="platte" id="myPaletteDiv">
 </div>
 
 
-<div class="banner"><div class="inner"></div></div>
+<div class="banner">
+    <div class="inner"></div>
+</div>
 
 <div id="buttons">
     <button id="loadButton" onclick="load()">Load</button>
@@ -54,7 +59,7 @@
 <footer>ERAPI.Copyright ©2021 | Imperial college london-Group projecy</footer>
 
 </body>
-<script type = "text/javascript">
+<script type="text/javascript">
     $(function (){
         //hide all subtitle
         $(".nav_menu").each(function (){
@@ -73,6 +78,7 @@
             });
         });
     });
+
 </script>
 <script id="code">
 
@@ -283,5 +289,6 @@
     }
 
     window.addEventListener('DOMContentLoaded', init);
+
 </script>
 </html>

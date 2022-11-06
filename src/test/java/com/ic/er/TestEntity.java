@@ -11,25 +11,25 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestEntity {
 
-    private View testView;
+    private Schema testSchema;
 
     @Before
     public void init() throws Exception {
         ER.initialize(TestCommon.usePostgre);
-        testView = ER.createView("testView", "wt22");
+        testSchema = ER.createSchema("testSchema", "wt22");
     }
 
 
     @Test
     public void addEntityTest() {
-        Entity teacher = testView.addEntity("teacher");
+        Entity teacher = testSchema.addEntity("teacher");
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
-        assertThrows(ERException.class, () -> testView.addEntity("teacher"));
+        assertThrows(ERException.class, () -> testSchema.addEntity("teacher"));
     }
 
     @Test
     public void deleteEntityTest() {
-        Entity teacher = testView.addEntity("teacher");
+        Entity teacher = testSchema.addEntity("teacher");
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
         teacher.deleteDB();
@@ -38,7 +38,7 @@ public class TestEntity {
 
     @Test
     public void queryEntityTest() {
-        Entity teacher = testView.addEntity("teacher");
+        Entity teacher = testSchema.addEntity("teacher");
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
         Assert.assertNotNull(Entity.queryByID(teacher.getID()));
@@ -46,8 +46,8 @@ public class TestEntity {
 
     @Test
     public void updateEntityTest() {
-        Entity teacher = testView.addEntity("teacher");
-        Entity student = testView.addEntity("student");
+        Entity teacher = testSchema.addEntity("teacher");
+        Entity student = testSchema.addEntity("student");
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
         teacher.updateInfo("new teacher name");
@@ -60,7 +60,7 @@ public class TestEntity {
 
     @Test
     public void attributeTest() {
-        Entity teacher = testView.addEntity("teacher");
+        Entity teacher = testSchema.addEntity("teacher");
         Attribute teacherID = teacher.addAttribute("teacher_id", DataType.INT, true, false);
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
