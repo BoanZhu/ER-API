@@ -15,11 +15,12 @@ function init() {
             layout: $(go.ForceDirectedLayout, {isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "clickCreatingTool.archetypeNodeData": {name: "New Entity", from: true, to: true},
+            "clickCreatingTool.archetypeNodeData": {name: "New Entity", category:"entity", from: true, to: true},
             "undoManager.isEnabled": true,
             "maxSelectionCount": 1,
             "ChangedSelection": changedSelection,
-
+            "linkingTool.linkValidation": isLinkValid,
+            "relinkingTool.reconnectLink": isAllowReconnect
         });
 
     function makeButton(text, action, visiblePredicate) {
@@ -102,10 +103,6 @@ function init() {
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
-                linkValidation: function (fromNode, fromGraphObject, toNode, toGraphObject) {
-                    // todo 必须要允许俩，才能改port，啊
-                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
-                },
             },
             new go.Binding("location", "location").makeTwoWay(),
             // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
@@ -143,7 +140,7 @@ function init() {
 
     //relationNodeTemplate
     const relationTemplate =
-        $(go.Node, "Table",  // the whole node panel
+        $(go.Node, "Table",
             {
                 locationObject: "BODY",
                 locationSpot:go.Spot.Center,
@@ -157,9 +154,6 @@ function init() {
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
-                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
-                },
             },
             new go.Binding("location", "location").makeTwoWay(),
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
@@ -174,6 +168,8 @@ function init() {
                         fromSpot: go.Spot.AllSides,
                         toSpot: go.Spot.AllSides,
                         strokeWidth: 3,
+                        width: 100,
+                        height: 40,
                         fromLinkableDuplicates: false, toLinkableDuplicates: false
                     },
                     new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
@@ -182,13 +178,12 @@ function init() {
                     $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
                     $(go.TextBlock,textStyle(),
                         {
-                            row: 0, alignment: go.Spot.Center,
-                            margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
+                            row: 0,
+                            alignment: go.Spot.Center,
                             font: "bold 16px sans-serif",
                             editable: true
                         },
-                        new go.Binding("text", "name").makeTwoWay())
-                )
+                        new go.Binding("text", "name").makeTwoWay()))
             ),
             $(go.Panel, "Vertical", {row: 1, column: 0},
                 $(go.Shape,
@@ -226,9 +221,6 @@ function init() {
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
-                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
-                },
             },
             new go.Binding("location", "location").makeTwoWay(),
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
@@ -245,7 +237,7 @@ function init() {
                         fromSpot: go.Spot.AllSides,
                         toSpot: go.Spot.AllSides,
                         strokeWidth: 3,
-                        fromLinkableDuplicates: false, toLinkableDuplicates: false
+                        fromLinkableDuplicates: false, toLinkableDuplicates: false,
                     }),
                 $(go.TextBlock, textStyle(),
                     {
@@ -256,25 +248,25 @@ function init() {
                     },
                     new go.Binding("text", "name").makeTwoWay()),
             ), //end Auto Panel Body
-                // new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-        $(go.Panel, "Vertical", {row: 1, column: 0},
-            $(go.Shape,
-            {width: 3, height: 3, portId: "L",
-                toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                fromLinkable: true,toLinkable: true})),
-        $(go.Panel, "Vertical", {row: 1, column: 2},
-            $(go.Shape,  // the "B" port
-            {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                fromLinkable: true,toLinkable: true})),
-        $(go.Panel, "Horizontal", {row:2, column: 1},
-            $(go.Shape,  // the "B" port
-            {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                fromLinkable: true,toLinkable: true})),
-        $(go.Panel, "Vertical",{row: 0, column: 1},
-            $(go.Shape,  // the "B" port
-            {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                fromLinkable: true,toLinkable: true}))
-);
+            // new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
+            $(go.Panel, "Vertical", {row: 1, column: 0},
+                $(go.Shape,
+                    {width: 3, height: 3, portId: "L",
+                        toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Vertical", {row: 1, column: 2},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Horizontal", {row:2, column: 1},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Vertical",{row: 0, column: 1},
+                $(go.Shape,  // the "B" port
+                    {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                        fromLinkable: true,toLinkable: true}))
+        );
 
     // subset template
     const subsetTemplate =
@@ -292,9 +284,6 @@ function init() {
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
                 shadowColor: colors.lightblue,
-                linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
-                },
             },
             new go.Binding("location", "location").makeTwoWay(),
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
@@ -410,14 +399,14 @@ function init() {
     templateMap.add("Subset",subsetTemplate);
     templateMap.add("Attribute",attributeTemplate);
 
-    templateMap.add("RelationTemplate",relationTemplate);
+    templateMap.add("relation",relationTemplate);
 
     myDiagram.nodeTemplateMap = templateMap;
 
     // relation
     var relationLink = $(go.Link,  // the whole link panel
         {
-            // deletable: false,
+            deletable: false,
             selectionAdorned: true,
             layerName: "Foreground",
             reshapable: true,
@@ -495,6 +484,7 @@ function init() {
 
     var subsetLink = $(go.Link,
         {
+            deletable: false,
             selectionAdorned: true,
             layerName: "Foreground",
             reshapable: true,
@@ -554,6 +544,17 @@ function init() {
             linkDataArray: []
         });
 
+
+    function changedSelection(e){
+        var tmpNodes = new go.List();
+        myDiagram.nodes.each(function (node) {
+            if (node.data.category == "Attribute" && node.isSelected) {
+                tmpNodes.push(node);
+                modifyAttributeClick();
+            }
+        });
+    }
+
     //listen edit the entity and relation name
     myDiagram.addDiagramListener("TextEdited",(e) => {
         if ("relation" in e.subject.part.qb) { // identify the changed textBlock
@@ -609,85 +610,120 @@ function init() {
         txn.changes.each(function(e) {
             if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
                 if (!("category" in e.newValue)) {
-
                     const firstEntityID = e.newValue.from;
                     const secondEntityID = e.newValue.to;
-                    var fromPort = e.newValue.fromPort;
-                    var toPort = e.newValue.toPort;
+                    const fromPort = e.newValue.fromPort;
+                    const toPort = e.newValue.toPort;
+                    const node1 = myDiagram.findNodeForKey(e.newValue.from);
+                    const node2 = myDiagram.findNodeForKey(e.newValue.to);
+                    var key = Math.ceil(Math.random()*1000);
+                    myDiagram.rollbackTransaction();
 
-                    const relationNodeX = (myDiagram.findNodeForKey(e.newValue.from).location.x +
-                        myDiagram.findNodeForKey(e.newValue.to).location.x)/2
+                    if (node1.category === "relation"){
+                        // create link between relation node and entity node with entity link
+                        myDiagram.model.addLinkData({
+                            "from": node2.key,
+                            "to": node1.key,
+                            fromText: "1:1",
+                            category: "entityLink",
+                            fromPort: toPort,
+                            toPort: fromPort
+                        });
+                    }else if (node2.category === "relation"){
+                        // create link between relation node and entity node with entity link
+                        myDiagram.model.addLinkData({
+                            "from": node1.key,
+                            "to": node2.key,
+                            fromText: "1:1",
+                            category: "entityLink",
+                            fromPort: fromPort,
+                            toPort: toPort
+                        });
+                    } else {
+                        const relationNodeX = (node1.location.x + node2.location.x)/2;
+                        const relationNodeY = (node1.location.y + node2.location.y)/2;
+                        var entityList = new Array();
+                        entityList.push(node1.key);
+                        entityList.push(node2.key);
+                        key = key+"_"+"test"
+                        myDiagram.model.addNodeData({
+                            "key": key,
+                            "name": "test",
+                            "location": {"class": "go.Point", "x": relationNodeX, "y": relationNodeY},
+                            category: "relation",
+                            from:true,
+                            to:true,
+                            entityList: entityList
 
-                    const relationNodeY = (myDiagram.findNodeForKey(e.newValue.from).location.y +
-                        myDiagram.findNodeForKey(e.newValue.to).location.y)/2;
-
-                    myDiagram.rollbackTransaction(); //rollback transcation and create new node between e-e
-                    myDiagram.model.addNodeData({"key": 123, "name":"test",
-                        "location":{"class":"go.Point","x":relationNodeX,"y":relationNodeY},category:"RelationTemplate"});
-                    //TODO: change the addNodeDate template with the new designed relation node
-                    //TODO: API add node function will be caught by the listener
-
-                    myDiagram.model.addLinkData({"from":firstEntityID,"to":123, fromText:"1:1",category:"entityLink",fromPort: fromPort,toPort: toPort});
-                    myDiagram.model.addLinkData({"from":secondEntityID,"to":123, fromText:"1:1",category:"entityLink",fromPort: toPort,toPort: fromPort})
-
-                    // // identity if it is normal link
-                    // // myDiagram.commandHandler.undo();
-                    // e.newValue.relation = "has";
-                    // e.newValue.fromText = "1:1";
-                    // e.newValue.toText = "1:1";
-                    // //create relation
-                    // const firstEntityID = e.newValue.from;
-                    // const secondEntityID = e.newValue.to;
-                    // const name = e.newValue.relation;
-                    // let firstCardinality = e.newValue.fromText;
-                    // let secondCardinality = e.newValue.toText;
-                    //
-                    // firstCardinality = findRelationCode(firstCardinality);
-                    // secondCardinality = findRelationCode(secondCardinality);
-                    // console.log(secondCardinality);
-                    // console.log(firstCardinality);
-                    // e.newValue.key = createRelation(name, firstEntityID, secondEntityID, firstCardinality, secondCardinality);
+                        });
+                        //TODO: change the addNodeDate template with the new designed relation node
+                        //TODO: API add node function will be caught by the listener
+                        myDiagram.model.addLinkData({
+                            "from": firstEntityID,
+                            "to": key,
+                            fromText: "1:1",
+                            category: "entityLink",
+                            fromPort: fromPort,
+                            toPort: toPort
+                        });
+                        myDiagram.model.addLinkData({
+                            "from": secondEntityID,
+                            "to": key,
+                            fromText: "1:1",
+                            category: "entityLink",
+                            fromPort: toPort,
+                            toPort: fromPort
+                        })
+                    }
                     save();
                     load();
                 }
-                } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
-                    if (!("category" in e.oldValue)) {
-                        //delete attribute
-                        const id = e.oldValue.key;
-                        deleteRelation(id);
-                    }
-                } else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
-                    e.newValue.name = e.newValue.name + entityCounter.toString();
-                    const entityName = e.newValue.name;
-                    const layoutX = e.newValue.location.x;
-                    const layoutY = e.newValue.location.y;
-                    entityCounter++;
-                    if (!("category" in e.newValue)) {
-                        //create entity
-                        e.newValue.key = createEntity(entityName, layoutX, layoutY);
-                        save();
-                        load();
-                    }
-                } else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+            }
+            else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
+                if (!("category" in e.oldValue)) {
+                    //delete attribute
                     const id = e.oldValue.key;
-                    if ("category" in e.oldValue) {
-                        // Attribute, WeakEntity, Subset
-                        switch(e.oldValue.category){
-                            case "Attribute"://delete attribute
-                                deleteAttribute(id);
-                                break;
-                            case "WeakEntity":
-                                deleteWeakEntity(id);
-                                break;
-                            case "Subset":
-                                deleteSubset(id);
-                                break;
-                            default:break;
-                        }
-                    } else {
-                        deleteEntity(id);
-                    }
+                    deleteRelation(id);
                 }
+            }
+            else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromKey") {
+                //TODO:changed link Node operation
+            }
+            else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
+                e.newValue.name = e.newValue.name + entityCounter.toString();
+                const entityName = e.newValue.name;
+                const layoutX = e.newValue.location.x;
+                const layoutY = e.newValue.location.y;
+                var connectedEntityList = new Array();
+                e.newValue.connectedEntity = connectedEntityList;
+                entityCounter++;
+                if (!("category" in e.newValue)) {
+                    //create entity
+                    e.newValue.key = createEntity(entityName, layoutX, layoutY);
+                    save();
+                    load();
+                }
+            }
+            else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+                const id = e.oldValue.key;
+                if ("category" in e.oldValue) {
+                    // Attribute, WeakEntity, Subset
+                    switch(e.oldValue.category){
+                        case "Attribute"://delete attribute
+                            deleteAttribute(id);
+                            break;
+                        case "WeakEntity":
+                            deleteWeakEntity(id);
+                            break;
+                        case "Subset":
+                            deleteSubset(id);
+                            break;
+                        default:break;
+                    }
+                } else {
+                    deleteEntity(id);
+                }
+            }
         });
     });
 
@@ -703,15 +739,6 @@ function init() {
         }
     });
 
-    function changedSelection(e){
-        var tmpNodes = new go.List();
-        myDiagram.nodes.each(function (node) {
-            if (node.data.category == "Attribute" && node.isSelected) {
-                tmpNodes.push(node);
-                modifyAttributeClick();
-            }
-        });
-    }
     /*
     Get the current View Id and load the model
      */
@@ -722,5 +749,4 @@ function init() {
             linkToPortIdProperty: "toPort",
             nodeDataArray: [],
             linkDataArray: []});
-}  // end init
-
+}

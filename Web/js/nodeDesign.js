@@ -56,6 +56,56 @@ function textStyle() {
     }
 }
 
+const limitConnectNode = new Set(["Subset","WeakEntity"]);
+
+function isAllowReconnect(existinglink, newnode, newport, toend){
+    const toNodeCategory = existinglink.toNode.category;
+    const fromNodeCategory = existinglink.fromNode.category;
+    const newNodeCategory = newnode.category;
+    if (limitConnectNode.has(toNodeCategory)||limitConnectNode.has(fromNodeCategory)) {
+        if (existinglink.fromNode.key !== newnode.key && existinglink.toNode.key !== newnode.key) {
+            return false;
+        }
+    } else if(toNodeCategory==="relation"){
+        if (newnode.findLinksTo(existinglink.toNode).count ===1){
+            return false;
+        } else if (newNodeCategory !=='' && !toend){
+            return false;
+        } else if(toend&&newNodeCategory==='relation'&& existinglink.toNode.findLinksConnected().count<=2){
+            const deteleNode = myDiagram.findNodeForKey(existinglink.toNode.key);
+            go.RelinkingTool.prototype.reconnectLink.call(this, existinglink, newnode, newport, toend);
+            myDiagram.startTransaction();
+            myDiagram.remove(deteleNode);
+            myDiagram.commitTransaction("deleted node");
+            return;
+        } else if(toend&&newNodeCategory!=='relation'){
+            return false;
+        }
+    }
+    return go.RelinkingTool.prototype.reconnectLink.call(this, existinglink, newnode, newport, toend);
+}
+
+function isLinkValid(fromNode, fromGraphObject, toNode, toGraphObject) {
+    var fromNodeCategory = fromNode.category;
+    var toNodeCategory = toNode.category;
+    var flag=true;
+
+    if (fromNodeCategory==="relation"&&toNodeCategory==="relation"){return false}
+    if (limitConnectNode.has(fromNodeCategory) || limitConnectNode.has(toNodeCategory)) return false;
+    if (fromNodeCategory==='entity'&&toNodeCategory==='entity'){
+        fromNode.findNodesConnected().each(function(n) {
+            if (n.category === "relation") {
+                n.findNodesInto().each(function (t) {
+                    if(t.key === toNode.key){
+                         flag = false;
+                         return false;
+                    }
+            });}
+        });
+    }
+    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1 &&flag;
+}
+
 //
 go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
     var geo = new go.Geometry();
