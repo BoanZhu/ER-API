@@ -12,7 +12,6 @@ import com.ic.er.util.GenerationSqlUtil;
 
 import java.awt.Image;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +46,7 @@ public class Tranform {
             List<TableDTO> tableDTOList = DatabaseUtil.getDatabseInfo(conn);
             View view = ParserUtil.parseAttributeToRelationship(tableDTOList);
 
-            Image erDiagram = DrawingUtil.drawingERModel();
+            Image erDiagram = DrawingUtil.drawingERModel(view);
 
             DatabaseUtil.closeDBConnection(conn);
             resultState = ResultState.ok(view);

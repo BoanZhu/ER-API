@@ -25,9 +25,9 @@ public class TestTransform {
         Attribute schoolId = school.addAttribute("id", DataType.INT, true, false);
         Attribute schoolName = school.addAttribute("name", DataType.INT, false, false);
 
-        Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToMany, Cardinality.OneToOne);
-        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.OneToMany, Cardinality.ZeroToOne);
-        Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.OneToMany, Cardinality.ZeroToMany);
+        Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
+        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToOne, Cardinality.OneToMany);
+        Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.ZeroToMany, Cardinality.OneToMany);
 
 
         Tranform tranform = new Tranform();
@@ -54,7 +54,7 @@ public class TestTransform {
         Attribute schoolName = school.addAttribute("name", DataType.INT, false, false);
 
         Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
-        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToMany, Cardinality.OneToMany);
+        Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToOne, Cardinality.OneToMany);
         Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.ZeroToMany, Cardinality.OneToMany);
 
 
