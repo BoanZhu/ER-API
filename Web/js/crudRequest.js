@@ -103,6 +103,8 @@ function deleteEntity(id){
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
         success : function(result) {
+
+
         }, error : function(result) {
         }
     });
@@ -293,7 +295,8 @@ function addAttr(){
             success : function(result) {
                 if(result.code === 0) {
                     $(function(){
-                        attributeData.key = result.data.id;
+                        const attributeKey = result.data.id+"_"+ attributeData.name;
+                        attributeData.key = attributeKey;
                         myDiagram.model.addNodeData(attributeData);
                         save();
                         load();

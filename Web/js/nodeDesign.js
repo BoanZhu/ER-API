@@ -56,7 +56,7 @@ function textStyle() {
     }
 }
 
-const limitConnectNode = new Set(["Subset","WeakEntity"]);
+const limitConnectNode = new Set(["Subset","WeakEntity","Attribute"]);
 
 function isAllowReconnect(existinglink, newnode, newport, toend){
     const toNodeCategory = existinglink.toNode.category;
