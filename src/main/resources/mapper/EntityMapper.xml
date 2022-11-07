@@ -4,97 +4,86 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ic.er.dao.EntityMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.bean.entity.Entity">
-        <id column="id" property="id"/>
+    <resultMap id="BaseResultMap" type="com.ic.er.entity.EntityDO">
+        <id column="id" property="ID"/>
         <result column="name" property="name"/>
-        <result column="view_id" property="view_id"/>
-        <result column="is_delete" property="is_delete"/>
-        <result column="gmt_create" property="gmt_create"/>
-        <result column="gmt_modified" property="gmt_modified"/>
+        <result column="schema_id" property="schemaID"/>
+        <result column="is_delete" property="isDelete"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, view_id
+        id, name, schema_id
     </sql>
 
-    <select id="selectById" parameterType="java.lang.Long">
+    <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-            id,name,view_id,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,is_delete,gmt_create,gmt_modified
         from entity
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByEntity" parameterType="com.ic.er.bean.entity.Entity">
+    <select id="selectByEntity" parameterType="com.ic.er.entity.EntityDO" resultMap="BaseResultMap">
         select
-        id,name,view_id,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,is_delete,gmt_create,gmt_modified
         from entity
-        where
-        <trim suffixOverrides=",">
-            <if test="id != null">
-                id = #{id,jdbcType=BIGINT},
+        <where>
+            <if test="ID != null">
+                and id = #{ID,jdbcType=BIGINT}
             </if>
             <if test="name != null">
-                name = #{name,jdbcType=VARCHAR},
+                and name = #{name,jdbcType=VARCHAR}
             </if>
-            <if test="view_id != null">
-                view_id = #{view_id,jdbcType=BIGINT},
+            <if test="schemaID != null">
+                and schema_id = #{schemaID,jdbcType=BIGINT}
             </if>
-            <if test="is_delete != null">
-                is_delete = #{is_delete,jdbcType=TINYINT},
+            <if test="gmtCreate != null">
+                and gmt_create = #{gmtCreate,jdbcType=DATETIME}
             </if>
-            <if test="gmt_create != null">
-                gmt_create = #{gmt_create,jdbcType=DATETIME},
+            <if test="gmtModified != null">
+                and gmt_modified = #{gmtModified,jdbcType=DATETIME}
             </if>
-            <if test="gmt_modified != null">
-                gmt_modified = #{gmt_modified,jdbcType=DATETIME},
-            </if>
-        </trim>
+            and is_delete = 0
+        </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.bean.entity.Entity">
+    <insert id="insert" parameterType="com.ic.er.entity.EntityDO" useGeneratedKeys="true" keyProperty="ID">
         insert into entity
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
             <if test="name != null">
                 name,
             </if>
-            <if test="view_id != null">
-                view_id,
+            <if test="schemaID != null">
+                schema_id,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>
-            <if test="view_id != null">
-                #{view_id,jdbcType=BIGINT},
+            <if test="schemaID != null">
+                #{schemaID,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>
 
-    <delete id="deleteById" parameterType="java.lang.Long">
-        delete from entity
-        where id = #{id,jdbcType=BIGINT} and is_delete = 0
-    </delete>
+    <update id="deleteByID" parameterType="java.lang.Long">
+        update entity set
+        is_delete = 1
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
+    </update>
 
-    <update id="updateById" parameterType="com.ic.er.bean.entity.Entity">
+    <update id="updateByID" parameterType="com.ic.er.entity.EntityDO">
         update entity
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
-            <if test="view_id != null">
-                view_id = #{view_id,jdbcType=BIGINT},
-            </if>
-            <if test="is_delete != null">
-                is_delete = #{is_delete,jdbcType=TINYINT},
+            <if test="schemaID != null">
+                schema_id = #{schemaID,jdbcType=BIGINT},
             </if>
         </set>
-        where id = #{id,jdbcType=BIGINT}
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 </mapper>

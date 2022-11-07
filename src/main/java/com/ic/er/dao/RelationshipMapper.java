@@ -1,18 +1,18 @@
 package com.ic.er.dao;
 
-import com.ic.er.bean.entity.Relationship;
+import com.ic.er.entity.RelationshipDO;
 
 import java.util.List;
 
 public interface RelationshipMapper {
-    Relationship selectById(Long id);
+    RelationshipDO selectByID(Long ID);
 
-    List<Relationship> selectByRelationship(Relationship relationship);
+    List<RelationshipDO> selectByRelationship(RelationshipDO relationshipDO);
 
-    int insert(Relationship relationship);
+    int insert(RelationshipDO relationshipDO);
 
     // rarely use, please use update to change is_delete to 1
-    int deleteById(Long id);
+    int deleteByID(Long ID);
 
-    int updateById(Long id);
+    int updateByID(RelationshipDO relationshipDO);
 }

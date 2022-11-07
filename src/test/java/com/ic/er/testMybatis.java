@@ -10,17 +10,12 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.SQLException;
 
-/**
- *
- * @author wendi
- * @data 15/10/2022
- *
- */
 public class testMybatis {
 
     @Test
-    public void testMybatisConnect() throws IOException {
+    public void testMybatisConnect() {
         try {
             InputStream is = Resources.getResourceAsStream("mybatis-config.xml");
             SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
@@ -31,5 +26,12 @@ public class testMybatis {
         } catch (IOException e) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testDBConnection() throws IOException, SQLException {
+        ER.initialize(true);
+        Assert.assertNotNull(ER.sqlSession);
+        System.out.println(ER.sqlSession.getConnection());
     }
 }

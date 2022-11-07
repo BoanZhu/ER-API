@@ -1,19 +1,20 @@
 package com.ic.er.dao;
 
-import com.ic.er.bean.entity.Attribute;
+import com.ic.er.entity.AttributeDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+@Mapper
 public interface AttributeMapper {
-    Attribute selectById(Long id);
+    AttributeDO selectByID(Long ID);
 
-    List<Attribute> selectByAttribute(Attribute attribute);
+    List<AttributeDO> selectByAttribute(AttributeDO attributeDO);
 
-    int insert(Attribute attribute);
+    int insert(AttributeDO attributeDO);
 
-    // rarely use, please use update to change is_delete to 1
-    int deleteById(Long id);
+    int deleteByID(Long ID);
 
-    int updateById(Long id);
+    int updateByID(AttributeDO attributeDO);
 
 }
