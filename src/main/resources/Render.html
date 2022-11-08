@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
-<head><meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <title>API image</title>
-    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>
-    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
-
+    <script type="text/javascript" src="go.js"></script>
+    <script type="text/javascript" src="Figures.js"></script>
 </head>
 <body>
-    <div id ="image"></div>
-    <div id ="d"></div>
+<div id="image"></div>
+<div id="d"></div>
 </body>
 <script id="code">
     var modelJson = "{ \"class\": \"GraphLinksModel\",\n" +
@@ -31,12 +31,10 @@
     function load() {
         init();
         myDiagram.model = go.Model.fromJson(modelJson);
-        myDiagram.addDiagramListener('InitialLayoutCompleted', function() {
-            var image = myDiagram.makeImage({ background: "white",type: "image/jpeg"});
-            console.log(image);
-            // document.getElementById("body").appendChild(image);
-            document.getElementById("image").innerHTML = image.src;
-        });
+        document.getElementById("image").innerHTML = 'set1123';
+        var image = myDiagram.makeImageData({ background: "white",type: "image/jpeg"});
+        console.log(image);
+        document.getElementById("image").innerHTML = image;
     }
     function init(){
         // Common color
@@ -572,5 +570,31 @@
     }
     //load model when first accessing the page
     window.addEventListener('DOMContentLoaded', load);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 </html>
