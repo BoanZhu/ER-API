@@ -560,18 +560,19 @@ function init() {
 
     //listen edit the entity and relation name
     myDiagram.addDiagramListener("TextEdited",(e) => {
-        if ("relation" in e.subject.part.qb) { // identify the changed textBlock
+        if (e.subject.part.qb.category==="relation") { // identify the changed textBlock
             const id = e.subject.part.qb.key;
             let firstCardinality = e.subject.part.qb.fromText;
             const firstEntityID = e.subject.part.qb.from;
             const secondEntityID = e.subject.part.qb.to;
             let secondCardinality = e.subject.part.qb.toText;
-            const name = e.subject.part.qb.relation;
+            const name = e.subject.part.qb.name;
 
             firstCardinality = findRelationCode(firstCardinality);
             secondCardinality = findRelationCode(secondCardinality);
 
             if (typeof secondCardinality == "undefined" || typeof firstCardinality == "undefined") {
+                modifyRelation(id, firstEntityID, secondEntityID, firstCardinality, secondCardinality, name);
                 alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
             }else {
                 modifyRelation(id, firstEntityID, secondEntityID, firstCardinality, secondCardinality, name);

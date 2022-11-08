@@ -184,9 +184,10 @@ function createRelation(name,firstEntityID,secondEntityID,firstCardinality,secon
 }
 
 function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name) {
-
+    var relationNode = myDiagram.findNodeForKey(id);
+    const dbId = relationNode.data.key.replace(/[^\d]/g)[0];
     let Obj ={
-        "relationshipID": id,
+        "relationshipID": dbId,
         "name": name,
         "firstEntityID": firstEntityID,
         "secondEntityID": secondEntityID,
@@ -202,10 +203,13 @@ function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondC
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
         success : function(result) {
+            // update key
+            relationNode.data.key = dbId+"_"+name;
+            //update links
+            relationNode.findNodesConnected().each(node=>node.findLinksBetween(relationNode).each(l=>l.data.to=relationNode.data.key));
         }, error : function(result) {
         }
     });
-
 
 }
 
@@ -311,7 +315,7 @@ function addAttr(){
             success : function(result) {
                 if(result.code === 0) {
                     $(function(){
-                        const attributeKey = result.data.id+"_"+ attributeData.name;
+                        const attributeKey = result.data.id+"_"+attributeData.name;
                         attributeData.key = attributeKey;
                         myDiagram.model.addNodeData(attributeData);
                         save();
@@ -377,6 +381,8 @@ function modifyAttribute(){
     const isPrimary = document.getElementById("isPrimaryKey").checked;
     const datatype = document.getElementById("datatypeChoices").value;
     const key = document.getElementById("selectedAttributeKey").value;
+    const dbId = key.replace(/[^\d]/g)[0];  // id in database
+    console.log(dbId);
     const allowNotNull = document.getElementById("allowNotNull").checked;
     // update model
     //check primary key
@@ -406,13 +412,16 @@ function modifyAttribute(){
     node.data.name = name;
     node.data.dataType = DATATYPE[datatype];
     node.data.allowNotNull = allowNotNull;
+    // update key
+    node.data.key = dbId+"_"+node.data.name;
+    //update link with the entity
+    node.findLinksBetween(myDiagram.findNodeForKey(node.data.entityId)).each(l=>l.data.to=node.data.key);
     const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
-
     save();
     load();
 
     var info ={
-        "attributeID": node.key,
+        "attributeID": dbId,
         "name": name,
         "dataType": DATATYPE[datatype],
         isPrimay: isPrimary,
@@ -422,27 +431,27 @@ function modifyAttribute(){
             layoutY: node.data.location.y.toFixed(1)
         }
     }
-    console.log(info);
-    info = JSON.stringify(info);
-    $.ajax({
-        type : "POST",
-        // url : "http://127.0.0.1:8000/er/attribute/update",
-        url: "http://146.169.52.81:8080/er/attribute/update",
-        headers: { "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        traditional : true,
-        data : info,
-        withCredentials:false,
-        dataType : "json",
-        contentType : 'application/json',
-        success : function(result) {
-            if(result.code === 0) {
-                console.log(result);
-            }
-        }, error : function() {
-            console.log("update fail");
-        }
-    });
+    // console.log(info);
+    // info = JSON.stringify(info);
+    // $.ajax({
+    //     type : "POST",
+    //     url : "http://127.0.0.1:8000/er/attribute/update",
+    //     // url: "http://146.169.52.81:8080/er/attribute/update",
+    //     headers: { "Access-Control-Allow-Origin": "*",
+    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+    //     traditional : true,
+    //     data : info,
+    //     withCredentials:false,
+    //     dataType : "json",
+    //     contentType : 'application/json',
+    //     success : function(result) {
+    //         if(result.code === 0) {
+    //             console.log(result);
+    //         }
+    //     }, error : function() {
+    //         console.log("update fail");
+    //     }
+    // });
 }
 
 /*
