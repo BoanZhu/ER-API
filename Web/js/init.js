@@ -697,9 +697,9 @@ function init() {
                 var connectedEntityList = new Array();
                 e.newValue.connectedEntity = connectedEntityList;
                 entityCounter++;
-                if (!("category" in e.newValue)) {
+                if (e.newValue.category === "entity") {
                     //create entity
-                    e.newValue.key = createEntity(entityName, layoutX, layoutY);
+                    e.newValue.key = "New Entity_"+createEntity(entityName, layoutX, layoutY);
                     save();
                     load();
                 }

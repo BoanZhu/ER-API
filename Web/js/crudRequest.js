@@ -67,21 +67,22 @@ function createEntity(name,layoutX,layoutY){
         }
     }
 
-    Obj = JSON.stringify(Obj);
-    $.ajax({
-        async: false,
-        type : "POST",
-        headers: { "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        // url : "http://146.169.52.81:8080/er/entity/create",
-        url:"http://127.0.0.1:8080/er/entity/create",
-        contentType:"application/json",
-        data : Obj,
-        success : function(result) {
-            id=result.data.id;
-        }, error : function(result) {
-        }
-    });
+    // Obj = JSON.stringify(Obj);
+    // $.ajax({
+    //     async: false,
+    //     type : "POST",
+    //     headers: { "Access-Control-Allow-Origin": "*",
+    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+    //     // url : "http://146.169.52.81:8080/er/entity/create",
+    //     url:"http://127.0.0.1:8080/er/entity/create",
+    //     contentType:"application/json",
+    //     data : Obj,
+    //     success : function(result) {
+    //         id=result.data.id;
+    //     }, error : function(result) {
+    //     }
+    // });
+    id = Math.ceil(Math.random()*1000);
     return id;
 }
 
@@ -124,8 +125,9 @@ function deleteEntity(id){
 }
 
 function updateEntity(id,name,layoutX,layoutY){
+    const dbId = id.split("_")[1];
     var Obj ={
-        entityID:id,
+        entityID:dbId,
         name: name,
         layoutInfo: {
             layoutX: layoutX,
@@ -142,9 +144,13 @@ function updateEntity(id,name,layoutX,layoutY){
         contentType:"application/json",
         data : Obj,
         success : function(result) {
+            // change key value
+            var node = myDiagram.findNodeForKey(id);
+            node.data.key = name+"_"+dbId;
         }, error : function(result) {
         }
     });
+
 }
 
 
