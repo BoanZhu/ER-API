@@ -24,7 +24,7 @@ public class Render {
 
         // load page using HTML Unit and fire scripts
         WebClient webClient = new WebClient();
-        HtmlPage myPage = webClient.getPage(new File("src/main/resources/Render.html").toURI().toURL());
+        HtmlPage myPage = webClient.getPage(new File("src/main/resources/test.html").toURI().toURL());
 
         // convert page to generated HTML and convert to document
         Document doc = Jsoup.parse(myPage.asXml());
