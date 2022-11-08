@@ -702,7 +702,7 @@ function init() {
                 entityCounter++;
                 if (e.newValue.category === "entity") {
                     //create entity
-                    e.newValue.key = "New Entity_"+createEntity(entityName, layoutX, layoutY);
+                    e.newValue.key = createEntity(entityName, layoutX, layoutY);
                     save();
                     load();
                 }

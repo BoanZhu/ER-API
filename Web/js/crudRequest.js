@@ -125,9 +125,8 @@ function deleteEntity(id){
 }
 
 function updateEntity(id,name,layoutX,layoutY){
-    const dbId = id.split("_")[1];
     var Obj ={
-        entityID:dbId,
+        entityID:id,
         name: name,
         layoutInfo: {
             layoutX: layoutX,
@@ -145,8 +144,6 @@ function updateEntity(id,name,layoutX,layoutY){
         data : Obj,
         success : function(result) {
             // change key value
-            var node = myDiagram.findNodeForKey(id);
-            node.data.key = name+"_"+dbId;
         }, error : function(result) {
         }
     });
