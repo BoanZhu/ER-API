@@ -382,7 +382,6 @@ function modifyAttribute(){
     const datatype = document.getElementById("datatypeChoices").value;
     const key = document.getElementById("selectedAttributeKey").value;
     const dbId = key.replace(/[^\d]/g)[0];  // id in database
-    console.log(dbId);
     const allowNotNull = document.getElementById("allowNotNull").checked;
     // update model
     //check primary key
@@ -395,7 +394,9 @@ function modifyAttribute(){
         // check whether there is another primaryKey
         entityNode.findNodesConnected().each(function (linkedNode){
             if(linkedNode.data!==node.data && linkedNode.data.category === "Attribute"){
-                if(linkedNode.data.isPrimary === true){flag = true;}
+                if(linkedNode.data.isPrimary === true && myDiagram.findNodeForKey(entityNode.data.key).data.category==="entity"){
+                    flag = true;
+                }
             }
         });
         if (flag === true){
@@ -466,11 +467,28 @@ function createWeakEntity(){
             tmpNodes.push(node);
         }
     });
+    var pk = "";
+    var hasPrimaryKey = false;
     tmpNodes.each(function (part){
         var selectedEntity = part;
         var selectedEData =part.data;
+        //get strong entity's primary key
+        selectedEntity.findNodesConnected().each(
+            function(connectedNode){
+                if(connectedNode.data.category==="Attribute"){
+                    if(connectedNode.data.isPrimary === true){
+                        hasPrimaryKey = true;
+                        pk = connectedNode.data.name;
+                    }
+                }
+            }
+        );
+        if(!hasPrimaryKey){
+            alert("the entity doesn't have pk!");
+            return;
+        }
         // new weak entity
-        var weakEntityData = {name:"WeakE"+weakEntityCounter.toString(),category:"WeakEntity"};
+        var weakEntityData = {name:"WeakE"+weakEntityCounter.toString(),category:"WeakEntity",primaryKey:pk};
         weakEntityCounter++;
         var pos = selectedEntity.location.copy();
         var angle = Math.random()*Math.PI*2;
@@ -537,6 +555,23 @@ function createSubset(){
     tmpNodes.each(function (part){
         var selectedEntity = part;
         var selectedEData =part.data;
+        var pk = "";
+        var hasPrimaryKey =false;
+        //get strong entity's primary key
+        selectedEntity.findNodesConnected().each(
+            function(connectedNode){
+                if(connectedNode.data.category==="Attribute"){
+                    if(connectedNode.data.isPrimary === true){
+                        hasPrimaryKey = true;
+                        pk = connectedNode.data.name;
+                    }
+                }
+            }
+        );
+        if(!hasPrimaryKey){
+            alert("the entity doesn't have pk!");
+            return;
+        }
         // new weak entity
         var subsetData = {name:"Subset"+weakEntityCounter.toString(),category:"Subset"};
         subsetCounter++;

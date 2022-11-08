@@ -558,9 +558,10 @@ function init() {
         });
     }
 
-    //listen edit the entity and relation name
+    //listen edit the relation and entity name
+    // edit cardinality(from text
     myDiagram.addDiagramListener("TextEdited",(e) => {
-        if (e.subject.part.qb.category==="relation") { // identify the changed textBlock
+        if (e.subject.part.qb.category==="relation") { // identify the change relation name
             const id = e.subject.part.qb.key;
             let firstCardinality = e.subject.part.qb.fromText;
             const firstEntityID = e.subject.part.qb.from;
@@ -571,13 +572,11 @@ function init() {
             firstCardinality = findRelationCode(firstCardinality);
             secondCardinality = findRelationCode(secondCardinality);
 
-            if (typeof secondCardinality == "undefined" || typeof firstCardinality == "undefined") {
-                modifyRelation(id, firstEntityID, secondEntityID, firstCardinality, secondCardinality, name);
+            if (secondCardinality === undefined || firstCardinality === undefined) {
                 alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
             }else {
                 modifyRelation(id, firstEntityID, secondEntityID, firstCardinality, secondCardinality, name);
             }
-
         }else{
             const id = e.subject.part.qb.key;
             const name =  e.subject.part.qb.name;
@@ -620,6 +619,8 @@ function init() {
                     const toPort = e.newValue.toPort;
                     const node1 = myDiagram.findNodeForKey(e.newValue.from);
                     const node2 = myDiagram.findNodeForKey(e.newValue.to);
+                    //todo relation的key
+                    // 调用createRelation，cardinality传默认值
                     var key = Math.ceil(Math.random()*1000);
                     myDiagram.rollbackTransaction();
 
