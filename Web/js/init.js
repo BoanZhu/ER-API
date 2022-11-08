@@ -332,11 +332,11 @@ function init() {
         );
 
     // attribute template
-    var attributeTemplate =$(go.Node, "Table",
+    var attributeTemplate=$(go.Node, "Table",
         {
-            locationObject: "BODY",
+            locationObject: "MAINBODY",
             locationSpot:go.Spot.Center,
-            selectionObjectName: "BODY"
+            selectionObjectName: "MAINBODY"
         },
         {
             selectionAdorned: true,
@@ -349,45 +349,52 @@ function init() {
         },
         new go.Binding("location", "location").makeTwoWay(),
         $(go.Panel,"Auto",
-            {row: 1, column: 1, name: "BODY"},
-            $(go.Shape, "Circle",
-                {
-                    fill: 'lightblue',
-                    portId: "",
-                    stroke: colors.lightblue,
-                    cursor: "pointer",
-                    fromSpot: go.Spot.AllSides,
-                    toSpot: go.Spot.AllSides,
-                    strokeWidth: 2,
-                    fromLinkableDuplicates: false, toLinkableDuplicates: false
-                },
-                new go.Binding("fromLinkable", "from").makeTwoWay(),
-                new go.Binding("toLinkable", "to").makeTwoWay()),
+            {row: 0, column: 0, name: "AttributeName"},
             $(go.TextBlock,{
                     font: "bold 12px monospace",
                     margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
                 },
                 new go.Binding("text","name").makeTwoWay(),
                 new go.Binding("isUnderline", "underline")
-            )),
-        $(go.Panel, "Vertical", {row: 1, column: 0},
-            $(go.Shape,
-                {width: 3, height: 3, portId: "L",
-                    toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                    fromLinkable: true,toLinkable: true})),
-        $(go.Panel, "Vertical", {row: 1, column: 2},
-            $(go.Shape,  // the "B" port
-                {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                    fromLinkable: true,toLinkable: true})),
-        $(go.Panel, "Horizontal", {row:2, column: 1},
-            $(go.Shape,  // the "B" port
-                {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                    fromLinkable: true,toLinkable: true})),
-        $(go.Panel, "Vertical",{row: 0, column: 1},
-            $(go.Shape,  // the "B" port
-                {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                    fromLinkable: true,toLinkable: true}))
-    );
+            )
+        ),
+        $(go.Panel,"Table",
+            {row: 0, column: 1, name: "MAINBODY"},
+            $(go.Panel,"Auto",
+                {row: 1, column: 1},
+                $(go.Shape, "Circle",
+                    {
+                        fill: 'lightblue',
+                        portId: "",
+                        stroke: colors.lightblue,
+                        cursor: "pointer",
+                        fromSpot: go.Spot.AllSides,
+                        toSpot: go.Spot.AllSides,
+                        strokeWidth: 2,
+                        fromLinkableDuplicates: false, toLinkableDuplicates: false,
+                        desiredSize: new go.Size(20, 20),
+                    }
+                ),
+            ),
+            $(go.Panel, "Vertical", {row: 1, column: 0},
+                $(go.Shape,
+                    {width: 2, height: 2, portId: "L",
+                        toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Vertical", {row: 1, column: 2},
+                $(go.Shape,  // the "B" port
+                    {width: 2, height: 2, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Horizontal", {row:2, column: 1},
+                $(go.Shape,  // the "B" port
+                    {width: 2, height: 2, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                        fromLinkable: true,toLinkable: true})),
+            $(go.Panel, "Vertical",{row: 0, column: 1},
+                $(go.Shape,  // the "B" port
+                    {width: 2, height: 2, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                        fromLinkable: true,toLinkable: true})),
+        )
+        );
 
     // add all node template
     var templateMap = new go.Map();
@@ -577,6 +584,7 @@ function init() {
             secondCardinality = findRelationCode(secondCardinality);
 
             if (secondCardinality === undefined || firstCardinality === undefined) {
+                //todo
                 alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
             }else {
                 modifyRelation(id, firstEntityID, secondEntityID, firstCardinality, secondCardinality, name);

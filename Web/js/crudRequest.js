@@ -324,7 +324,7 @@ function addAttr(){
                         var link = {
                             from:myDiagram.model.getKeyForNodeData(selectedEData),
                             to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink",
-                            fromPort:"L",toPort:"U"
+                            fromPort:"U",toPort:"R"
                         };
                         myDiagram.model.addLinkData(link);
                     });
