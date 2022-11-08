@@ -554,6 +554,10 @@ function init() {
                 document.getElementById('infoDraggableHandle').style.display = "block";
                 document.getElementById('AttributeIndo').style.display = "block";
                 modifyAttributeClick();
+            }else{
+                document.getElementById('infoDraggableHandle').style.display = "hide";
+                document.getElementById('AttributeIndo').style.display = "hide";
+
             }
         });
     }
