@@ -550,6 +550,9 @@ function init() {
         myDiagram.nodes.each(function (node) {
             if (node.data.category == "Attribute" && node.isSelected) {
                 tmpNodes.push(node);
+                //todo:need test
+                document.getElementById('infoDraggableHandle').style.display = "block";
+                document.getElementById('AttributeIndo').style.display = "block";
                 modifyAttributeClick();
             }
         });

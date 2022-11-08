@@ -29,8 +29,8 @@
 </nav>
 <!--<div id="myDiagramDiv" class = "diagram"></div>-->
 <div id="infoDraggable" class="draggable ui-draggable" style="vertical-align: top; padding: 5px; top: 80px; left: 80%;">
-    <div id="infoDraggableHandle" class="handle ui-draggable-handle">Attribute Info</div>
-    <div>
+    <div id="infoDraggableHandle" class="handle ui-draggable-handle" style="display:none;">Attribute Info</div>
+    <div id ="AttributeIndo" style="display:none;">
         <div id="myInfo" class="inspector"><table><tbody>
         <input id="selectedAttributeKey" style="display: none">
         <tr><td>Entity Name:</td><td><input id="entityNameInfo" readonly="true"></td></tr>
@@ -55,6 +55,7 @@
         <tr><td><button onclick="modifyAttribute()">submit</button></td></tr>
         </tbody></table></div>
     </div><br>
+    <!--TODO:这个operation是什么-->
     <div class="handle ui-draggable-handle">Operations</div><br>
     <button style="text-align: center" class="blue">export json</button><br /><br />
     <button style="text-align: center" class="blue">load json</button><br /><br />
