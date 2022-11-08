@@ -709,6 +709,9 @@ function init() {
                 if ("category" in e.oldValue) {
                     // Attribute, WeakEntity, Subset
                     switch(e.oldValue.category){
+                        case "entity":
+                            deleteEntity(id);
+                            break;
                         case "Attribute"://delete attribute
                             deleteAttribute(id);
                             break;
@@ -720,8 +723,6 @@ function init() {
                             break;
                         default:break;
                     }
-                } else {
-                    deleteEntity(id);
                 }
             }
         });

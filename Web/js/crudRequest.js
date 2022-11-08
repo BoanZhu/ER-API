@@ -87,27 +87,40 @@ function createEntity(name,layoutX,layoutY){
 
 function deleteEntity(id){
     myDiagram.nodes.each(function (node){
-        if(("category" in node.data) && node.data.entityId === id){
-            myDiagram.model.removeNodeData(node.data);
+        // if(("category" in node.data) && ((node.data.entityId === id) || (id in node.data.entityList))){ //all linked attributes,subsets and weak entities
+        if("category" in node.data){
+            if(node.data.entityId === id){
+                //todo 需要重新调delete subset/weak entity func吗（backend
+                myDiagram.model.removeNodeData(node.data);
+            }
+            // relation
+            if(node.data.entityList !== undefined && node.data.entityList.includes(id)){
+                if(node.data.entityList.length===2){
+                    // delete another link
+                    node.findNodesConnected().each(n=>node.findLinksBetween(n).each(l=>myDiagram.model.removeLinkData(l.data)));
+                    // todo delete relation http
+                    myDiagram.model.removeNodeData(node.data);
+                }
+            }
         }
     });
     let Obj ={
         id: id
     }
     Obj = JSON.stringify(Obj);
-    $.ajax({
-        type : "POST",
-        url : "http://146.169.52.81:8080/er/entity/delete",
-        data : Obj,
-        headers: { "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        contentType: "application/json",
-        success : function(result) {
-
-
-        }, error : function(result) {
-        }
-    });
+    // $.ajax({
+    //     type : "POST",
+    //     // url : "http://146.169.52.81:8080/er/entity/delete",
+    //     url:"http://127.0.0.1:8080/er/entity/delete",
+    //     data : Obj,
+    //     headers: { "Access-Control-Allow-Origin": "*",
+    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+    //     contentType: "application/json",
+    //     success : function(result) {
+    //
+    //     }, error : function(result) {
+    //     }
+    // });
 }
 
 function updateEntity(id,name,layoutX,layoutY){
