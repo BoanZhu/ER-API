@@ -28,14 +28,14 @@
         "{\"from\":-1,\"to\":\"955_test\",\"fromText\":\"1:1\",\"category\":\"entityLink\",\"fromPort\":\"R\",\"toPort\":\"L\"}\n" +
         "]}";
 
-    function load() {
-        init();
-        myDiagram.model = go.Model.fromJson(modelJson);
-        document.getElementById("image").innerHTML = 'set1123';
-        var image = myDiagram.makeImageData({ background: "white",type: "image/jpeg"});
-        console.log(image);
-        document.getElementById("image").innerHTML = image;
-    }
+    init();
+    myDiagram.model = go.Model.fromJson(modelJson);
+    var image = myDiagram.makeImageData({
+        scale:1
+    });
+    console.log(image);
+    document.getElementById("image").innerHTML =image;
+    // document.getElementById("image").appendChild(image);
     function init(){
         // Common color
         const colors =
@@ -568,33 +568,5 @@
                 nodeDataArray: [],
                 linkDataArray: []});
     }
-    //load model when first accessing the page
-    window.addEventListener('DOMContentLoaded', load);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </script>
 </html>
