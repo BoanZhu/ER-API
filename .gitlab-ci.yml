@@ -1,28 +1,19 @@
+image: maven:3.6.3-jdk-11
+
 stages:
-  - test
-  - visualize
+  - build
 
-test-jdk11:
-  stage: test
-  image: maven:3.6.3-jdk-11
+maven-build:
+  stage: build
+  coverage: '/Total.*?([0-9]{1,3})%/'
   script:
-    - mvn $MAVEN_CLI_OPTS clean org.jacoco:jacoco-maven-plugin:prepare-agent test jacoco:report
+    - mvn package
+    - cat target/site/jacoco/index.html
   artifacts:
+    expose_as: 'code coverage'
     paths:
-      - target/site/jacoco/jacoco.xml
-
-coverage-jdk11:
-  # Must be in a stage later than test-jdk11's stage.
-  # The `visualize` stage does not exist by default.
-  # Please define it first, or choose an existing stage like `deploy`.
-  stage: visualize
-  image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.7
-  script:
-    # convert report from jacoco to cobertura, using relative project path
-    - python /opt/cover2cover.py target/site/jacoco/jacoco.xml $CI_PROJECT_DIR/src/main/java/ > target/site/cobertura.xml
-  needs: [ "test-jdk11" ]
-  artifacts:
+      - target/surefire-reports/
+      - target/site/jacoco/index.html
     reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: target/site/cobertura.xml
+      junit:
+        - target/surefire-reports/TEST-*.xml
