@@ -2,6 +2,11 @@ var entityCounter = 0;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;
+const ERLinkCard = "1:1"
+const ERLinkCategory = "entityLink";
+const defaultRelationNodeName = "test";
+const defaultRelationNodeCategory = "relation";
+const defaultEntityNodeCategory = "entity"
 function init() {
     /*
     Get the editable model Template
@@ -23,13 +28,15 @@ function init() {
             "relinkingTool.reconnectLink": isAllowReconnect
         });
 
-    function makeButton(text, action, visiblePredicate) {
+    function makeButton(text, action) {
         return $("ContextMenuButton",
             $(go.TextBlock, text),
             { click: action },
             // visiblePredicate ? new go.Binding("visible", "", (o, e) => o.diagram ? visiblePredicate(o, e) : false).ofObject() : {}
         );
     }
+
+
     // strong entity node menu
     const nodeMenu =  // context menu for each Node
         $("ContextMenu",
@@ -41,9 +48,17 @@ function init() {
                 (e, obj) => createWeakEntity()),
         );
 
+    // relation context Menu
+    const relation_menu =  // context menu for each relatiom
+        $("ContextMenu",
+            makeButton("Add Attribute",
+                (e, obj) => addAttr()),
+        );
+
     /*
     All adornment
     */
+
     // adornment for weak entity
     const weakEntityAdornment =
         $(go.Adornment, "Spot",
@@ -62,29 +77,41 @@ function init() {
     //         $("Button", {alignment: go.Spot.TopRight, click: modifyAttributeClick},
     //             $(go.Shape, "MinusLine", {desiredSize: new go.Size(6, 6)})),
     //     );
+
     /*
      4 ports
      */
-    const leftPort = $(go.Panel, "Vertical", {row: 1, column: 0},
-        $(go.Shape,
-            {width: 3, height: 3, portId: "L",
-                toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                fromLinkable: true,toLinkable: true}));
-    const rightPort = $(go.Panel, "Vertical", {row: 1, column: 2},
-        $(go.Shape,  // the "B" port
-            {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                fromLinkable: true,toLinkable: true}));
-    const bottomPort = $(go.Panel, "Horizontal", {row:2, column: 1},
-        $(go.Shape,  // the "B" port
-            {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                fromLinkable: true,toLinkable: true}));
-    const topPort = $(go.Panel, "Vertical",{row: 0, column: 1},
-        $(go.Shape,  // the "B" port
-            {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                fromLinkable: true,toLinkable: true}));
+
+    function leftPort(){
+        // L port
+        return $(go.Panel, "Vertical", {row: 1, column: 0},
+                $(go.Shape, {width: 3, height: 3, portId: "L", toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                    fromLinkable: true,toLinkable: true
+                }));
+    }
+    function rightPort(){
+        // R port
+        return $(go.Panel, "Vertical", {row: 1, column: 2},
+            $(go.Shape,  {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                    fromLinkable: true,toLinkable: true}));
+    }
+    function bottomPort(){
+        // B port
+        return $(go.Panel, "Horizontal", {row:2, column: 1},
+            $(go.Shape, {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                    fromLinkable: true,toLinkable: true}));
+    }
+    function topPort(){
+        // U port
+        return $(go.Panel, "Vertical",{row: 0, column: 1},
+            $(go.Shape, {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                    fromLinkable: true,toLinkable: true}));
+    }
+
     /*
         All Node(Entity+Attribute) templates
      */
+
     //strong entity template
     const entityTemplate =
         $(go.Node, "Table",  // the whole node panel
@@ -92,7 +119,6 @@ function init() {
                 locationObject: "BODY",
                 locationSpot: go.Spot.Center,
                 selectionObjectName: "BODY",
-                //contextMenu
             },
             {
                 locationSpot: go.Spot.Center,
@@ -105,8 +131,6 @@ function init() {
                 shadowColor: colors.lightblue,
             },
             new go.Binding("location", "location").makeTwoWay(),
-            // whenever the PanelExpanderButton changes the visible property of the "LIST" panel,
-            // clear out any desiredSize set by the ResizingTool.
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
             // the body
             $(go.Panel, "Auto",
@@ -132,10 +156,9 @@ function init() {
                         editable: true
                     },
                     new go.Binding("text", "name").makeTwoWay()),
-                // new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()
-            ),// end Auto Panel Body
-            // left port
-            leftPort,rightPort,topPort,bottomPort
+            ),
+            //port
+            leftPort(),rightPort(),topPort(),bottomPort()
         );
 
     //relationNodeTemplate
@@ -150,6 +173,7 @@ function init() {
                 locationSpot: go.Spot.Center,
                 selectionAdorned: true,
                 resizable: false,
+                contextMenu: relation_menu,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
@@ -185,23 +209,8 @@ function init() {
                         },
                         new go.Binding("text", "name").makeTwoWay()))
             ),
-            $(go.Panel, "Vertical", {row: 1, column: 0},
-                $(go.Shape,
-                    {width: 3, height: 3, portId: "L",
-                        toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Vertical", {row: 1, column: 2},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Horizontal", {row:2, column: 1},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Vertical",{row: 0, column: 1},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                        fromLinkable: true,toLinkable: true}))
+            //port
+            leftPort(),rightPort(),topPort(),bottomPort()
         );
 
     // weak entity template
@@ -248,24 +257,8 @@ function init() {
                     },
                     new go.Binding("text", "name").makeTwoWay()),
             ), //end Auto Panel Body
-            // new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-            $(go.Panel, "Vertical", {row: 1, column: 0},
-                $(go.Shape,
-                    {width: 3, height: 3, portId: "L",
-                        toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Vertical", {row: 1, column: 2},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Horizontal", {row:2, column: 1},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Vertical",{row: 0, column: 1},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                        fromLinkable: true,toLinkable: true}))
+            //port
+            leftPort(),rightPort(),topPort(),bottomPort()
         );
 
     // subset template
@@ -312,23 +305,8 @@ function init() {
                     new go.Binding("text", "name").makeTwoWay()),
                 $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
             ), // end Table Panel
-            $(go.Panel, "Vertical", {row: 1, column: 0},
-                $(go.Shape,
-                    {width: 3, height: 3, portId: "L",
-                        toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Vertical", {row: 1, column: 2},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Horizontal", {row:2, column: 1},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Vertical",{row: 0, column: 1},
-                $(go.Shape,  // the "B" port
-                    {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                        fromLinkable: true,toLinkable: true}))
+            //port
+            leftPort(),rightPort(),topPort(),bottomPort()
         );
 
     // attribute template
@@ -343,9 +321,6 @@ function init() {
             // selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
-            linkValidation: function(fromNode, fromGraphObject, toNode, toGraphObject){
-                return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 2;
-            }
         },
         new go.Binding("location", "location").makeTwoWay(),
         $(go.Panel,"Auto",
@@ -376,23 +351,8 @@ function init() {
                     }
                 ),
             ),
-            $(go.Panel, "Vertical", {row: 1, column: 0},
-                $(go.Shape,
-                    {width: 2, height: 2, portId: "L",
-                        toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Vertical", {row: 1, column: 2},
-                $(go.Shape,  // the "B" port
-                    {width: 2, height: 2, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Horizontal", {row:2, column: 1},
-                $(go.Shape,  // the "B" port
-                    {width: 2, height: 2, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                        fromLinkable: true,toLinkable: true})),
-            $(go.Panel, "Vertical",{row: 0, column: 1},
-                $(go.Shape,  // the "B" port
-                    {width: 2, height: 2, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                        fromLinkable: true,toLinkable: true})),
+            //port
+            leftPort(),rightPort(),topPort(),bottomPort()
         )
         );
 
@@ -405,6 +365,7 @@ function init() {
     templateMap.add("WeakEntity", weakEntityTemplate);
     templateMap.add("Subset",subsetTemplate);
     templateMap.add("Attribute",attributeTemplate);
+    templateMap.add("relation_attribute",attributeTemplate);
 
     templateMap.add("relation",relationTemplate);
 
@@ -540,7 +501,7 @@ function init() {
     linkTemplateMap.add("subsetLink",subsetLink);
     linkTemplateMap.add("entityLink",entityLink);
     // default
-    linkTemplateMap.add("",relationLink);
+    linkTemplateMap.add("",entityLink);
     myDiagram.linkTemplateMap = linkTemplateMap;
 
     myDiagram.model = new go.GraphLinksModel(
@@ -573,6 +534,23 @@ function init() {
     // edit cardinality(from text
     myDiagram.addDiagramListener("TextEdited",(e) => {
         if (e.subject.part.qb.category==="relation") { // identify the change relation name
+            // update reation name
+            console.log("relation node");
+            const id = e.subject.part.qb.key;
+            const name =  e.subject.part.qb.name;
+            const layoutX = e.subject.part.qb.location.x;
+            const layoutY = e.subject.part.qb.location.y;
+            // modifyRelation(id,name,layoutX,layoutY);
+        }
+        else if(e.subject.part.qb.category==="entity"){
+            //update entity info
+            const id = e.subject.part.qb.key;
+            const name =  e.subject.part.qb.name;
+            const layoutX = e.subject.part.qb.location.x;
+            const layoutY = e.subject.part.qb.location.y;
+            updateEntity(id,name,layoutX,layoutY);
+        }
+        else if(e.subject.part.qb.category==="entityLink"){
             const id = e.subject.part.qb.key;
             let firstCardinality = e.subject.part.qb.fromText;
             const firstEntityID = e.subject.part.qb.from;
@@ -584,17 +562,11 @@ function init() {
             secondCardinality = findRelationCode(secondCardinality);
 
             if (secondCardinality === undefined || firstCardinality === undefined) {
-                //todo
                 alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
-            }else {
+            }
+            else {
                 modifyRelation(id, firstEntityID, secondEntityID, firstCardinality, secondCardinality, name);
             }
-        }else{
-            const id = e.subject.part.qb.key;
-            const name =  e.subject.part.qb.name;
-            const layoutX = e.subject.part.qb.location.x;
-            const layoutY = e.subject.part.qb.location.y;
-            updateEntity(id,name,layoutX,layoutY);
         }
     });
 
@@ -624,73 +596,62 @@ function init() {
         // iterate over all of the actual ChangedEvents of the Transaction
         txn.changes.each(function(e) {
             if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
-                if (!("category" in e.newValue)) {
-                    const firstEntityID = e.newValue.from;
-                    const secondEntityID = e.newValue.to;
-                    const fromPort = e.newValue.fromPort;
-                    const toPort = e.newValue.toPort;
-                    const node1 = myDiagram.findNodeForKey(e.newValue.from);
-                    const node2 = myDiagram.findNodeForKey(e.newValue.to);
-                    //todo relation的key
-                    // 调用createRelation，cardinality传默认值
-                    var key = Math.ceil(Math.random()*1000);
-                    myDiagram.rollbackTransaction();
 
-                    if (node1.category === "relation"){
-                        // create link between relation node and entity node with entity link
-                        myDiagram.model.addLinkData({
-                            "from": node2.key,
-                            "to": node1.key,
-                            fromText: "1:1",
-                            category: "entityLink",
-                            fromPort: toPort,
-                            toPort: fromPort
-                        });
-                    }else if (node2.category === "relation"){
-                        // create link between relation node and entity node with entity link
-                        myDiagram.model.addLinkData({
-                            "from": node1.key,
-                            "to": node2.key,
-                            fromText: "1:1",
-                            category: "entityLink",
-                            fromPort: fromPort,
-                            toPort: toPort
-                        });
+                const fromPort = e.newValue.fromPort;
+                const toPort = e.newValue.toPort;
+                const node1 = myDiagram.findNodeForKey(e.newValue.from);
+                const node2 = myDiagram.findNodeForKey(e.newValue.to);
+
+                // entity relation link
+                if (node1.category === "relation" || node2.category === "relation") {
+                    // entity relation link
+                    const is_node1_relation = node1.category === "relation";
+                    e.newValue.from = is_node1_relation ? node2.key : node1.key;
+                    e.newValue.to = is_node1_relation ? node1.key : node2.key;
+                    e.newValue.fromPort = is_node1_relation ? toPort : fromPort;
+                    e.newValue.toPort = is_node1_relation ? fromPort : toPort;
+                    // TODO:API createERLink: ERLink ID
+                    const er_id = createERLink(e.newValue.from, e.newValue.to, ERLinkCard, e.newValue.fromPort, e.newValue.toPort);
+                    if (er_id === -1) {
+                        alert("can't create relation between this entity and this relation");
+                        myDiagram.rollbackTransaction();
+                        return;
                     } else {
-                        const relationNodeX = (node1.location.x + node2.location.x)/2;
-                        const relationNodeY = (node1.location.y + node2.location.y)/2;
-                        var entityList = new Array();
-                        entityList.push(node1.key);
-                        entityList.push(node2.key);
-                        key = key+"_"+"test"
-                        myDiagram.model.addNodeData({
-                            "key": key,
-                            "name": "test",
-                            "location": {"class": "go.Point", "x": relationNodeX, "y": relationNodeY},
-                            category: "relation",
-                            from:true,
-                            to:true,
-                            entityList: entityList
+                        e.newValue.fromText = ERLinkCard;
+                        e.newValue.category = ERLinkCategory;
+                        e.newValue.key = er_id;
+                    }
+                }
+                // entity-entity link, create new node
+                else if (node1.category === "entity" && node2.category === "entity") {
+                    myDiagram.rollbackTransaction();
+                    const relationNodeX = (node1.location.x + node2.location.x) / 2;
+                    const relationNodeY = (node1.location.y + node2.location.y) / 2;
+                    //TODO:API CrateRelationNode: get return Id
 
+                    // let relation_id = createRelationNode(defaultRelationNodeName,node1.key,node2.key,relationNodeX,relationNodeY)
+                    var relation_id = 1;
+                    if (relation_id === -1) {
+                        alert("can't build relation between two entity");
+                        return;
+                    } else {
+                        myDiagram.model.addNodeData({
+                            key: relation_id,
+                            name: defaultRelationNodeName,
+                            "location": {"class": "go.Point", "x": relationNodeX, "y": relationNodeY},
+                            category: defaultRelationNodeCategory,
+                            from: true,
+                            to: true,
                         });
-                        //TODO: change the addNodeDate template with the new designed relation node
-                        //TODO: API add node function will be caught by the listener
-                        myDiagram.model.addLinkData({
-                            "from": firstEntityID,
-                            "to": key,
-                            fromText: "1:1",
-                            category: "entityLink",
-                            fromPort: fromPort,
-                            toPort: toPort
-                        });
-                        myDiagram.model.addLinkData({
-                            "from": secondEntityID,
-                            "to": key,
-                            fromText: "1:1",
-                            category: "entityLink",
-                            fromPort: toPort,
-                            toPort: fromPort
-                        })
+                        myDiagram.model.addLinkData(
+                            {
+                                "from": node1.key, "to": relation_id, fromText: ERLinkCard,
+                                category: ERLinkCategory, fromPort: fromPort, toPort: toPort
+                            },
+                            {
+                                "from": node2.key, "to": relation_id, fromText: ERLinkCard, category: ERLinkCategory,
+                                fromPort: toPort, toPort: fromPort
+                            });
                     }
                     save();
                     load();
@@ -707,20 +668,25 @@ function init() {
                 //TODO:changed link Node operation
             }
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
-                e.newValue.name = e.newValue.name + entityCounter.toString();
-                const entityName = e.newValue.name;
-                const layoutX = e.newValue.location.x;
-                const layoutY = e.newValue.location.y;
-                var connectedEntityList = new Array();
-                e.newValue.connectedEntity = connectedEntityList;
-                entityCounter++;
-                if (e.newValue.category === "entity") {
-                    //create entity
-                    e.newValue.key = createEntity(entityName, layoutX, layoutY);
-                    save();
-                    load();
+                switch(e.newValue.category){
+                    case defaultRelationNodeCategory: //create new relation node, id alradsy get
+                        break;
+                    case defaultEntityNodeCategory: //create new entity
+                        e.newValue.name = e.newValue.name + entityCounter.toString();
+                        entityCounter++;
+                        //TODO:API createEntity
+                        let id = createEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
+                        if (id===-1){
+                            alert("create entity fail!");
+                            myDiagram.rollbackTransaction();
+                        } else {e.newValue.key = id;}
+                        save();
+                        load();
+
+                        break;
+                    default:break;
+                    }
                 }
-            }
             else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
                 const id = e.oldValue.key;
                 if ("category" in e.oldValue) {

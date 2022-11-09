@@ -56,7 +56,7 @@ function textStyle() {
     }
 }
 
-const limitConnectNode = new Set(["Subset","WeakEntity","Attribute"]);
+const limitConnectNode = new Set(["Subset","WeakEntity","Attribute","relation_attribute"]);
 
 function isAllowReconnect(existinglink, newnode, newport, toend){
     const toNodeCategory = existinglink.toNode.category;
@@ -67,17 +67,27 @@ function isAllowReconnect(existinglink, newnode, newport, toend){
             return false;
         }
     } else if(toNodeCategory==="relation"){
-        if (newnode.findLinksTo(existinglink.toNode).count ===1){
+        if (newnode.findLinksTo(existinglink.toNode).count ===1 && newnode.category==="entity"){
+            //entity already has a link
             return false;
-        } else if (newNodeCategory !=='' && !toend){
+        }
+        else if (newNodeCategory !=='entity' && !toend){
             return false;
-        } else if(toend&&newNodeCategory==='relation'&& existinglink.toNode.findLinksConnected().count<=2){
-            const deteleNode = myDiagram.findNodeForKey(existinglink.toNode.key);
-            go.RelinkingTool.prototype.reconnectLink.call(this, existinglink, newnode, newport, toend);
-            myDiagram.startTransaction();
-            myDiagram.remove(deteleNode);
-            myDiagram.commitTransaction("deleted node");
-            return;
+        }
+        else if(toend&&newNodeCategory==='relation'){
+            //the number of connected entity
+             let counter = 0;
+            existinglink.toNode.findLinksConnected().each(function (node){
+                if (node.category ==="entity") counter = counter+1;
+            });
+            if (counter>=2){
+                const deteleNode = myDiagram.findNodeForKey(existinglink.toNode.key);
+                go.RelinkingTool.prototype.reconnectLink.call(this, existinglink, newnode, newport, toend);
+                myDiagram.startTransaction();
+                myDiagram.remove(deteleNode);
+                myDiagram.commitTransaction("deleted node");
+                return;
+            }
         } else if(toend&&newNodeCategory!=='relation'){
             return false;
         }

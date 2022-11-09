@@ -2,6 +2,8 @@
 Top right: rename and delete model
  */
 
+const viewID=  parseInt(location.href.substring(location.href.indexOf("id=")+3));
+
 //rename, get the new name and replace the new url
 function renameView() {
     const name=prompt("Please enter new view name");
@@ -152,19 +154,20 @@ function updateEntity(id,name,layoutX,layoutY){
 
 
 /*
-Relation functions
+Relation Node functions
  */
-
-function createRelation(name,firstEntityID,secondEntityID,firstCardinality,secondCardinality) { //return request ID
-    const viewID =  parseInt(location.href.substring(location.href.indexOf("id=")+3));
+function createRelationNode(name,firstEntityID,secondEntityID, layoutX,layoutY) {
     let id;
+
     let Obj = {
         viewID: viewID,
         name: name,
         firstEntityID: firstEntityID,
         secondEntityID: secondEntityID,
-        firstCardinality: firstCardinality,
-        secondCardinality: secondCardinality
+        layoutInfo: {
+            layoutX: layoutX,
+            layoutY: layoutY
+        }
     };
     Obj = JSON.stringify(Obj);
     $.ajax({
@@ -178,6 +181,7 @@ function createRelation(name,firstEntityID,secondEntityID,firstCardinality,secon
         success : function(result) {
             id=result.data.id;
         }, error : function(result) {
+            id = -1
         }
     });
     return id;
@@ -231,6 +235,39 @@ function deleteRelation(id) {
     });
 }
 
+
+/*
+ER relation functions;
+ */
+
+function createERLink(entityID,relationID,entityCardinality,entityPort,relationPort){
+    return Math.ceil(Math.random()*1000);
+    let id;
+    let Obj = JSON.stringify({
+        viewID: viewID,
+        entityID: entityID,
+        relationID: relationID,
+        entityCardinality: entityCardinality,
+        entityPort: entityPort,
+        relationPort:relationPort
+    });
+    $.ajax({
+        async: false,
+        type : "POST",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        url : "http://146.169.52.81:8080/er/relationship/create",
+        contentType:"application/json",
+        data : Obj,
+        success : function(result) {
+            id=result.data.id;
+        }, error : function(result) {
+            id = -1;
+        }
+    });
+    return id;
+}
+
 /*
     attribute functions
 */
@@ -261,44 +298,61 @@ function deleteAttribute(id){
     });
 }
 
-
 // add attribute
 function addAttr(){
     var tmpNodes = new go.List();
+    var category;
     myDiagram.startTransaction("add attributes");
     myDiagram.nodes.each(function (node){
         if(node.isSelected){
             tmpNodes.push(node);
+            category = node.category;
         }
     });
     tmpNodes.each(function (part){
-        var selectedEntity = part;
-        var selectedEData =part.data;
+        var selectedNode = part;
         // new attribute
         var attributeData = {name:"NewA"+attributeCounter.toString(),category:"Attribute"};
         attributeCounter++;
-        var pos = selectedEntity.location.copy();
+        var pos = selectedNode.location.copy();
         var angle = Math.random()*Math.PI*2;
         pos.x+=Math.cos(angle)*120;
         pos.y+=Math.sin(angle)*120;
         attributeData.location = pos;
-        attributeData.isPrimary = false;
         attributeData.dataType = 1;
-        attributeData.entityId = selectedEData.key;
+        attributeData.parentId = selectedNode.data.key;
         attributeData.allowNotNull = false; //default value false：NOT allow null
         // send data to backend
-        const viewId =  location.href.substring(location.href.indexOf("id=")+1);
-        var info ={
-            "viewID":viewId,
-            "entityID":attributeData.entityId,
-            "nullable":false,
-            "name":attributeData.name,
-            "dataType":1, //default
-            "isPrimary":false,
-            "layoutInfo":{
-                "layoutX":pos.x.toFixed(1),
-                "layoutY":pos.y.toFixed(1)
+        var info;
+        if (category==="entity") {
+            attributeData.isPrimary = false;
+
+            info = {
+                "viewID": viewId,
+                "entityID": attributeData.parentId,
+                "nullable": false,
+                "name": attributeData.name,
+                "dataType": 1, //default
+                "isPrimary": false,
+                "layoutInfo": {
+                    "layoutX": pos.x.toFixed(1),
+                    "layoutY": pos.y.toFixed(1)
+                }
             }
+        }else {
+            attributeData.category = "relation_attribute";
+            info = {
+                "viewID": viewId,
+                "relationID": attributeData.parentId,
+                "nullable": false,
+                "name": attributeData.name,
+                "dataType": 1, //default
+                "layoutInfo": {
+                    "layoutX": pos.x.toFixed(1),
+                    "layoutY": pos.y.toFixed(1)
+                }
+            }
+
         }
         info = JSON.stringify(info);
         $.ajax({
@@ -322,7 +376,7 @@ function addAttr(){
                         load();
                         // new link
                         var link = {
-                            from:myDiagram.model.getKeyForNodeData(selectedEData),
+                            from:myDiagram.model.getKeyForNodeData(selectedNode.part.data),
                             to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink",
                             fromPort:"U",toPort:"R"
                         };
@@ -334,6 +388,7 @@ function addAttr(){
             }
         });
     });
+
     myDiagram.commitTransaction("add attributes");
 }
 
