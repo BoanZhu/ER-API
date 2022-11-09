@@ -611,13 +611,15 @@ function init() {
                     e.newValue.fromPort = is_node1_relation ? toPort : fromPort;
                     e.newValue.toPort = is_node1_relation ? fromPort : toPort;
                     // TODO:API createERLink: ERLink ID
-                    const er_id = createERLink(e.newValue.from, e.newValue.to, ERLinkCard, e.newValue.fromPort, e.newValue.toPort);
+
+                    const er_id = 12;
+                    // const er_id = createERLink(e.newValue.from, e.newValue.to, ERLinkCard, e.newValue.fromPort, e.newValue.toPort);
                     if (er_id === -1) {
                         alert("can't create relation between this entity and this relation");
                         myDiagram.rollbackTransaction();
                         return;
                     } else {
-                        e.newValue.fromText = ERLinkCard;
+                        e.newValue.fromText = "1:1";
                         e.newValue.category = ERLinkCategory;
                         e.newValue.key = er_id;
                     }
@@ -647,7 +649,8 @@ function init() {
                             {
                                 "from": node1.key, "to": relation_id, fromText: ERLinkCard,
                                 category: ERLinkCategory, fromPort: fromPort, toPort: toPort
-                            },
+                            });
+                        myDiagram.model.addLinkData(
                             {
                                 "from": node2.key, "to": relation_id, fromText: ERLinkCard, category: ERLinkCategory,
                                 fromPort: toPort, toPort: fromPort
@@ -669,20 +672,18 @@ function init() {
             }
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 switch(e.newValue.category){
-                    case defaultRelationNodeCategory: //create new relation node, id alradsy get
-                        break;
                     case defaultEntityNodeCategory: //create new entity
                         e.newValue.name = e.newValue.name + entityCounter.toString();
                         entityCounter++;
                         //TODO:API createEntity
-                        let id = createEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
+                        const id = 12234;
+                        // let id = createEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
                         if (id===-1){
                             alert("create entity fail!");
                             myDiagram.rollbackTransaction();
                         } else {e.newValue.key = id;}
                         save();
                         load();
-
                         break;
                     default:break;
                     }
