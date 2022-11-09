@@ -3,3 +3,4 @@
 target
 first schema.json
 out/
+*.iml

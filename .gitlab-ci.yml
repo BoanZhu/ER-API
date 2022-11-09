@@ -1,0 +1,19 @@
+image: maven:3.6.3-jdk-11
+
+stages:
+  - build
+  - test
+
+maven-build:
+  stage: build
+  script:
+    - mvn package
+    - cat target/site/jacoco/index.html
+  artifacts:
+    expose_as: 'code coverage'
+    paths:
+      - target/surefire-reports/
+      - target/site/jacoco/index.html
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml

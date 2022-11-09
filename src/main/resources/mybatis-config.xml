@@ -6,8 +6,8 @@
     <properties resource='jdbc.properties'/>
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
-                     javaType="com.ic.er.common.RelatedObjType"/>
-        <typeHandler handler="com.ic.er.common.CardinalityEnumTypeHandler"/>
+                     javaType="io.github.MigadaTang.common.RelatedObjType"/>
+        <typeHandler handler="io.github.MigadaTang.common.CardinalityEnumTypeHandler"/>
     </typeHandlers>
     <environments default='development'>
         <environment id='development'>
