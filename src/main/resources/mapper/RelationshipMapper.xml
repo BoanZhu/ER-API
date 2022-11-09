@@ -8,29 +8,25 @@
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="schema_id" property="schemaID"/>
-        <result column="first_entity_id" property="firstEntityID"/>
-        <result column="second_entity_id" property="secondEntityID"/>
-        <result column="first_cardinality" property="firstCardinality"/>
-        <result column="second_cardinality" property="secondCardinality"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, schema_id, first_entity_id, second_entity_id, first_cardinality, second_cardinality
+        id, name, schema_id
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,name,schema_id,first_entity_id,second_entity_id,first_cardinality,second_cardinality,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,is_delete,gmt_create,gmt_modified
         from relationship
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByRelationship" parameterType="com.ic.er.entity.RelationshipDO" resultMap="BaseResultMap">
         select
-        id,name,schema_id,first_entity_id,second_entity_id,first_cardinality,second_cardinality,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,is_delete,gmt_create,gmt_modified
         from relationship
         <where>
             <if test="ID != null">
@@ -41,18 +37,6 @@
             </if>
             <if test="schemaID != null">
                 and schema_id = #{schemaID,jdbcType=BIGINT}
-            </if>
-            <if test="firstEntityID != null">
-                and first_entity_id = #{firstEntityID,jdbcType=BIGINT}
-            </if>
-            <if test="secondEntityID != null">
-                and second_entity_id = #{secondEntityID,jdbcType=BIGINT}
-            </if>
-            <if test="firstCardinality != null">
-                and first_cardinality = #{firstCardinality,jdbcType=SMALLINT}
-            </if>
-            <if test="secondCardinality != null">
-                and second_cardinality = #{secondCardinality,jdbcType=SMALLINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -73,18 +57,6 @@
             <if test="schemaID != null">
                 schema_id,
             </if>
-            <if test="firstEntityID != null">
-                first_entity_id,
-            </if>
-            <if test="secondEntityID != null">
-                second_entity_id,
-            </if>
-            <if test="firstCardinality != null">
-                first_cardinality,
-            </if>
-            <if test="secondCardinality != null">
-                second_cardinality
-            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -92,18 +64,6 @@
             </if>
             <if test="schemaID != null">
                 #{schemaID,jdbcType=BIGINT},
-            </if>
-            <if test="firstEntityID != null">
-                #{firstEntityID,jdbcType=BIGINT},
-            </if>
-            <if test="secondEntityID != null">
-                #{secondEntityID,jdbcType=BIGINT},
-            </if>
-            <if test="firstCardinality != null">
-                #{firstCardinality,jdbcType=SMALLINT},
-            </if>
-            <if test="secondCardinality != null">
-                #{secondCardinality,jdbcType=SMALLINT}
             </if>
         </trim>
     </insert>
@@ -122,18 +82,6 @@
             </if>
             <if test="schemaID != null">
                 schema_id = #{schemaID,jdbcType=BIGINT},
-            </if>
-            <if test="firstEntityID != null">
-                first_entity_id = #{firstEntityID,jdbcType=BIGINT},
-            </if>
-            <if test="secondEntityID != null">
-                second_entity_id = #{secondEntityID,jdbcType=BIGINT},
-            </if>
-            <if test="firstCardinality != null">
-                first_cardinality = #{firstCardinality,jdbcType=SMALLINT},
-            </if>
-            <if test="secondCardinality != null">
-                second_cardinality = #{secondCardinality,jdbcType=SMALLINT}
             </if>
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0

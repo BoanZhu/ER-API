@@ -8,18 +8,19 @@
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="schema_id" property="schemaID"/>
+        <result column="aim_port" property="aimPort"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, schema_id
+        id, name, schema_id, aim_port
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,name,schema_id,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,aim_port,is_delete,gmt_create,gmt_modified
         from entity
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
@@ -37,6 +38,9 @@
             </if>
             <if test="schemaID != null">
                 and schema_id = #{schemaID,jdbcType=BIGINT}
+            </if>
+            <if test="aimPort != null">
+                and aim_port = #{aimPort,jdbcType=VARCHAR}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -57,6 +61,9 @@
             <if test="schemaID != null">
                 schema_id,
             </if>
+            <if test="aimPort != null">
+                aim_port,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -64,6 +71,9 @@
             </if>
             <if test="schemaID != null">
                 #{schemaID,jdbcType=BIGINT},
+            </if>
+            <if test="aimPort != null">
+                #{aimPort,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -82,6 +92,9 @@
             </if>
             <if test="schemaID != null">
                 schema_id = #{schemaID,jdbcType=BIGINT},
+            </if>
+            <if test="aimPort != null">
+                aim_port = #{aimPort,jdbcType=VARCHAR},
             </if>
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0

@@ -28,31 +28,26 @@ public class testRelationMapper {
 
     @Test
     public void testQueryRelationByRelation() {
-        RelationshipDO relationshipDO = new RelationshipDO(null, "relation4",
-                null, null, null,
-                Cardinality.ZeroToMany, Cardinality.ZeroToMany, 0, null, null);
+        RelationshipDO relationshipDO = new RelationshipDO(null, "relation4", (long)0,
+                null, null, null);
         List<RelationshipDO> res = ER.relationshipMapper.selectByRelationship(relationshipDO);
         System.out.println(res);
     }
 
     @Test
     public void testCreateRelation() {
-        RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(11), "relation4",
-                Long.valueOf(4), Long.valueOf(4), Long.valueOf(3),
-                Cardinality.ZeroToMany, Cardinality.ZeroToMany, 0, new Date(), new Date());
+        RelationshipDO relationshipDO = new RelationshipDO(11L, "relation4", 4L);
         Assert.assertEquals(ER.relationshipMapper.insert(relationshipDO), 1);
     }
 
     @Test
     public void testDeleteRelation() {
-        Assert.assertEquals(ER.relationshipMapper.deleteByID(Long.valueOf(11)), 1);
+        Assert.assertEquals(ER.relationshipMapper.deleteByID(11L), 1);
     }
 
     @Test
     public void testUpdateRelation() {
-        RelationshipDO relationshipDO = new RelationshipDO(Long.valueOf(4), "relation4update",
-                Long.valueOf(3), Long.valueOf(4), Long.valueOf(3),
-                Cardinality.ZeroToMany, Cardinality.ZeroToMany, 0, new Date(), new Date());
+        RelationshipDO relationshipDO = new RelationshipDO(11L, "relation4update", 3L);
         Assert.assertEquals(ER.relationshipMapper.updateByID(relationshipDO), 1);
     }
 }

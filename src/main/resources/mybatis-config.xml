@@ -26,5 +26,6 @@
         <mapper resource='mapper/RelationshipMapper.xml'/>
         <mapper resource='mapper/SchemaMapper.xml'/>
         <mapper resource='mapper/LayoutInfoMapper.xml'/>
+        <mapper resource='mapper/RelationshipEdgeMapper.xml'/>
     </mappers>
 </configuration>
