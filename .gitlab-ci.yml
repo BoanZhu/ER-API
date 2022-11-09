@@ -1,3 +1,7 @@
+stages:
+  - test
+  - visualize
+
 test-jdk11:
   stage: test
   image: maven:3.6.3-jdk-11
