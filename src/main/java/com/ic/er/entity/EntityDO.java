@@ -16,7 +16,7 @@ public class EntityDO {
 
     private Long schemaID;
 
-    private String aimPort;
+    private Integer aimPort;
 
     private Integer isDelete;
 

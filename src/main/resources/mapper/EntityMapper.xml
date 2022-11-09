@@ -40,7 +40,7 @@
                 and schema_id = #{schemaID,jdbcType=BIGINT}
             </if>
             <if test="aimPort != null">
-                and aim_port = #{aimPort,jdbcType=VARCHAR}
+                and aim_port = #{aimPort,jdbcType=SMALLINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -73,7 +73,7 @@
                 #{schemaID,jdbcType=BIGINT},
             </if>
             <if test="aimPort != null">
-                #{aimPort,jdbcType=VARCHAR},
+                #{aimPort,jdbcType=SMALLINT},
             </if>
         </trim>
     </insert>
@@ -94,7 +94,7 @@
                 schema_id = #{schemaID,jdbcType=BIGINT},
             </if>
             <if test="aimPort != null">
-                aim_port = #{aimPort,jdbcType=VARCHAR},
+                aim_port = #{aimPort,jdbcType=SMALLINT},
             </if>
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0

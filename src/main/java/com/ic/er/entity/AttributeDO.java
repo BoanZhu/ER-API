@@ -19,7 +19,7 @@ public class AttributeDO {
     private DataType dataType;
     private Boolean isPrimary;
     private Boolean nullable;
-    private String aimPort;
+    private Integer aimPort;
     private AttributeConnectObjType belongObjType ;
     private Integer isDelete;
     private Date gmtCreate;

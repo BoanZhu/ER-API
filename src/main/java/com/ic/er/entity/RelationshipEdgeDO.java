@@ -16,8 +16,8 @@ public class RelationshipEdgeDO {
     private Long schemaID;
     private Long entityID;
     private Cardinality cardinality;
-    private String portAtRelationship;
-    private String portAtEntity;
+    private Integer portAtRelationship;
+    private Integer portAtEntity;
     private Integer isDelete;
     private Date gmtCreate;
     private Date gmtModified;

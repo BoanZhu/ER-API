@@ -57,7 +57,7 @@
                 and nullable = #{nullable,jdbcType=TINYINT}
             </if>
             <if test="aimPort != null">
-                and aim_port = #{aimPort,jdbcType=VARCHAR}
+                and aim_port = #{aimPort,jdbcType=SMALLINT}
             </if>
             <if test="belongObjType != null">
                 and belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT}
@@ -120,7 +120,7 @@
                 #{nullable,jdbcType=TINYINT},
             </if>
             <if test="aimPort != null">
-                #{aimPort,jdbcType=VARCHAR},
+                #{aimPort,jdbcType=SMALLINT},
             </if>
             <if test="belongObjType != null">
                 #{belongObjType.value,jdbcType=SMALLINT},
@@ -156,7 +156,7 @@
                 nullable = #{nullable,jdbcType=TINYINT},
             </if>
             <if test="aimPort != null">
-                aim_port = #{aimPort,jdbcType=VARCHAR},
+                aim_port = #{aimPort,jdbcType=SMALLINT},
             </if>
             <if test="belongObjType != null">
                 belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT},

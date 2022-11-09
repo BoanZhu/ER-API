@@ -49,10 +49,10 @@
                 and cardinality = #{cardinality.code,jdbcType=SMALLINT}
             </if>
             <if test="port_at_relationship != null">
-                and port_at_relationship = #{portAtRelationship,jdbcType=VARCHAR}
+                and port_at_relationship = #{portAtRelationship,jdbcType=SMALLINT}
             </if>
             <if test="port_at_entity != null">
-                and port_at_entity = #{portAtEntity,jdbcType=VARCHAR}
+                and port_at_entity = #{portAtEntity,jdbcType=SMALLINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -100,10 +100,10 @@
                 #{cardinality.code,jdbcType=SMALLINT},
             </if>
             <if test="port_at_relationship != null">
-                #{portAtRelationship,jdbcType=VARCHAR},
+                #{portAtRelationship,jdbcType=SMALLINT},
             </if>
             <if test="port_at_entity != null">
-                #{portAtEntity,jdbcType=VARCHAR},
+                #{portAtEntity,jdbcType=SMALLINT},
             </if>
         </trim>
     </insert>
@@ -130,10 +130,10 @@
                 cardinality = #{cardinality.code,jdbcType=SMALLINT},
             </if>
             <if test="port_at_relationship != null">
-                port_at_relationship = #{portAtRelationship,jdbcType=VARCHAR},
+                port_at_relationship = #{portAtRelationship,jdbcType=SMALLINT},
             </if>
             <if test="port_at_entity != null">
-                port_at_entity = #{portAtEntity,jdbcType=VARCHAR},
+                port_at_entity = #{portAtEntity,jdbcType=SMALLINT},
             </if>
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
