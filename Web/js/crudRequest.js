@@ -311,8 +311,22 @@ function addAttr(){
         attributeCounter++;
         var pos = selectedNode.location.copy();
         var angle = Math.random()*Math.PI*2;
-        pos.x+=Math.cos(angle)*120;
-        pos.y+=Math.sin(angle)*120;
+        // pos.x+=Math.cos(angle)*120;
+        // pos.y+=Math.sin(angle)*120;
+        pos.x+=-120;
+        // decide the attribute position
+        // save key
+        var connectedAttr = [];
+        selectedNode.findNodesConnected().each(
+            e=>{connectedAttr.push(e.data.key);}
+        );
+        for(var i=0;i<connectedAttr.length;i++){
+            var tmp = myDiagram.findNodeForKey(connectedAttr[i]);
+            tmp.data.location.y = pos.y-((connectedAttr.length-1)/2-i)*20;
+            tmp.data.location.x = pos.x;
+            //todo 调用后端修改attribute
+        }
+        pos.y+=(connectedAttr.length/2)*25;
         attributeData.location = pos;
         attributeData.dataType = 1;
         attributeData.parentId = selectedNode.data.key;
@@ -322,7 +336,6 @@ function addAttr(){
         var info;
         if (category==="entity") {
             attributeData.isPrimary = false;
-
             info = {
                 // "viewID": viewId,
                 "entityID": attributeData.parentId,
@@ -374,7 +387,7 @@ function addAttr(){
                         var link = {
                             from:myDiagram.model.getKeyForNodeData(selectedNode.part.data),
                             to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink",
-                            fromPort:"U",toPort:"R"
+                            fromPort:"L",toPort:"M"
                         };
                         myDiagram.model.addLinkData(link);
                     });

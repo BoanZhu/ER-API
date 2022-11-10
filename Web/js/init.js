@@ -321,8 +321,10 @@ function init() {
             // selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
+            movable: false,
         },
         new go.Binding("location", "location").makeTwoWay(),
+        // textbox
         $(go.Panel,"Auto",
             {row: 0, column: 0, name: "AttributeName"},
             $(go.TextBlock,{
@@ -339,7 +341,7 @@ function init() {
                 {row: 1, column: 1},
                 $(go.Shape, "Circle",
                     {
-                        fill: 'lightblue',
+                        fill: colors.lightblue,
                         portId: "",
                         stroke: colors.lightblue,
                         cursor: "pointer",
@@ -347,12 +349,17 @@ function init() {
                         toSpot: go.Spot.AllSides,
                         strokeWidth: 2,
                         fromLinkableDuplicates: false, toLinkableDuplicates: false,
-                        desiredSize: new go.Size(20, 20),
+                        desiredSize: new go.Size(10, 10),
                     }
                 ),
             ),
             //port
-            leftPort(),rightPort(),topPort(),bottomPort()
+            // leftPort(),rightPort(),topPort(),bottomPort()
+            $(go.Panel, "Vertical", {row: 1, column: 1},
+                $(go.Shape, {width: 3, height: 3, portId: "M",
+                    fromLinkable: true,toLinkable: true,
+                    fill: colors.lightblue,stroke: colors.lightblue,
+                })),
         )
         );
 
@@ -430,19 +437,19 @@ function init() {
             selectionAdorned: true,
             layerName: "Foreground",
             reshapable: true,
-            routing: go.Link.AvoidsNodes,
+            // routing: go.Link.AvoidsNodes,
             corner: 5,
-            curve: go.Link.JumpOver,
+            // curve: go.Link.JumpOver,
             relinkableFrom: true,
             relinkableTo: true
         },
         $(go.Shape,  // the link shape
-            {stroke: "#e8c446", strokeWidth: 2.5 }),
+            {stroke: colors.lightblue, strokeWidth: 2.5 }),
         $(go.TextBlock, textStyle(), // the "from" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
-                stroke: "#1967B3",
+                stroke: colors.lightblue,
                 segmentIndex: 0,
                 segmentOffset: new go.Point(NaN, NaN),
                 segmentOrientation: go.Link.OrientUpright
