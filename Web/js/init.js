@@ -602,7 +602,7 @@ function init() {
                 const node1 = myDiagram.findNodeForKey(e.newValue.from);
                 const node2 = myDiagram.findNodeForKey(e.newValue.to);
 
-                // entity relation link
+                // case1 : entity relation link
                 if (node1.category === "relation" || node2.category === "relation") {
                     // entity relation link
                     const is_node1_relation = (node1.category === "relation");
@@ -612,9 +612,7 @@ function init() {
                     e.newValue.toPort = is_node1_relation ? fromPort : toPort;
 
                     // TODO:API createERLink: ERLink ID
-
-                    const er_id = 12;
-                    // const er_id = createERLink(e.newValue.from, e.newValue.to, ERLinkCard, e.newValue.fromPort, e.newValue.toPort);
+                    const er_id = createERLink(e.newValue.from, e.newValue.to, ERLinkCard, e.newValue.fromPort, e.newValue.toPort);
                     if (er_id === -1) {
                         alert("can't create relation between this entity and this relation");
                         myDiagram.rollbackTransaction();
@@ -628,15 +626,15 @@ function init() {
                         load();
                     }
                 }
-                // entity-entity link, create new node
+
+                // case 2: entity-entity link, create new node
                 else if (node1.category === "entity" && node2.category === "entity") {
                     myDiagram.rollbackTransaction();
                     const relationNodeX = (node1.location.x + node2.location.x) / 2;
                     const relationNodeY = (node1.location.y + node2.location.y) / 2;
                     //TODO:API CrateRelationNode: get return Id
 
-                    // let relation_id = createRelationNode(defaultRelationNodeName,node1.key,node2.key,relationNodeX,relationNodeY)
-                    var relation_id = 1;
+                    const relation_id = createRelationNode(defaultRelationNodeName,node1.key,node2.key,relationNodeX,relationNodeY)
                     if (relation_id === -1) {
                         alert("can't build relation between two entity");
                         return;
@@ -680,8 +678,8 @@ function init() {
                         e.newValue.name = e.newValue.name + entityCounter.toString();
                         entityCounter++;
                         //TODO:API createEntity
-                        const id = 12234;
-                        // let id = createEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
+
+                        const id = createEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
                         if (id===-1){
                             alert("create entity fail!");
                             myDiagram.rollbackTransaction();

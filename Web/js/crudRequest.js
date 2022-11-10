@@ -7,11 +7,10 @@ const viewID=  parseInt(location.href.substring(location.href.indexOf("id=")+3))
 //rename, get the new name and replace the new url
 function renameView() {
     const name=prompt("Please enter new view name");
-    const id =  location.href.substring(location.href.indexOf("id=")+3);
     if (name!=="" &&name!=null)
     {
         var Obj ={
-            viewID:id,
+            viewID:viewID,
             name: name
         }
         Obj = JSON.stringify(Obj);
@@ -33,9 +32,8 @@ function renameView() {
 
 //deleteView(), delete this view and return to index
 function deleteView() {
-    const id =  location.href.substring(location.href.indexOf("id=")+3);
     let Obj ={
-        id: id
+        id: viewID
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
@@ -58,33 +56,31 @@ function deleteView() {
 Entity functions
 */
 function createEntity(name,layoutX,layoutY){
-    const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
+    return Math.ceil(Math.random()*1000);
     let id;
-    var Obj ={
+    var Obj =JSON.stringify({
         viewID:viewID,
         name: name,
         layoutInfo: {
             layoutX: layoutX,
             layoutY: layoutY
         }
-    }
+    });
 
-    // Obj = JSON.stringify(Obj);
-    // $.ajax({
-    //     async: false,
-    //     type : "POST",
-    //     headers: { "Access-Control-Allow-Origin": "*",
-    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-    //     // url : "http://146.169.52.81:8080/er/entity/create",
-    //     url:"http://127.0.0.1:8080/er/entity/create",
-    //     contentType:"application/json",
-    //     data : Obj,
-    //     success : function(result) {
-    //         id=result.data.id;
-    //     }, error : function(result) {
-    //     }
-    // });
-    id = Math.ceil(Math.random()*1000);
+    $.ajax({
+        async: false,
+        type : "POST",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        // url : "http://146.169.52.81:8080/er/entity/create",
+        url:"http://127.0.0.1:8080/er/entity/create",
+        contentType:"application/json",
+        data : Obj,
+        success : function(result) {
+            id=result.data.id;
+        }, error : function(result) {
+        }
+    });
     return id;
 }
 
@@ -157,6 +153,7 @@ function updateEntity(id,name,layoutX,layoutY){
 Relation Node functions
  */
 function createRelationNode(name,firstEntityID,secondEntityID, layoutX,layoutY) {
+    return Math.ceil(Math.random()*1000);
     let id;
 
     let Obj = {
