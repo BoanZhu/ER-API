@@ -85,16 +85,14 @@ function createEntity(name,layoutX,layoutY){
 }
 
 function deleteEntity(id){
-    myDiagram.nodes.each(function (node){
-        // if(("category" in node.data) && ((node.data.entityId === id) || (id in node.data.entityList))){ //all linked attributes,subsets and weak entities
-        if("category" in node.data){
-            if(node.data.entityId === id){
+    myDiagram.nodes.each(
+        function (node){
+            if("category" in node.data && node.data.category!=="relation"&&node.data.parentId === id){
                 //todo 需要重新调delete subset/weak entity func吗（backend
-                myDiagram.model.removeNodeData(node.data);
+                myDiagram.model.removeNodeData(node.data); //remove
             }
-            // relation
-            if(node.data.entityList !== undefined && node.data.entityList.includes(id)){
-                if(node.data.entityList.length===2){
+            if("category" in node.data && node.data.category==="relation"){
+                if(node.findNodesConnected().count<2){
                     // delete another link
                     node.findNodesConnected().each(n=>node.findLinksBetween(n).each(l=>myDiagram.model.removeLinkData(l.data)));
                     // todo delete relation http
@@ -102,7 +100,7 @@ function deleteEntity(id){
                 }
             }
         }
-    });
+    );
     let Obj ={
         id: id
     }
@@ -320,12 +318,13 @@ function addAttr(){
         attributeData.parentId = selectedNode.data.key;
         attributeData.allowNotNull = false; //default value false：NOT allow null
         // send data to backend
+        const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
         var info;
         if (category==="entity") {
             attributeData.isPrimary = false;
 
             info = {
-                "viewID": viewId,
+                // "viewID": viewId,
                 "entityID": attributeData.parentId,
                 "nullable": false,
                 "name": attributeData.name,
@@ -339,7 +338,7 @@ function addAttr(){
         }else {
             attributeData.category = "relation_attribute";
             info = {
-                "viewID": viewId,
+                // "viewID": viewId,
                 "relationID": attributeData.parentId,
                 "nullable": false,
                 "name": attributeData.name,
@@ -404,7 +403,7 @@ function modifyAttributeClick() {
         var selectedAData = part.data;
         // get attribute key and entity id
         document.getElementById("selectedAttributeKey").value = selectedAData.key;
-        document.getElementById("entityNameInfo").value = myDiagram.findNodeForKey(selectedAData.entityId).data.name;
+        document.getElementById("entityNameInfo").value = myDiagram.findNodeForKey(selectedAData.parentId).data.name;
         if(part.data.category === 'Attribute'){
             document.getElementById("attributeNameInfo").value = selectedAData.name;
             //
@@ -438,9 +437,9 @@ function modifyAttribute(){
     // update model
     //check primary key
     var node = myDiagram.findNodeForKey(key); // attribute
-    var entityNode = myDiagram.findNodeForKey(node.data.entityId);
+    var entityNode = myDiagram.findNodeForKey(node.data.parentId);
     var flag = false;
-    const entityId = node.data.entityId;
+    const entityId = node.data.parentId;
     // check underline
     if(isPrimary === true){
         // check whether there is another primaryKey
@@ -468,7 +467,7 @@ function modifyAttribute(){
     // update key
     node.data.key = dbId+"_"+node.data.name;
     //update link with the entity
-    node.findLinksBetween(myDiagram.findNodeForKey(node.data.entityId)).each(l=>l.data.to=node.data.key);
+    node.findLinksBetween(myDiagram.findNodeForKey(node.data.parentId)).each(l=>l.data.to=node.data.key);
     const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
     save();
     load();
@@ -547,7 +546,7 @@ function createWeakEntity(){
         pos.x+=Math.cos(angle)*120;
         pos.y+=Math.sin(angle)*120;
         weakEntityData.location = pos;
-        weakEntityData.entityId = selectedEData.key;
+        weakEntityData.parentId = selectedEData.key;
         //todo: need id from backend
 
         // weakEntityData.key = result.data.id;
@@ -632,7 +631,7 @@ function createSubset(){
         pos.x+=Math.cos(angle)*120;
         pos.y+=Math.sin(angle)*120;
         subsetData.location = pos;
-        subsetData.entityId = selectedEData.key;
+        subsetData.parentId = selectedEData.key;
         //todo: need id from backend
 
         // weakEntityData.key = result.data.id;
