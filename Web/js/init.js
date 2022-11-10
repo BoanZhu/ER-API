@@ -613,7 +613,8 @@ function init() {
                 const node2 = myDiagram.findNodeForKey(e.newValue.to);
 
                 // case1 : entity relation link
-                if (node1.category === "relation" && node2.category === "relation") {
+                if ((node1.category === "relation" && node2.category === "entity") || (
+                    node1.category === "entity" && node2.category === "relation")) {
                     // entity relation link
                     const is_node1_relation = (node1.category === "relation");
                     e.newValue.from = is_node1_relation ? node2.key : node1.key;
@@ -673,6 +674,7 @@ function init() {
                 }
             }
             else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
+                var a=1;
                 if (!("category" in e.oldValue)) {
                     //delete attribute
                     const id = e.oldValue.key;
