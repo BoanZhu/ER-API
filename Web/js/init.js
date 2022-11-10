@@ -276,7 +276,7 @@ function init() {
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
-                shadowColor: colors.lightblue,
+                shadowColor: colors.lightgrey,
             },
             new go.Binding("location", "location").makeTwoWay(),
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
@@ -285,9 +285,9 @@ function init() {
                 {row: 1, column: 1, name: "BODY"},
                 $(go.Shape, "RoundedRectangle",
                     {
-                        fill: colors.lightyellow,
+                        fill:"#e8c446",
                         portId: "",
-                        stroke: colors.lightyellow,
+                        stroke: "#e8c446",
                         cursor: "pointer",
                         fromSpot: go.Spot.AllSides,
                         toSpot: go.Spot.AllSides,
@@ -306,7 +306,11 @@ function init() {
                 $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
             ), // end Table Panel
             //port
-            leftPort(),rightPort(),topPort(),bottomPort()
+            $(go.Panel, "Vertical", {row: 1, column: 1},
+                $(go.Shape, {width: 0, height: 0, portId: "M",
+                    fromLinkable: true,toLinkable: true,
+                    fill: "#e8c446",stroke: "#e8c446",
+                })),
         );
 
     // attribute template
@@ -321,7 +325,7 @@ function init() {
             // selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
-            movable: false,
+            // movable: false,
         },
         new go.Binding("location", "location").makeTwoWay(),
         // textbox
@@ -354,7 +358,6 @@ function init() {
                 ),
             ),
             //port
-            // leftPort(),rightPort(),topPort(),bottomPort()
             $(go.Panel, "Vertical", {row: 1, column: 1},
                 $(go.Shape, {width: 3, height: 3, portId: "M",
                     fromLinkable: true,toLinkable: true,
@@ -436,9 +439,9 @@ function init() {
         {
             selectionAdorned: true,
             layerName: "Foreground",
-            reshapable: true,
+            // reshapable: true,
             // routing: go.Link.AvoidsNodes,
-            corner: 5,
+            // corner: 5,
             // curve: go.Link.JumpOver,
             relinkableFrom: true,
             relinkableTo: true

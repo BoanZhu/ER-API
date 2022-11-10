@@ -656,7 +656,8 @@ function createSubset(){
         var link = {
             from:myDiagram.model.getKeyForNodeData(subsetData),
             to:myDiagram.model.getKeyForNodeData(selectedEData),category: "subsetLink",
-            fromPort:"L",toPort:"U"
+            //do not need port
+            fromPort:"",toPort:"B"
         };
         myDiagram.model.addLinkData(link);
     });
