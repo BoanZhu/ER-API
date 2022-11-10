@@ -310,7 +310,7 @@ function addAttr(){
         var attributeData = {name:"NewA"+attributeCounter.toString(),category:"Attribute"};
         attributeCounter++;
         var pos = selectedNode.location.copy();
-        var angle = Math.random()*Math.PI*2;
+        // var angle = Math.random()*Math.PI*2;
         // pos.x+=Math.cos(angle)*120;
         // pos.y+=Math.sin(angle)*120;
         pos.x-=120;
@@ -319,7 +319,7 @@ function addAttr(){
         var connectedAttr = [];
         selectedNode.findNodesConnected().each(
             e=>{
-                if(e.data.category==="Attribute") connectedAttr.push(e.data.key);
+                if(e.data.category==="Attribute" || e.data.category==="relation_attribute") connectedAttr.push(e.data.key);
             }
         );
         for(var i=0;i<connectedAttr.length;i++){

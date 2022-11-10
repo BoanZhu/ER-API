@@ -49,7 +49,7 @@ function init() {
         );
 
     // relation context Menu
-    const relation_menu =  // context menu for each relatiom
+    const relation_menu =  // context menu for each relation
         $("ContextMenu",
             makeButton("Add Attribute",
                 (e, obj) => addAttr()),
@@ -613,7 +613,7 @@ function init() {
                 const node2 = myDiagram.findNodeForKey(e.newValue.to);
 
                 // case1 : entity relation link
-                if (node1.category === "relation" || node2.category === "relation") {
+                if (node1.category === "relation" && node2.category === "relation") {
                     // entity relation link
                     const is_node1_relation = (node1.category === "relation");
                     e.newValue.from = is_node1_relation ? node2.key : node1.key;
