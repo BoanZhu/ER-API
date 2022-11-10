@@ -13,14 +13,14 @@ import java.util.Date;
 @NoArgsConstructor
 public class AttributeDO {
     private Long ID;
-    private Long belongObjId ;
+    private Long belongObjId;
+    private AttributeConnectObjType belongObjType;
     private Long schemaID;
     private String name;
     private DataType dataType;
     private Boolean isPrimary;
     private Boolean nullable;
     private Integer aimPort;
-    private AttributeConnectObjType belongObjType ;
     private Integer isDelete;
     private Date gmtCreate;
     private Date gmtModified;
@@ -29,7 +29,7 @@ public class AttributeDO {
         this.ID = ID;
     }
 
-    public AttributeDO(Long belongObjId, Long schemaID) {
+    public AttributeDO(Long belongObjId, AttributeConnectObjType belongObjType, Long schemaID) {
         this.belongObjId = belongObjId;
         this.schemaID = schemaID;
     }

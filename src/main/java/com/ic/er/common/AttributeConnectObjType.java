@@ -6,8 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum AttributeConnectObjType {
-    ENTITY(0),
-    RELATIONSHIP(1);
+    UNKNOWN(0),
+    ENTITY(1),
+    RELATIONSHIP(2);
 
     private final Integer value;
 }

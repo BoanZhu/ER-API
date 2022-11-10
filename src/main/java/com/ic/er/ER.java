@@ -24,6 +24,7 @@ public class ER {
     public static AttributeMapper attributeMapper;
     public static EntityMapper entityMapper;
     public static RelationshipMapper relationshipMapper;
+    public static RelationshipEdgeMapper relationshipEdgeMapper;
     public static SchemaMapper schemaMapper;
     public static LayoutInfoMapper layoutInfoMapper;
 
@@ -39,6 +40,7 @@ public class ER {
         attributeMapper = sqlSession.getMapper(AttributeMapper.class);
         entityMapper = sqlSession.getMapper(EntityMapper.class);
         relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
+        relationshipEdgeMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
         schemaMapper = sqlSession.getMapper(SchemaMapper.class);
         layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
         if (!usePostgre) {

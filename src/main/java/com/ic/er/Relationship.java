@@ -2,11 +2,13 @@ package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.ic.er.common.Cardinality;
-import com.ic.er.common.RelatedObjType;
-import com.ic.er.common.RelationshipSerializer;
+import com.ic.er.common.*;
+import com.ic.er.entity.AttributeDO;
 import com.ic.er.entity.RelationshipDO;
+import com.ic.er.entity.RelationshipEdgeDO;
 import com.ic.er.exception.ERException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -20,22 +22,18 @@ public class Relationship {
     private Long ID;
     private String name;
     private Long schemaID;
-    private Entity firstEntity;
-    private Entity secondEntity;
-    private Cardinality firstCardinality;
-    private Cardinality secondCardinality;
+    private List<EntityWithCardinality> entityWithCardinalityList;
+    private List<Attribute> attributeList;
     private LayoutInfo layoutInfo;
     private Date gmtCreate;
     private Date gmtModified;
 
-    protected Relationship(Long ID, String name, Long schemaID, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+    protected Relationship(Long ID, String name, Long schemaID, List<Attribute> attributeList, List<EntityWithCardinality> entityWithCardinalityList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.schemaID = schemaID;
-        this.firstEntity = firstEntity;
-        this.secondEntity = secondEntity;
-        this.firstCardinality = firstCardinality;
-        this.secondCardinality = secondCardinality;
+        this.attributeList = attributeList;
+        this.entityWithCardinalityList = entityWithCardinalityList;
         this.layoutInfo = layoutInfo;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
@@ -50,16 +48,24 @@ public class Relationship {
 
     private void insertDB() {
         try {
-            RelationshipDO relationshipDO = new RelationshipDO(
-                    0L, this.name, this.schemaID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality,
-                    0, this.gmtCreate, this.gmtModified);
+            // insert relationship
+            RelationshipDO relationshipDO = new RelationshipDO(0L, this.name, this.schemaID, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.relationshipMapper.insert(relationshipDO);
             if (ret == 0) {
-                throw new ERException("insertDB fail");
+                throw new ERException("relationship insertDB fail");
             }
             this.ID = relationshipDO.getID();
+            // todo support port
+            // insert relationship edges
+            for (EntityWithCardinality entityWithCardinality : this.entityWithCardinalityList) {
+                ret = ER.relationshipEdgeMapper.insert(new RelationshipEdgeDO(0L, this.ID, this.schemaID,
+                        entityWithCardinality.getEntity().getID(), entityWithCardinality.getCardinality(), 0, 0, 0, new Date(), new Date()));
+                if (ret == 0) {
+                    throw new ERException("relationshipEdge insert db fail");
+                }
+            }
         } catch (PersistenceException e) {
-            throw new ERException("insertDB fail", e);
+            throw new ERException("relationship insertDB fail", e);
         }
     }
 
@@ -77,48 +83,62 @@ public class Relationship {
     }
 
     protected void deleteDB() {
+        // delete relationship
         ER.relationshipMapper.deleteByID(this.ID);
+        // delete relationship attributes
+
+        // then delete all the relationship edges
+        for (EntityWithCardinality eCard : this.entityWithCardinalityList) {
+            ER.relationshipEdgeMapper.deleteByID(eCard.getID());
+        }
     }
 
-    public void updateInfo(String name, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality) {
+    public Attribute addAttribute(String attributeName, DataType dataType, Boolean nullable) {
+        if (attributeName.equals("")) {
+            throw new ERException("attributeName cannot be empty");
+        }
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, AttributeConnectObjType.RELATIONSHIP, this.schemaID, attributeName, null, null, null, null, null, null, null));
+        if (attributeList.size() != 0) {
+            throw new ERException(String.format("attribute with name: %s already exists", this.name));
+        }
+        Attribute attribute = new Attribute(0L, this.ID, AttributeConnectObjType.RELATIONSHIP, this.schemaID, attributeName, dataType, false, nullable, null, null, null, new Date(), new Date());
+        this.attributeList.add(attribute);
+        return attribute;
+    }
+
+    public void updateInfo(String name, List<EntityWithCardinality> entityWithCardinalityList) {
         if (name != null) {
             this.name = name;
         }
-        if (firstEntity != null) {
-            this.firstEntity = firstEntity;
-            if (Entity.queryByID(firstEntity.getID()) == null) {
-                throw new ERException(String.format("entity with ID: %d not found", firstEntity.getID()));
+        for (EntityWithCardinality eCard : entityWithCardinalityList) {
+            Entity entity = eCard.getEntity();
+            if (Entity.queryByID(entity.getID()) == null) {
+                throw new ERException(String.format("entity with ID: %d not found", entity.getID()));
             }
-            if (!firstEntity.getSchemaID().equals(this.schemaID)) {
-                throw new ERException(String.format("entity: %s does not belong to this schema", firstEntity.getName()));
+            if (!entity.getSchemaID().equals(this.schemaID)) {
+                throw new ERException(String.format("entity: %s does not belong to this schema", entity.getName()));
             }
+            // todo add port support
+            ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(eCard.getID(), null, null,
+                    eCard.getEntity().getID(), eCard.getCardinality(), 0, 0, 0, eCard.getGmtCreate(), new Date()));
         }
-        if (secondEntity != null) {
-            this.secondEntity = secondEntity;
-            if (Entity.queryByID(secondEntity.getID()) == null) {
-                throw new ERException(String.format("entity with ID: %d not found", secondEntity.getID()));
-            }
-            if (!secondEntity.getSchemaID().equals(this.schemaID)) {
-                throw new ERException(String.format("entity: %s does not belong to this schema", secondEntity.getName()));
-            }
-        }
-        if (firstCardinality != null) {
-            this.firstCardinality = firstCardinality;
-        }
-        if (secondCardinality != null) {
-            this.secondCardinality = secondCardinality;
-        }
-        if (firstEntity != null && secondEntity != null) {
-            List<Relationship> oldRelationshipList = Relationship.queryByRelationship(new RelationshipDO(firstEntity.getID(), secondEntity.getID()));
-            if (oldRelationshipList.size() != 0 && !oldRelationshipList.get(0).getID().equals(this.ID)) {
-                throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
-            }
-        }
-        ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.schemaID, this.firstEntity.getID(), this.secondEntity.getID(), this.firstCardinality, this.secondCardinality, 0, this.gmtCreate, new Date()));
+        this.entityWithCardinalityList = entityWithCardinalityList;
+        // todo query if relationship between all entities already exists
+        ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.schemaID, 0, this.gmtCreate, new Date()));
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
         this.layoutInfo.update(layoutX, layoutY, height, width);
     }
 
+}
+
+@AllArgsConstructor
+@Data
+class EntityWithCardinality {
+    private Long ID;
+    private Entity entity;
+    private Cardinality cardinality;
+    private Date gmtCreate;
+    private Date gmtModified;
 }

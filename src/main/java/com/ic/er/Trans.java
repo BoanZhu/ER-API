@@ -1,5 +1,6 @@
 package com.ic.er;
 
+import com.ic.er.common.AttributeConnectObjType;
 import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.*;
 
@@ -22,7 +23,7 @@ public class Trans {
 
     protected static Attribute TransformFromDB(AttributeDO attributeDO) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(attributeDO.getID(), RelatedObjType.ATTRIBUTE);
-        return new Attribute(attributeDO.getID(), attributeDO.getEntityID(), attributeDO.getSchemaID(),
+        return new Attribute(attributeDO.getID(), attributeDO.getBelongObjId(), attributeDO.getBelongObjType(), attributeDO.getSchemaID(),
                 attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(), attributeDO.getNullable(),
                 layoutInfo, 0.0, 0.0, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
@@ -36,7 +37,7 @@ public class Trans {
     }
 
     protected static Entity TransformFromDB(EntityDO entityDO) {
-        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), entityDO.getSchemaID()));
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), AttributeConnectObjType.ENTITY, entityDO.getSchemaID()));
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), RelatedObjType.ENTITY);
         return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getSchemaID(), attributeList, layoutInfo, null, null,
                 entityDO.getGmtCreate(), entityDO.getGmtModified());
@@ -53,6 +54,8 @@ public class Trans {
 
     protected static Relationship TransformFromDB(RelationshipDO relationshipDO) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(relationshipDO.getID(), RelatedObjType.RELATIONSHIP);
+        // todo query all the edges in this relationship
+        List<EntityWithCardinality> entityWithCardinalityList = new ArrayList<>();
         return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getSchemaID(),
                 Entity.queryByID(relationshipDO.getFirstEntityID()), Entity.queryByID(relationshipDO.getSecondEntityID()),
                 relationshipDO.getFirstCardinality(), relationshipDO.getSecondCardinality(), layoutInfo,

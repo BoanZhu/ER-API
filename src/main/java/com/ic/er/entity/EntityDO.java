@@ -27,4 +27,8 @@ public class EntityDO {
     public EntityDO(Long ID) {
         this.ID = ID;
     }
+
+    public EntityDO(Long ID, String name, Long schemaID) {
+        this.ID = ID;
+    }
 }

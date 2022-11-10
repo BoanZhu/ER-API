@@ -1,6 +1,7 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.ic.er.common.AttributeConnectObjType;
 import com.ic.er.common.DataType;
 import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.AttributeDO;
@@ -19,6 +20,7 @@ public class Entity {
     private String name;
     private Long schemaID;
     private List<Attribute> attributeList;
+    private Integer aimPort;
     private LayoutInfo layoutInfo;
     private Date gmtCreate;
     private Date gmtModified;
@@ -51,15 +53,15 @@ public class Entity {
         if (isPrimary && nullable) {
             throw new ERException("primary attribute cannot be null");
         }
-        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.schemaID, attributeName, null, null, null, null, null, null));
+        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, AttributeConnectObjType.ENTITY, this.schemaID, attributeName, null, null, null, null, null, null, null));
         if (attributeList.size() != 0) {
             throw new ERException(String.format("attribute with name: %s already exists", this.name));
         }
-        attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, this.schemaID, null, null, null, true, null, null, null));
+        attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.ID, AttributeConnectObjType.ENTITY, this.schemaID, null, null, null, true, null, null, null, null));
         if (isPrimary && attributeList.size() != 0) {
             throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
         }
-        Attribute attribute = new Attribute(0L, this.ID, this.schemaID, attributeName, dataType, isPrimary, nullable, null, layoutX, layoutY, new Date(), new Date());
+        Attribute attribute = new Attribute(0L, this.ID, AttributeConnectObjType.ENTITY, this.schemaID, attributeName, dataType, isPrimary, nullable, null, layoutX, layoutY, new Date(), new Date());
         this.attributeList.add(attribute);
         return attribute;
     }
@@ -72,7 +74,7 @@ public class Entity {
 
     private void insertDB() {
         try {
-            EntityDO entityDO = new EntityDO(0L, this.name, this.schemaID, 0, this.gmtCreate, this.gmtModified);
+            EntityDO entityDO = new EntityDO(0L, this.name, this.schemaID, 0, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.entityMapper.insert(entityDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -93,12 +95,12 @@ public class Entity {
     public void updateInfo(String name) {
         if (name != null) {
             this.name = name;
-            List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.schemaID, null, null, null));
+            List<Entity> entities = Entity.queryByEntity(new EntityDO(null, name, this.schemaID));
             if (entities.size() != 0 && !entities.get(0).getID().equals(this.ID)) {
                 throw new ERException(String.format("entity with name: %s already exists", name));
             }
         }
-        ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.schemaID, 0, this.gmtCreate, new Date()));
+        ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.schemaID, this., 0, this.gmtCreate, new Date()));
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) {
