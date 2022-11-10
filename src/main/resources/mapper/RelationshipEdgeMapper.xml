@@ -68,22 +68,22 @@
         insert into relationship_edge
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="relationshipId != null">
-                relationshipID,
+                relationship_id,
             </if>
             <if test="schemaID != null">
-                schemaID,
+                schema_id,
             </if>
             <if test="entityID != null">
-                entityID,
+                entity_id,
             </if>
             <if test="cardinality != null">
                 cardinality,
             </if>
             <if test="port_at_relationship != null">
-                portAtRelationship,
+                port_at_relationship,
             </if>
             <if test="port_at_entity != null">
-                portAtEntity,
+                port_at_entity,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
