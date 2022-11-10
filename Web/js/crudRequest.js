@@ -313,12 +313,14 @@ function addAttr(){
         var angle = Math.random()*Math.PI*2;
         // pos.x+=Math.cos(angle)*120;
         // pos.y+=Math.sin(angle)*120;
-        pos.x+=-120;
+        pos.x-=120;
         // decide the attribute position
         // save key
         var connectedAttr = [];
         selectedNode.findNodesConnected().each(
-            e=>{connectedAttr.push(e.data.key);}
+            e=>{
+                if(e.data.category==="Attribute") connectedAttr.push(e.data.key);
+            }
         );
         for(var i=0;i<connectedAttr.length;i++){
             var tmp = myDiagram.findNodeForKey(connectedAttr[i]);
@@ -555,9 +557,9 @@ function createWeakEntity(){
         var weakEntityData = {name:"WeakE"+weakEntityCounter.toString(),category:"WeakEntity",primaryKey:pk};
         weakEntityCounter++;
         var pos = selectedEntity.location.copy();
-        var angle = Math.random()*Math.PI*2;
-        pos.x+=Math.cos(angle)*120;
-        pos.y+=Math.sin(angle)*120;
+        var angle = Math.random()*Math.PI/2;
+        pos.x+=Math.cos(Math.random()*Math.PI*2)*120;
+        pos.y-=Math.sin(angle)*200;
         weakEntityData.location = pos;
         weakEntityData.parentId = selectedEData.key;
         //todo: need id from backend
@@ -573,7 +575,7 @@ function createWeakEntity(){
             to:myDiagram.model.getKeyForNodeData(weakEntityData),
             toText:"1:1",
             relation:"for",category: "relationLink",
-            fromPort:"L",toPort:"U"
+            fromPort:"U",toPort:"B"
         };
         myDiagram.model.addLinkData(link);
     });
@@ -642,7 +644,7 @@ function createSubset(){
         var pos = selectedEntity.location.copy();
         var angle = Math.random()*Math.PI*2;
         pos.x+=Math.cos(angle)*120;
-        pos.y+=Math.sin(angle)*120;
+        pos.y+=Math.sin(Math.random()*Math.PI/2)*200;
         subsetData.location = pos;
         subsetData.parentId = selectedEData.key;
         //todo: need id from backend
