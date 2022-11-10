@@ -605,11 +605,12 @@ function init() {
                 // entity relation link
                 if (node1.category === "relation" || node2.category === "relation") {
                     // entity relation link
-                    const is_node1_relation = node1.category === "relation";
+                    const is_node1_relation = (node1.category === "relation");
                     e.newValue.from = is_node1_relation ? node2.key : node1.key;
                     e.newValue.to = is_node1_relation ? node1.key : node2.key;
                     e.newValue.fromPort = is_node1_relation ? toPort : fromPort;
                     e.newValue.toPort = is_node1_relation ? fromPort : toPort;
+
                     // TODO:API createERLink: ERLink ID
 
                     const er_id = 12;
@@ -619,9 +620,12 @@ function init() {
                         myDiagram.rollbackTransaction();
                         return;
                     } else {
-                        e.newValue.fromText = "1:1";
+                        console.log(1);
+                        e.newValue.fromText = "1:N";
                         e.newValue.category = ERLinkCategory;
                         e.newValue.key = er_id;
+                        save();
+                        load();
                     }
                 }
                 // entity-entity link, create new node
