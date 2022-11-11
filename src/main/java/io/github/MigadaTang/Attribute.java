@@ -102,7 +102,7 @@ public class Attribute {
     }
 
     public void updateAimPort(Integer aimPort) throws ERException {
-        if (this.aimPort != null) {
+        if (aimPort != null) {
             this.aimPort = aimPort;
         }
         ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, new Date()));

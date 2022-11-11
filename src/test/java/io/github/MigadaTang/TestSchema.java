@@ -75,7 +75,6 @@ public class TestSchema {
         assertThrows(ERException.class, () -> Entity.queryByID(firstEntity.getID()));
     }
 
-    @Test
     public void querySchemaTest() {
         Schema firstSchema = ER.createSchema("first schema", "tw");
         List<Schema> schemas = Schema.queryAll();

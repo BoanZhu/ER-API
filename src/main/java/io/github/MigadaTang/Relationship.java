@@ -73,14 +73,23 @@ public class Relationship {
     }
 
     protected void deleteDB() {
+        // delete the attributes of this relationship
+        for (Attribute attribute : this.attributeList) {
+            attribute.deleteDB();
+        }
+
+        // delete the edges of this relationship
+        for (RelationshipEdge edge : this.edgeList) {
+            edge.deleteDB();
+        }
+
         // delete relationship
         ER.relationshipMapper.deleteByID(this.ID);
-        // delete relationship attributes
+    }
 
-        // then delete all the relationship edges
-        for (RelationshipEdge edge : this.edgeList) {
-            ER.relationshipEdgeMapper.deleteByID(edge.getID());
-        }
+    public void deleteEdge(RelationshipEdge edge) {
+        edge.deleteDB();
+        this.getEdgeList().remove(edge);
     }
 
     public Attribute addAttribute(String attributeName, DataType dataType, Boolean nullable) {
@@ -112,24 +121,10 @@ public class Relationship {
         return edge;
     }
 
-    public void updateInfo(String name, List<RelationshipEdge> edgeList) {
+    public void updateInfo(String name) {
         if (name != null) {
             this.name = name;
         }
-        for (RelationshipEdge edge : edgeList) {
-            Entity entity = edge.getEntity();
-            if (Entity.queryByID(entity.getID()) == null) {
-                throw new ERException(String.format("entity with ID: %d not found", entity.getID()));
-            }
-            if (!entity.getSchemaID().equals(this.schemaID)) {
-                throw new ERException(String.format("entity: %s does not belong to this schema", entity.getName()));
-            }
-            // todo add port support
-            ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(edge.getID(), null, null,
-                    edge.getEntity().getID(), edge.getCardinality(), 0, 0, 0, edge.getGmtCreate(), new Date()));
-        }
-        this.edgeList = edgeList;
-        // todo query if relationship between all entities already exists
         ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.schemaID, 0, this.gmtCreate, new Date()));
     }
 

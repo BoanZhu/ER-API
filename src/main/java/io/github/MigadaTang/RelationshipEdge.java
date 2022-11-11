@@ -52,6 +52,27 @@ public class RelationshipEdge {
         }
     }
 
+    public void updateInfo(Cardinality cardinality, Entity entity) throws ERException {
+        if (cardinality != null) {
+            this.cardinality = cardinality;
+        }
+        if (entity != null) {
+            // todo check if there is already relationship between these entities
+            this.entity = entity;
+        }
+        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.entity.getID(), this.cardinality, this.portAtRelationship, this.portAtEntity, 0, this.gmtCreate, new Date()));
+    }
+
+    public void updatePorts(Integer portAtRelationship, Integer portAtEntity) throws ERException {
+        if (portAtRelationship != null) {
+            this.portAtRelationship = portAtRelationship;
+        }
+        if (portAtEntity != null) {
+            this.portAtEntity = portAtEntity;
+        }
+        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.entity.getID(), this.cardinality, this.portAtRelationship, this.portAtEntity, 0, this.gmtCreate, new Date()));
+    }
+
     public static List<RelationshipEdge> query(RelationshipEdgeDO relationshipEdgeDO) {
         return Trans.TransRelationshipEdgeListFromDB(ER.relationshipEdgeMapper.selectByRelationshipEdge(relationshipEdgeDO));
     }
@@ -65,4 +86,7 @@ public class RelationshipEdge {
         }
     }
 
+    protected void deleteDB() {
+        ER.relationshipEdgeMapper.deleteByID(this.ID);
+    }
 }

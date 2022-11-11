@@ -20,19 +20,19 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, belong_obj_id, schema_id, name, data_type, is_primary, nullable, aim_port, belong_obj_type
+        id, belong_obj_id, belong_obj_type, schema_id, name, data_type, is_primary, nullable, aim_port
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,belong_obj_id,schema_id,name,data_type,is_primary,nullable,aim_port,belong_obj_type,is_delete,gmt_create,gmt_modified
+        id,belong_obj_id,belong_obj_type,schema_id,name,data_type,is_primary,nullable,aim_port,is_delete,gmt_create,gmt_modified
         from attribute
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByAttribute" parameterType="io.github.MigadaTang.entity.AttributeDO" resultMap="BaseResultMap">
         select
-        id,belong_obj_id,schema_id,name,data_type,is_primary,nullable,aim_port,belong_obj_type,is_delete,gmt_create,gmt_modified
+        id,belong_obj_id,belong_obj_type,schema_id,name,data_type,is_primary,nullable,aim_port,is_delete,gmt_create,gmt_modified
         from attribute
         <where>
             <if test="ID != null">
@@ -40,6 +40,9 @@
             </if>
             <if test="belongObjId != null">
                 and belong_obj_id = #{belongObjId,jdbcType=BIGINT}
+            </if>
+            <if test="belongObjType != null">
+                and belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT}
             </if>
             <if test="schemaID != null">
                 and schema_id = #{schemaID,jdbcType=BIGINT}
@@ -58,9 +61,6 @@
             </if>
             <if test="aimPort != null">
                 and aim_port = #{aimPort,jdbcType=SMALLINT}
-            </if>
-            <if test="belongObjType != null">
-                and belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -141,6 +141,9 @@
             <if test="belongObjId != null">
                 belong_obj_id = #{belongObjId,jdbcType=BIGINT},
             </if>
+            <if test="belongObjType != null">
+                belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT},
+            </if>
             <if test="schemaID != null">
                 schema_id = #{schemaID,jdbcType=BIGINT},
             </if>
@@ -158,9 +161,6 @@
             </if>
             <if test="aimPort != null">
                 aim_port = #{aimPort,jdbcType=SMALLINT},
-            </if>
-            <if test="belongObjType != null">
-                belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT},
             </if>
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0

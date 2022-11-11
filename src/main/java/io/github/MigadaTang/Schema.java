@@ -10,9 +10,11 @@ import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.common.EntityWithCardinality;
 import io.github.MigadaTang.common.SchemaDeserializer;
 import io.github.MigadaTang.entity.EntityDO;
+import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.entity.SchemaDO;
 import io.github.MigadaTang.exception.ERException;
 import lombok.Getter;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.ibatis.exceptions.PersistenceException;
 
 import java.util.ArrayList;
@@ -51,20 +53,35 @@ public class Schema {
 
     public Entity addSubset(String entityName, Entity strongEntity) {
         // check if the specified strong entity that this subset relies on exists
+        Entity entity;
         try {
-            Entity entity = Entity.queryByID(strongEntity.getID());
-        } catch (ERException erex) {
+            entity = Entity.queryByID(strongEntity.getID());
+        } catch (ERException ex) {
             throw new ERException("addSubset fail: the specified strong entity does not exist");
+        }
+        if (!entity.getSchemaID().equals(this.ID)) {
+            throw new ERException("entity does not belong to this schema");
         }
         return addEntity(entityName, EntityType.SUBSET, strongEntity.getID());
     }
 
-    public Entity addWeakEntity(String entityName, Entity strongEntity, String relationshipName, Entity weakEntityCardinality, Entity strongEntityCardinality) {
-        // todo
+    public ImmutablePair<Entity, Relationship> addWeakEntity(String entityName, Entity strongEntity, String relationshipName, Cardinality weakEntityCardinality, Cardinality strongEntityCardinality) {
         // check if the specified strong entity that this subset relies on exists
+        Entity entity;
+        try {
+            entity = Entity.queryByID(strongEntity.getID());
+        } catch (ERException ex) {
+            throw new ERException("addWeakEntity fail: the specified strong entity does not exist");
+        }
+        // check if the strong entity belongs to this schema
+        if (!entity.getSchemaID().equals(this.ID)) {
+            throw new ERException("entity does not belong to this schema");
+        }
         // add weak entity
+        Entity weakEntity = addEntity(entityName, EntityType.WEAK, strongEntity.getID());
         // add relationship
-        return addEntity(entityName, EntityType.STRONG, null);
+        Relationship relationship = createRelationship(relationshipName, weakEntity, strongEntity, weakEntityCardinality, strongEntityCardinality);
+        return new ImmutablePair<>(weakEntity, relationship);
     }
 
     // addEntity base method for addEntity, for internal use only,
@@ -83,16 +100,14 @@ public class Schema {
     }
 
     public void deleteEntity(Entity entity) {
-        this.entityList.remove(entity);
-//        List<Relationship> relationships = Relationship.queryByRelationship(new RelationshipDO(null, null, this.ID, entity.getID(), null, null, null, null, null, null));
-//        for (Relationship relationship : relationships) {
-//            deleteRelationship(relationship);
-//        }
-//        relationships = Relationship.queryByRelationship(new RelationshipDO(null, null, this.ID, null, entity.getID(), null, null, null, null, null));
-//        for (Relationship relationship : relationships) {
-//            deleteRelationship(relationship);
-//        }
+        // first delete all the edges connected to this entity
+        List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(null, entity.getID()));
+        for (RelationshipEdge edge : edgeList) {
+            edge.deleteDB();
+        }
+
         entity.deleteDB();
+        this.entityList.remove(entity);
     }
 
     public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality) {

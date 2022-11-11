@@ -111,7 +111,7 @@ public class Entity {
     }
 
     public void updateAimPort(Integer aimPort) throws ERException {
-        if (this.aimPort != null) {
+        if (aimPort != null) {
             this.aimPort = aimPort;
         }
         ER.entityMapper.updateByID(new EntityDO(this.ID, this.aimPort));

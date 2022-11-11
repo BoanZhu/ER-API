@@ -92,7 +92,6 @@ public class TestAttribute {
 
     @Test
     public void updateTest() {
-        Attribute backup = teacher.addAttribute("backup", DataType.VARCHAR, true, false);
         Attribute a1 = teacher.addAttribute("teacher_id", DataType.VARCHAR, false, false);
 
         String newName = "new_teacher_id";
@@ -104,16 +103,20 @@ public class TestAttribute {
         Assert.assertEquals(attribute.getIsPrimary(), false);
         Assert.assertEquals(attribute.getNullable(), true);
 
+        // check update aimPort success
         a1.updateAimPort(1);
         attribute = Attribute.queryByID(a1.getID());
         Assert.assertEquals(attribute.getAimPort(), Integer.valueOf(1));
 
+        // check update layout success
         a1.updateLayoutInfo(1.2, 1.3);
         attribute = Attribute.queryByID(a1.getID());
         Assert.assertNotNull(attribute.getLayoutInfo());
         Assert.assertEquals(attribute.getLayoutInfo().getLayoutX(), Double.valueOf(1.2));
         Assert.assertEquals(attribute.getLayoutInfo().getLayoutY(), Double.valueOf(1.3));
 
+        // check update to duplicate name exception
+        Attribute backup = teacher.addAttribute("backup", DataType.VARCHAR, false, false);
         assertThrows(ERException.class, () -> a1.updateInfo("backup", null, null, null));
     }
 

@@ -8,6 +8,7 @@
         <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
                      javaType="io.github.MigadaTang.common.BelongObjType"/>
         <typeHandler handler="io.github.MigadaTang.common.CardinalityEnumTypeHandler"/>
+        <typeHandler handler="io.github.MigadaTang.common.EntityTypeEnumTypeHandler"/>
     </typeHandlers>
     <environments default='development'>
         <environment id='development'>
