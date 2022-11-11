@@ -13,9 +13,6 @@ const relationNodeCategory = "relation";
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
 
-s.add("1,1");
-s.add("2,2");
-console.log(s.has("1,1"), s.has("1,2"));
 function init() {
     /*
     Get the editable model Template
@@ -686,10 +683,14 @@ function init() {
                 }
             }
             else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
-                if (e.oldValue.category===ERLinkCategory){
+                const category= e.oldValue.category;
+                const id = e.oldValue.key;
 
-
-
+                if (category===ERLinkCategory){
+                    if(deleteERLink(id)===-1){
+                        myDiagram.rollbackTransaction();
+                        alert("remove the Entity relation link fail");
+                    }
                 }
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromKey") {

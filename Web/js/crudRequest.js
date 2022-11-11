@@ -299,7 +299,27 @@ function createERLink(entityID,relationID,entityCardinality,entityPort,relationP
     return id;
 }
 
-function deleteERLink(){
+function deleteERLink(id){
+    let is_success = 1;
+    let Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        async: false,
+        type : "POST",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        url : "http://146.169.52.81:8080/er/relationship/create",
+        contentType:"application/json",
+        data : Obj,
+        success : function(result) {
+            id=result.data.id;
+        }, error : function() {
+            id = -1;
+        }
+    });
+    return is_success;
 
 }
 
