@@ -2,16 +2,30 @@ var entityCounter = 0;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;
+/*
+Node
+ */
 const entityNodeCategory = "entity"
 const weakEntityNodeCategory = "weakEntity"
 const subsetEntityNodeCategory = "subset"
-
+/*
+lINk
+ */
 const ERLinkCard = "1:1"
 const ERLinkCategory = "entityLink";
+const EWLinkCategory = "weakLink";
 const relationNodeName = "test";
 const relationNodeCategory = "relation";
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
+
+/*
+Constant
+ */
+
+const weakEntityLinkPort = -1;
+const defaultWeakFromCard = "0:N";
+const defaultWeakToCard = "1:1";
 
 function init() {
     /*
@@ -388,7 +402,7 @@ function init() {
     myDiagram.nodeTemplateMap = templateMap;
 
     // relation
-    var relationLink = $(go.Link,  // the whole link panel
+    var weakLink = $(go.Link,  // the whole link panel
         {
             deletable: false,
             selectionAdorned: true,
@@ -512,7 +526,7 @@ function init() {
 
 
     var linkTemplateMap = new go.Map();
-    linkTemplateMap.add("relationLink", relationLink);
+    linkTemplateMap.add(EWLinkCategory, weakLink);
     linkTemplateMap.add("normalLink",normalLink);
     linkTemplateMap.add("subsetLink",subsetLink);
     linkTemplateMap.add(ERLinkCategory,entityLink);
@@ -550,7 +564,7 @@ function init() {
     // edit cardinality(from text
     myDiagram.addDiagramListener("TextEdited",(e) => {
         if (e.subject.part.qb.category===relationNodeCategory ) { // identify the change relation name
-            // update reation name
+            // update relation name
             console.log("relation node");
             const id = e.subject.part.qb.key;
             const name =  e.subject.part.qb.name;
@@ -611,12 +625,14 @@ function init() {
         if (txn === null) return;
         // iterate over all of the actual ChangedEvents of the Transaction
         txn.changes.each(function(e) {
-            if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
+            if (typeof e ==='undefined') {return;}
+            else if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray") {
 
                 const fromPort = e.newValue.fromPort;
                 const toPort = e.newValue.toPort;
                 const node1 = myDiagram.findNodeForKey(e.newValue.from);
                 const node2 = myDiagram.findNodeForKey(e.newValue.to);
+                const category = e.newValue.category;
 
                 // case1 : entity relation link
                 if ((node1.category === relationNodeCategory  && node2.category === entityNodeCategory) || (
@@ -643,7 +659,6 @@ function init() {
                         load();
                     }
                 }
-
                 // case 2: entity-entity link, create new node
                 else if (node1.category === entityNodeCategory && node2.category === entityNodeCategory) {
                     myDiagram.rollbackTransaction();
@@ -681,16 +696,22 @@ function init() {
                     save();
                     load();
                 }
+                //case 3: ()
+                else if (category===EWLinkCategory){
+                    // const id = createRelationNode(e.newValue.name,node1.key,node2.key,defaultWeakFromCard,e.newValue.fromPort,
+                    //     weakEntityLinkPort,defaultWeakToCard,e.newValue.toPort,weakEntityLinkPort,"","");
+                }
             }
             else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
                 const category= e.oldValue.category;
                 const id = e.oldValue.key;
 
                 if (category===ERLinkCategory){
-                    if(deleteERLink(id)===-1){
-                        myDiagram.rollbackTransaction();
-                        alert("remove the Entity relation link fail");
-                    }
+                    console.log(1);
+                    //todo:if entity delete fail and rollback all the relation should rollback
+                    // if(deleteERLink(id)===-1){
+                    //     alert("remove the Entity relation link fail");
+                    // }
                 }
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromKey") {
@@ -719,6 +740,8 @@ function init() {
 
                 switch(category){
                     case entityNodeCategory:
+                        myDiagram.rollbackTransaction();
+                        return;
                         handleDeleteStrongEntity(id,name);
                         break;
                     case relationNodeCategory:

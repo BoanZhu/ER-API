@@ -1,7 +1,8 @@
+
+
 /*
 Top right: rename and delete model
  */
-
 const schemaID= parseInt(location.href.substring(location.href.indexOf("id=")+3));
 
 //rename, get the new schema name and replace the new url
@@ -55,6 +56,8 @@ function deleteSchema() {
 /*
 Entity functions
 */
+
+//create Strong entity: API:done Test:
 function createStrongEntity(name,layoutX,layoutY){
     return Math.ceil(Math.random()*1000);
     let id;
@@ -84,18 +87,19 @@ function createStrongEntity(name,layoutX,layoutY){
     return id;
 }
 
-//strong entity need to delete all related subset, attribute and weak entity
+//strong entity need to delete all related subset, attribute and weak entity  API:done Test:
 function handleDeleteStrongEntity(id,name){
     //delete this strong entity
     if (deleteEntity(id,name)){
         //strong entity success, delete all associated stuffs
         myDiagram.nodes.each(
             function (node){
-                if("category" in node.data && node.data.category!=="relation"&&node.data.parentId === id){
+                const category = node.data.category;
+                if(category!==relationNodeCategory && node.data.parentId === id){
                     //remove associate attribute,subset and weak entity
                     myDiagram.model.removeNodeData(node.data);
                 }
-                if("category" in node.data && node.data.category==="relation"){
+                if(category===relationNodeCategory){
                     if(node.findNodesConnected().count<2){
                         // delete another link
                         node.findNodesConnected().each(n=>node.findLinksBetween(n).each(l=>myDiagram.model.removeLinkData(l.data)));
@@ -109,7 +113,7 @@ function handleDeleteStrongEntity(id,name){
     }
 }
 
-//delete all entities
+//delete all entities API:done Test:
 function deleteEntity(id,name){
     let is_success = 1;
     let Obj ={
@@ -133,7 +137,7 @@ function deleteEntity(id,name){
     return is_success;
 }
 
-//update the entity info
+//update the entity info API: Test:
 function updateEntity(id,name,layoutX,layoutY){
     let Obj ={
         entityID:id,
@@ -165,12 +169,12 @@ function updateEntity(id,name,layoutX,layoutY){
 Relation Node functions
  */
 
+//create Relation Node API:done Test:
 function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
                             firstEntityPort,firstEntityRelationPort,
                             secondCardinality, secondEntityPort,secondEntityRelationPort,
                             layoutX,layoutY) {
     return Math.ceil(Math.random()*1000);
-    //TODO Remove the prefix
     let id;
     let Obj = {
         "schemaID": 1,
@@ -213,6 +217,7 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
 }
 
 function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name) {
+    id = id.substr(id.indexOf(("_"))+1);
     var relationNode = myDiagram.findNodeForKey(id);
     const dbId = relationNode.data.key.replace(/[^\d]/g)[0];
     let Obj ={
@@ -242,7 +247,10 @@ function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondC
 
 }
 
+//delete Relation Node API:done Test:
 function deleteRelationNode(id,name) {
+
+    id = id.substr(id.indexOf(("_"))+1);
     let is_success = 1;
     let Obj ={
         id: id
@@ -270,24 +278,24 @@ function deleteRelationNode(id,name) {
 ER relation functions;
  */
 
-function createERLink(entityID,relationID,entityCardinality,entityPort,relationPort,ERLinkCreateVerify){
+//delete Relation Node API:done Test:
+function createERLink(entityID,relationshipID,cardinality,portAtEntity,portAtRelationship,ERLinkCreateVerify){
     return Math.ceil(Math.random()*1000);
-    if(ERLinkCreateVerify.has(entityID+relationID)) return;
+    if(ERLinkCreateVerify.has(entityID+relationshipID)) return;
     let id;
     let Obj = JSON.stringify({
-        viewID: viewID,
         entityID: entityID,
-        relationID: relationID,
-        entityCardinality: entityCardinality,
-        entityPort: entityPort,
-        relationPort:relationPort
+        relationshipID: relationshipID,
+        cardinality: cardinality,
+        portAtEntity: portAtEntity,
+        portAtRelationship:portAtRelationship
     });
     $.ajax({
         async: false,
         type : "POST",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        url : "http://146.169.52.81:8080/er/relationship/create",
+        url : "http://146.169.52.81:8080/er/relationship/link_entity",
         contentType:"application/json",
         data : Obj,
         success : function(result) {
@@ -299,6 +307,7 @@ function createERLink(entityID,relationID,entityCardinality,entityPort,relationP
     return id;
 }
 
+//delete Relation Node API:done Test:
 function deleteERLink(id){
     let is_success = 1;
     let Obj ={
@@ -310,7 +319,7 @@ function deleteERLink(id){
         type : "POST",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        url : "http://146.169.52.81:8080/er/relationship/create",
+        url : "http://146.169.52.81:8080/er/relationship/delete_edge",
         contentType:"application/json",
         data : Obj,
         success : function(result) {
@@ -612,7 +621,7 @@ function createWeakEntity(){
             return;
         }
         // new weak entity
-        var weakEntityData = {name:"WeakE"+weakEntityCounter.toString(),category:"WeakEntity",primaryKey:pk};
+        var weakEntityData = {name:"WeakE"+weakEntityCounter.toString(),category:weakEntityNodeCategory,primaryKey:pk};
         weakEntityCounter++;
         var pos = selectedEntity.location.copy();
         var angle = Math.random()*Math.PI/2;
@@ -621,6 +630,7 @@ function createWeakEntity(){
         weakEntityData.location = pos;
         weakEntityData.parentId = selectedEData.key;
         //todo: need id from backend
+
 
         // weakEntityData.key = result.data.id;
         weakEntityData.key = Math.ceil(Math.random()*1000);
@@ -632,7 +642,8 @@ function createWeakEntity(){
             from:myDiagram.model.getKeyForNodeData(selectedEData),
             to:myDiagram.model.getKeyForNodeData(weakEntityData),
             toText:"1:1",
-            relation:"for",category: "relationLink",
+            fromTest:"0:N",
+            relation:"for",category: EWLinkCategory,
             fromPort:"U",toPort:"B"
         };
         myDiagram.model.addLinkData(link);
@@ -673,7 +684,7 @@ function createSubset(){
             return;
         }
         // new weak entity
-        var subsetData = {name:"Subset"+weakEntityCounter.toString(),category:"Subset"};
+        var subsetData = {name:"Subset"+weakEntityCounter.toString(),category:subsetEntityNodeCategory};
         subsetCounter++;
         var pos = selectedEntity.location.copy();
         var angle = Math.random()*Math.PI*2;
@@ -684,7 +695,7 @@ function createSubset(){
         //todo: need id from backend
 
         // weakEntityData.key = result.data.id;
-        subsetData.key = Math.ceil(Math.random()*1000);;
+        subsetData.key = Math.ceil(Math.random()*1000);
         myDiagram.model.addNodeData(subsetData);
         // save();
         // load();

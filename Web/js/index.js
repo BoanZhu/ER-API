@@ -557,7 +557,7 @@ function getId(){
 /*
 Show model at rignt
  */
-function showModel() {
+function showSchema() {
     // Get the model name and id from list
     const id = getId();
     myDiagram.model = go.Model.fromJson(getView(id));
@@ -570,7 +570,7 @@ Continue Edit, editModel()
 get view id and view name
 output: redirect to the drawing.html with the name and id
  */
-function editModel(){
+function editSchema(){
     const selected_name =  $('#vInput').val();
     const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
     window.location.href = "drawingView.html?name="+selected_name+"&id="+id;
@@ -598,7 +598,7 @@ function renameModel(){
             type : "POST",
             headers: { "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-            url : "http://146.169.52.81:8080/er/view/update",
+            url : "http://146.169.52.81:8080/er/schema/update",
             contentType:"application/json",
             data : Obj,
             success : function(result) {
@@ -625,7 +625,7 @@ function deleteModel() {
     Obj = JSON.stringify(Obj);
     $.ajax({
         type : "POST",
-        url : "http://146.169.52.81:8080/er/view/delete",
+        url : "http://146.169.52.81:8080/er/schema/delete",
         data : Obj,
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
@@ -647,7 +647,7 @@ input:name
 output: redirect to the html and start drawing
 
  */
-function createModel() {
+function createSchema() {
     const name = prompt("Please enter new view name", "Draco");
     if (name != null && name !== "") {
         var Obj ={
@@ -656,7 +656,7 @@ function createModel() {
         Obj = JSON.stringify(Obj);
         $.ajax({
             type : "POST",
-            url : "http://146.169.52.81:8080/er/view/create",
+            url : "http://146.169.52.81:8080/er/schema/create",
             data : Obj,
             headers: { "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
@@ -677,7 +677,7 @@ function appendModel(){
     $.ajax({
         type : "GET",
         async: false,
-        url : "http://146.169.52.81:8080/er/view/query_all_views",
+        url : "http://146.169.52.81:8080/er/schema/query_all_schemas",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
