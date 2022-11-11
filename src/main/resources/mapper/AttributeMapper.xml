@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.AttributeMapper">
+<mapper namespace="io.github.MigadaTang.dao.AttributeMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.entity.AttributeDO">
+    <resultMap id="BaseResultMap" type="io.github.MigadaTang.entity.AttributeDO">
         <id column="id" property="ID"/>
         <result column="belong_obj_id" property="belongObjId"/>
         <result column="schema_id" property="schemaID"/>
@@ -30,7 +30,7 @@
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByAttribute" parameterType="com.ic.er.entity.AttributeDO" resultMap="BaseResultMap">
+    <select id="selectByAttribute" parameterType="io.github.MigadaTang.entity.AttributeDO" resultMap="BaseResultMap">
         select
         id,belong_obj_id,schema_id,name,data_type,is_primary,nullable,aim_port,belong_obj_type,is_delete,gmt_create,gmt_modified
         from attribute
@@ -72,7 +72,8 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.entity.AttributeDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="io.github.MigadaTang.entity.AttributeDO" useGeneratedKeys="true"
+            keyProperty="ID">
         insert into attribute
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="belongObjId != null">
@@ -134,7 +135,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.entity.AttributeDO">
+    <update id="updateByID" parameterType="io.github.MigadaTang.entity.AttributeDO">
         update attribute
         <set>
             <if test="belongObjId != null">

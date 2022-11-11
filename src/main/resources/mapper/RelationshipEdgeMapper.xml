@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.RelationshipEdgeMapper">
+<mapper namespace="io.github.MigadaTang.dao.RelationshipEdgeMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.entity.RelationshipEdgeDO">
+    <resultMap id="BaseResultMap" type="io.github.MigadaTang.entity.RelationshipEdgeDO">
         <id column="id" property="ID"/>
         <result column="relationship_id" property="relationshipID"/>
         <result column="schema_id" property="schemaID"/>
@@ -28,7 +28,8 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByRelationshipEdge" parameterType="com.ic.er.entity.RelationshipEdgeDO" resultMap="BaseResultMap">
+    <select id="selectByRelationshipEdge" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO"
+            resultMap="BaseResultMap">
         select
         id,relationship_id,schema_id,entity_id,cardinality,port_at_relationship,port_at_entity,is_delete,gmt_create,gmt_modified
         from relationship_edge
@@ -64,7 +65,8 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.entity.RelationshipEdgeDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO" useGeneratedKeys="true"
+            keyProperty="ID">
         insert into relationship_edge
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="relationshipID != null">
@@ -114,7 +116,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.entity.RelationshipEdgeDO">
+    <update id="updateByID" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO">
         update relationship_edge
         <set>
             <if test="relationshipID != null">

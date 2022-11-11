@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.EntityMapper">
+<mapper namespace="io.github.MigadaTang.dao.EntityMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.entity.EntityDO">
+    <resultMap id="BaseResultMap" type="io.github.MigadaTang.entity.EntityDO">
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="schema_id" property="schemaID"/>
@@ -27,7 +27,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByEntity" parameterType="com.ic.er.entity.EntityDO" resultMap="BaseResultMap">
+    <select id="selectByEntity" parameterType="io.github.MigadaTang.entity.EntityDO" resultMap="BaseResultMap">
         select
         id,name,schema_id,aim_port,entity_type,belong_strong_entity_id,is_delete,gmt_create,gmt_modified
         from entity
@@ -60,7 +60,7 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.entity.EntityDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="io.github.MigadaTang.entity.EntityDO" useGeneratedKeys="true" keyProperty="ID">
         insert into entity
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -104,7 +104,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.entity.EntityDO">
+    <update id="updateByID" parameterType="io.github.MigadaTang.entity.EntityDO">
         update entity
         <set>
             <if test="name != null">

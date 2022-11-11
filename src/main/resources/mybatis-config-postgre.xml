@@ -6,8 +6,8 @@
     <properties resource='jdbc-postgre.properties'/>
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
-                     javaType="com.ic.er.common.BelongObjType"/>
-        <typeHandler handler="com.ic.er.common.CardinalityEnumTypeHandler"/>
+                     javaType="io.github.MigadaTang.common.BelongObjType"/>
+        <typeHandler handler="io.github.MigadaTang.common.CardinalityEnumTypeHandler"/>
     </typeHandlers>
     <environments default='development'>
         <environment id='development'>

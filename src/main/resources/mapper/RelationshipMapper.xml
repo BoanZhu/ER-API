@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.RelationshipMapper">
+<mapper namespace="io.github.MigadaTang.dao.RelationshipMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.entity.RelationshipDO">
+    <resultMap id="BaseResultMap" type="io.github.MigadaTang.entity.RelationshipDO">
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="schema_id" property="schemaID"/>
@@ -24,7 +24,8 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <select id="selectByRelationship" parameterType="com.ic.er.entity.RelationshipDO" resultMap="BaseResultMap">
+    <select id="selectByRelationship" parameterType="io.github.MigadaTang.entity.RelationshipDO"
+            resultMap="BaseResultMap">
         select
         id,name,schema_id,is_delete,gmt_create,gmt_modified
         from relationship
@@ -48,7 +49,8 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.entity.RelationshipDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="io.github.MigadaTang.entity.RelationshipDO" useGeneratedKeys="true"
+            keyProperty="ID">
         insert into relationship
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -74,7 +76,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.entity.RelationshipDO">
+    <update id="updateByID" parameterType="io.github.MigadaTang.entity.RelationshipDO">
         update relationship
         <set>
             <if test="name != null">

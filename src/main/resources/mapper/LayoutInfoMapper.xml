@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.LayoutInfoMapper">
+<mapper namespace="io.github.MigadaTang.dao.LayoutInfoMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.entity.LayoutInfoDO">
+    <resultMap id="BaseResultMap" type="io.github.MigadaTang.entity.LayoutInfoDO">
         <id column="id" property="ID"/>
         <result column="belong_obj_id" property="belongObjID"/>
         <result column="belong_obj_type" property="belongObjType"/>
@@ -33,7 +33,7 @@
         #{belongObjType.value,jdbcType=SMALLINT}
     </select>
 
-    <select id="selectByLayoutInfo" parameterType="com.ic.er.entity.LayoutInfoDO" resultMap="BaseResultMap">
+    <select id="selectByLayoutInfo" parameterType="io.github.MigadaTang.entity.LayoutInfoDO" resultMap="BaseResultMap">
         select
         id,belong_obj_id,belong_obj_type,layout_x,layout_y,width,height
         from layout_info
@@ -62,7 +62,8 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.entity.LayoutInfoDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="io.github.MigadaTang.entity.LayoutInfoDO" useGeneratedKeys="true"
+            keyProperty="ID">
         insert into layout_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="belongObjID != null">
@@ -106,7 +107,7 @@
         </trim>
     </insert>
 
-    <update id="updateByID" parameterType="com.ic.er.entity.LayoutInfoDO">
+    <update id="updateByID" parameterType="io.github.MigadaTang.entity.LayoutInfoDO">
         update layout_info
         <set>
             <if test="layoutX != null">
@@ -125,7 +126,7 @@
         where id = #{ID,jdbcType=BIGINT}
     </update>
 
-    <update id="updateByObjIDAnd" parameterType="com.ic.er.entity.LayoutInfoDO">
+    <update id="updateByObjIDAnd" parameterType="io.github.MigadaTang.entity.LayoutInfoDO">
         update layout_info
         <set>
             <if test="layoutX != null">

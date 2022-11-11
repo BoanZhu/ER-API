@@ -6,9 +6,9 @@
     <properties resource='jdbc.properties'/>
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
-                     javaType="com.ic.er.common.BelongObjType"/>
-        <typeHandler handler="com.ic.er.common.CardinalityEnumTypeHandler"/>
-        <typeHandler handler="com.ic.er.common.EntityTypeEnumTypeHandler"/>
+                     javaType="io.github.MigadaTang.common.BelongObjType"/>
+        <typeHandler handler="io.github.MigadaTang.common.CardinalityEnumTypeHandler"/>
+        <typeHandler handler="io.github.MigadaTang.common.EntityTypeEnumTypeHandler"/>
     </typeHandlers>
     <environments default='development'>
         <environment id='development'>
