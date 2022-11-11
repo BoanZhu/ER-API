@@ -601,25 +601,23 @@ function init() {
     //listen node movement
     myDiagram.addDiagramListener("SelectionMoved",(e) => {
 
-        const selectNode = e.diagram.selection.first();
-        const locationX = selectNode.location.x;
-        const name = selectNode.name;
-        const locationY = selectNode.location.y;
-        const id = selectNode.key;
-        const category = selectNode.category;
+        const item= e.diagram.selection.first();
+        const name = item.name;
+        const id = item.key;
+        const category = item.category;
 
         switch(category){
             case entityNodeCategory:
-                updateEntity(id,name,locationX,locationY);
+                updateEntity(id,name,item.location.x,item.location.y);
                 break;
             case weakEntityNodeCategory:
-                updateEntity(id,name,locationX,locationY);
+                updateEntity(id,name,item.location.x,item.location.y);
                 break;
             case subsetEntityNodeCategory:
-                updateSubset(id,name,locationX,locationY,"",false);
+                updateSubset(id,name,item.location.x,item.location.y,"",false);
                 break;
             case relationNodeCategory:
-                updateRelationNode(id,name,locationX,locationY);
+                updateRelationNode(id,name,item.location.x,item.location.y);
                 break;
             case "Attribute"://delete attribute
                 //TODO:function update Attribute
