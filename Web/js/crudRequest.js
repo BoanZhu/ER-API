@@ -2,15 +2,15 @@
 Top right: rename and delete model
  */
 
-const viewID=  parseInt(location.href.substring(location.href.indexOf("id=")+3));
+const schemaID= parseInt(location.href.substring(location.href.indexOf("id=")+3));
 
-//rename, get the new name and replace the new url
-function renameView() {
+//rename, get the new schema name and replace the new url
+function renameSchema() {
     const name=prompt("Please enter new view name");
     if (name!=="" &&name!=null)
     {
-        var Obj ={
-            viewID:viewID,
+        let Obj ={
+            schemaID:schemaID,
             name: name
         }
         Obj = JSON.stringify(Obj);
@@ -19,35 +19,35 @@ function renameView() {
             type : "POST",
             headers: { "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-            url : "http://146.169.52.81:8080/er/view/update",
+            url : "http://146.169.52.81:8080/er/schema/update",
             contentType:"application/json",
             data : Obj,
-            success : function(result) {
+            success : function() {
                 window.location.replace("drawingView.html?name="+name+"&id="+id);
-            }, error : function(result) {
+            }, error : function() {
+                alert("rename fail");
             }
         });
     }
 }
 
-//deleteView(), delete this view and return to index
-function deleteView() {
+//delete this schema and return to index page
+function deleteSchema() {
     let Obj ={
-        id: viewID
+        id: schemaID
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
         type : "POST",
-        url : "http://146.169.52.81:8080/er/view/delete",
+        url : "http://146.169.52.81:8080/er/schema/delete",
         data : Obj,
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
-        success : function(result) {
-            console.log("true");
+        success : function() {
             window.location.href = "index_dev.html";
-        }, error : function(result) {
-            console.log("false");
+        }, error : function() {
+            alert("fail to delete schema")
         }
     });
 }
@@ -55,11 +55,11 @@ function deleteView() {
 /*
 Entity functions
 */
-function createEntity(name,layoutX,layoutY){
+function createStrongEntity(name,layoutX,layoutY){
     return Math.ceil(Math.random()*1000);
     let id;
-    var Obj =JSON.stringify({
-        viewID:viewID,
+    const Obj =JSON.stringify({
+        schemaID:schemaID,
         name: name,
         layoutInfo: {
             layoutX: layoutX,
@@ -72,56 +72,70 @@ function createEntity(name,layoutX,layoutY){
         type : "POST",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        // url : "http://146.169.52.81:8080/er/entity/create",
-        url:"http://127.0.0.1:8080/er/entity/create",
+        url:"http://146.169.52.81:8080/er/entity/create_strong",
         contentType:"application/json",
         data : Obj,
         success : function(result) {
             id=result.data.id;
-        }, error : function(result) {
+        }, error : function() {
+            id = -1;
         }
     });
     return id;
 }
 
-function deleteEntity(id){
-    myDiagram.nodes.each(
-        function (node){
-            if("category" in node.data && node.data.category!=="relation"&&node.data.parentId === id){
-                //todo 需要重新调delete subset/weak entity func吗（backend
-                myDiagram.model.removeNodeData(node.data); //remove
-            }
-            if("category" in node.data && node.data.category==="relation"){
-                if(node.findNodesConnected().count<2){
-                    // delete another link
-                    node.findNodesConnected().each(n=>node.findLinksBetween(n).each(l=>myDiagram.model.removeLinkData(l.data)));
-                    // todo delete relation http
+//strong entity need to delete all related subset, attribute and weak entity
+function handleDeleteStrongEntity(id,name){
+    //delete this strong entity
+    if (deleteEntity(id,name)){
+        //strong entity success, delete all associated stuffs
+        myDiagram.nodes.each(
+            function (node){
+                if("category" in node.data && node.data.category!=="relation"&&node.data.parentId === id){
+                    //remove associate attribute,subset and weak entity
                     myDiagram.model.removeNodeData(node.data);
                 }
+                if("category" in node.data && node.data.category==="relation"){
+                    if(node.findNodesConnected().count<2){
+                        // delete another link
+                        node.findNodesConnected().each(n=>node.findLinksBetween(n).each(l=>myDiagram.model.removeLinkData(l.data)));
+                        myDiagram.model.removeNodeData(node.data);
+                    }
+                }
             }
-        }
-    );
+        );
+    }else{
+        myDiagram.rollbackTransaction();
+    }
+}
+
+//delete all entities
+function deleteEntity(id,name){
+    let is_success = 1;
     let Obj ={
         id: id
     }
     Obj = JSON.stringify(Obj);
-    // $.ajax({
-    //     type : "POST",
-    //     // url : "http://146.169.52.81:8080/er/entity/delete",
-    //     url:"http://127.0.0.1:8080/er/entity/delete",
-    //     data : Obj,
-    //     headers: { "Access-Control-Allow-Origin": "*",
-    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-    //     contentType: "application/json",
-    //     success : function(result) {
-    //
-    //     }, error : function(result) {
-    //     }
-    // });
+    $.ajax({
+        async:false,
+        type : "POST",
+        url:"http://146.169.52.81:8080/er/entity/delete",
+        data : Obj,
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        contentType: "application/json",
+        success : function() {
+        }, error : function() {
+            is_success = -1;
+            alert("can't delete"+ name)
+        }
+    });
+    return is_success;
 }
 
+//update the entity info
 function updateEntity(id,name,layoutX,layoutY){
-    var Obj ={
+    let Obj ={
         entityID:id,
         name: name,
         layoutInfo: {
@@ -130,17 +144,17 @@ function updateEntity(id,name,layoutX,layoutY){
         }
     }
     Obj = JSON.stringify(Obj);
-
     $.ajax({
         type : "POST",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        url : "http://146.169.52.81:8080/er/view/update",
+        url : "http://146.169.52.81:8080/er/entity/update",
         contentType:"application/json",
         data : Obj,
-        success : function(result) {
-            // change key value
-        }, error : function(result) {
+        success : function() {
+        }, error : function() {
+            alert("fail to update");
+            myDiagram.rollbackTransaction();
         }
     });
 
@@ -150,18 +164,34 @@ function updateEntity(id,name,layoutX,layoutY){
 /*
 Relation Node functions
  */
-function createRelationNode(name,firstEntityID,secondEntityID, layoutX,layoutY) {
-    return Math.ceil(Math.random()*1000);
-    let id;
 
+function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
+                            firstEntityPort,firstEntityRelationPort,
+                            secondCardinality, secondEntityPort,secondEntityRelationPort,
+                            layoutX,layoutY) {
+    return Math.ceil(Math.random()*1000);
+    //TODO Remove the prefix
+    let id;
     let Obj = {
-        viewID: viewID,
-        name: name,
-        firstEntityID: firstEntityID,
-        secondEntityID: secondEntityID,
-        layoutInfo: {
-            layoutX: layoutX,
-            layoutY: layoutY
+        "schemaID": 1,
+        "name": "attribute name",
+        "entityWithCardinalityList": [
+            {
+                "entityID": firstEntityID,
+                "cardinality": firstCardinality,
+                "portAtRelationship": firstEntityRelationPort,
+                "portAtEntity": firstEntityPort
+            },
+            {
+                "entityID": secondEntityID,
+                "cardinality": secondCardinality,
+                "portAtRelationship": secondEntityRelationPort,
+                "portAtEntity": secondEntityPort
+            }
+        ],
+        "layoutInfo": {
+            "layoutX": layoutX,
+            "layoutY": layoutY
         }
     };
     Obj = JSON.stringify(Obj);
@@ -170,12 +200,12 @@ function createRelationNode(name,firstEntityID,secondEntityID, layoutX,layoutY) 
         type : "POST",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        url : "http://146.169.52.81:8080/er/relationship/create",
+        url : "http://146.169.52.81:8080/er/relationship/create_nary",
         contentType:"application/json",
         data : Obj,
         success : function(result) {
             id=result.data.id;
-        }, error : function(result) {
+        }, error : function() {
             id = -1
         }
     });
@@ -201,7 +231,7 @@ function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondC
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
-        success : function(result) {
+        success : function() {
             // update key
             relationNode.data.key = dbId+"_"+name;
             //update links
@@ -212,22 +242,27 @@ function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondC
 
 }
 
-function deleteRelation(id) {
+function deleteRelationNode(id,name) {
+    let is_success = 1;
     let Obj ={
         id: id
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
+        async:false,
         type : "POST",
         url : "http://146.169.52.81:8080/er/relationship/delete",
         data : Obj,
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
-        success : function(result) {
-        }, error : function(result) {
+        success : function() {
+        }, error : function() {
+            alert("delete"+name+"fail");
+            is_success=-1;
         }
     });
+    return is_success;
 }
 
 
@@ -235,8 +270,9 @@ function deleteRelation(id) {
 ER relation functions;
  */
 
-function createERLink(entityID,relationID,entityCardinality,entityPort,relationPort){
+function createERLink(entityID,relationID,entityCardinality,entityPort,relationPort,ERLinkCreateVerify){
     return Math.ceil(Math.random()*1000);
+    if(ERLinkCreateVerify.has(entityID+relationID)) return;
     let id;
     let Obj = JSON.stringify({
         viewID: viewID,
@@ -256,11 +292,15 @@ function createERLink(entityID,relationID,entityCardinality,entityPort,relationP
         data : Obj,
         success : function(result) {
             id=result.data.id;
-        }, error : function(result) {
+        }, error : function() {
             id = -1;
         }
     });
     return id;
+}
+
+function deleteERLink(){
+
 }
 
 /*
@@ -292,7 +332,6 @@ function deleteAttribute(id){
         }
     });
 }
-
 // add attribute
 function addAttr(){
     var tmpNodes = new go.List();
@@ -334,7 +373,6 @@ function addAttr(){
         attributeData.parentId = selectedNode.data.key;
         attributeData.allowNotNull = false; //default value false：NOT allow null
         // send data to backend
-        const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
         var info;
         if (category==="entity") {
             attributeData.isPrimary = false;
@@ -581,31 +619,7 @@ function createWeakEntity(){
     });
     myDiagram.commitTransaction("add weakEntity");
 }
-//delete weak entity
-function deleteWeakEntity(id){
-    // delete all attributes of weak entity
-    myDiagram.nodes.each(function (node){
-        if(("category" in node.data) && node.data.category === "Attribute" && node.data.entityId === id){
-            myDiagram.model.removeNodeData(node.data);
-        }
-    });
-    console.log("delete weak entity"+id);
-    let Obj ={
-        id: id
-    }
-    Obj = JSON.stringify(Obj);
-    // $.ajax({
-    //     type : "POST",
-    //     url : "http://146.169.52.81:8080/er/entity/delete",
-    //     data : Obj,
-    //     headers: { "Access-Control-Allow-Origin": "*",
-    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-    //     contentType: "application/json",
-    //     success : function(result) {
-    //     }, error : function(result) {
-    //     }
-    // });
-}
+
 /*
 operations about subset
  */
@@ -666,24 +680,6 @@ function createSubset(){
     myDiagram.commitTransaction("add subset");
 }
 
-function deleteSubset(id){
-    console.log("delete subset"+id);
-    let Obj ={
-        id: id
-    }
-    Obj = JSON.stringify(Obj);
-    // $.ajax({
-    //     type : "POST",
-    //     url : "http://146.169.52.81:8080/er/entity/delete",
-    //     data : Obj,
-    //     headers: { "Access-Control-Allow-Origin": "*",
-    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-    //     contentType: "application/json",
-    //     success : function(result) {
-    //     }, error : function(result) {
-    //     }
-    // });
-}
 /*
     export files
  */

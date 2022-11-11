@@ -2,11 +2,20 @@ var entityCounter = 0;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;
+const entityNodeCategory = "entity"
+const weakEntityNodeCategory = "weakEntity"
+const subsetEntityNodeCategory = "subset"
+
 const ERLinkCard = "1:1"
 const ERLinkCategory = "entityLink";
-const defaultRelationNodeName = "test";
-const defaultRelationNodeCategory = "relation";
-const defaultEntityNodeCategory = "entity"
+const relationNodeName = "test";
+const relationNodeCategory = "relation";
+const prefixRelationNodeKey = "relation_"
+let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
+
+s.add("1,1");
+s.add("2,2");
+console.log(s.has("1,1"), s.has("1,2"));
 function init() {
     /*
     Get the editable model Template
@@ -20,7 +29,7 @@ function init() {
             layout: $(go.ForceDirectedLayout, {isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "clickCreatingTool.archetypeNodeData": {name: "New Entity", category:"entity", from: true, to: true},
+            "clickCreatingTool.archetypeNodeData": {name: "New Entity", category:entityNodeCategory, from: true, to: true},
             "undoManager.isEnabled": true,
             "maxSelectionCount": 1,
             "ChangedSelection": changedSelection,
@@ -237,7 +246,7 @@ function init() {
                 {
                     row: 1, column: 1, name: "BODY",
                 },
-                $(go.Shape, "WeakEntity",
+                $(go.Shape, weakEntityNodeCategory,
                     {
                         fill: 'white',
                         portId: "",
@@ -371,13 +380,13 @@ function init() {
     // default template
     myDiagram.nodeTemplate = entityTemplate;
     templateMap.add("",entityTemplate);
-    templateMap.add("Entity", entityTemplate);
-    templateMap.add("WeakEntity", weakEntityTemplate);
-    templateMap.add("Subset",subsetTemplate);
+    templateMap.add(entityNodeCategory, entityTemplate);
+    templateMap.add(weakEntityNodeCategory, weakEntityTemplate);
+    templateMap.add(subsetEntityNodeCategory,subsetTemplate);
     templateMap.add("Attribute",attributeTemplate);
     templateMap.add("relation_attribute",attributeTemplate);
 
-    templateMap.add("relation",relationTemplate);
+    templateMap.add(relationNodeCategory ,relationTemplate);
 
     myDiagram.nodeTemplateMap = templateMap;
 
@@ -509,7 +518,7 @@ function init() {
     linkTemplateMap.add("relationLink", relationLink);
     linkTemplateMap.add("normalLink",normalLink);
     linkTemplateMap.add("subsetLink",subsetLink);
-    linkTemplateMap.add("entityLink",entityLink);
+    linkTemplateMap.add(ERLinkCategory,entityLink);
     // default
     linkTemplateMap.add("",entityLink);
     myDiagram.linkTemplateMap = linkTemplateMap;
@@ -543,7 +552,7 @@ function init() {
     //listen edit the relation and entity name
     // edit cardinality(from text
     myDiagram.addDiagramListener("TextEdited",(e) => {
-        if (e.subject.part.qb.category==="relation") { // identify the change relation name
+        if (e.subject.part.qb.category===relationNodeCategory ) { // identify the change relation name
             // update reation name
             console.log("relation node");
             const id = e.subject.part.qb.key;
@@ -552,7 +561,7 @@ function init() {
             const layoutY = e.subject.part.qb.location.y;
             // modifyRelation(id,name,layoutX,layoutY);
         }
-        else if(e.subject.part.qb.category==="entity"){
+        else if(e.subject.part.qb.category===entityNodeCategory){
             //update entity info
             const id = e.subject.part.qb.key;
             const name =  e.subject.part.qb.name;
@@ -560,7 +569,7 @@ function init() {
             const layoutY = e.subject.part.qb.location.y;
             updateEntity(id,name,layoutX,layoutY);
         }
-        else if(e.subject.part.qb.category==="entityLink"){
+        else if(e.subject.part.qb.category===ERLinkCategory){
             const id = e.subject.part.qb.key;
             let firstCardinality = e.subject.part.qb.fromText;
             const firstEntityID = e.subject.part.qb.from;
@@ -613,17 +622,17 @@ function init() {
                 const node2 = myDiagram.findNodeForKey(e.newValue.to);
 
                 // case1 : entity relation link
-                if ((node1.category === "relation" && node2.category === "entity") || (
-                    node1.category === "entity" && node2.category === "relation")) {
+                if ((node1.category === relationNodeCategory  && node2.category === entityNodeCategory) || (
+                    node1.category === entityNodeCategory && node2.category === relationNodeCategory )) {
                     // entity relation link
-                    const is_node1_relation = (node1.category === "relation");
+                    const is_node1_relation = (node1.category === relationNodeCategory);
                     e.newValue.from = is_node1_relation ? node2.key : node1.key;
                     e.newValue.to = is_node1_relation ? node1.key : node2.key;
                     e.newValue.fromPort = is_node1_relation ? toPort : fromPort;
                     e.newValue.toPort = is_node1_relation ? fromPort : toPort;
 
-                    // TODO:API createERLink: ERLink ID
-                    const er_id = createERLink(e.newValue.from, e.newValue.to, ERLinkCard, e.newValue.fromPort, e.newValue.toPort);
+                    const er_id = createERLink(e.newValue.from, e.newValue.to, ERLinkCard,
+                        e.newValue.fromPort, e.newValue.toPort,ERLinkCreateVerify);
                     if (er_id === -1) {
                         alert("can't create relation between this entity and this relation");
                         myDiagram.rollbackTransaction();
@@ -639,22 +648,25 @@ function init() {
                 }
 
                 // case 2: entity-entity link, create new node
-                else if (node1.category === "entity" && node2.category === "entity") {
+                else if (node1.category === entityNodeCategory && node2.category === entityNodeCategory) {
                     myDiagram.rollbackTransaction();
                     const relationNodeX = (node1.location.x + node2.location.x) / 2;
                     const relationNodeY = (node1.location.y + node2.location.y) / 2;
-                    //TODO:API CrateRelationNode: get return Id
-
-                    const relation_id = createRelationNode(defaultRelationNodeName,node1.key,node2.key,relationNodeX,relationNodeY)
+                    let relation_id = createRelationNode(relationNodeName,node1.key,node2.key,
+                        ERLinkCard,fromPort,toPort,ERLinkCard,toPort,fromPort, relationNodeX,relationNodeY);
                     if (relation_id === -1) {
                         alert("can't build relation between two entity");
                         return;
                     } else {
+                        relation_id = prefixRelationNodeKey+relation_id;
+                        ERLinkCreateVerify.add(node1.key+relation_id);
+                        ERLinkCreateVerify.add(node2.key+relation_id);
+
                         myDiagram.model.addNodeData({
                             key: relation_id,
-                            name: defaultRelationNodeName,
+                            name: relationNodeName,
                             "location": {"class": "go.Point", "x": relationNodeX, "y": relationNodeY},
-                            category: defaultRelationNodeCategory,
+                            category: relationNodeCategory,
                             from: true,
                             to: true,
                         });
@@ -674,11 +686,10 @@ function init() {
                 }
             }
             else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
-                var a=1;
-                if (!("category" in e.oldValue)) {
-                    //delete attribute
-                    const id = e.oldValue.key;
-                    deleteRelation(id);
+                if (e.oldValue.category===ERLinkCategory){
+
+
+
                 }
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromKey") {
@@ -686,12 +697,10 @@ function init() {
             }
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 switch(e.newValue.category){
-                    case defaultEntityNodeCategory: //create new entity
+                    case entityNodeCategory: //create new strong entity
                         e.newValue.name = e.newValue.name + entityCounter.toString();
                         entityCounter++;
-                        //TODO:API createEntity
-
-                        const id = createEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
+                        const id = createStrongEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
                         if (id===-1){
                             alert("create entity fail!");
                             myDiagram.rollbackTransaction();
@@ -699,29 +708,39 @@ function init() {
                         save();
                         load();
                         break;
-                    default:break;
+                    default:break; //create new relation node already handled by the insert Link Array
                     }
                 }
             else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
                 const id = e.oldValue.key;
-                if ("category" in e.oldValue) {
-                    // Attribute, WeakEntity, Subset
-                    switch(e.oldValue.category){
-                        case "entity":
-                            deleteEntity(id);
-                            break;
-                        case "Attribute"://delete attribute
-                            deleteAttribute(id);
-                            break;
-                        case "WeakEntity":
-                            deleteWeakEntity(id);
-                            break;
-                        case "Subset":
-                            deleteSubset(id);
-                            break;
-                        default:break;
-                    }
+                const name = e.oldValue.name;
+                const category = e.oldValue.category;
+
+                switch(category){
+                    case entityNodeCategory:
+                        handleDeleteStrongEntity(id,name);
+                        break;
+                    case relationNodeCategory:
+                        if (deleteRelationNode(id,name)===-1){
+                            myDiagram.rollbackTransaction();
+                        }
+                        break;
+                    case "Attribute"://delete attribute
+                        deleteAttribute(id);
+                        break;
+                    case weakEntityNodeCategory:
+                        if (deleteEntity(id,name)===-1){
+                            myDiagram.rollbackTransaction();
+                        }
+                        break;
+                    case subsetEntityNodeCategory:
+                        if (deleteEntity(id,name)===-1){
+                            myDiagram.rollbackTransaction();
+                        }
+                        break;
+                    default:break;
                 }
+
             }
         });
     });
