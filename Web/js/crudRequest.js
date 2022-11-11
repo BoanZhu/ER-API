@@ -7,6 +7,7 @@ const schemaID= parseInt(location.href.substring(location.href.indexOf("id=")+3)
 
 //rename, get the new schema name and replace the new url
 function renameSchema() {
+    return;
     const name=prompt("Please enter new view name");
     if (name!=="" &&name!=null)
     {
@@ -34,6 +35,7 @@ function renameSchema() {
 
 //delete this schema and return to index page
 function deleteSchema() {
+    return;
     let Obj ={
         id: schemaID
     }
@@ -115,6 +117,7 @@ function handleDeleteStrongEntity(id,name){
 
 //delete all entities API:done Test:
 function deleteEntity(id,name){
+    return;
     let is_success = 1;
     let Obj ={
         id: id
@@ -137,10 +140,11 @@ function deleteEntity(id,name){
     return is_success;
 }
 
-//update the entity info API: Test:
-function updateEntity(id,name,layoutX,layoutY){
+//update the all weak entity and strong entity, info API: done by move Test:
+function updateEntity(entityID,name,layoutX,layoutY){
+    return;
     let Obj ={
-        entityID:id,
+        entityID:entityID,
         name: name,
         layoutInfo: {
             layoutX: layoutX,
@@ -164,6 +168,43 @@ function updateEntity(id,name,layoutX,layoutY){
 
 }
 
+//update Subset
+function updateSubset(entityID,name,layoutX,layoutY,fromPort,isPort){
+    //if the change is about port then true
+    return;
+    if (!isPort){
+        const subsetNode = myDiagram.findNodeForKey(entityID);
+        subsetNode.findLinksOutOf().each(function (link){
+            fromPort = link.toPort;
+        });
+    }
+    return;
+    let Obj =JSON.stringify({
+        "entityID": entityID,
+        "name": name,
+        "fromPort":fromPort,
+        layoutInfo: {
+            layoutX: layoutX,
+            layoutY: layoutY
+        }
+
+    });
+    $.ajax({
+        type : "POST",
+        url : "http://146.169.52.81:8080/er/relationship/update",
+        data : Obj,
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        contentType: "application/json",
+        success : function() {
+        }, error : function() {
+            alert("update subset"+name+"fail!");
+            myDiagram.rollbackTransaction();
+
+        }
+    });
+
+}
 
 /*
 Relation Node functions
@@ -216,17 +257,17 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
     return id;
 }
 
-function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondCardinality,name) {
-    id = id.substr(id.indexOf(("_"))+1);
-    var relationNode = myDiagram.findNodeForKey(id);
-    const dbId = relationNode.data.key.replace(/[^\d]/g)[0];
+//update the name of the relation API done Test:
+function updateRelationNode(id,name,layoutX,layoutY) {
+    return;
+    const dbId = id.replace(/[^\d]/g)[0];
     let Obj ={
         "relationshipID": dbId,
         "name": name,
-        "firstEntityID": firstEntityID,
-        "secondEntityID": secondEntityID,
-        "firstCardinality": firstCardinality,
-        "secondCardinality": secondCardinality
+        "layoutInfo": {
+            "layoutX": layoutX,
+            "layoutY": layoutY
+        }
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
@@ -237,11 +278,15 @@ function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondC
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
         success : function() {
-            // update key
-            relationNode.data.key = dbId+"_"+name;
-            //update links
-            relationNode.findNodesConnected().each(node=>node.findLinksBetween(relationNode).each(l=>l.data.to=relationNode.data.key));
-        }, error : function(result) {
+            //TODO: delete?if don't have the entity list in each entity
+
+            // // update key
+            // relationNode.data.key = dbId+"_"+name;
+            // // update links
+            // relationNode.findNodesConnected().each(node=>node.findLinksBetween(relationNode).each(l=>l.data.to=relationNode.data.key));
+        }, error : function() {
+            myDiagram.rollbackTransaction();
+            alert("rename"+name+"fail");
         }
     });
 
@@ -249,7 +294,7 @@ function modifyRelation(id,firstEntityID,secondEntityID,firstCardinality,secondC
 
 //delete Relation Node API:done Test:
 function deleteRelationNode(id,name) {
-
+    return;
     id = id.substr(id.indexOf(("_"))+1);
     let is_success = 1;
     let Obj ={
@@ -278,7 +323,7 @@ function deleteRelationNode(id,name) {
 ER relation functions;
  */
 
-//delete Relation Node API:done Test:
+//create Entity_relation link API:done Test:
 function createERLink(entityID,relationshipID,cardinality,portAtEntity,portAtRelationship,ERLinkCreateVerify){
     return Math.ceil(Math.random()*1000);
     if(ERLinkCreateVerify.has(entityID+relationshipID)) return;
@@ -307,8 +352,9 @@ function createERLink(entityID,relationshipID,cardinality,portAtEntity,portAtRel
     return id;
 }
 
-//delete Relation Node API:done Test:
+//delete Entity_relation link API: Test:
 function deleteERLink(id){
+    return;
     let is_success = 1;
     let Obj ={
         id: id
@@ -332,10 +378,39 @@ function deleteERLink(id){
 
 }
 
+//update Entity_relation API done: test:
+function updateERLink(relationshipEdgeID,entityID,cardinality,portAtRelationship,portAtEntity){
+    return;
+    let Obj ={
+        relationshipEdgeID: relationshipEdgeID,
+        entityID:entityID,
+        cardinality:cardinality,
+        portAtRelationship:portAtRelationship,
+        portAtEntity,portAtEntity
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        async: false,
+        type : "POST",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        url : "http://146.169.52.81:8080/er/relationship/update_edge",
+        contentType:"application/json",
+        data : Obj,
+        success : function() {
+        }, error : function() {
+            myDiagram.rollbackTransaction();
+            alert("modify Entity Relation Link fail")
+        }
+    });
+
+}
+
+
+
 /*
     attribute functions
 */
-
 function deleteAttribute(id){
     var info ={
         "id":id

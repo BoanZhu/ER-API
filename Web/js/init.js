@@ -560,60 +560,71 @@ function init() {
         });
     }
 
-    //listen edit the relation and entity name
-    // edit cardinality(from text
+    //listen edit the relation and entity name and cardinality
     myDiagram.addDiagramListener("TextEdited",(e) => {
-        if (e.subject.part.qb.category===relationNodeCategory ) { // identify the change relation name
-            // update relation name
-            console.log("relation node");
-            const id = e.subject.part.qb.key;
-            const name =  e.subject.part.qb.name;
-            const layoutX = e.subject.part.qb.location.x;
-            const layoutY = e.subject.part.qb.location.y;
-            // modifyRelation(id,name,layoutX,layoutY);
-        }
-        else if(e.subject.part.qb.category===entityNodeCategory){
-            //update entity info
-            const id = e.subject.part.qb.key;
-            const name =  e.subject.part.qb.name;
-            const layoutX = e.subject.part.qb.location.x;
-            const layoutY = e.subject.part.qb.location.y;
-            updateEntity(id,name,layoutX,layoutY);
-        }
-        else if(e.subject.part.qb.category===ERLinkCategory){
-            const id = e.subject.part.qb.key;
-            let firstCardinality = e.subject.part.qb.fromText;
-            const firstEntityID = e.subject.part.qb.from;
-            const secondEntityID = e.subject.part.qb.to;
-            let secondCardinality = e.subject.part.qb.toText;
-            const name = e.subject.part.qb.name;
 
-            firstCardinality = findRelationCode(firstCardinality);
-            secondCardinality = findRelationCode(secondCardinality);
+        const item = e.subject.part.qb;
+        const category = item.category;
+        const id = item.key;
+        const name = item.name;
 
-            if (secondCardinality === undefined || firstCardinality === undefined) {
-                alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
-            }
-            else {
-                modifyRelation(id, firstEntityID, secondEntityID, firstCardinality, secondCardinality, name);
-            }
+        switch(category){
+            case entityNodeCategory:
+                updateEntity(id,name,item.location.x,item.location.y);
+                break;
+            case weakEntityNodeCategory:
+                updateEntity(id,name,item.location.x,item.location.y);
+                break;
+            case subsetEntityNodeCategory:
+                updateSubset(id,name,item.location.x,item.location.y,"",false);
+                break;
+            case relationNodeCategory:
+                updateRelationNode(id,name,item.location.x,item.location.y);
+                break;
+            case ERLinkCategory:
+                const cardinality = item.fromText;
+                if(cardinality===undefined) {
+                    alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
+                }else {
+                    updateERLink(id,item.from,item.fromText,item.toPort,item.fromPort)
+                }
+
+
+                break;
+            case "Attribute"://delete attribute
+                //TODO:function update Attribute
+                break;
+            default:break;
         }
     });
 
     //listen node movement
     myDiagram.addDiagramListener("SelectionMoved",(e) => {
+
         const selectNode = e.diagram.selection.first();
-        const entityLocationX = selectNode.location.x;
-        const entityLocationY = selectNode.location.y;
+        const locationX = selectNode.location.x;
+        const name = selectNode.name;
+        const locationY = selectNode.location.y;
         const id = selectNode.key;
-        if (selectNode.category === "Attribute"){
-            const dataType = selectNode.qb.dataType;
-            const isPrimay = selectNode.qb.isPrimary;
-            const name = selectNode.qb.name;
-            //TODO:function update Attribue
-        }else{
-            const name = selectNode.qb.name;
-            updateEntity(id,name,entityLocationX,entityLocationY);
+        const category = selectNode.category;
+
+        switch(category){
+            case entityNodeCategory:
+                updateEntity(id,name,locationX,locationY);
+                break;
+            case weakEntityNodeCategory:
+                updateEntity(id,name,locationX,locationY);
+                break;
+            case subsetEntityNodeCategory:
+                updateSubset(id,name,locationX,locationY,"",false);
+                break;
+            case relationNodeCategory:
+                updateRelationNode(id,name,locationX,locationY);
+                break;
+            case "Attribute"://delete attribute
+                //TODO:function update Attribute
+                break;
+            default:break;
         }
     });
 
