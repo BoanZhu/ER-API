@@ -1,7 +1,7 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.ic.er.common.RelatedObjType;
+import com.ic.er.common.BelongObjType;
 import com.ic.er.entity.LayoutInfoDO;
 import com.ic.er.exception.ERException;
 import lombok.Getter;
@@ -13,21 +13,21 @@ import java.util.List;
 @JsonIgnoreProperties({"id", "relatedObjID", "relatedObjType", "height", "width"})
 public class LayoutInfo {
     private Long ID;
-    private Long relatedObjID;
-    private RelatedObjType relatedObjType;
+    private Long belongObjID;
+    private BelongObjType belongObjType;
     private Double layoutX;
     private Double layoutY;
     private Double height;
     private Double width;
 
-    protected LayoutInfo(Long ID, Long relatedObjID, RelatedObjType relatedObjType, Double layoutX, Double layoutY, Double height, Double width) {
+    protected LayoutInfo(Long ID, Long belongObjID, BelongObjType belongObjType, Double layoutX, Double layoutY) {
         this.ID = ID;
-        this.relatedObjID = relatedObjID;
-        this.relatedObjType = relatedObjType;
+        this.belongObjID = belongObjID;
+        this.belongObjType = belongObjType;
         this.layoutX = layoutX;
         this.layoutY = layoutY;
-        this.height = height;
-        this.width = width;
+        this.height = 0.0;
+        this.width = 0.0;
         if (this.ID == 0) {
             this.insertDB();
         }
@@ -38,13 +38,12 @@ public class LayoutInfo {
         return Trans.TransLayoutInfoListFormDB(LayoutInfoDOList);
     }
 
-    public static LayoutInfo queryByObjIDAndObjType(Long relatedObjID, RelatedObjType relatedObjType) {
-        List<LayoutInfo> layoutInfoDOList = queryByLayoutInfo(new LayoutInfoDO(relatedObjID, relatedObjType));
-        if (layoutInfoDOList.size() == 0) {
-            throw new ERException(String.format("LayoutInfo with relatedObjID: %d, relatedObjType: %s not found ", relatedObjID, relatedObjType.name()));
-        } else {
+    public static LayoutInfo queryByObjIDAndObjType(Long relatedObjID, BelongObjType belongObjType) {
+        List<LayoutInfo> layoutInfoDOList = queryByLayoutInfo(new LayoutInfoDO(relatedObjID, belongObjType));
+        if (layoutInfoDOList.size() != 0) {
             return layoutInfoDOList.get(0);
         }
+        return null;
     }
 
     public static LayoutInfo queryByID(Long ID) throws ERException {
@@ -58,7 +57,7 @@ public class LayoutInfo {
 
     private void insertDB() {
         try {
-            LayoutInfoDO LayoutInfoDO = new LayoutInfoDO(0L, this.relatedObjID, this.relatedObjType, this.layoutX, this.layoutY, this.height, this.width);
+            LayoutInfoDO LayoutInfoDO = new LayoutInfoDO(0L, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY, this.height, this.width);
             int ret = ER.layoutInfoMapper.insert(LayoutInfoDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -69,20 +68,14 @@ public class LayoutInfo {
         }
     }
 
-    public void update(Double layoutX, Double layoutY, Double height, Double width) throws ERException {
+    public void update(Double layoutX, Double layoutY) throws ERException {
         if (layoutX != null) {
             this.layoutX = layoutX;
         }
         if (layoutX != null) {
             this.layoutY = layoutY;
         }
-        if (layoutX != null) {
-            this.height = height;
-        }
-        if (layoutX != null) {
-            this.width = width;
-        }
-        int ret = ER.layoutInfoMapper.updateByID(new LayoutInfoDO(this.ID, this.relatedObjID, this.relatedObjType, this.layoutX, this.layoutY, this.height, this.width));
+        int ret = ER.layoutInfoMapper.updateByID(new LayoutInfoDO(this.ID, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY, this.height, this.width));
         if (ret == 0) {
             throw new ERException(String.format("cannot find LayoutInfo with ID: %d", this.ID));
         }

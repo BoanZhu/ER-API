@@ -2,6 +2,7 @@ package com.ic.er;
 
 
 import com.ic.er.common.DataType;
+import com.ic.er.common.EntityType;
 import com.ic.er.exception.ERException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,9 +23,20 @@ public class TestEntity {
 
     @Test
     public void addEntityTest() {
+        // normal add strong entity
         Entity teacher = testSchema.addEntity("teacher");
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
+        // check duplication exception
         assertThrows(ERException.class, () -> testSchema.addEntity("teacher"));
+
+        // add subset
+        Entity seniorTeacher = testSchema.addSubset("senior_teacher", teacher);
+        seniorTeacher = Entity.queryByID(seniorTeacher.getID());
+        Assert.assertNotEquals(seniorTeacher.getID(), Long.valueOf(0));
+        Assert.assertEquals(seniorTeacher.getBelongStrongEntityID(), teacher.getID());
+        Assert.assertEquals(seniorTeacher.getEntityType(), EntityType.SUBSET);
+
+        // add weak entity
     }
 
     @Test

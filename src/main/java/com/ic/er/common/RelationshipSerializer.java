@@ -1,7 +1,6 @@
 package com.ic.er.common;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.ic.er.Relationship;
@@ -25,10 +24,10 @@ public class RelationshipSerializer extends StdSerializer<Relationship> {
 
         jgen.writeStartObject();
         jgen.writeStringField("name", relationship.getName());
-        jgen.writeStringField("firstEntity", relationship.getFirstEntity().getName());
-        jgen.writeStringField("firstCardinality", relationship.getFirstCardinality().getValue());
-        jgen.writeStringField("secondEntity", relationship.getSecondEntity().getName());
-        jgen.writeStringField("secondCardinality", relationship.getSecondCardinality().getValue());
+//        jgen.writeStringField("firstEntity", relationship.getFirstEntity().getName());
+//        jgen.writeStringField("firstCardinality", relationship.getFirstCardinality().getValue());
+//        jgen.writeStringField("secondEntity", relationship.getSecondEntity().getName());
+//        jgen.writeStringField("secondCardinality", relationship.getSecondCardinality().getValue());
         jgen.writeObjectField("layoutInfo", relationship.getLayoutInfo());
         jgen.writeEndObject();
     }

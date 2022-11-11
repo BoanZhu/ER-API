@@ -6,9 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.ic.er.common.Cardinality;
+import com.ic.er.common.EntityType;
+import com.ic.er.common.EntityWithCardinality;
 import com.ic.er.common.SchemaDeserializer;
 import com.ic.er.entity.EntityDO;
-import com.ic.er.entity.RelationshipDO;
 import com.ic.er.entity.SchemaDO;
 import com.ic.er.exception.ERException;
 import lombok.Getter;
@@ -43,63 +44,89 @@ public class Schema {
         }
     }
 
+    // addEntity add strong entity by default
     public Entity addEntity(String entityName) {
-        return addEntity(entityName, 0.0, 0.0);
+        return addEntity(entityName, EntityType.STRONG, null);
     }
 
-    public Entity addEntity(String entityName, Double layoutX, Double layoutY) {
+    public Entity addSubset(String entityName, Entity strongEntity) {
+        // check if the specified strong entity that this subset relies on exists
+        try {
+            Entity entity = Entity.queryByID(strongEntity.getID());
+        } catch (ERException erex) {
+            throw new ERException("addSubset fail: the specified strong entity does not exist");
+        }
+        return addEntity(entityName, EntityType.SUBSET, strongEntity.getID());
+    }
+
+    public Entity addWeakEntity(String entityName, Entity strongEntity, String relationshipName, Entity weakEntityCardinality, Entity strongEntityCardinality) {
+        // todo
+        // check if the specified strong entity that this subset relies on exists
+        // add weak entity
+        // add relationship
+        return addEntity(entityName, EntityType.STRONG, null);
+    }
+
+    // addEntity base method for addEntity, for internal use only,
+    // users should add entity through other public methods
+    private Entity addEntity(String entityName, EntityType entityType, Long belongStrongEntityID) {
         if (entityName.equals("")) {
             throw new ERException("entityName cannot be empty");
         }
-        List<Entity> entities = Entity.queryByEntity(new EntityDO(null, entityName, this.ID, null, null, null));
+        List<Entity> entities = Entity.query(new EntityDO(entityName, this.ID, null));
         if (entities.size() != 0) {
             throw new ERException(String.format("entity with name: %s already exists", entityName));
         }
-        Entity entity = new Entity(0L, entityName, this.ID, new ArrayList<>(), null, layoutX, layoutY, new Date(), new Date());
+        Entity entity = new Entity(0L, entityName, this.ID, entityType, belongStrongEntityID, new ArrayList<>(), Integer.valueOf(-1), null, new Date(), new Date());
         this.entityList.add(entity);
         return entity;
     }
 
     public void deleteEntity(Entity entity) {
         this.entityList.remove(entity);
-        List<Relationship> relationships = Relationship.queryByRelationship(new RelationshipDO(null, null, this.ID, entity.getID(), null, null, null, null, null, null));
-        for (Relationship relationship : relationships) {
-            deleteRelationship(relationship);
-        }
-        relationships = Relationship.queryByRelationship(new RelationshipDO(null, null, this.ID, null, entity.getID(), null, null, null, null, null));
-        for (Relationship relationship : relationships) {
-            deleteRelationship(relationship);
-        }
+//        List<Relationship> relationships = Relationship.queryByRelationship(new RelationshipDO(null, null, this.ID, entity.getID(), null, null, null, null, null, null));
+//        for (Relationship relationship : relationships) {
+//            deleteRelationship(relationship);
+//        }
+//        relationships = Relationship.queryByRelationship(new RelationshipDO(null, null, this.ID, null, entity.getID(), null, null, null, null, null));
+//        for (Relationship relationship : relationships) {
+//            deleteRelationship(relationship);
+//        }
         entity.deleteDB();
     }
 
-    public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity,
-                                           Cardinality firstCardinality, Cardinality secondCardinality) {
+    public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality) {
+        ArrayList<EntityWithCardinality> entityWithCardinalityList = new ArrayList<>();
+        entityWithCardinalityList.add(new EntityWithCardinality(firstEntity, firstCardinality));
+        entityWithCardinalityList.add(new EntityWithCardinality(secondEntity, secondCardinality));
+        return createNaryRelationship(relationshipName, entityWithCardinalityList);
+    }
+
+    // createNaryRelationship
+    public Relationship createNaryRelationship(String relationshipName, List<EntityWithCardinality> entityWithCardinalityList) {
         if (relationshipName.equals("")) {
             throw new ERException("relationshipName cannot be empty");
         }
-        if (firstEntity.getID().equals(secondEntity.getID())) {
-            throw new ERException("relationship cannot be created on the same entity");
+        if (entityWithCardinalityList.size() <= 1) {
+            throw new ERException("must have more than 2 entities to create relationship");
         }
-        if (Entity.queryByID(firstEntity.getID()) == null) {
-            throw new ERException(String.format("entity with ID: %d not found", firstEntity.getID()));
+        for (EntityWithCardinality eCard : entityWithCardinalityList) {
+            Entity entity = eCard.getEntity();
+            if (Entity.queryByID(entity.getID()) == null) {
+                throw new ERException(String.format("entity with ID: %d not found", entity.getID()));
+            }
+            if (!entity.getSchemaID().equals(this.ID)) {
+                throw new ERException(String.format("entity: %s does not belong to this schema", entity.getName()));
+            }
+            // todo check if there is already a relationship between all these entities
         }
-        if (Entity.queryByID(secondEntity.getID()) == null) {
-            throw new ERException(String.format("entity with ID: %d not found", secondEntity.getID()));
+        Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
+        for (EntityWithCardinality eCard : entityWithCardinalityList) {
+            Entity entity = eCard.getEntity();
+            Cardinality cardinality = eCard.getCardinality();
+            RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, entity, cardinality, -1, -1, new Date(), new Date());
+            relationship.getEdgeList().add(relationshipEdge);
         }
-        if (Relationship.queryByRelationship(new RelationshipDO(firstEntity.getID(), secondEntity.getID())).size() != 0) {
-            throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
-        }
-        if (Relationship.queryByRelationship(new RelationshipDO(secondEntity.getID(), firstEntity.getID())).size() != 0) {
-            throw new ERException(String.format("relation between entity %s and %s already exists", firstEntity.getName(), secondEntity.getName()));
-        }
-        if (!firstEntity.getSchemaID().equals(this.ID)) {
-            throw new ERException(String.format("entity: %s does not belong to this schema", firstEntity.getName()));
-        }
-        if (!secondEntity.getSchemaID().equals(this.ID)) {
-            throw new ERException(String.format("entity: %s does not belong to this schema", secondEntity.getName()));
-        }
-        Relationship relationship = new Relationship(0L, relationshipName, this.ID, firstEntity, secondEntity, firstCardinality, secondCardinality, null, new Date(), new Date());
         this.relationshipList.add(relationship);
         return relationship;
     }

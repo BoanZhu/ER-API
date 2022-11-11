@@ -1,9 +1,8 @@
 package com.ic.er;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.ic.er.common.AttributeConnectObjType;
+import com.ic.er.common.BelongObjType;
 import com.ic.er.common.DataType;
-import com.ic.er.common.RelatedObjType;
 import com.ic.er.entity.AttributeDO;
 import com.ic.er.exception.ERException;
 import lombok.Getter;
@@ -17,7 +16,7 @@ import java.util.List;
 public class Attribute {
     private Long ID;
     private Long belongObjID;
-    private AttributeConnectObjType belongObjType;
+    private BelongObjType belongObjType;
     private Long schemaID;
     private String name;
     private DataType dataType;
@@ -28,8 +27,8 @@ public class Attribute {
     private Date gmtCreate;
     private Date gmtModified;
 
-    protected Attribute(Long ID, Long belongObjID, AttributeConnectObjType belongObjType, Long schemaID, String name, DataType dataType,
-                        Boolean isPrimary, Boolean nullable, LayoutInfo layoutInfo, Double layoutX, Double layoutY, Date gmtCreate, Date gmtModified) {
+    protected Attribute(Long ID, Long belongObjID, BelongObjType belongObjType, Long schemaID, String name, DataType dataType,
+                        Boolean isPrimary, Boolean nullable, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.belongObjID = belongObjID;
         this.belongObjType = belongObjType;
@@ -38,22 +37,18 @@ public class Attribute {
         this.dataType = dataType;
         this.isPrimary = isPrimary;
         this.nullable = nullable;
+        this.aimPort = aimPort;
         this.layoutInfo = layoutInfo;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
             this.insertDB();
         }
-        if (this.layoutInfo == null) {
-            this.layoutInfo = new LayoutInfo(0L, this.ID, RelatedObjType.ATTRIBUTE, layoutX, layoutY, 0.0, 0.0);
-        }
     }
-
 
     private void insertDB() throws PersistenceException {
         try {
-            // todo port
-            AttributeDO aDo = new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, 0, 0, this.gmtCreate, this.gmtModified);
+            AttributeDO aDo = new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.attributeMapper.insert(aDo);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -82,13 +77,13 @@ public class Attribute {
             this.nullable = nullable;
         }
         if (name != null) {
-            List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.belongObjID, this.belongObjType, this.schemaID, name, null, null, null, null, null, null, null));
+            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, this.schemaID, name));
             if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(this.ID)) {
                 throw new ERException(String.format("attribute with name: %s already exists", this.name));
             }
         }
         if (isPrimary != null && isPrimary) {
-            List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(null, this.belongObjID, this.belongObjType, this.schemaID, null, null, true, null, null, null, null, null));
+            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, this.schemaID, null));
             if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(this.ID)) {
                 throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
             }
@@ -96,14 +91,24 @@ public class Attribute {
         if (this.nullable && this.isPrimary) {
             throw new ERException("primary attribute cannot be null");
         }
-        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, 0, 0, this.gmtCreate, new Date()));
+        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, new Date()));
     }
 
-    public void updateLayoutInfo(Double layoutX, Double layoutY, Double height, Double width) throws ERException {
-        this.layoutInfo.update(layoutX, layoutY, height, width);
+    public void updateLayoutInfo(Double layoutX, Double layoutY) throws ERException {
+        if (this.layoutInfo == null) {
+            this.layoutInfo = new LayoutInfo(0L, this.ID, BelongObjType.ATTRIBUTE, layoutX, layoutY);
+        }
+        this.layoutInfo.update(layoutX, layoutY);
     }
 
-    public static List<Attribute> queryByAttribute(AttributeDO attributeDO) {
+    public void updateAimPort(Integer aimPort) throws ERException {
+        if (this.aimPort != null) {
+            this.aimPort = aimPort;
+        }
+        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, new Date()));
+    }
+
+    public static List<Attribute> query(AttributeDO attributeDO) {
         return Trans.TransAttributeListFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
     }
 

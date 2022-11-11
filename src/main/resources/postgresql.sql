@@ -10,7 +10,7 @@ CREATE TABLE attribute (
                            data_type varchar(50) NOT NULL ,
                            is_primary smallint NOT NULL DEFAULT 0 ,
                            nullable smallint NOT NULL DEFAULT 0 ,
-                           aim_port smallint NOT NULL ,
+                           aim_port smallint NULL ,
                            belong_obj_type smallint NOT NULL ,
                            is_delete smallint NOT NULL DEFAULT 0 ,
                            gmt_create timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ,
@@ -27,6 +27,7 @@ CREATE TABLE entity (
                         name varchar(255) NOT NULL ,
                         schema_id bigint NOT NULL ,
                         entity_type smallint NOT NULL ,
+                        belong_strong_entity_id bigint NULL ,
                         aim_port smallint NULL ,
                         is_delete smallint NOT NULL DEFAULT 0 ,
                         gmt_create timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ,
@@ -87,8 +88,8 @@ CREATE SEQUENCE layout_info_seq;
 
 CREATE TABLE layout_info (
                              id bigint NOT NULL DEFAULT NEXTVAL ('layout_info_seq') ,
-                             related_obj_id bigint NOT NULL ,
-                             related_obj_type smallint NOT NULL ,
+                             belong_obj_id bigint NOT NULL,
+                             belong_obj_type smallint NOT NULL,
                              layout_x NUMERIC(8,3) NOT NULL ,
                              layout_y NUMERIC(8,3) NOT NULL ,
                              width NUMERIC(8,3) NOT NULL ,

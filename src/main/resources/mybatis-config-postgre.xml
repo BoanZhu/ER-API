@@ -6,7 +6,7 @@
     <properties resource='jdbc-postgre.properties'/>
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
-                     javaType="com.ic.er.common.RelatedObjType"/>
+                     javaType="com.ic.er.common.BelongObjType"/>
         <typeHandler handler="com.ic.er.common.CardinalityEnumTypeHandler"/>
     </typeHandlers>
     <environments default='development'>
@@ -26,5 +26,6 @@
         <mapper resource='mapper/RelationshipMapper.xml'/>
         <mapper resource='mapper/SchemaMapper.xml'/>
         <mapper resource='mapper/LayoutInfoMapper.xml'/>
+        <mapper resource='mapper/RelationshipEdgeMapper.xml'/>
     </mappers>
 </configuration>

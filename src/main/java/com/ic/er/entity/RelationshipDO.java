@@ -21,8 +21,7 @@ public class RelationshipDO {
         this.ID = ID;
     }
 
-    public RelationshipDO(Long ID, String name, Long schemaID) {
-        this.ID = ID;
+    public RelationshipDO(String name, Long schemaID) {
         this.name = name;
         this.schemaID = schemaID;
     }

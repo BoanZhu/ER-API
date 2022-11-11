@@ -23,7 +23,7 @@
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-            id,relationship_id,schema_id,entity_id,cardinality,port_at_relationship,port_at_entity,is_delete,gmt_create,gmt_modified
+        id,relationship_id,schema_id,entity_id,cardinality,port_at_relationship,port_at_entity,is_delete,gmt_create,gmt_modified
         from relationship_edge
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
@@ -36,7 +36,7 @@
             <if test="ID != null">
                 and id = #{ID,jdbcType=BIGINT}
             </if>
-            <if test="relationshipId != null">
+            <if test="relationshipID != null">
                 and relationship_id = #{relationshipID,jdbcType=BIGINT}
             </if>
             <if test="schemaID != null">
@@ -48,10 +48,10 @@
             <if test="cardinality != null">
                 and cardinality = #{cardinality.code,jdbcType=SMALLINT}
             </if>
-            <if test="port_at_relationship != null">
+            <if test="portAtRelationship != null">
                 and port_at_relationship = #{portAtRelationship,jdbcType=SMALLINT}
             </if>
-            <if test="port_at_entity != null">
+            <if test="portAtEntity != null">
                 and port_at_entity = #{portAtEntity,jdbcType=SMALLINT}
             </if>
             <if test="gmtCreate != null">
@@ -67,7 +67,7 @@
     <insert id="insert" parameterType="com.ic.er.entity.RelationshipEdgeDO" useGeneratedKeys="true" keyProperty="ID">
         insert into relationship_edge
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="relationshipId != null">
+            <if test="relationshipID != null">
                 relationship_id,
             </if>
             <if test="schemaID != null">
@@ -79,15 +79,15 @@
             <if test="cardinality != null">
                 cardinality,
             </if>
-            <if test="port_at_relationship != null">
+            <if test="portAtRelationship != null">
                 port_at_relationship,
             </if>
-            <if test="port_at_entity != null">
+            <if test="portAtEntity != null">
                 port_at_entity,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="relationshipId != null">
+            <if test="relationshipID != null">
                 #{relationshipID,jdbcType=BIGINT},
             </if>
             <if test="schemaID != null">
@@ -99,10 +99,10 @@
             <if test="cardinality != null">
                 #{cardinality.code,jdbcType=SMALLINT},
             </if>
-            <if test="port_at_relationship != null">
+            <if test="portAtRelationship != null">
                 #{portAtRelationship,jdbcType=SMALLINT},
             </if>
-            <if test="port_at_entity != null">
+            <if test="portAtEntity != null">
                 #{portAtEntity,jdbcType=SMALLINT},
             </if>
         </trim>
@@ -110,14 +110,14 @@
 
     <update id="deleteByID" parameterType="java.lang.Long">
         update relationship_edge set
-            is_delete = 1
+        is_delete = 1
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
     <update id="updateByID" parameterType="com.ic.er.entity.RelationshipEdgeDO">
         update relationship_edge
         <set>
-            <if test="relationshipId != null">
+            <if test="relationshipID != null">
                 relationship_id = #{relationshipID,jdbcType=BIGINT},
             </if>
             <if test="schemaID != null">
@@ -129,10 +129,10 @@
             <if test="cardinality != null">
                 cardinality = #{cardinality.code,jdbcType=SMALLINT},
             </if>
-            <if test="port_at_relationship != null">
+            <if test="portAtRelationship != null">
                 port_at_relationship = #{portAtRelationship,jdbcType=SMALLINT},
             </if>
-            <if test="port_at_entity != null">
+            <if test="portAtEntity != null">
                 port_at_entity = #{portAtEntity,jdbcType=SMALLINT},
             </if>
         </set>

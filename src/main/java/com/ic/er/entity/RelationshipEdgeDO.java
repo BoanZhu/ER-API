@@ -25,4 +25,9 @@ public class RelationshipEdgeDO {
     public RelationshipEdgeDO(Long ID) {
         this.ID = ID;
     }
+
+    public RelationshipEdgeDO(Long relationshipID, Long entityID) {
+        this.relationshipID = relationshipID;
+        this.entityID = entityID;
+    }
 }

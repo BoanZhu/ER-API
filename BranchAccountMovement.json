@@ -2,135 +2,121 @@
   "name" : "BranchAccountMovement",
   "entityList" : [ {
     "name" : "branch",
+    "entityType" : "STRONG",
+    "belongStrongEntityID" : null,
     "attributeList" : [ {
+      "belongObjID" : 1,
+      "belongObjType" : "ENTITY",
       "name" : "sortcode",
       "dataType" : "INT",
       "isPrimary" : true,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     }, {
+      "belongObjID" : 1,
+      "belongObjType" : "ENTITY",
       "name" : "bname",
       "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     }, {
+      "belongObjID" : 1,
+      "belongObjType" : "ENTITY",
       "name" : "cash",
       "dataType" : "DOUBLE",
       "isPrimary" : false,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     } ],
-    "layoutInfo" : {
-      "layoutX" : 0.0,
-      "layoutY" : 0.0
-    }
+    "aimPort" : -1,
+    "layoutInfo" : null
   }, {
     "name" : "account",
+    "entityType" : "STRONG",
+    "belongStrongEntityID" : null,
     "attributeList" : [ {
+      "belongObjID" : 2,
+      "belongObjType" : "ENTITY",
       "name" : "no",
       "dataType" : "INT",
       "isPrimary" : true,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     }, {
+      "belongObjID" : 2,
+      "belongObjType" : "ENTITY",
       "name" : "type",
       "dataType" : "CHAR",
       "isPrimary" : false,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     }, {
+      "belongObjID" : 2,
+      "belongObjType" : "ENTITY",
       "name" : "cname",
       "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     }, {
+      "belongObjID" : 2,
+      "belongObjType" : "ENTITY",
       "name" : "rate",
       "dataType" : "DOUBLE",
       "isPrimary" : false,
       "nullable" : true,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     } ],
-    "layoutInfo" : {
-      "layoutX" : 0.0,
-      "layoutY" : 0.0
-    }
+    "aimPort" : -1,
+    "layoutInfo" : null
   }, {
     "name" : "movement",
+    "entityType" : "STRONG",
+    "belongStrongEntityID" : null,
     "attributeList" : [ {
+      "belongObjID" : 3,
+      "belongObjType" : "ENTITY",
       "name" : "mid",
       "dataType" : "INT",
       "isPrimary" : true,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     }, {
+      "belongObjID" : 3,
+      "belongObjType" : "ENTITY",
       "name" : "amount",
       "dataType" : "DOUBLE",
       "isPrimary" : false,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     }, {
+      "belongObjID" : 3,
+      "belongObjType" : "ENTITY",
       "name" : "tdate",
       "dataType" : "DATETIME",
       "isPrimary" : false,
       "nullable" : false,
-      "layoutInfo" : {
-        "layoutX" : 0.0,
-        "layoutY" : 0.0
-      }
+      "aimPort" : -1,
+      "layoutInfo" : null
     } ],
-    "layoutInfo" : {
-      "layoutX" : 0.0,
-      "layoutY" : 0.0
-    }
+    "aimPort" : -1,
+    "layoutInfo" : null
   } ],
   "relationshipList" : [ {
     "name" : "holds",
-    "firstEntity" : "account",
-    "firstCardinality" : "1:1",
-    "secondEntity" : "branch",
-    "secondCardinality" : "0:N",
-    "layoutInfo" : {
-      "layoutX" : 0.0,
-      "layoutY" : 0.0
-    }
+    "layoutInfo" : null
   }, {
     "name" : "has",
-    "firstEntity" : "account",
-    "firstCardinality" : "0:N",
-    "secondEntity" : "movement",
-    "secondCardinality" : "1:1",
-    "layoutInfo" : {
-      "layoutX" : 0.0,
-      "layoutY" : 0.0
-    }
+    "layoutInfo" : null
   } ]
 }

@@ -1,7 +1,7 @@
 package com.ic.er.entity;
 
 
-import com.ic.er.common.RelatedObjType;
+import com.ic.er.common.BelongObjType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,9 +13,9 @@ public class LayoutInfoDO {
 
     private Long ID;
 
-    private Long relatedObjID;
+    private Long belongObjID;
 
-    private RelatedObjType relatedObjType;
+    private BelongObjType belongObjType;
 
     private Double layoutX;
 
@@ -29,8 +29,8 @@ public class LayoutInfoDO {
         this.ID = id;
     }
 
-    public LayoutInfoDO(Long relatedObjID, RelatedObjType relatedObjType) {
-        this.relatedObjID = relatedObjID;
-        this.relatedObjType = relatedObjType;
+    public LayoutInfoDO(Long belongObjID, BelongObjType belongObjType) {
+        this.belongObjID = belongObjID;
+        this.belongObjType = belongObjType;
     }
 }

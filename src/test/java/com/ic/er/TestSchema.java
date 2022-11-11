@@ -19,7 +19,7 @@ public class TestSchema {
     }
 
     @Test
-    public void createSchemaTest() {
+    public void createVanillaERTest() {
         Schema testSchema = ER.createSchema("testSchema", "wt22");
 
         Entity teacher = testSchema.addEntity("teacher");

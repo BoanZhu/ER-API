@@ -1,6 +1,6 @@
 package com.ic.er.dao;
 
-import com.ic.er.common.RelatedObjType;
+import com.ic.er.common.BelongObjType;
 import com.ic.er.entity.LayoutInfoDO;
 
 import java.util.List;
@@ -9,7 +9,7 @@ public interface LayoutInfoMapper {
 
     LayoutInfoDO selectByID(Long ID);
 
-    LayoutInfoDO selectByRelatedObjID(Long relatedObjID, RelatedObjType relatedObjType);
+    LayoutInfoDO selectByBelongObjID(Long relatedObjID, BelongObjType belongObjType);
 
     List<LayoutInfoDO> selectByLayoutInfo(LayoutInfoDO layoutInfoDO);
 

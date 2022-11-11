@@ -1,7 +1,6 @@
 package com.ic.er;
 
-import com.ic.er.common.AttributeConnectObjType;
-import com.ic.er.common.RelatedObjType;
+import com.ic.er.common.BelongObjType;
 import com.ic.er.entity.*;
 
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ import java.util.List;
 public class Trans {
 
     protected static LayoutInfo TransformFromDB(LayoutInfoDO layoutInfoDO) {
-        return new LayoutInfo(layoutInfoDO.getID(), layoutInfoDO.getRelatedObjID(), layoutInfoDO.getRelatedObjType(), layoutInfoDO.getLayoutX(), layoutInfoDO.getLayoutY(), layoutInfoDO.getHeight(), layoutInfoDO.getWidth());
+        return new LayoutInfo(layoutInfoDO.getID(), layoutInfoDO.getBelongObjID(), layoutInfoDO.getBelongObjType(), layoutInfoDO.getLayoutX(), layoutInfoDO.getLayoutY());
     }
 
     protected static List<LayoutInfo> TransLayoutInfoListFormDB(List<LayoutInfoDO> doList) {
@@ -22,10 +21,10 @@ public class Trans {
     }
 
     protected static Attribute TransformFromDB(AttributeDO attributeDO) {
-        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(attributeDO.getID(), RelatedObjType.ATTRIBUTE);
+        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(attributeDO.getID(), BelongObjType.ATTRIBUTE);
         return new Attribute(attributeDO.getID(), attributeDO.getBelongObjId(), attributeDO.getBelongObjType(), attributeDO.getSchemaID(),
-                attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(), attributeDO.getNullable(),
-                layoutInfo, 0.0, 0.0, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
+                attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(), attributeDO.getNullable(), attributeDO.getAimPort(),
+                layoutInfo, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 
     protected static List<Attribute> TransAttributeListFromDB(List<AttributeDO> doList) {
@@ -37,10 +36,9 @@ public class Trans {
     }
 
     protected static Entity TransformFromDB(EntityDO entityDO) {
-        List<Attribute> attributeList = Attribute.queryByAttribute(new AttributeDO(entityDO.getID(), AttributeConnectObjType.ENTITY, entityDO.getSchemaID()));
-        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), RelatedObjType.ENTITY);
-        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getSchemaID(), attributeList, layoutInfo, null, null,
-                entityDO.getGmtCreate(), entityDO.getGmtModified());
+        List<Attribute> attributeList = Attribute.query(new AttributeDO(entityDO.getID(), BelongObjType.ENTITY, entityDO.getSchemaID(), null));
+        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), BelongObjType.ENTITY);
+        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getSchemaID(), entityDO.getEntityType(), entityDO.getBelongStrongEntityID(), attributeList, entityDO.getAimPort(), layoutInfo, entityDO.getGmtCreate(), entityDO.getGmtModified());
     }
 
     protected static List<Entity> TransEntityListFormFromDB(List<EntityDO> doList) {
@@ -53,13 +51,11 @@ public class Trans {
 
 
     protected static Relationship TransformFromDB(RelationshipDO relationshipDO) {
-        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(relationshipDO.getID(), RelatedObjType.RELATIONSHIP);
-        // todo query all the edges in this relationship
-        List<EntityWithCardinality> entityWithCardinalityList = new ArrayList<>();
-        return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getSchemaID(),
-                Entity.queryByID(relationshipDO.getFirstEntityID()), Entity.queryByID(relationshipDO.getSecondEntityID()),
-                relationshipDO.getFirstCardinality(), relationshipDO.getSecondCardinality(), layoutInfo,
-                relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
+        LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(relationshipDO.getID(), BelongObjType.RELATIONSHIP);
+        List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(relationshipDO.getID(), null));
+        List<Attribute> attributeList = Attribute.query(new AttributeDO(relationshipDO.getID(), BelongObjType.RELATIONSHIP, null, null));
+        return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getSchemaID(), attributeList, edgeList,
+                layoutInfo, relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
     }
 
     protected static List<Relationship> TransRelationshipListFromDB(List<RelationshipDO> doList) {
@@ -70,11 +66,25 @@ public class Trans {
         return ret;
     }
 
+    protected static RelationshipEdge TransformFromDB(RelationshipEdgeDO edgeDO) {
+        Entity entity = Entity.queryByID(edgeDO.getEntityID());
+        return new RelationshipEdge(edgeDO.getID(), edgeDO.getRelationshipID(), edgeDO.getSchemaID(),
+                entity, edgeDO.getCardinality(), edgeDO.getPortAtRelationship(), edgeDO.getPortAtEntity(),
+                edgeDO.getGmtCreate(), edgeDO.getGmtModified());
+    }
+
+    protected static List<RelationshipEdge> TransRelationshipEdgeListFromDB(List<RelationshipEdgeDO> doList) {
+        List<RelationshipEdge> ret = new ArrayList<>();
+        for (RelationshipEdgeDO relationshipEdgeDO : doList) {
+            ret.add(TransformFromDB(relationshipEdgeDO));
+        }
+        return ret;
+    }
+
     protected static Schema TransformFromDB(SchemaDO schema) {
-        List<Entity> entityList = Entity.queryByEntity(new EntityDO(null, null, schema.getID(), null, null, null));
-        List<Relationship> relationshipList = Relationship.queryByRelationship(new RelationshipDO(null, null, schema.getID(), null, null, null, null, null, null, null));
-        return new Schema(schema.getID(), schema.getName(), entityList, relationshipList, schema.getCreator(),
-                schema.getGmtCreate(), schema.getGmtModified());
+        List<Entity> entityList = Entity.query(new EntityDO(null, schema.getID(), null));
+        List<Relationship> relationshipList = Relationship.query(new RelationshipDO(null, schema.getID()));
+        return new Schema(schema.getID(), schema.getName(), entityList, relationshipList, schema.getCreator(), schema.getGmtCreate(), schema.getGmtModified());
     }
 
     protected static List<Schema> TransSchemaListFromDB(List<SchemaDO> doList) {

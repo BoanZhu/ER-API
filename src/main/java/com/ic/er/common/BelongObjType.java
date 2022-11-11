@@ -5,10 +5,11 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum AttributeConnectObjType {
+public enum BelongObjType {
     UNKNOWN(0),
-    ENTITY(1),
-    RELATIONSHIP(2);
+    ATTRIBUTE(1),
+    ENTITY(2),
+    RELATIONSHIP(3);
 
     private final Integer value;
 }

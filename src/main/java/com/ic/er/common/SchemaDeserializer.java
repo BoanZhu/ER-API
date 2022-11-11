@@ -44,7 +44,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
                 entityNameMap.put(entityName, entity);
             }
             JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
-            entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), 0.0, 0.0);
+            entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble());
         }
 
         for (JsonNode relationshipJSONNode : schemaJSONNode.get("relationshipList")) {
@@ -55,7 +55,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
             String secondCardinality = relationshipJSONNode.get("secondCardinality").textValue();
             Relationship relationship = schema.createRelationship(relationshipName, entityNameMap.get(firstEntityName), entityNameMap.get(secondEntityName), Cardinality.getFromValue(firstCardinality), Cardinality.getFromValue(secondCardinality));
             JsonNode layoutInfoJSONNode = relationshipJSONNode.get("layoutInfo");
-            relationship.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble(), 0.0, 0.0);
+            relationship.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble());
         }
 
         return schema;

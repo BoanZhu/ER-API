@@ -9,9 +9,9 @@ import java.sql.SQLException;
 public class TestTransform {
     Schema view;
 
-    @Test
+    //    @Test
     public void testERModelToRSSucc() throws IOException, SQLException {
-        ER.initialize(true);
+        ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity student = view.addEntity("student");
         Attribute studentId = student.addAttribute("id", DataType.INT, true, false);
@@ -37,9 +37,9 @@ public class TestTransform {
         System.out.print(sql);
     }
 
-    @Test
+    //    @Test
     public void testERModelToRSFail1() throws IOException, SQLException {
-        ER.initialize(true);
+        ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity student = view.addEntity("student");
         Attribute studentId = student.addAttribute("id", DataType.INT, true, false);
@@ -64,9 +64,9 @@ public class TestTransform {
         System.out.println(resultState.getMsg());
     }
 
-    @Test
+    //    @Test
     public void testERModelToRSSucc2() throws IOException, SQLException {
-        ER.initialize(true);
+        ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity branch = view.addEntity("branch");
         Attribute sortcode = branch.addAttribute("sortcode", DataType.INT, true, false);
@@ -99,7 +99,7 @@ public class TestTransform {
 //                "sa", "");
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "jdbc:postgresql://db.doc.ic.ac.uk:5432/wh722",
 //                "wh722", "4jC@A3528>0N6");
-        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432" , "wh722",
+        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722",
                 "wh722", "4jC@A3528>0N6");
         resultState.getData();
     }

@@ -12,26 +12,27 @@ import java.util.Date;
 @NoArgsConstructor
 public class EntityDO {
     private Long ID;
-
     private String name;
-
     private Long schemaID;
-
-    private Integer aimPort;
-
     private EntityType entityType;
-
+    private Long belongStrongEntityID;
+    private Integer aimPort;
     private Integer isDelete;
-
     private Date gmtCreate;
-
     private Date gmtModified;
 
     public EntityDO(Long ID) {
         this.ID = ID;
     }
 
-    public EntityDO(Long ID, String name, Long schemaID) {
+    public EntityDO(Long ID, Integer aimPort) {
         this.ID = ID;
+        this.aimPort = aimPort;
+    }
+
+    public EntityDO(String name, Long schemaID, EntityType entityType) {
+        this.name = name;
+        this.schemaID = schemaID;
+        this.entityType = entityType;
     }
 }
