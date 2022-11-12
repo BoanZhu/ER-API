@@ -387,7 +387,7 @@ function updateERLink(relationshipEdgeID,entityID,cardinality,portAtRelationship
         entityID:entityID,
         cardinality:cardinality,
         portAtRelationship:portAtRelationship,
-        portAtEntity,portAtEntity
+        portAtEntity:portAtEntity
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
