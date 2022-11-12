@@ -722,11 +722,11 @@ function init() {
                 }
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromKey") {
-                //TODO:changed link Node operation
+                //TODO:This is handle the ERLink connect from one entity to other wait for API（create node pass all id）
                 console.log("LinkPortFrom handle");
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkToKey") {
-                //TODO:changed link Node operation
+                //TODO:This is handle the ERLink connect from one relation to other wait for API
                 console.log("LinkPort to handle");
             }
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {

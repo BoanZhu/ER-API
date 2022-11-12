@@ -381,6 +381,7 @@ function deleteERLink(id){
 //update Entity_relation API done: test:
 function updateERLink(relationshipEdgeID,entityID,cardinality,portAtRelationship,portAtEntity){
     return;
+    //todo:API allow change the relation id
     let Obj ={
         relationshipEdgeID: relationshipEdgeID,
         entityID:entityID,
