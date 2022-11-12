@@ -721,14 +721,6 @@ function init() {
                     // }
                 }
             }
-            else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromKey") {
-                //TODO:This is handle the ERLink connect from one entity to other wait for API（create node pass all id）
-                console.log("LinkPortFrom handle");
-            }
-            else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkToKey") {
-                //TODO:This is handle the ERLink connect from one relation to other wait for API
-                console.log("LinkPort to handle");
-            }
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 switch(e.newValue.category){
                     case entityNodeCategory: //create new strong entity
@@ -777,6 +769,14 @@ function init() {
                     default:break;
                 }
 
+            }
+            else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromPortId"){
+                //TODO:This is handle the ERLink from port change including chang other entity
+                console.log("port from");
+            }
+            else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkToPortId"){
+                //TODO:This is handle the ERLink to port change including chang other entity
+                console.log("port from");
             }
         });
     });
