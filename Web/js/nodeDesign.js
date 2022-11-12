@@ -56,7 +56,7 @@ function textStyle() {
     }
 }
 
-const limitConnectNode = new Set(["Subset","WeakEntity","Attribute","relation_attribute"]);
+const limitConnectNode = new Set([subsetEntityNodeCategory,weakEntityNodeCategory,"Attribute","relation_attribute"]);
 
 function isAllowReconnect(existinglink, newnode, newport, toend){
     const toNodeCategory = existinglink.toNode.category;
@@ -67,7 +67,7 @@ function isAllowReconnect(existinglink, newnode, newport, toend){
             return false;
         }
     } else if(toNodeCategory==="relation"){
-        if (newnode.findLinksTo(existinglink.toNode).count ===1 && newnode.category==="entity"){
+        if (newnode.findLinksTo(existinglink.toNode).count ===1 && !toend && existinglink.fromNode.key!==newnode.key){
             //entity already has a link
             return false;
         }
@@ -78,7 +78,7 @@ function isAllowReconnect(existinglink, newnode, newport, toend){
             //the number of connected entity
              let counter = 0;
             existinglink.toNode.findLinksConnected().each(function (node){
-                if (node.category ==="entity") counter = counter+1;
+                if (node.category ===entityNodeCategory) counter = counter+1;
             });
             if (counter>=2){
                 const deteleNode = myDiagram.findNodeForKey(existinglink.toNode.key);
@@ -102,7 +102,7 @@ function isLinkValid(fromNode, fromGraphObject, toNode, toGraphObject) {
 
     if (fromNodeCategory==="relation"&&toNodeCategory==="relation"){return false}
     if (limitConnectNode.has(fromNodeCategory) || limitConnectNode.has(toNodeCategory)) return false;
-    if (fromNodeCategory==='entity'&&toNodeCategory==='entity'){
+    if (fromNodeCategory===entityNodeCategory&&toNodeCategory===entityNodeCategory){
         fromNode.findNodesConnected().each(function(n) {
             if (n.category === "relation") {
                 n.findNodesInto().each(function (t) {

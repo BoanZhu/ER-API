@@ -588,8 +588,6 @@ function init() {
                 }else {
                     updateERLink(id,item.from,item.fromText,item.toPort,item.fromPort)
                 }
-
-
                 break;
             case "Attribute"://delete attribute
                 //TODO:function update Attribute
@@ -725,6 +723,11 @@ function init() {
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromKey") {
                 //TODO:changed link Node operation
+                console.log("LinkPortFrom handle");
+            }
+            else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkToKey") {
+                //TODO:changed link Node operation
+                console.log("LinkPort to handle");
             }
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 switch(e.newValue.category){
