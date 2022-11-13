@@ -1,5 +1,5 @@
 
-
+const default_null = -1
 /*
 Top right: rename and delete model
  */
@@ -146,6 +146,7 @@ function updateEntity(entityID,name,layoutX,layoutY){
     let Obj ={
         entityID:entityID,
         name: name,
+
         layoutInfo: {
             layoutX: layoutX,
             layoutY: layoutY
