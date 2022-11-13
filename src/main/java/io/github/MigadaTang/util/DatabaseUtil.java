@@ -18,8 +18,7 @@ public class DatabaseUtil {
         Map<String, Map<String, ColumnDTO>> columnTracker = new HashMap<>();
         Map<String, TableDTO> tableTracker = new HashMap<>();
         try {
-            DatabaseMetaData meta = null;
-            meta = conn.getMetaData();
+            DatabaseMetaData meta = conn.getMetaData();
 
             String catalog = null;
             String schemaPattern = null;// meta.getUserName();
@@ -51,6 +50,7 @@ public class DatabaseUtil {
                     } else {
                         columnDTO.setNullable(false);
                     }
+                    columnDTO.setID(RandomUtils.generateID());
                     columnDTO.setDataType(columnDataType);
                     columnDTO.setName(columnName);
                     columnDTO.setBelongTo(table.getId());
@@ -78,13 +78,23 @@ public class DatabaseUtil {
                 }
                 table.setPrimaryKey(primaryKeyList);
 
+                Map<Long, List<ColumnDTO>> foreignKeyList = new HashMap<>();
                 while (foreignKeyRs.next()) {
+                    // TODO how to recognize multi column combine one fk
                     String name = foreignKeyRs.getString("FKCOLUMN_NAME");
+                    List<ColumnDTO> fks = new ArrayList<>();
                     ColumnDTO fk = columnTrackInTable.get(name);
-                    fk.setIsForeign(1);
+                    fk.setForeign(true);
                     String foreignTableName = foreignKeyRs.getString("PKTABLE_NAME");
-                    fk.setForeignKeyTable(tableTracker.get(foreignTableName).getId());
+                    String foreignColumnName = foreignKeyRs.getString("PKCOLUMN_NAME");
+                    Long foreignTableId = tableTracker.get(foreignTableName).getId();
+                    fk.setForeignKeyTable(foreignTableId);
+                    fk.setForeignKeyColumnName(foreignColumnName);
+                    fk.setForeignKeyColumn(columnTracker.get(foreignTableName).get(foreignColumnName).getID());
+                    fks.add(fk);
+                    foreignKeyList.put(foreignTableId, fks);
                 }
+                table.setForeignKey(foreignKeyList);
             }
 
         } catch (SQLException e) {
