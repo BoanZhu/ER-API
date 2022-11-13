@@ -188,8 +188,10 @@ public class ParserUtil {
                 TableDTO secondTable = tableDTOMap.get(relationshipEdges.get(1).getEntity().getID());
                 if (firstTable.getTableType() == EntityType.WEAK && firstTable.getBelongStrongTableID().equals(secondTable.getId())) {
                     parseWeakEntity(firstTable, secondTable);
+                    continue;
                 } else if (secondTable.getTableType() == EntityType.WEAK && secondTable.getBelongStrongTableID().equals(firstTable.getId())) {
                     parseWeakEntity(secondTable, firstTable);
+                    continue;
                 }
             }
 
