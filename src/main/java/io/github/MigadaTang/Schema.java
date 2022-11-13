@@ -1,6 +1,7 @@
 package io.github.MigadaTang;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.common.EntityWithCardinality;
-import io.github.MigadaTang.common.SchemaDeserializer;
 import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.entity.SchemaDO;
@@ -62,7 +62,7 @@ public class Schema {
         if (!entity.getSchemaID().equals(this.ID)) {
             throw new ERException("entity does not belong to this schema");
         }
-        return addEntity(entityName, EntityType.SUBSET, strongEntity.getID());
+        return addEntity(entityName, EntityType.SUBSET, strongEntity);
     }
 
     public ImmutablePair<Entity, Relationship> addWeakEntity(String entityName, Entity strongEntity, String relationshipName, Cardinality weakEntityCardinality, Cardinality strongEntityCardinality) {
@@ -78,15 +78,31 @@ public class Schema {
             throw new ERException("entity does not belong to this schema");
         }
         // add weak entity
-        Entity weakEntity = addEntity(entityName, EntityType.WEAK, strongEntity.getID());
+        Entity weakEntity = addEntity(entityName, EntityType.WEAK, strongEntity);
         // add relationship
         Relationship relationship = createRelationship(relationshipName, weakEntity, strongEntity, weakEntityCardinality, strongEntityCardinality);
         return new ImmutablePair<>(weakEntity, relationship);
     }
 
+    protected Entity addIsolatedWeakEntity(String entityName, Entity strongEntity) {
+        // check if the specified strong entity that this subset relies on exists
+        Entity entity;
+        try {
+            entity = Entity.queryByID(strongEntity.getID());
+        } catch (ERException ex) {
+            throw new ERException("addIsolatedWeakEntity fail: the specified strong entity does not exist");
+        }
+        // check if the strong entity belongs to this schema
+        if (!entity.getSchemaID().equals(this.ID)) {
+            throw new ERException("entity does not belong to this schema");
+        }
+        // add weak entity
+        return addEntity(entityName, EntityType.WEAK, strongEntity);
+    }
+
     // addEntity base method for addEntity, for internal use only,
     // users should add entity through other public methods
-    private Entity addEntity(String entityName, EntityType entityType, Long belongStrongEntityID) {
+    private Entity addEntity(String entityName, EntityType entityType, Entity belongStrongEntity) {
         if (entityName.equals("")) {
             throw new ERException("entityName cannot be empty");
         }
@@ -94,16 +110,23 @@ public class Schema {
         if (entities.size() != 0) {
             throw new ERException(String.format("entity with name: %s already exists", entityName));
         }
-        Entity entity = new Entity(0L, entityName, this.ID, entityType, belongStrongEntityID, new ArrayList<>(), Integer.valueOf(-1), null, new Date(), new Date());
+        Entity entity = new Entity(0L, entityName, this.ID, entityType, belongStrongEntity, new ArrayList<>(), Integer.valueOf(-1), null, new Date(), new Date());
         this.entityList.add(entity);
         return entity;
     }
 
     public void deleteEntity(Entity entity) {
-        // first delete all the edges connected to this entity
+        // firstly,  delete all the edges connected to this entity
         List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(null, entity.getID()));
         for (RelationshipEdge edge : edgeList) {
             edge.deleteDB();
+        }
+        // secondly, delete all the subset and weak entities on this strong entity
+        if (entity.getEntityType() == EntityType.STRONG) {
+            List<Entity> entityList = Entity.query(new EntityDO(null, null, null, null, entity.getID(), null, null, null, null));
+            for (Entity subEntity : entityList) {
+                deleteEntity(subEntity);
+            }
         }
 
         entity.deleteDB();
@@ -165,7 +188,9 @@ public class Schema {
     }
 
     public String toJSON() {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json;
         try {
             json = ow.writeValueAsString(this);

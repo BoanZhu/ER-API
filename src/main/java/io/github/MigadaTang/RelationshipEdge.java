@@ -1,9 +1,11 @@
 package io.github.MigadaTang;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.serializer.RelationshipEdgeSerializer;
 import lombok.Data;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -11,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
+@JsonSerialize(using = RelationshipEdgeSerializer.class)
 @JsonIgnoreProperties({"id", "relationshipID", "schemaID", "gmtCreate", "gmtModified"})
 public class RelationshipEdge {
     private Long ID;

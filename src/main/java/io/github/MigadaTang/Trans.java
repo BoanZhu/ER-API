@@ -38,7 +38,11 @@ public class Trans {
     protected static Entity TransformFromDB(EntityDO entityDO) {
         List<Attribute> attributeList = Attribute.query(new AttributeDO(entityDO.getID(), BelongObjType.ENTITY, entityDO.getSchemaID(), null));
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), BelongObjType.ENTITY);
-        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getSchemaID(), entityDO.getEntityType(), entityDO.getBelongStrongEntityID(), attributeList, entityDO.getAimPort(), layoutInfo, entityDO.getGmtCreate(), entityDO.getGmtModified());
+        Entity strongEntity = null;
+        if (entityDO.getBelongStrongEntityID() != null && entityDO.getBelongStrongEntityID() != 0) {
+            strongEntity = Entity.queryByID(entityDO.getBelongStrongEntityID());
+        }
+        return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getSchemaID(), entityDO.getEntityType(), strongEntity, attributeList, entityDO.getAimPort(), layoutInfo, entityDO.getGmtCreate(), entityDO.getGmtModified());
     }
 
     protected static List<Entity> TransEntityListFormFromDB(List<EntityDO> doList) {

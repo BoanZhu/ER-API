@@ -2,7 +2,9 @@ package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
+import io.github.MigadaTang.common.EntityWithCardinality;
 import io.github.MigadaTang.exception.ERException;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +14,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestER {
+
+    private static String outputFormat = "src/test/java/io/github/MigadaTang/jsonExamples/%s.json";
 
     @Before
     public void setUp() throws Exception {
@@ -38,7 +43,7 @@ public class TestER {
 
     @Test
     public void createVanillaERSchema() throws IOException {
-        Schema example = ER.createSchema("BranchAccountMovement", "");
+        Schema example = ER.createSchema("vanilla-BranchAccountMovement", "");
 
         Entity branch = example.addEntity("branch");
         branch.addAttribute("sortcode", DataType.INT, true, false);
@@ -60,7 +65,81 @@ public class TestER {
         Relationship has = example.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
 
         String jsonString = example.toJSON();
-        FileWriter myWriter = new FileWriter(String.format("%s.json", example.getName()));
+        FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
+        myWriter.write(jsonString);
+        myWriter.close();
+    }
+
+    @Test
+    public void createWeakEntitySchema() throws IOException {
+        Schema example = ER.createSchema("weakEntity-SwipeCardForPerson", "");
+
+        Entity person = example.addEntity("person");
+        person.addAttribute("salary number", DataType.VARCHAR, true, false);
+
+        ImmutablePair<Entity, Relationship> pair = example.addWeakEntity("swipe card", person, "for", Cardinality.OneToOne, Cardinality.ZeroToMany);
+        Entity swipeCard = pair.left;
+        Relationship relationship = pair.right;
+        swipeCard.addAttribute("issue", DataType.INT, true, false);
+        swipeCard.addAttribute("date", DataType.VARCHAR, false, false);
+
+        String jsonString = example.toJSON();
+        FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
+        myWriter.write(jsonString);
+        myWriter.close();
+    }
+
+    @Test
+    public void createNaryRelationshipSchema() throws IOException {
+        Schema example = ER.createSchema("naryRelationship-PersonManagerDepartment", "");
+
+        Entity person = example.addEntity("person");
+        Entity manager = example.addEntity("manager");
+        Entity department = example.addEntity("department");
+
+        ArrayList<EntityWithCardinality> eCardList = new ArrayList<>();
+        eCardList.add(new EntityWithCardinality(person, Cardinality.ZeroToMany));
+        eCardList.add(new EntityWithCardinality(manager, Cardinality.ZeroToMany));
+        eCardList.add(new EntityWithCardinality(department, Cardinality.ZeroToMany));
+        Relationship worksIn = example.createNaryRelationship("works in", eCardList);
+
+        String jsonString = example.toJSON();
+        FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
+        myWriter.write(jsonString);
+        myWriter.close();
+    }
+
+    @Test
+    public void createAttributeOnRelationshipSchema() throws IOException {
+        Schema example = ER.createSchema("attributeOnRelationship-PersonDepartment", "");
+
+        Entity person = example.addEntity("person");
+        Entity department = example.addEntity("department");
+
+        Relationship worksIn = example.createRelationship("works in", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        worksIn.addAttribute("start_date", DataType.VARCHAR, false);
+        worksIn.addAttribute("end_date", DataType.VARCHAR, true);
+
+        String jsonString = example.toJSON();
+        FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
+        myWriter.write(jsonString);
+        myWriter.close();
+    }
+
+    @Test
+    public void createSubsetSchema() throws IOException {
+        Schema example = ER.createSchema("subset-ManagerPerson", "");
+
+        Entity person = example.addEntity("person");
+        person.addAttribute("salary number", DataType.VARCHAR, true, false);
+        person.addAttribute("bonus", DataType.VARCHAR, false, true);
+        person.addAttribute("name", DataType.VARCHAR, false, false);
+
+        Entity manager = example.addSubset("manager", person);
+        manager.addAttribute("mobile number", DataType.VARCHAR, false, false);
+
+        String jsonString = example.toJSON();
+        FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
     }
@@ -88,9 +167,9 @@ public class TestER {
         Assert.assertEquals(dbSchema.getRelationshipList().get(0).getAttributeList().size(), 2);
     }
 
-    //    @Test
+    @Test
     public void loadFromJSONTest() throws IOException {
-        String jsonString = Files.readString(Path.of("BranchAccountMovement.json"), Charset.defaultCharset());
+        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/SwipeCardForPerson.json"), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         Assert.assertNotNull(schema);
     }

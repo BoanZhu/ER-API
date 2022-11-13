@@ -33,13 +33,13 @@ public class LayoutInfo {
         }
     }
 
-    public static List<LayoutInfo> queryByLayoutInfo(LayoutInfoDO layoutInfoDO) {
+    public static List<LayoutInfo> query(LayoutInfoDO layoutInfoDO) {
         List<LayoutInfoDO> LayoutInfoDOList = ER.layoutInfoMapper.selectByLayoutInfo(layoutInfoDO);
         return Trans.TransLayoutInfoListFormDB(LayoutInfoDOList);
     }
 
     public static LayoutInfo queryByObjIDAndObjType(Long relatedObjID, BelongObjType belongObjType) {
-        List<LayoutInfo> layoutInfoDOList = queryByLayoutInfo(new LayoutInfoDO(relatedObjID, belongObjType));
+        List<LayoutInfo> layoutInfoDOList = query(new LayoutInfoDO(relatedObjID, belongObjType));
         if (layoutInfoDOList.size() != 0) {
             return layoutInfoDOList.get(0);
         }
@@ -47,7 +47,7 @@ public class LayoutInfo {
     }
 
     public static LayoutInfo queryByID(Long ID) throws ERException {
-        List<LayoutInfo> layoutInfoDOList = queryByLayoutInfo(new LayoutInfoDO(ID));
+        List<LayoutInfo> layoutInfoDOList = query(new LayoutInfoDO(ID));
         if (layoutInfoDOList.size() == 0) {
             throw new ERException(String.format("LayoutInfo with ID: %d not found ", ID));
         } else {

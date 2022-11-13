@@ -34,7 +34,7 @@ public class TestEntity {
         Entity seniorTeacher = testSchema.addSubset("senior_teacher", teacher);
         seniorTeacher = Entity.queryByID(seniorTeacher.getID());
         Assert.assertNotEquals(seniorTeacher.getID(), Long.valueOf(0));
-        Assert.assertEquals(seniorTeacher.getBelongStrongEntityID(), teacher.getID());
+        Assert.assertEquals(seniorTeacher.getBelongStrongEntity().getID(), teacher.getID());
         Assert.assertEquals(seniorTeacher.getEntityType(), EntityType.SUBSET);
 
         // add weak entity
@@ -42,7 +42,7 @@ public class TestEntity {
         Entity card = Entity.queryByID(pair.left.getID());
         Relationship relationship = Relationship.queryByID(pair.right.getID());
         Assert.assertNotEquals(card.getID(), Long.valueOf(0));
-        Assert.assertEquals(card.getBelongStrongEntityID(), teacher.getID());
+        Assert.assertEquals(card.getBelongStrongEntity().getID(), teacher.getID());
         Assert.assertEquals(card.getEntityType(), EntityType.WEAK);
         Assert.assertNotEquals(relationship.getID(), Long.valueOf(0));
         Assert.assertEquals(relationship.getEdgeList().size(), 2);

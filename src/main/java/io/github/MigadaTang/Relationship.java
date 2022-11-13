@@ -1,15 +1,14 @@
 package io.github.MigadaTang;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
-import io.github.MigadaTang.common.RelationshipSerializer;
 import io.github.MigadaTang.entity.AttributeDO;
 import io.github.MigadaTang.entity.RelationshipDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.serializer.RelationshipSerializer;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -18,13 +17,12 @@ import java.util.List;
 
 @Getter
 @JsonSerialize(using = RelationshipSerializer.class)
-@JsonIgnoreProperties({"id", "schemaID", "gmtCreate", "gmtModified"})
 public class Relationship {
     private Long ID;
     private String name;
     private Long schemaID;
-    private List<RelationshipEdge> edgeList;
     private List<Attribute> attributeList;
+    private List<RelationshipEdge> edgeList;
     private LayoutInfo layoutInfo;
     private Date gmtCreate;
     private Date gmtModified;
@@ -103,6 +101,11 @@ public class Relationship {
         Attribute attribute = new Attribute(0L, this.ID, BelongObjType.RELATIONSHIP, this.schemaID, attributeName, dataType, false, nullable, -1, null, new Date(), new Date());
         this.attributeList.add(attribute);
         return attribute;
+    }
+
+    public void deleteAttribute(Attribute attribute) {
+        this.attributeList.remove(attribute);
+        attribute.deleteDB();
     }
 
     public RelationshipEdge linkEntity(Entity entity, Cardinality cardinality) {

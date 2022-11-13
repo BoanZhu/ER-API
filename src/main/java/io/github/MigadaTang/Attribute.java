@@ -1,10 +1,11 @@
 package io.github.MigadaTang;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.entity.AttributeDO;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.serializer.AttributeSerializer;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -12,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
-@JsonIgnoreProperties({"id", "entityID", "schemaID", "gmtCreate", "gmtModified"})
+@JsonSerialize(using = AttributeSerializer.class)
 public class Attribute {
     private Long ID;
     private Long belongObjID;

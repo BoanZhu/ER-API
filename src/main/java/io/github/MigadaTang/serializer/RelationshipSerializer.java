@@ -1,11 +1,14 @@
-package io.github.MigadaTang.common;
+package io.github.MigadaTang.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import io.github.MigadaTang.Attribute;
 import io.github.MigadaTang.Relationship;
+import io.github.MigadaTang.RelationshipEdge;
 
 import java.io.IOException;
+import java.util.List;
 
 public class RelationshipSerializer extends StdSerializer<Relationship> {
 
@@ -24,11 +27,17 @@ public class RelationshipSerializer extends StdSerializer<Relationship> {
 
         jgen.writeStartObject();
         jgen.writeStringField("name", relationship.getName());
-//        jgen.writeStringField("firstEntity", relationship.getFirstEntity().getName());
-//        jgen.writeStringField("firstCardinality", relationship.getFirstCardinality().getValue());
-//        jgen.writeStringField("secondEntity", relationship.getSecondEntity().getName());
-//        jgen.writeStringField("secondCardinality", relationship.getSecondCardinality().getValue());
-        jgen.writeObjectField("layoutInfo", relationship.getLayoutInfo());
+        List<Attribute> attributeList = relationship.getAttributeList();
+        if (attributeList != null && attributeList.size() != 0) {
+            jgen.writeObjectField("attributeList", attributeList);
+        }
+        List<RelationshipEdge> edgeList = relationship.getEdgeList();
+        if (edgeList != null && edgeList.size() != 0) {
+            jgen.writeObjectField("edgeList", edgeList);
+        }
+        if (relationship.getLayoutInfo() != null) {
+            jgen.writeObjectField("layoutInfo", relationship.getLayoutInfo());
+        }
         jgen.writeEndObject();
     }
 }
