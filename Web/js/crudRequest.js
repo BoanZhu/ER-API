@@ -532,9 +532,11 @@ function addAttr(){
                         var link = {
                             from:myDiagram.model.getKeyForNodeData(selectedNode.part.data),
                             to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink",
-                            fromPort:"L",toPort:"M"
+                            fromPort:3,toPort:5
                         };
                         myDiagram.model.addLinkData(link);
+                        save();
+                        load();
                     });
                 }
             }, error : function(res) {
@@ -692,6 +694,7 @@ function createWeakEntity(){
                 }
             }
         );
+        // whether the entity has a primary key
         if(!hasPrimaryKey){
             alert("the entity doesn't have pk!");
             return;
@@ -705,26 +708,70 @@ function createWeakEntity(){
         pos.y-=Math.sin(angle)*200;
         weakEntityData.location = pos;
         weakEntityData.parentId = selectedEData.key;
-        //todo: need id from backend
-
-
-        // weakEntityData.key = result.data.id;
-        weakEntityData.key = Math.ceil(Math.random()*1000);
-        myDiagram.model.addNodeData(weakEntityData);
-        // save();
-        // load();
-        // new link
-        var link = {
-            from:myDiagram.model.getKeyForNodeData(selectedEData),
-            to:myDiagram.model.getKeyForNodeData(weakEntityData),
-            toText:"1:1",
-            fromTest:"0:N",
-            relation:"for",category: EWLinkCategory,
-            fromPort:"U",toPort:"B"
-        };
-        myDiagram.model.addLinkData(link);
+        const schemaID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
+        info = {
+            "schemaID": schemaID,
+            "weakEntityName": weakEntityData.name,
+            "weakEntityCardinality": defaultWeakToCard,
+            "strongEntityID": weakEntityData.parentId,
+            "strongEntityCardinality": defaultWeakFromCard,
+            "relationshipName": "has",
+            "portAtRelationship": 1,
+            "portAtEntity": 1,
+            "weakEntityLayoutInfo": {
+                "layoutX": pos.x,
+                "layoutY": pos.y
+            },
+            "relationshipLayoutInfo": {
+                "layoutX": "",
+                "layoutY": ""
+            }
+        }
+        info = JSON.stringify(info);
+        // $.ajax({
+        //     type : "POST",
+        //     url : "http://127.0.0.1:8000/er/entity/create_weak_entity",
+        //     // url: "http://146.169.52.81:8080/er/attribute/update",
+        //     headers: { "Access-Control-Allow-Origin": "*",
+        //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        //     traditional : true,
+        //     data : info,
+        //     withCredentials:false,
+        //     dataType : "json",
+        //     contentType : 'application/json',
+        //     success : function(result) {
+        //         if(result.code === 0) {
+        //             weakEntityData.key = result.data.weakEntityID;
+                        weakEntityData.key = Math.ceil(Math.random()*1000);
+                    myDiagram.model.addNodeData(weakEntityData);
+                    // new link
+                    var link = {
+                        from:myDiagram.model.getKeyForNodeData(selectedEData),
+                        to:myDiagram.model.getKeyForNodeData(weakEntityData),
+                        toText:"1:1",
+                        fromText:"0:N",
+                        relation:"for",
+                        category: EWLinkCategory,
+                        fromPort:1, //result.data.relationshipEdgeList[0].portAtEntity
+                        toPort:2,//result.data.relationshipEdgeList[1].portAtEntity
+                        // key:result.data.relationshipID,
+                        key:Math.ceil(Math.random()*1000),
+                        //todo 重名？
+                        // edgeIDFirst:result.data.relationshipEdgeList[0].ID,
+                        // edgeIDSecond:result.data.relationshipEdgeList[1].ID
+                        edgeIDFirst:Math.ceil(Math.random()*1000),
+                        edgeIDSecond:Math.ceil(Math.random()*1000),
+                    };
+                    myDiagram.model.addLinkData(link);
+    //             }
+    //         }, error : function() {
+    //             alert("Creating weak entity fails");
+    //         }
+    //     });
     });
     myDiagram.commitTransaction("add weakEntity");
+    save();
+    load();
 }
 
 /*
@@ -779,8 +826,8 @@ function createSubset(){
         var link = {
             from:myDiagram.model.getKeyForNodeData(subsetData),
             to:myDiagram.model.getKeyForNodeData(selectedEData),category: "subsetLink",
-            //do not need port
-            fromPort:"",toPort:"B"
+            fromPort:5,
+            toPort:2
         };
         myDiagram.model.addLinkData(link);
     });

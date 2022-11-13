@@ -18,6 +18,8 @@ const relationNodeName = "test";
 const relationNodeCategory = "relation";
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
+const edgeIDFirst = "edgeIDFirst";
+const edgeIDSecond = "edgeIDSecond";
 
 /*
 Constant
@@ -27,6 +29,16 @@ const weakEntityLinkPort = -1;
 const defaultWeakFromCard = "0:N";
 const defaultWeakToCard = "1:1";
 
+/*
+Ports
+ */
+const PORTS = {
+    "U":1,  // up
+    "B":2,  // bottom
+    "L":3,  // left
+    "R":4,  // right
+    "M":5,  // middle
+}
 function init() {
     /*
     Get the editable model Template
@@ -105,26 +117,26 @@ function init() {
     function leftPort(){
         // L port
         return $(go.Panel, "Vertical", {row: 1, column: 0},
-                $(go.Shape, {width: 3, height: 3, portId: "L", toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                $(go.Shape, {width: 3, height: 3, portId: 3, toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
                     fromLinkable: true,toLinkable: true
                 }));
     }
     function rightPort(){
         // R port
         return $(go.Panel, "Vertical", {row: 1, column: 2},
-            $(go.Shape,  {width: 3, height: 3, portId: "R", toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+            $(go.Shape,  {width: 3, height: 3, portId: 4, toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
                     fromLinkable: true,toLinkable: true}));
     }
     function bottomPort(){
         // B port
         return $(go.Panel, "Horizontal", {row:2, column: 1},
-            $(go.Shape, {width: 3, height: 3, portId: "B", toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+            $(go.Shape, {width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
                     fromLinkable: true,toLinkable: true}));
     }
     function topPort(){
         // U port
         return $(go.Panel, "Vertical",{row: 0, column: 1},
-            $(go.Shape, {width: 3, height: 3, portId: "U", toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+            $(go.Shape, {width: 3, height: 3, portId: 1, toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
                     fromLinkable: true,toLinkable: true}));
     }
 
@@ -327,7 +339,7 @@ function init() {
             ), // end Table Panel
             //port
             $(go.Panel, "Vertical", {row: 1, column: 1},
-                $(go.Shape, {width: 0, height: 0, portId: "M",
+                $(go.Shape, {width: 0, height: 0, portId: 5,
                     fromLinkable: true,toLinkable: true,
                     fill: "#e8c446",stroke: "#e8c446",
                 })),
@@ -379,7 +391,7 @@ function init() {
             ),
             //port
             $(go.Panel, "Vertical", {row: 1, column: 1},
-                $(go.Shape, {width: 3, height: 3, portId: "M",
+                $(go.Shape, {width: 3, height: 3, portId: 5,
                     fromLinkable: true,toLinkable: true,
                     fill: colors.lightblue,stroke: colors.lightblue,
                 })),
@@ -589,9 +601,6 @@ function init() {
                     updateERLink(id,item.from,item.fromText,item.toPort,item.fromPort)
                 }
                 break;
-            case "Attribute"://delete attribute
-                //TODO:function update Attribute
-                break;
             default:break;
         }
     });
@@ -744,8 +753,8 @@ function init() {
 
                 switch(category){
                     case entityNodeCategory:
-                        myDiagram.rollbackTransaction();
-                        return;
+                        // myDiagram.rollbackTransaction();
+                        // return;
                         handleDeleteStrongEntity(id,name);
                         break;
                     case relationNodeCategory:
