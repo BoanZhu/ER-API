@@ -12,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public enum EntityType {
     UNKNOWN(0, "UNKNOWN"),
-    STRONG(0, "STRONG"),
-    WEAK(1, "WEAK"),
-    SUBSET(2, "SUBSET");
+    STRONG(1, "STRONG"),
+    WEAK(2, "WEAK"),
+    SUBSET(3, "SUBSET");
 
     private final Integer code;
     private final String value;

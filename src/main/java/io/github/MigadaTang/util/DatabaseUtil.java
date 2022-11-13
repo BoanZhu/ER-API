@@ -81,7 +81,7 @@ public class DatabaseUtil {
                 while (foreignKeyRs.next()) {
                     String name = foreignKeyRs.getString("FKCOLUMN_NAME");
                     ColumnDTO fk = columnTrackInTable.get(name);
-                    fk.setIsForeign(1);
+                    fk.setForeign(true);
                     String foreignTableName = foreignKeyRs.getString("PKTABLE_NAME");
                     fk.setForeignKeyTable(tableTracker.get(foreignTableName).getId());
                 }
