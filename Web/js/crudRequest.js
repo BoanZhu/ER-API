@@ -860,7 +860,3 @@ function exportPng() {
     // var testPNG = myDiagram.makeImage({ background: "white",type: "image/jpeg"});
     // console.log(testPNG);
 }
-
-/*
-port
- */

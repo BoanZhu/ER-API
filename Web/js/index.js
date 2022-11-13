@@ -560,7 +560,7 @@ Show model at rignt
 function showSchema() {
     // Get the model name and id from list
     const id = getId();
-    myDiagram.model = go.Model.fromJson(getView(id));
+    myDiagram.model = go.Model.fromJson(getSchema(id));
 }
 
 
