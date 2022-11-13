@@ -169,7 +169,7 @@ public class TestER {
 
     @Test
     public void loadFromJSONTest() throws IOException {
-        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/SwipeCardForPerson.json"), Charset.defaultCharset());
+        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/vanilla-BranchAccountMovement.json"), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         Assert.assertNotNull(schema);
     }
