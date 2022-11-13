@@ -117,24 +117,27 @@ function getSchema(id) {
             // "draggingTool.dragsLink": false,
             // "draggingTool.isGridSnapEnabled": false,
             // "undoManager.isEnabled": false,
-            // "maxSelectionCount": 1
+            // "maxSelectionCount": 1,
         });
     $.ajax({
         type : "GET",
         async: false,
         // url : "http://146.169.52.81:8080/er/schema/get_by_id",
-        url:"http://127.0.0.1/er/schema/get_by_id",
-        headers: { "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        contentType: "application/json",
+        url:"http://127.0.0.1:8000/er/schema/get_by_id",
+        // headers: { "Access-Control-Allow-Origin": "*",
+        //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        withCredentials:false,
+        contentType : 'application/json',
+        dataType:'json',
         data : {ID:id},
         success : function(result) {
             // entity list
             var entityList = result.data.schema.entityList;
             // relationship list
-            var relationshipList = result.data.schema.relationList;
+            var relationshipList = result.data.schema.relationshipList;
             var attributeList = []
-            for (var entityNode in entityList){
+            entityList.forEach(
+                function (entityNode){
                 // add entity node
                 var entityData = {key:entityNode.id,name:entityNode.name,category:ENTITYTYPE[entityNode.entityType],
                     location: {"class": "go.Point", "x": entityNode.layoutInfo.layoutX, "y": entityNode.layoutInfo.layoutY},
@@ -145,7 +148,8 @@ function getSchema(id) {
                 myDiagram.model.addNodeData(entityData);
                 if(entityNode.entityType!==3){
                     attributeList=entityNode.attributeList;
-                    for (var attributeNode in attributeList){
+                    attributeList.forEach(
+                        function (attributeNode){
                         // add attribute node
                         var attributeNodeData = {"name":attributeNode.name,"category":"Attribute",
                             "location":{"class":"go.Point","x":attributeNode.layoutInfo.layoutX,"y":attributeNode.layoutInfo.layoutY},
@@ -154,13 +158,14 @@ function getSchema(id) {
                         myDiagram.model.addNodeData(attributeNodeData);
                         // add link between node and attribute
                         //todo 万一老师说可以乱挪attribute，那么entity给的port在json中放哪里
-                        var linkData = {"from":entityNode.key,"to":attributeNodeData.key,"category":"normalLink","fromPort":entityNode.aimPort,"toPort":5}
+                        var linkData = {"from":entityData.key,"to":attributeNodeData.key,"category":"normalLink","fromPort":entityNode.aimPort,"toPort":5}
                         myDiagram.model.addLinkData(linkData);
-                    }
+                    });
                 }
-            }
+            });
 
-            for (var relationNode in relationshipList){
+            relationshipList.forEach(
+                function (relationNode){
                 const edgeList = relationNode.edgeList;
                 const firstType = myDiagram.findNodeForKey(edgeList[0].entityID).category;
                 const secondType = myDiagram.findNodeForKey(edgeList[1].entityID).category;
@@ -180,7 +185,8 @@ function getSchema(id) {
                     myDiagram.model.addLinkData(secondLinkData);
                     // add attribute
                     const relationAttributeList = relationNode.attributeList;
-                    for(var relationAttributeNode in relationAttributeList){
+                    relationAttributeList.forEach(
+                        function (relationAttributeNode){
                         // node
                         var rAttrNodeData = {"name":relationNode.name,"category":"relation_attribute",
                             "location":{"class":"go.Point","x":relationAttributeNode.layoutInfo.layoutX,"y":relationAttributeNode.layoutInfo.layoutY},
@@ -191,7 +197,7 @@ function getSchema(id) {
                             "fromPort":relationAttributeNode.aimPort,"toPort":5};
                         myDiagram.model.addNodeData(rAttrNodeData);
                         myDiagram.model.addLinkData(linkNodeData);
-                    }
+                    });
                 }
                 // strong entity and weak entity
                 if(firstType === "weakEntity" || secondType === "weakEntity"){
@@ -216,7 +222,7 @@ function getSchema(id) {
                 else{
                     console.log("load fails");
                 }
-            }
+            });
             modelStr = myDiagram.model.toJSON();
             console.log(modelStr);
             return modelStr;
