@@ -7,70 +7,117 @@ import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.util.RandomUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ParserUtil {
 
     public static Schema parseAttributeToRelationship(List<TableDTO> tableDTOList) throws ParseException {
-        return null;
-//        List<Entity> entityList = new ArrayList<>();
-//        List<Relationship> relationshipList = new ArrayList<>();
-//        List<ColumnDTO> foreignKeyList = new ArrayList<>();
-//        List<TableDTO> tableGenerateByManyToMany = new ArrayList<>();
-//        Map<Long, Entity> tableDTOEntityMap = new HashMap<>();
-//        for (TableDTO table : tableDTOList) {
-//            List<Attribute> attributeList = new ArrayList<>();
-//            List<ColumnDTO> columnDTOList = table.getColumnDTOList();
-//
-//            for (ColumnDTO column : columnDTOList) {
-//                if (column.getIsForeign() == 1) {
-//                    foreignKeyList.add(column);
-//                } else {
-//                    Attribute attribute = new Attribute((long) 1, (long) 1, (long) 1, column.getName(), null,
-//                            column.isPrimary(), column.isNullable(), null, null, null, null, null);
-//                    attributeList.add(attribute);
-//                }
-//            }
-//
-//            if (attributeList.isEmpty()) {
-//                tableGenerateByManyToMany.add(table);
-//            }
-//
-//            Entity entity = new Entity((long)1, table.getName(), (long)1, attributeList, null, null, null, null, null);
-//            tableDTOEntityMap.put(table.getId(), entity);
-//
-//            entityList.add(entity);
-//        }
-//
-//        // parser foreign key, (1-N)
-//        for (ColumnDTO foreignKey : foreignKeyList) {
-//            Entity firstEntity = tableDTOEntityMap.get(foreignKey.getForeignKeyTable());
-//            Entity secondEntity = tableDTOEntityMap.get(foreignKey.getBelongTo());
-//            Relationship relationship = new Relationship((long)1, "undefined", (long)1, firstEntity, secondEntity,
-//                    Cardinality.OneToOne, Cardinality.OneToMany, null, null,null);
-//            relationshipList.add(relationship);
-//        }
-//
-//        // parser table generate by relationship
-//        for (TableDTO tableDTO : tableGenerateByManyToMany) {
-//            if (tableDTO.getColumnDTOList().size() != 2) {
-//                throw new ParseException("Cannot parse relationship over 2 entities.");
-//            }
-//
-//            ColumnDTO firstRelation = tableDTO.getColumnDTOList().get(0);
-//            ColumnDTO secondRelation = tableDTO.getColumnDTOList().get(1);
-//            Entity firstEntity = tableDTOEntityMap.get(firstRelation.getForeignKeyTable());
-//            Entity secondEntity = tableDTOEntityMap.get(secondRelation.getForeignKeyTable());
-//            Relationship relationship = new Relationship((long)1, "undefined", (long)1, firstEntity, secondEntity,
-//                    Cardinality.OneToMany, Cardinality.OneToMany, null, null, null);
-//            relationshipList.add(relationship);
-//        }
-//
-//        Schema schema = new Schema((long)1, "unknown", entityList, relationshipList, "unknown", null, null);
-//        return schema;
+        List<Entity> entityList = new ArrayList<>();
+        List<Relationship> relationshipList = new ArrayList<>();
+        List<ColumnDTO> foreignKeyList = new ArrayList<>();
+        Schema schema = new Schema(RandomUtils.generateID(), "unknown", entityList, relationshipList, "unknown", null, null);
+
+        List<TableDTO> tableGenerateByRelationship = new ArrayList<>();
+        Map<Long, Entity> tableDTOEntityMap = new HashMap<>();
+        boolean hasFkAsPk = false;
+        boolean allPkIsFk = false;
+        for (TableDTO table : tableDTOList) {
+            List<Attribute> attributeList = new ArrayList<>();
+            List<ColumnDTO> columnDTOList = table.getColumnDTOList();
+
+            int pkIsFk = 0;
+            int fkNum = 0;
+            for (ColumnDTO columnDTO : table.getColumnDTOList()) {
+                if (columnDTO.isForeign()) {
+                    fkNum++;
+                    if (columnDTO.isPrimary())
+                        pkIsFk++;
+                }
+            }
+
+            if (fkNum == table.getColumnDTOList().size())
+                tableGenerateByRelationship.add(table);
+            if (pkIsFk > 0)
+                hasFkAsPk = true;
+            if (pkIsFk == table.getPrimaryKey().size())
+                allPkIsFk = true;
+
+            Set<Long> foreignTableList = new HashSet<>();
+            for (ColumnDTO column : columnDTOList) {
+                if (column.isForeign()) {
+                    if (!foreignTableList.contains(column.getForeignKeyTable())) {
+                        foreignKeyList.add(column);
+                        foreignTableList.add(column.getForeignKeyTable());
+                    }
+                } else {
+                    Attribute attribute = new Attribute(column.getID(), column.getBelongTo(), null, null
+                            , column.getName(), null, column.isPrimary(), column.isNullable()
+                            , -1, null, null, null);
+                    attributeList.add(attribute);
+                }
+            }
+
+            Entity entity;
+            if (allPkIsFk) {
+                entity = new Entity(table.getId(), table.getName(), null, EntityType.SUBSET, null
+                        , attributeList, -1, null, null, null);
+            } else if (hasFkAsPk) {
+                entity = new Entity(table.getId(), table.getName(), null, EntityType.WEAK, null
+                        , attributeList, -1, null, null, null);
+            } else {
+                entity = new Entity(table.getId(), table.getName(), null, EntityType.STRONG, null
+                        , attributeList, -1, null, null, null);
+            }
+
+            tableDTOEntityMap.put(table.getId(), entity);
+            entityList.add(entity);
+        }
+
+        // parser foreign key, (1-N)
+        for (ColumnDTO foreignKey : foreignKeyList) {
+            List<Attribute> attributeList = new ArrayList<>();
+            List<RelationshipEdge> edgeList = new ArrayList<>();
+            Relationship relationship = new Relationship(RandomUtils.generateID(), "unknow", schema.getID(),
+                    attributeList, edgeList, null, null, null);
+
+            RelationshipEdge edgeToRelationship;
+            if (foreignKey.isNullable()) {
+                edgeToRelationship = new RelationshipEdge(RandomUtils.generateID(), relationship.getID(),
+                        schema.getID(), tableDTOEntityMap.get(foreignKey.getBelongTo()), Cardinality.ZeroToOne,
+                        -1, -1, null, null);
+            } else {
+                edgeToRelationship = new RelationshipEdge(RandomUtils.generateID(), relationship.getID(),
+                        schema.getID(), tableDTOEntityMap.get(foreignKey.getBelongTo()), Cardinality.OneToOne,
+                        -1, -1, null, null);
+            }
+            RelationshipEdge edgeFromRelationship = new RelationshipEdge(RandomUtils.generateID(), relationship.getID(),
+                    schema.getID(), tableDTOEntityMap.get(foreignKey.getForeignKeyTable()), Cardinality.ZeroToMany,
+                    -1, -1, null, null);
+            edgeList.add(edgeFromRelationship);
+            edgeList.add(edgeToRelationship);
+            relationshipList.add(relationship);
+        }
+
+        // parser table generate by relationship
+        for (TableDTO tableDTO : tableGenerateByRelationship) {
+            List<RelationshipEdge> edgeList = new ArrayList<>();
+            Relationship relationship = new Relationship(RandomUtils.generateID(), "unknow", schema.getID(),
+                    new ArrayList<>(), edgeList, null, null, null);
+            Set<Long> foreignTableList = new HashSet<>();
+            for (ColumnDTO column : tableDTO.getColumnDTOList()) {
+                if (!foreignTableList.contains(column.getForeignKeyTable())) {
+                    foreignKeyList.add(column);
+                    foreignTableList.add(column.getForeignKeyTable());
+                    RelationshipEdge edge = new RelationshipEdge(RandomUtils.generateID(), relationship.getID(),
+                            schema.getID(), tableDTOEntityMap.get(column.getBelongTo()), Cardinality.ZeroToMany,
+                            -1, -1, null, null);
+                    edgeList.add(edge);
+                }
+            }
+            relationshipList.add(relationship);
+        }
+
+        return schema;
     }
 
 
