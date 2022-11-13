@@ -3,6 +3,7 @@ package io.github.MigadaTang.mapper;
 import io.github.MigadaTang.ER;
 import io.github.MigadaTang.TestCommon;
 import io.github.MigadaTang.entity.RelationshipDO;
+import io.github.MigadaTang.util.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,18 +35,19 @@ public class testRelationMapper {
 
     @Test
     public void testCreateRelation() {
-//        RelationshipDO relationshipDO = new RelationshipDO(11L, "relation4", 4L);
-//        Assert.assertEquals(ER.relationshipMapper.insert(relationshipDO), 1);
+        RelationshipDO relationshipDO = new RelationshipDO("testCreate", 1L);
+        Assert.assertEquals(ER.relationshipMapper.insert(relationshipDO), 1);
     }
 
     @Test
     public void testDeleteRelation() {
-        Assert.assertEquals(ER.relationshipMapper.deleteByID(11L), 1);
+        RelationshipDO relationshipDO = new RelationshipDO("testCreate", 1L);
+        Assert.assertEquals(ER.relationshipMapper.deleteByID(relationshipDO.getID()), 1);
     }
 
     @Test
     public void testUpdateRelation() {
-//        RelationshipDO relationshipDO = new RelationshipDO(11L, "relation4update", 3L);
-//        Assert.assertEquals(ER.relationshipMapper.updateByID(relationshipDO), 1);
+        RelationshipDO relationshipDO = new RelationshipDO("testCreate", 1L);
+        Assert.assertEquals(ER.relationshipMapper.updateByID(relationshipDO), 1);
     }
 }

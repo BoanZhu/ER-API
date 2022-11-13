@@ -178,6 +178,21 @@ public class ParserUtil {
                 throw new ParseException("The relationship only reference to one table. Relationship ID: " + relationship.getID());
             }
 
+            // weak entity
+            if (relationshipEdges.size() == 2) {
+                if (!tableDTOMap.containsKey(relationshipEdges.get(0).getSchemaID()) ||
+                        !tableDTOMap.containsKey(relationshipEdges.get(1).getSchemaID())) {
+                    throw new ParseException("The table which relationship reference to does not exist. Relationship ID: " + relationship.getID());
+                }
+                TableDTO firstTable = tableDTOMap.get(relationshipEdges.get(0).getEntity().getID());
+                TableDTO secondTable = tableDTOMap.get(relationshipEdges.get(1).getEntity().getID());
+                if (firstTable.getTableType() == EntityType.WEAK && firstTable.getBelongStrongTableID().equals(secondTable.getId())) {
+                    parseWeakEntity(firstTable, secondTable);
+                } else if (secondTable.getTableType() == EntityType.WEAK && secondTable.getBelongStrongTableID().equals(firstTable.getId())) {
+                    parseWeakEntity(secondTable, firstTable);
+                }
+            }
+
             Map<Cardinality, List<Long>> cardinalityListMap = generateCardinalityMap(tableDTOMap, relationship);
 
             if (cardinalityListMap.get(Cardinality.OneToOne).size() + cardinalityListMap.get(Cardinality.ZeroToOne).size() == 1) {
@@ -192,6 +207,21 @@ public class ParserUtil {
         }
 
         return tableDTOMap;
+    }
+
+    private static void parseWeakEntity(TableDTO weakEntity, TableDTO strongEntity) {
+        List<ColumnDTO> weakColumns = weakEntity.getColumnDTOList();
+        List<ColumnDTO> weakPk = weakEntity.getPrimaryKey();
+        Map<Long, List<ColumnDTO>> weakFk = weakEntity.getForeignKey();
+        List<ColumnDTO> newFk = new ArrayList<>();
+
+        for (ColumnDTO strongPkColumn : strongEntity.getPrimaryKey()) {
+            ColumnDTO weakFkColumn = strongPkColumn.getForeignClone(weakEntity.getId(), true, strongEntity.getName());
+            weakPk.add(weakFkColumn);
+            newFk.add(weakFkColumn);
+            weakColumns.add(weakFkColumn);
+        }
+        weakFk.put(strongEntity.getId(), newFk);
     }
 
 
