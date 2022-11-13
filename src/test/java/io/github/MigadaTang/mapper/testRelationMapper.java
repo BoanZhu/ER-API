@@ -42,12 +42,16 @@ public class testRelationMapper {
     @Test
     public void testDeleteRelation() {
         RelationshipDO relationshipDO = new RelationshipDO("testCreate", 1L);
-        Assert.assertEquals(ER.relationshipMapper.deleteByID(relationshipDO.getID()), 1);
+        ER.relationshipMapper.insert(relationshipDO);
+        List<RelationshipDO> search = ER.relationshipMapper.selectByRelationship(relationshipDO);
+        Assert.assertEquals(ER.relationshipMapper.deleteByID(search.get(0).getID()), 1);
     }
 
     @Test
     public void testUpdateRelation() {
         RelationshipDO relationshipDO = new RelationshipDO("testCreate", 1L);
-        Assert.assertEquals(ER.relationshipMapper.updateByID(relationshipDO), 1);
+        ER.relationshipMapper.insert(relationshipDO);
+        List<RelationshipDO> search = ER.relationshipMapper.selectByRelationship(relationshipDO);
+        Assert.assertEquals(ER.relationshipMapper.deleteByID(search.get(0).getID()), 1);
     }
 }
