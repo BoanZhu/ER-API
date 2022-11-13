@@ -2,6 +2,7 @@ package io.github.MigadaTang;
 
 import io.github.MigadaTang.bean.dto.transform.ColumnDTO;
 import io.github.MigadaTang.bean.dto.transform.TableDTO;
+import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.exception.ParseException;
@@ -50,23 +51,27 @@ public class ParserUtil {
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
+                    LayoutInfo undefinedLayout = new LayoutInfo(RandomUtils.generateID(), column.getID(), BelongObjType.ATTRIBUTE,
+                            -1.0, -1.0);
                     Attribute attribute = new Attribute(column.getID(), column.getBelongTo(), null, null
                             , column.getName(), null, column.isPrimary(), column.isNullable()
-                            , -1, null, null, null);
+                            , -1, undefinedLayout, null, null);
                     attributeList.add(attribute);
                 }
             }
 
             Entity entity;
+            LayoutInfo undefinedLayout = new LayoutInfo(RandomUtils.generateID(), table.getId(), BelongObjType.ENTITY,
+                    -1.0, -1.0);
             if (allPkIsFk) {
                 entity = new Entity(table.getId(), table.getName(), null, EntityType.SUBSET, null
-                        , attributeList, -1, null, null, null);
+                        , attributeList, -1, undefinedLayout, null, null);
             } else if (hasFkAsPk) {
                 entity = new Entity(table.getId(), table.getName(), null, EntityType.WEAK, null
-                        , attributeList, -1, null, null, null);
+                        , attributeList, -1, undefinedLayout, null, null);
             } else {
                 entity = new Entity(table.getId(), table.getName(), null, EntityType.STRONG, null
-                        , attributeList, -1, null, null, null);
+                        , attributeList, -1, undefinedLayout, null, null);
             }
 
             tableDTOEntityMap.put(table.getId(), entity);
@@ -77,8 +82,11 @@ public class ParserUtil {
         for (ColumnDTO foreignKey : foreignKeyList) {
             List<Attribute> attributeList = new ArrayList<>();
             List<RelationshipEdge> edgeList = new ArrayList<>();
-            Relationship relationship = new Relationship(RandomUtils.generateID(), "unknow", schema.getID(),
-                    attributeList, edgeList, null, null, null);
+            Long relationshipId = RandomUtils.generateID();
+            LayoutInfo undefinedLayout = new LayoutInfo(RandomUtils.generateID(), relationshipId, BelongObjType.RELATIONSHIP,
+                    -1.0, -1.0);
+            Relationship relationship = new Relationship(relationshipId, "unknow", schema.getID(),
+                    attributeList, edgeList, undefinedLayout, null, null);
 
             RelationshipEdge edgeToRelationship;
             if (foreignKey.isNullable()) {
@@ -101,8 +109,11 @@ public class ParserUtil {
         // parser table generate by relationship
         for (TableDTO tableDTO : tableGenerateByRelationship) {
             List<RelationshipEdge> edgeList = new ArrayList<>();
-            Relationship relationship = new Relationship(RandomUtils.generateID(), "unknow", schema.getID(),
-                    new ArrayList<>(), edgeList, null, null, null);
+            Long relationshipId = RandomUtils.generateID();
+            LayoutInfo undefinedLayout = new LayoutInfo(RandomUtils.generateID(), relationshipId, BelongObjType.RELATIONSHIP,
+                    -1.0, -1.0);
+            Relationship relationship = new Relationship(relationshipId, "unknow", schema.getID(),
+                    new ArrayList<>(), edgeList, undefinedLayout, null, null);
             Set<Long> foreignTableList = new HashSet<>();
             for (ColumnDTO column : tableDTO.getColumnDTOList()) {
                 if (!foreignTableList.contains(column.getForeignKeyTable())) {
