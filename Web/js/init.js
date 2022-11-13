@@ -18,6 +18,7 @@ const relationNodeName = "test";
 const relationNodeCategory = "relation";
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
+let DeleteVerify = new Set();
 const edgeIDFirst = "edgeIDFirst";
 const edgeIDSecond = "edgeIDSecond";
 
@@ -99,16 +100,6 @@ function init() {
                 $(go.Placeholder)),
             $("Button", {alignment: go.Spot.TopRight, click: addAttr},
                 $(go.Shape, "PlusLine", {desiredSize: new go.Size(6, 6)})));
-
-    // // adornment for attribute
-    // const attributeAdornment =
-    //     $(go.Adornment, "Spot",
-    //         $(go.Panel, "Auto",
-    //             $(go.Shape, {fill: null, stroke: "dodgerblue", strokeWidth: 3}),
-    //             $(go.Placeholder)),
-    //         $("Button", {alignment: go.Spot.TopRight, click: modifyAttributeClick},
-    //             $(go.Shape, "MinusLine", {desiredSize: new go.Size(6, 6)})),
-    //     );
 
     /*
      4 ports
@@ -664,6 +655,7 @@ function init() {
                 const node2 = myDiagram.findNodeForKey(e.newValue.to);
                 const category = e.newValue.category;
 
+
                 // case1 : entity relation link
                 if ((node1.category === relationNodeCategory  && node2.category === entityNodeCategory) || (
                     node1.category === entityNodeCategory && node2.category === relationNodeCategory )) {
@@ -747,6 +739,7 @@ function init() {
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 switch(e.newValue.category){
                     case entityNodeCategory: //create new strong entity
+                        console.log(1);
                         e.newValue.name = e.newValue.name + entityCounter.toString();
                         entityCounter++;
                         const id = createStrongEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
@@ -765,11 +758,15 @@ function init() {
                 const name = e.oldValue.name;
                 const category = e.oldValue.category;
 
+                if (DeleteVerify.has(id)){
+                    return;
+                }
+
+
                 switch(category){
                     case entityNodeCategory:
-                        // myDiagram.rollbackTransaction();
-                        // return;
-                        handleDeleteStrongEntity(id,name);
+                        myDiagram.rollbackTransaction();
+                        handleDeleteStrongEntity(id,name)
                         break;
                     case relationNodeCategory:
                         if (deleteRelationNode(id,name)===-1){

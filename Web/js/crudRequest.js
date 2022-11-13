@@ -93,26 +93,29 @@ function createStrongEntity(name,layoutX,layoutY){
 //strong entity need to delete all related subset, attribute and weak entity  API:done Test:
 function handleDeleteStrongEntity(id,name){
     //delete this strong entity
-    if (deleteEntity(id,name)){
-        //strong entity success, delete all associated stuffs
-        myDiagram.nodes.each(
-            function (node){
-                const category = node.data.category;
-                if(category!==relationNodeCategory && node.data.parentId === id){
-                    //remove associate attribute,subset and weak entity
-                    myDiagram.model.removeNodeData(node.data);
-                }
-                if(category===relationNodeCategory){
-                    if(node.findNodesConnected().count<2){
-                        // delete another link
-                        node.findNodesConnected().each(n=>node.findLinksBetween(n).each(l=>myDiagram.model.removeLinkData(l.data)));
-                        myDiagram.model.removeNodeData(node.data);
-                    }
-                }
+    let is_success = 1;
+    is_success = deleteEntity(id,name)
+    const strongEntity = myDiagram.findNodeForKey(id)
+    strongEntity.findNodesConnected().each(function (node){
+     if (category===relationNodeCategory && node.findNodesConnected().count<2){
+            is_success = deleteRelationNode(node.key, node.name);
+        }
+    });
+
+    if (is_success){
+        //todo: automatic and when the ER link is deleted before the entity
+        myDiagram.startTransaction("delete strong entity");
+        strongEntity.findNodesConnected().each(function (node){
+            if (node.data.category!==relationNodeCategory) {
+                myDiagram.model.removeNodeData(node.data);
+            }else if (category===relationNodeCategory && node.findNodesConnected().count<2){
+                myDiagram.model.removeNodeData(node.data);
             }
-        );
-    }else{
-        myDiagram.rollbackTransaction();
+        });
+        myDiagram.model.removeNodeData(strongEntity);
+        if(myDiagram.commitTransaction("delete strong entity")){
+            DeleteVerify.add(id);
+        }
     }
 }
 
