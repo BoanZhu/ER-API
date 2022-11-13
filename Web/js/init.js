@@ -582,10 +582,17 @@ function init() {
 
         switch(category){
             case entityNodeCategory:
-                updateEntity(id,name,item.location.x,item.location.y);
+                updateEntity(id,name,-1,item.location.x,item.location.y);
                 break;
             case weakEntityNodeCategory:
-                updateEntity(id,name,item.location.x,item.location.y);
+                var portNum = -1
+                // 找到与weak entity相连的entity的link上的toPort
+                const weakEntityNode = myDiagram.findNodeForKey(id);
+                weakEntityNode.findLinksOutOf().each(function (link){
+                    if(link.category === EWLinkCategory)
+                        portNum = link.toPort;
+                });
+                updateEntity(id,name,portNum,item.location.x,item.location.y);
                 break;
             case subsetEntityNodeCategory:
                 updateSubset(id,name,item.location.x,item.location.y,"",false);
@@ -615,10 +622,17 @@ function init() {
 
         switch(category){
             case entityNodeCategory:
-                updateEntity(id,name,item.location.x,item.location.y);
+                updateEntity(id,name,-1,item.location.x,item.location.y);
                 break;
             case weakEntityNodeCategory:
-                updateEntity(id,name,item.location.x,item.location.y);
+                var portNum = -1
+                // 找到与weak entity相连的entity的link上的toPort
+                const weakEntityNode = myDiagram.findNodeForKey(id);
+                weakEntityNode.findLinksOutOf().each(function (link){
+                    if(link.category === EWLinkCategory)
+                        portNum = link.toPort;
+                });
+                updateEntity(id,name,portNum,item.location.x,item.location.y);
                 break;
             case subsetEntityNodeCategory:
                 updateSubset(id,name,item.location.x,item.location.y,"",false);

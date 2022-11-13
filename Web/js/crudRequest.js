@@ -66,6 +66,7 @@ function createStrongEntity(name,layoutX,layoutY){
     const Obj =JSON.stringify({
         schemaID:schemaID,
         name: name,
+        aimPort:aimPort,
         layoutInfo: {
             layoutX: layoutX,
             layoutY: layoutY
@@ -141,7 +142,7 @@ function deleteEntity(id,name){
 }
 
 //update the all weak entity and strong entity, info API: done by move Test:
-function updateEntity(entityID,name,layoutX,layoutY){
+function updateEntity(entityID,name,aimPort,layoutX,layoutY){
     return;
     let Obj ={
         entityID:entityID,
