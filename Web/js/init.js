@@ -771,7 +771,6 @@ function init() {
         switch(category) {
             case entityNodeCategory:
                 is_success = handleDeleteStrongEntity(id,name);
-                console.log("entity")
                 break;
             case relationNodeCategory:
                 is_success = handleDeleteRelationNode(id,name,false);
@@ -798,6 +797,7 @@ function init() {
 
     myDiagram.addDiagramListener('SelectionDeleted',function(e) {
         if(!is_success) myDiagram.rollbackTransaction();
+        is_success=true;
     });
 
     /*
