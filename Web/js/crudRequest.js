@@ -501,11 +501,44 @@ function addAttr(){
                 if(e.data.category==="Attribute" || e.data.category==="relation_attribute") connectedAttr.push(e.data.key);
             }
         );
+        // change pos of related attributes
         for(var i=0;i<connectedAttr.length;i++){
             var tmp = myDiagram.findNodeForKey(connectedAttr[i]);
             tmp.data.location.y = pos.y-((connectedAttr.length-1)/2-i)*20;
             tmp.data.location.x = pos.x;
-            //todo 调用后端修改attribute
+
+            updateInfo = {
+                "attributeID": tmp.data.key.replace(/[^\d]/g)[0],
+                "name": tmp.data.name,
+                "dataType": tmp.data.dataType,
+                "isPrimary": tmp.data.isPrimary,
+                "nullable": tmp.data.allowNotNull,
+                "aimPort": 5,
+                "layoutInfo": {
+                    "layoutX": tmp.data.location.x,
+                    "layoutY": tmp.data.location.y
+                }
+            };
+            info = JSON.stringify(updateInfo);
+            $.ajax({
+                type : "POST",
+                // url : "http://127.0.0.1:8000/er/attribute/update",
+                url: "hhttp://146.169.52.81:8080/er/attribute/update",
+                headers: { "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+                traditional : true,
+                data : info,
+                withCredentials:false,
+                dataType : "json",
+                contentType : 'application/json',
+                success : function(result) {
+                    if(result.code === 0) {
+                        console.log(result);
+                    }
+                }, error : function() {
+                    console.log("update in (addAttr) fails");
+                }
+            });
         }
         pos.y+=(connectedAttr.length/2)*25;
         attributeData.location = pos;
@@ -517,39 +550,42 @@ function addAttr(){
         if (category==="entity") {
             attributeData.isPrimary = false;
             info = {
-                // "viewID": viewId,
-                "entityID": attributeData.parentId,
-                "nullable": false,
+                "belongObjID": attributeData.parentId,
+                "belongObjType": 1,
                 "name": attributeData.name,
-                "dataType": 1, //default
-                "isPrimary": false,
+                "dataType": 1, // default
+                "isPrimary": true,
+                "nullable": false,
+                "aimPort": 5,
                 "layoutInfo": {
                     "layoutX": pos.x.toFixed(1),
                     "layoutY": pos.y.toFixed(1)
-                }
+                },
             }
         }else {
             attributeData.category = "relation_attribute";
             info = {
-                // "viewID": viewId,
-                "relationID": attributeData.parentId,
-                "nullable": false,
+                "belongObjID": attributeData.parentId,
+                "belongObjType": 2,
                 "name": attributeData.name,
-                "dataType": 1, //default
+                "dataType": 1, // default
+                "isPrimary": true,
+                "nullable": false,
+                "aimPort": 5,
                 "layoutInfo": {
                     "layoutX": pos.x.toFixed(1),
                     "layoutY": pos.y.toFixed(1)
-                }
+                },
             }
 
         }
         info = JSON.stringify(info);
         $.ajax({
             type : "POST",
-            url : "http://127.0.0.1:8000/er/attribute/create",
-            // url: "http://146.169.52.81:8080/er/attribute/create",
-            // headers: { "Access-Control-Allow-Origin": "*",
-            //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            // url : "http://127.0.0.1:8000/er/attribute/create",
+            url: "http://146.169.52.81:8080/er/attribute/create",
+            headers: { "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
             traditional : true,
             data : info,
             withCredentials:false,
@@ -579,7 +615,6 @@ function addAttr(){
             }
         });
     });
-
     myDiagram.commitTransaction("add attributes");
 }
 
@@ -673,32 +708,33 @@ function modifyAttribute(){
         "dataType": DATATYPE[datatype],
         isPrimay: isPrimary,
         nullable:allowNotNull,
-        layoutInfo: {
+        "aimPort": 5,
+        "layoutInfo": {
             layoutX: node.data.location.x.toFixed(1),
             layoutY: node.data.location.y.toFixed(1)
         }
     }
     // console.log(info);
-    // info = JSON.stringify(info);
-    // $.ajax({
-    //     type : "POST",
-    //     url : "http://127.0.0.1:8000/er/attribute/update",
-    //     // url: "http://146.169.52.81:8080/er/attribute/update",
-    //     headers: { "Access-Control-Allow-Origin": "*",
-    //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-    //     traditional : true,
-    //     data : info,
-    //     withCredentials:false,
-    //     dataType : "json",
-    //     contentType : 'application/json',
-    //     success : function(result) {
-    //         if(result.code === 0) {
-    //             console.log(result);
-    //         }
-    //     }, error : function() {
-    //         console.log("update fail");
-    //     }
-    // });
+    info = JSON.stringify(info);
+    $.ajax({
+        type : "POST",
+        // url : "http://127.0.0.1:8000/er/attribute/update",
+        url: "http://146.169.52.81:8080/er/attribute/update",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        traditional : true,
+        data : info,
+        withCredentials:false,
+        dataType : "json",
+        contentType : 'application/json',
+        success : function(result) {
+            if(result.code === 0) {
+                console.log(result);
+            }
+        }, error : function() {
+            console.log("update fail");
+        }
+    });
 }
 
 /*
