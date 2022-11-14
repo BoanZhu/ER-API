@@ -214,8 +214,8 @@ function init() {
                         fromSpot: go.Spot.AllSides,
                         toSpot: go.Spot.AllSides,
                         strokeWidth: 3,
-                        width: 100,
-                        height: 40,
+                        // width: 100,
+                        height: 50,
                         fromLinkableDuplicates: false, toLinkableDuplicates: false
                     },
                     new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
@@ -785,11 +785,14 @@ function init() {
             case ERLinkCategory:
                 is_success = deleteERLink(id);
                 break;
+            case EWLinkCategory:
+                is_success = deleteEWLink(id);
+                break;
             default:break;
         }
 
 
-        console.log("treu")
+        console.log("true");
 
     });
 

@@ -37,7 +37,6 @@ let findDataType = (value, compare = (a, b) => a === b) => {
     return Object.keys(DATATYPE).find(k => compare(DATATYPE[k], value))
 }
 
-
 // Common color
 const colors =
     {

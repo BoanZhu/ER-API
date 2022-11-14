@@ -119,6 +119,11 @@ function getSchema(id) {
             // "undoManager.isEnabled": false,
             // "maxSelectionCount": 1,
         });
+    myDiagram.model = new go.GraphLinksModel(
+        { linkFromPortIdProperty: "fromPort",
+            linkToPortIdProperty: "toPort",
+            nodeDataArray: [],
+            linkDataArray: []});
     $.ajax({
         type : "GET",
         async: false,
@@ -167,22 +172,24 @@ function getSchema(id) {
             relationshipList.forEach(
                 function (relationNode){
                 const edgeList = relationNode.edgeList;
+                // if the relation is strong&weak or strong&subset, only 2
                 const firstType = myDiagram.findNodeForKey(edgeList[0].entityID).category;
                 const secondType = myDiagram.findNodeForKey(edgeList[1].entityID).category;
-                // both strong entity
+                // all strong entity
                 if(firstType === "entity" && secondType=== "entity"){
                     // create relation node
                     var relationNodeData = {"key":"relation_"+relationNode.id,"name":relationNode.name,
                         "location":{"class":"go.Point","x":relationNode.layoutInfo.layoutX,"y":relationNode.layoutInfo.layoutY},
                         "category":"relation","from":true,"to":true};
                     myDiagram.model.addNodeData(relationNodeData);
-                    // two links
-                    var firstLinkData = {"from":edgeList[0].entityID,"to":relationNodeData.key,"fromText":findRelationName(edgeList[0].cardinality),
-                        "category":"entityLink","fromPort":edgeList[0].portAtEntity,"toPort":edgeList[0].portAtRelationship};
-                    var secondLinkData = {"from":edgeList[1].entityID,"to":relationNodeData.key,"fromText":findRelationName(edgeList[1].cardinality),
-                        "category":"entityLink","fromPort":edgeList[1].portAtEntity,"toPort":edgeList[1].portAtRelationship};
-                    myDiagram.model.addLinkData(firstLinkData);
-                    myDiagram.model.addLinkData(secondLinkData);
+                    // 2 or more links
+                    edgeList.forEach(
+                        function (edge){
+                            var edgeLinkData = {"from":edge.entityID,"to":relationNodeData.key,"fromText":findRelationName(edge.cardinality),
+                                "category":"entityLink","fromPort":edge.portAtEntity,"toPort":edge.portAtRelationship};
+                            myDiagram.model.addLinkData(edgeLinkData);
+                        }
+                    );
                     // add attribute
                     const relationAttributeList = relationNode.attributeList;
                     relationAttributeList.forEach(
@@ -204,6 +211,7 @@ function getSchema(id) {
                     // add parentID to weak entity node
                     var tmp = firstType==="weakEntity"?0:1;
                     var weakEntityNode = myDiagram.findNodeForKey(edgeList[tmp].entityID);
+                    // only preview, no need for primary key
                     var linkData = {"from":edgeList[1-tmp].entityID,"to":weakEntityNode.key,"toText":findRelationName(edgeList[tmp].cardinality),
                         "fromText":findRelationName(edgeList[1-tmp].cardinality),"relation":relationNode.name,"category":"weakLink",
                         "fromPort":edgeList[1-tmp].portAtEntity,"toPort":edgeList[1-tmp].portAtEntity,"key":relationNode.id,
@@ -220,7 +228,7 @@ function getSchema(id) {
                     myDiagram.model.addLinkData(linkData);
                 }
                 else{
-                    console.log("load fails");
+                    // console.log("load fails");
                 }
             });
             modelStr = myDiagram.model.toJSON();
