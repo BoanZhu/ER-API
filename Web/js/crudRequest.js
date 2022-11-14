@@ -376,7 +376,6 @@ function deleteERLink(id){
         }
     });
     return is_success;
-
 }
 
 //update Entity_relation API done: test:
@@ -409,13 +408,42 @@ function updateERLink(relationshipEdgeID,entityID,cardinality,portAtRelationship
 }
 
 /*
-TODO: EW Link 两次接口
-
+    delete EW Link
  */
+function deleteEWLink(id){
+    const linkNode = myDiagram.findLinkForKey(id);
+    const firstEdge = linkNode.edgeIDFirst;
+    const secondEdge = linkNode.edgeIDSecond;
+    // delete relation node in backend
+    is_success = deleteRelationNode(id,"");
+    //delete edges
+    is_success = deleteEdge(firstEdge) && is_success;
+    is_success = deleteEdge(secondEdge) && is_success;
+    return is_success;
+}
 
-
-
-
+// delete edge
+function deleteEdge(id){
+    let is_success = true;
+    let Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        async: false,
+        type : "POST",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        url : "http://146.169.52.81:8080/er/relationship/delete_edge",
+        contentType:"application/json",
+        data : Obj,
+        success : function(result) {
+        }, error : function() {
+            is_success = false;
+        }
+    });
+    return is_success;
+}
 /*
     attribute functions
 */
@@ -428,8 +456,8 @@ function deleteAttribute(id){
         type : "POST",
         // url : "http://127.0.0.1:8000/er/attribute/delete",
         url: "http://146.169.52.81:8080/er/attribute/delete",
-        // headers: { "Access-Control-Allow-Origin": "*",
-        //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         traditional : true,
         data : info,
         withCredentials:false,

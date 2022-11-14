@@ -119,6 +119,11 @@ function getSchema(id) {
             // "undoManager.isEnabled": false,
             // "maxSelectionCount": 1,
         });
+    myDiagram.model = new go.GraphLinksModel(
+        { linkFromPortIdProperty: "fromPort",
+            linkToPortIdProperty: "toPort",
+            nodeDataArray: [],
+            linkDataArray: []});
     $.ajax({
         type : "GET",
         async: false,
