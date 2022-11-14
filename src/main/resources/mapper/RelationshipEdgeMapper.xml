@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.MigadaTang.dao.RelationshipEdgeMapper">
+
+    <resultMap id="BaseResultMap" type="io.github.MigadaTang.entity.RelationshipEdgeDO">
+        <id column="id" property="ID"/>
+        <result column="relationship_id" property="relationshipID"/>
+        <result column="schema_id" property="schemaID"/>
+        <result column="entity_id" property="entityID"/>
+        <result column="cardinality" property="cardinality"/>
+        <result column="port_at_relationship" property="portAtRelationship"/>
+        <result column="port_at_entity" property="portAtEntity"/>
+        <result column="is_delete" property="isDelete"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, relationship_id, schema_id, entity_id, cardinality, port_at_relationship, port_at_entity
+    </sql>
+
+    <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        id,relationship_id,schema_id,entity_id,cardinality,port_at_relationship,port_at_entity,is_delete,gmt_create,gmt_modified
+        from relationship_edge
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
+    </select>
+
+    <select id="selectByRelationshipEdge" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO"
+            resultMap="BaseResultMap">
+        select
+        id,relationship_id,schema_id,entity_id,cardinality,port_at_relationship,port_at_entity,is_delete,gmt_create,gmt_modified
+        from relationship_edge
+        <where>
+            <if test="ID != null">
+                and id = #{ID,jdbcType=BIGINT}
+            </if>
+            <if test="relationshipID != null">
+                and relationship_id = #{relationshipID,jdbcType=BIGINT}
+            </if>
+            <if test="schemaID != null">
+                and schema_id = #{schemaID,jdbcType=BIGINT}
+            </if>
+            <if test="entityID != null">
+                and entity_id = #{entityID,jdbcType=BIGINT}
+            </if>
+            <if test="cardinality != null">
+                and cardinality = #{cardinality.code,jdbcType=SMALLINT}
+            </if>
+            <if test="portAtRelationship != null">
+                and port_at_relationship = #{portAtRelationship,jdbcType=SMALLINT}
+            </if>
+            <if test="portAtEntity != null">
+                and port_at_entity = #{portAtEntity,jdbcType=SMALLINT}
+            </if>
+            <if test="gmtCreate != null">
+                and gmt_create = #{gmtCreate,jdbcType=DATETIME}
+            </if>
+            <if test="gmtModified != null">
+                and gmt_modified = #{gmtModified,jdbcType=DATETIME}
+            </if>
+            and is_delete = 0
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO" useGeneratedKeys="true"
+            keyProperty="ID">
+        insert into relationship_edge
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="relationshipID != null">
+                relationship_id,
+            </if>
+            <if test="schemaID != null">
+                schema_id,
+            </if>
+            <if test="entityID != null">
+                entity_id,
+            </if>
+            <if test="cardinality != null">
+                cardinality,
+            </if>
+            <if test="portAtRelationship != null">
+                port_at_relationship,
+            </if>
+            <if test="portAtEntity != null">
+                port_at_entity,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="relationshipID != null">
+                #{relationshipID,jdbcType=BIGINT},
+            </if>
+            <if test="schemaID != null">
+                #{schemaID,jdbcType=BIGINT},
+            </if>
+            <if test="entityID != null">
+                #{entityID,jdbcType=BIGINT},
+            </if>
+            <if test="cardinality != null">
+                #{cardinality.code,jdbcType=SMALLINT},
+            </if>
+            <if test="portAtRelationship != null">
+                #{portAtRelationship,jdbcType=SMALLINT},
+            </if>
+            <if test="portAtEntity != null">
+                #{portAtEntity,jdbcType=SMALLINT},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="deleteByID" parameterType="java.lang.Long">
+        update relationship_edge set
+        is_delete = 1
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
+    </update>
+
+    <update id="updateByID" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO">
+        update relationship_edge
+        <set>
+            <if test="relationshipID != null">
+                relationship_id = #{relationshipID,jdbcType=BIGINT},
+            </if>
+            <if test="schemaID != null">
+                schema_id = #{schemaID,jdbcType=BIGINT},
+            </if>
+            <if test="entityID != null">
+                entity_id = #{entityID,jdbcType=BIGINT},
+            </if>
+            <if test="cardinality != null">
+                cardinality = #{cardinality.code,jdbcType=SMALLINT},
+            </if>
+            <if test="portAtRelationship != null">
+                port_at_relationship = #{portAtRelationship,jdbcType=SMALLINT},
+            </if>
+            <if test="portAtEntity != null">
+                port_at_entity = #{portAtEntity,jdbcType=SMALLINT},
+            </if>
+        </set>
+        where id = #{ID,jdbcType=BIGINT} and is_delete = 0
+    </update>
+</mapper>

@@ -1,0 +1,85 @@
+{
+  "name" : "vanilla-BranchAccountMovement",
+  "entityList" : [ {
+    "name" : "branch",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "sortcode",
+      "dataType" : "INT",
+      "isPrimary" : true,
+      "nullable" : false
+    }, {
+      "name" : "bname",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "nullable" : false
+    }, {
+      "name" : "cash",
+      "dataType" : "DOUBLE",
+      "isPrimary" : false,
+      "nullable" : false
+    } ]
+  }, {
+    "name" : "account",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "no",
+      "dataType" : "INT",
+      "isPrimary" : true,
+      "nullable" : false
+    }, {
+      "name" : "type",
+      "dataType" : "CHAR",
+      "isPrimary" : false,
+      "nullable" : false
+    }, {
+      "name" : "cname",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "nullable" : false
+    }, {
+      "name" : "rate",
+      "dataType" : "DOUBLE",
+      "isPrimary" : false,
+      "nullable" : true
+    } ]
+  }, {
+    "name" : "movement",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "mid",
+      "dataType" : "INT",
+      "isPrimary" : true,
+      "nullable" : false
+    }, {
+      "name" : "amount",
+      "dataType" : "DOUBLE",
+      "isPrimary" : false,
+      "nullable" : false
+    }, {
+      "name" : "tdate",
+      "dataType" : "DATETIME",
+      "isPrimary" : false,
+      "nullable" : false
+    } ]
+  } ],
+  "relationshipList" : [ {
+    "name" : "holds",
+    "edgeList" : [ {
+      "entity" : "account",
+      "cardinality" : "1:1"
+    }, {
+      "entity" : "branch",
+      "cardinality" : "0:N"
+    } ]
+  }, {
+    "name" : "has",
+    "edgeList" : [ {
+      "entity" : "account",
+      "cardinality" : "0:N"
+    }, {
+      "entity" : "movement",
+      "cardinality" : "1:1"
+    } ]
+  } ]
+}

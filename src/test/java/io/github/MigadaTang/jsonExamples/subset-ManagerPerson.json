@@ -1,0 +1,34 @@
+{
+  "name" : "subset-ManagerPerson",
+  "entityList" : [ {
+    "name" : "person",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "salary number",
+      "dataType" : "VARCHAR",
+      "isPrimary" : true,
+      "nullable" : false
+    }, {
+      "name" : "bonus",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "nullable" : true
+    }, {
+      "name" : "name",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "nullable" : false
+    } ]
+  }, {
+    "name" : "manager",
+    "entityType" : "SUBSET",
+    "belongStrongEntity" : "person",
+    "attributeList" : [ {
+      "name" : "mobile number",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "nullable" : false
+    } ]
+  } ],
+  "relationshipList" : [ ]
+}

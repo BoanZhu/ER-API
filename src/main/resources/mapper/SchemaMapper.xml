@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.SchemaMapper">
+<mapper namespace="io.github.MigadaTang.dao.SchemaMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.entity.SchemaDO">
+    <resultMap id="BaseResultMap" type="io.github.MigadaTang.entity.SchemaDO">
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="creator" property="creator"/>
@@ -24,7 +24,7 @@
         from schema where is_delete = 0
     </select>
 
-    <select id="selectBySchema" parameterType="com.ic.er.entity.SchemaDO" resultMap="BaseResultMap">
+    <select id="selectBySchema" parameterType="io.github.MigadaTang.entity.SchemaDO" resultMap="BaseResultMap">
         select
         id,name,creator,parent_id,is_delete,gmt_create,gmt_modified
         from schema
@@ -58,7 +58,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.entity.SchemaDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="io.github.MigadaTang.entity.SchemaDO" useGeneratedKeys="true" keyProperty="ID">
         insert into schema
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -90,7 +90,7 @@
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>
 
-    <update id="updateByID" parameterType="com.ic.er.entity.SchemaDO">
+    <update id="updateByID" parameterType="io.github.MigadaTang.entity.SchemaDO">
         update schema
         <set>
             <if test="name != null">

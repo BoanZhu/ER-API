@@ -1,0 +1,19 @@
+image: maven:3.6.3-jdk-11
+
+stages:
+  - build
+
+maven-build:
+  stage: build
+  coverage: '/Total.*?([0-9]{1,3})%/'
+  script:
+    - mvn package
+    - cat target/site/jacoco/index.html
+  artifacts:
+    expose_as: 'code coverage'
+    paths:
+      - target/surefire-reports/
+      - target/site/jacoco/index.html
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml

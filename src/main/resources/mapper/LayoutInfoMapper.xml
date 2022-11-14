@@ -2,12 +2,12 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ic.er.dao.LayoutInfoMapper">
+<mapper namespace="io.github.MigadaTang.dao.LayoutInfoMapper">
 
-    <resultMap id="BaseResultMap" type="com.ic.er.entity.LayoutInfoDO">
+    <resultMap id="BaseResultMap" type="io.github.MigadaTang.entity.LayoutInfoDO">
         <id column="id" property="ID"/>
-        <result column="related_obj_id" property="relatedObjID"/>
-        <result column="related_obj_type" property="relatedObjType"/>
+        <result column="belong_obj_id" property="belongObjID"/>
+        <result column="belong_obj_type" property="belongObjType"/>
         <result column="layout_x" property="layoutX"/>
         <result column="layout_y" property="layoutY"/>
         <result column="width" property="width"/>
@@ -15,37 +15,37 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, related_obj_id, related_obj_type, layout_x, layout_y, width, height
+        id, belong_obj_id, belong_obj_type, layout_x, layout_y, width, height
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,related_obj_id,related_obj_type,layout_x,layout_y,width,height
+        id,belong_obj_id,belong_obj_type,layout_x,layout_y,width,height
         from layout_info
         where id = #{ID,jdbcType=BIGINT}
     </select>
 
-    <select id="selectByRelatedObjID" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByBelongObjID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,related_obj_id,related_obj_type,layout_x,layout_y,width,height
+        id,belong_obj_id,belong_obj_type,layout_x,layout_y,width,height
         from layout_info
-        where related_obj_id = #{relatedObjID,jdbcType=BIGINT} and related_obj_type =
-        #{relatedObjType.value,jdbcType=SMALLINT}
+        where belong_obj_id = #{belongObjID,jdbcType=BIGINT} and belong_obj_type =
+        #{belongObjType.value,jdbcType=SMALLINT}
     </select>
 
-    <select id="selectByLayoutInfo" parameterType="com.ic.er.entity.LayoutInfoDO" resultMap="BaseResultMap">
+    <select id="selectByLayoutInfo" parameterType="io.github.MigadaTang.entity.LayoutInfoDO" resultMap="BaseResultMap">
         select
-        id,related_obj_id,related_obj_type,layout_x,layout_y,width,height
+        id,belong_obj_id,belong_obj_type,layout_x,layout_y,width,height
         from layout_info
         <where>
             <if test="ID != null">
                 and id = #{ID,jdbcType=BIGINT}
             </if>
-            <if test="relatedObjID != null">
-                and related_obj_id = #{relatedObjID,jdbcType=BIGINT}
+            <if test="belongObjID != null">
+                and belong_obj_id = #{belongObjID,jdbcType=BIGINT}
             </if>
-            <if test="relatedObjType != null">
-                and related_obj_type = #{relatedObjType.value,jdbcType=SMALLINT}
+            <if test="belongObjType != null">
+                and belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT}
             </if>
             <if test="layoutX != null">
                 and layout_x = #{layoutX,jdbcType=NUMERIC}
@@ -62,14 +62,15 @@
         </where>
     </select>
 
-    <insert id="insert" parameterType="com.ic.er.entity.LayoutInfoDO" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insert" parameterType="io.github.MigadaTang.entity.LayoutInfoDO" useGeneratedKeys="true"
+            keyProperty="ID">
         insert into layout_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="relatedObjID != null">
-                related_obj_id,
+            <if test="belongObjID != null">
+                belong_obj_id,
             </if>
-            <if test="relatedObjType != null">
-                related_obj_type,
+            <if test="belongObjType != null">
+                belong_obj_type,
             </if>
             <if test="layoutX != null">
                 layout_x,
@@ -85,11 +86,11 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="relatedObjID != null">
-                #{relatedObjID,jdbcType=BIGINT},
+            <if test="belongObjID != null">
+                #{belongObjID,jdbcType=BIGINT},
             </if>
-            <if test="relatedObjType != null">
-                #{relatedObjType.value,jdbcType=SMALLINT},
+            <if test="belongObjType != null">
+                #{belongObjType.value,jdbcType=SMALLINT},
             </if>
             <if test="layoutX != null">
                 #{layoutX,jdbcType=NUMERIC},
@@ -106,7 +107,7 @@
         </trim>
     </insert>
 
-    <update id="updateByID" parameterType="com.ic.er.entity.LayoutInfoDO">
+    <update id="updateByID" parameterType="io.github.MigadaTang.entity.LayoutInfoDO">
         update layout_info
         <set>
             <if test="layoutX != null">
@@ -125,7 +126,7 @@
         where id = #{ID,jdbcType=BIGINT}
     </update>
 
-    <update id="updateByObjIDAnd" parameterType="com.ic.er.entity.LayoutInfoDO">
+    <update id="updateByObjIDAnd" parameterType="io.github.MigadaTang.entity.LayoutInfoDO">
         update layout_info
         <set>
             <if test="layoutX != null">
@@ -141,7 +142,7 @@
                 height = #{height,jdbcType=NUMERIC},
             </if>
         </set>
-        where related_obj_id = #{relatedObjID,jdbcType=BIGINT} and related_obj_type =
-        #{relatedObjType.value,jdbcType=SMALLINT}
+        where belong_obj_id = #{belongObjID,jdbcType=BIGINT} and belong_obj_type =
+        #{belongObjType.value,jdbcType=SMALLINT}
     </update>
 </mapper>
