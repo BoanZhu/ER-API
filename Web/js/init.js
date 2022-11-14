@@ -2,7 +2,6 @@ var entityCounter = 0;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;
-const default_null =-1;
 /*
 Node
  */
@@ -793,6 +792,8 @@ function init() {
         console.log("treu")
 
     });
+
+
 
     myDiagram.addDiagramListener('SelectionDeleted',function(e) {
         if(!is_success) myDiagram.rollbackTransaction();

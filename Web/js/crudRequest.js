@@ -103,7 +103,6 @@ function handleDeleteRelationNode(id, name, fromEntity) {
 
 //strong entity need to delete all related subset, attribute and weak entity  API:done Test:
 function handleDeleteStrongEntity(id,name){
-    return true;
     //delete this strong entity
     let is_success = true;
     is_success = deleteEntity(id,name)
