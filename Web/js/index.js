@@ -126,16 +126,38 @@ function defineModel(){
             layout: $(go.ForceDirectedLayout, {isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "clickCreatingTool.archetypeNodeData": {
-                name: "New Entity",
-                category: entityNodeCategory,
-                from: true,
-                to: true
-            },
             "undoManager.isEnabled": false,
             "maxSelectionCount": 1,
-            "linkingTool.linkValidation": isLinkValidIndex
+            "linkingTool.linkValidation": isLinkValidIndex,
+            allowMove:false
         })
+
+
+    go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
+        var geo = new go.Geometry();
+        var fig = new go.PathFigure(0.05*w,0.05*w, true);  // clockwise
+        geo.add(fig);
+        if (w>h){
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*w,h-0.05*w)); //下划线到h点
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*w,h-0.05*w));//在0.h 画到 1.6w,h
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*w,0.05*w));
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*w,0.05*w).close());
+
+        }else{
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*h,w-0.05*h)); //下划线到h点
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*h,w-0.05*h));//在0.h 画到 1.6w,h
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*h,0.05*h));
+            fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*h,0.05*h).close());
+
+        }
+
+        fig.add(new go.PathSegment(go.PathSegment.Move, 0,0));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0,h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, w,h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, w,0));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0,0));
+        return geo;
+    });
 
     /*
      4 ports
@@ -145,26 +167,26 @@ function defineModel(){
         // L port
         return $(go.Panel, "Vertical", {row: 1, column: 0},
             $(go.Shape, {width: 3, height: 3, portId: 3, toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                fromLinkable: true,toLinkable: true
+                fromLinkable: false,toLinkable: false
             }));
     }
     function rightPort(){
         // R port
         return $(go.Panel, "Vertical", {row: 1, column: 2},
             $(go.Shape,  {width: 3, height: 3, portId: 4, toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                fromLinkable: true,toLinkable: true}));
+                fromLinkable: false,toLinkable: false}));
     }
     function bottomPort(){
         // B port
         return $(go.Panel, "Horizontal", {row:2, column: 1},
             $(go.Shape, {width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                fromLinkable: true,toLinkable: true}));
+                fromLinkable: false,toLinkable: false}));
     }
     function topPort(){
         // U port
         return $(go.Panel, "Vertical",{row: 0, column: 1},
             $(go.Shape, {width: 3, height: 3, portId: 1, toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                fromLinkable: true,toLinkable: true}));
+                fromLinkable: false,toLinkable: false}));
     }
 
     /*
@@ -228,7 +250,6 @@ function defineModel(){
             {
                 locationSpot: go.Spot.Center,
                 resizable: false,
-                contextMenu: relation_menu,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
                 shadowOffset: new go.Point(3, 3),
