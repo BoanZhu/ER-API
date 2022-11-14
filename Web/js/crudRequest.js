@@ -138,8 +138,8 @@ function handleDeleteOtherEntity(id,name,category){
     if (category===weakEntityNodeCategory){
         node.findLinksConnected().each(function (link){
             is_success = deleteRelationNode(link.key) && is_success;
-            is_success = deleteERLink(link.edgeIDFirst) && is_success;
-            is_success = deleteERLink(link.edgeIDSecond) && is_success;
+            is_success = deleteERLink(link.fromText) && is_success;
+            is_success = deleteERLink(link.toText) && is_success;
         });
         return is_success;
     }
@@ -176,50 +176,21 @@ function deleteEntity(id,name){
     return is_success;
 }
 
-//update the all weak entity and strong entity, info API: done by move Test:
-function updateEntity(entityID,name,aimPort,layoutX,layoutY){
-    return;
-    let Obj ={
-        entityID:entityID,
-        name: name,
-
-        layoutInfo: {
-            layoutX: layoutX,
-            layoutY: layoutY
-        }
-    }
-    Obj = JSON.stringify(Obj);
-    $.ajax({
-        type : "POST",
-        headers: { "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        url : "http://146.169.52.81:8080/er/entity/update",
-        contentType:"application/json",
-        data : Obj,
-        success : function() {
-        }, error : function() {
-            alert("fail to update");
-            myDiagram.rollbackTransaction();
-        }
-    });
-
-}
-
-//update Subset
-function updateSubset(entityID,name,layoutX,layoutY,fromPort,isPort){
+//update entities
+function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubset){
     //if the change is about port then true
     return;
-    if (!isPort){
+    if (!isPortChange && isSubset){
         const subsetNode = myDiagram.findNodeForKey(entityID);
         subsetNode.findLinksOutOf().each(function (link){
             fromPort = link.toPort;
         });
     }
-    return;
+    //if no port pass -1
     let Obj =JSON.stringify({
         "entityID": entityID,
         "name": name,
-        "fromPort":fromPort,
+        "aimPort":fromPort,
         layoutInfo: {
             layoutX: layoutX,
             layoutY: layoutY
@@ -228,7 +199,7 @@ function updateSubset(entityID,name,layoutX,layoutY,fromPort,isPort){
     });
     $.ajax({
         type : "POST",
-        url : "http://146.169.52.81:8080/er/relationship/update",
+        url : "http://146.169.52.81:8080/er/entity/update",
         data : Obj,
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
@@ -308,6 +279,7 @@ function updateRelationNode(id,name,layoutX,layoutY) {
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
+        async: false,
         type : "POST",
         url : "http://146.169.52.81:8080/er/relationship/update",
         data : Obj,
@@ -315,12 +287,6 @@ function updateRelationNode(id,name,layoutX,layoutY) {
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
         success : function() {
-            //TODO: delete?if don't have the entity list in each entity
-
-            // // update key
-            // relationNode.data.key = dbId+"_"+name;
-            // // update links
-            // relationNode.findNodesConnected().each(node=>node.findLinksBetween(relationNode).each(l=>l.data.to=relationNode.data.key));
         }, error : function() {
             myDiagram.rollbackTransaction();
             alert("rename"+name+"fail");
@@ -406,9 +372,8 @@ function deleteERLink(id){
         contentType:"application/json",
         data : Obj,
         success : function(result) {
-            id=result.data.id;
         }, error : function() {
-            id = false;
+            is_success = false;
         }
     });
     return is_success;
@@ -443,6 +408,12 @@ function updateERLink(relationshipEdgeID,entityID,cardinality,portAtRelationship
     });
 
 }
+
+/*
+TODO: EW Link 两次接口
+
+ */
+
 
 
 

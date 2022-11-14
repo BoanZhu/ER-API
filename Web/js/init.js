@@ -2,6 +2,7 @@ var entityCounter = 0;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;
+const default_null =-1;
 /*
 Node
  */
@@ -18,8 +19,8 @@ const relationNodeName = "test";
 const relationNodeCategory = "relation";
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
-const edgeIDFirst = "edgeIDFirst";
-const edgeIDSecond = "edgeIDSecond";
+const edgeIDFirst = "edgeIDFirst"; //from: strong entity side
+const edgeIDSecond = "edgeIDSecond";  //to:weak entity side
 
 /*
 Constant
@@ -447,6 +448,7 @@ function init() {
             new go.Binding("text", "fromText").makeTwoWay()),
         $(go.TextBlock, textStyle(), // the "to" label
             {
+                editable:false,
                 textAlign: "center",
                 font: "bold 14px sans-serif",
                 stroke: "#1967B3",
@@ -550,7 +552,6 @@ function init() {
         myDiagram.nodes.each(function (node) {
             if (node.data.category == "Attribute" && node.isSelected) {
                 tmpNodes.push(node);
-                //todo:need test
                 document.getElementById('infoDraggableHandle').style.display = "block";
                 document.getElementById('AttributeIndo').style.display = "block";
                 modifyAttributeClick();
@@ -572,7 +573,7 @@ function init() {
 
         switch(category){
             case entityNodeCategory:
-                updateEntity(id,name,-1,item.location.x,item.location.y);
+                updateEntity(id,name,item.location.x,item.location.y,default_null,false,false);
                 break;
             case weakEntityNodeCategory:
                 var portNum = -1
@@ -582,10 +583,10 @@ function init() {
                     if(link.category === EWLinkCategory)
                         portNum = link.toPort;
                 });
-                updateEntity(id,name,portNum,item.location.x,item.location.y);
+                updateEntity(id,name,item.location.x,item.location.y,portNum,false,false);
                 break;
             case subsetEntityNodeCategory:
-                updateSubset(id,name,item.location.x,item.location.y,"",false);
+                updateEntity(id,name,item.location.x,item.location.y,false,true);
                 break;
             case relationNodeCategory:
                 updateRelationNode(id,name,item.location.x,item.location.y);
@@ -598,6 +599,7 @@ function init() {
                     updateERLink(id,item.from,item.fromText,item.toPort,item.fromPort)
                 }
                 break;
+            case EWLinkCategory:
             default:break;
         }
     });
@@ -612,7 +614,7 @@ function init() {
 
         switch(category){
             case entityNodeCategory:
-                updateEntity(id,name,-1,item.location.x,item.location.y);
+                updateEntity(id,name,item.location.x,item.location.y,default_null,false,false);
                 break;
             case weakEntityNodeCategory:
                 var portNum = -1
@@ -622,10 +624,10 @@ function init() {
                     if(link.category === EWLinkCategory)
                         portNum = link.toPort;
                 });
-                updateEntity(id,name,portNum,item.location.x,item.location.y);
+                updateEntity(id,name,item.location.x,item.location.y,portNum,false,false);
                 break;
             case subsetEntityNodeCategory:
-                updateSubset(id,name,item.location.x,item.location.y,"",false);
+                updateEntity(id,name,item.location.x,item.location.y,default_null,false,true);
                 break;
             case relationNodeCategory:
                 updateRelationNode(id,name,item.location.x,item.location.y);
@@ -716,11 +718,6 @@ function init() {
                     save();
                     load();
                 }
-                //case 3: ()
-                else if (category===EWLinkCategory){
-                    // const id = createRelationNode(e.newValue.name,node1.key,node2.key,defaultWeakFromCard,e.newValue.fromPort,
-                    //     weakEntityLinkPort,defaultWeakToCard,e.newValue.toPort,weakEntityLinkPort,"","");
-                }
             }
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 switch(e.newValue.category){
@@ -740,6 +737,8 @@ function init() {
                 }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromPortId"){
                 //TODO:This is handle the ERLink from port change including chang other entity
+
+
                 console.log("port from");
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkToPortId"){

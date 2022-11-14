@@ -118,7 +118,7 @@ define model
 function defineModel(){
 
     const $ = go.GraphObject.make;  // for conciseness in defining templates
-    myDiagram = $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
+    myDiagram = $(go.Diagram, "model",  // must name or refer to the DIV HTML element
         {
             allowDelete: false,
             allowCopy: false,
