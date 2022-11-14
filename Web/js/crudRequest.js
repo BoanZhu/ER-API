@@ -90,39 +90,71 @@ function createStrongEntity(name,layoutX,layoutY){
     return id;
 }
 
+function handleDeleteRelationNode(id, name, fromEntity) {
+    let is_success = deleteRelationNode(id, name)
+    const relationNode = myDiagram.findNodeForKey(id)
+    if(!fromEntity){
+        relationNode.findLinksConnected().each(function (link){
+            is_success = deleteERLink(link.key);
+        });
+    }
+    return is_success;
+}
+
 //strong entity need to delete all related subset, attribute and weak entity  API:done Test:
 function handleDeleteStrongEntity(id,name){
+    return true;
     //delete this strong entity
-    let is_success = 1;
+    let is_success = true;
     is_success = deleteEntity(id,name)
+
     const strongEntity = myDiagram.findNodeForKey(id)
     strongEntity.findNodesConnected().each(function (node){
-     if (category===relationNodeCategory && node.findNodesConnected().count<2){
-            is_success = deleteRelationNode(node.key, node.name);
-        }
+     if (category===relationNodeCategory && node.findNodesConnected().count<3){
+         is_success = handleDeleteRelationNode(node.key, node.name,true) && is_success;
+         myDiagram.model.removeNodeData(node.data);
+     }else if (category==="Attribute"){
+         //delete Attribute
+         is_success = deleteAttribute(node.key, node.name) && is_success;
+     }else{
+         //delete subset/weak entity
+         is_success = handleDeleteOtherEntity(node.key, node.name,node.category) && is_success;
+     }
     });
-
-    if (is_success){
-        //todo: automatic and when the ER link is deleted before the entity
-        myDiagram.startTransaction("delete strong entity");
-        strongEntity.findNodesConnected().each(function (node){
-            if (node.data.category!==relationNodeCategory) {
-                myDiagram.model.removeNodeData(node.data);
-            }else if (category===relationNodeCategory && node.findNodesConnected().count<2){
-                myDiagram.model.removeNodeData(node.data);
-            }
-        });
-        myDiagram.model.removeNodeData(strongEntity);
-        if(myDiagram.commitTransaction("delete strong entity")){
-            DeleteVerify.add(id);
-        }
-    }
+    strongEntity.findNodesConnected().each(function (link){
+        //delete all link connected
+        is_success = deleteERLink(link.key) && is_success;
+    });
+    return is_success;
 }
+
+
+// weak entity
+function handleDeleteOtherEntity(id,name,category){
+    return true;
+    //delete this strong entity
+    let is_success = deleteEntity(id,name)
+    const node = myDiagram.findNodeForKey(id)
+    if (category===weakEntityNodeCategory){
+        node.findLinksConnected().each(function (link){
+            is_success = deleteRelationNode(link.key) && is_success;
+            is_success = deleteERLink(link.edgeIDFirst) && is_success;
+            is_success = deleteERLink(link.edgeIDSecond) && is_success;
+        });
+        return is_success;
+    }
+    // delete links connected
+    node.findLinksConnected().each(function (link){
+        is_success = deleteERLink(link.key) && is_success;
+    });
+    return is_success;
+}
+
 
 //delete all entities API:done Test:
 function deleteEntity(id,name){
-    return;
-    let is_success = 1;
+    return true;
+    let is_success = true;
     let Obj ={
         id: id
     }
@@ -137,7 +169,7 @@ function deleteEntity(id,name){
         contentType: "application/json",
         success : function() {
         }, error : function() {
-            is_success = -1;
+            is_success = false;
             alert("can't delete"+ name)
         }
     });
@@ -299,9 +331,9 @@ function updateRelationNode(id,name,layoutX,layoutY) {
 
 //delete Relation Node API:done Test:
 function deleteRelationNode(id,name) {
-    return;
+    return true;
     id = id.substr(id.indexOf(("_"))+1);
-    let is_success = 1;
+    let is_success = true;
     let Obj ={
         id: id
     }
@@ -317,7 +349,7 @@ function deleteRelationNode(id,name) {
         success : function() {
         }, error : function() {
             alert("delete"+name+"fail");
-            is_success=-1;
+            is_success=false;
         }
     });
     return is_success;
@@ -359,8 +391,8 @@ function createERLink(entityID,relationshipID,cardinality,portAtEntity,portAtRel
 
 //delete Entity_relation link API: Test:
 function deleteERLink(id){
-    return;
-    let is_success = 1;
+    return true;
+    let is_success = true;
     let Obj ={
         id: id
     }
@@ -376,7 +408,7 @@ function deleteERLink(id){
         success : function(result) {
             id=result.data.id;
         }, error : function() {
-            id = -1;
+            id = false;
         }
     });
     return is_success;

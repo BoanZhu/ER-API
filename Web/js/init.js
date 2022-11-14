@@ -18,7 +18,6 @@ const relationNodeName = "test";
 const relationNodeCategory = "relation";
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
-let DeleteVerify = new Set();
 const edgeIDFirst = "edgeIDFirst";
 const edgeIDSecond = "edgeIDSecond";
 
@@ -673,7 +672,6 @@ function init() {
                         myDiagram.rollbackTransaction();
                         return;
                     } else {
-                        console.log(1);
                         e.newValue.fromText = "1:N";
                         e.newValue.category = ERLinkCategory;
                         e.newValue.key = er_id;
@@ -724,22 +722,9 @@ function init() {
                     //     weakEntityLinkPort,defaultWeakToCard,e.newValue.toPort,weakEntityLinkPort,"","");
                 }
             }
-            else if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray") {
-                const category= e.oldValue.category;
-                const id = e.oldValue.key;
-
-                if (category===ERLinkCategory){
-                    console.log(1);
-                    //todo:if entity delete fail and rollback all the relation should rollback
-                    // if(deleteERLink(id)===-1){
-                    //     alert("remove the Entity relation link fail");
-                    // }
-                }
-            }
             else if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 switch(e.newValue.category){
                     case entityNodeCategory: //create new strong entity
-                        console.log(1);
                         e.newValue.name = e.newValue.name + entityCounter.toString();
                         entityCounter++;
                         const id = createStrongEntity(e.newValue.name, e.newValue.location.x, e.newValue.location.y);
@@ -753,43 +738,6 @@ function init() {
                     default:break; //create new relation node already handled by the insert Link Array
                     }
                 }
-            else if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
-                const id = e.oldValue.key;
-                const name = e.oldValue.name;
-                const category = e.oldValue.category;
-
-                if (DeleteVerify.has(id)){
-                    return;
-                }
-
-
-                switch(category){
-                    case entityNodeCategory:
-                        myDiagram.rollbackTransaction();
-                        handleDeleteStrongEntity(id,name)
-                        break;
-                    case relationNodeCategory:
-                        if (deleteRelationNode(id,name)===-1){
-                            myDiagram.rollbackTransaction();
-                        }
-                        break;
-                    case "Attribute"://delete attribute
-                        deleteAttribute(id);
-                        break;
-                    case weakEntityNodeCategory:
-                        if (deleteEntity(id,name)===-1){
-                            myDiagram.rollbackTransaction();
-                        }
-                        break;
-                    case subsetEntityNodeCategory:
-                        if (deleteEntity(id,name)===-1){
-                            myDiagram.rollbackTransaction();
-                        }
-                        break;
-                    default:break;
-                }
-
-            }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromPortId"){
                 //TODO:This is handle the ERLink from port change including chang other entity
                 console.log("port from");
@@ -811,6 +759,45 @@ function init() {
         } else {
             if (idx >= 0) document.title = document.title.slice(0, idx);
         }
+    });
+
+    var temporal_counter = 0;
+    let is_success = true;
+
+    myDiagram.addDiagramListener('SelectionDeleting',function(e) {
+        const category = e.subject.first().qb.category;
+        const id =  e.subject.first().qb.key;
+
+        switch(category) {
+            case entityNodeCategory:
+                is_success = handleDeleteStrongEntity(id,name);
+                console.log("entity")
+                break;
+            case relationNodeCategory:
+                is_success = handleDeleteRelationNode(id,name,false);
+                break;
+            case weakEntityNodeCategory:
+                is_success = handleDeleteOtherEntity(id,name);
+                break;
+            case "Attribute":
+                is_success = deleteAttribute(id)
+                break;
+            case subsetEntityNodeCategory:
+                is_success = handleDeleteOtherEntity(id,name);
+                break;
+            case ERLinkCategory:
+                is_success = deleteERLink(id);
+                break;
+            default:break;
+        }
+
+
+        console.log("treu")
+
+    });
+
+    myDiagram.addDiagramListener('SelectionDeleted',function(e) {
+        if(!is_success) myDiagram.rollbackTransaction();
     });
 
     /*
