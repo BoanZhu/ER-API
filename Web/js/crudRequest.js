@@ -61,7 +61,7 @@ Entity functions
 function createStrongEntity(name,layoutX,layoutY){
     // return Math.ceil(Math.random()*1000);
     let id;
-    const Obj =JSON.stringify({
+    let Obj ={
         schemaID:schemaID,
         name: name,
         // aimPort:aimPort,
@@ -70,7 +70,8 @@ function createStrongEntity(name,layoutX,layoutY){
             layoutX: layoutX,
             layoutY: layoutY
         }
-    });
+    };
+    Obj = JSON.stringify(Obj);
 
     $.ajax({
         async: false,
@@ -119,7 +120,7 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
     if (!isPortChange && isSubset){
         const subsetNode = myDiagram.findNodeForKey(entityID);
         subsetNode.findLinksOutOf().each(function (link){
-            fromPort = link.toPort;
+            fromPort = link.data.toPort;
         });
     }
     //if no port pass -1
@@ -132,7 +133,7 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
             layoutY: layoutY
         }
 
-    }
+    };
 
     if (!changeName){
         Obj ={
@@ -143,7 +144,7 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
                 layoutY: layoutY
             }
 
-        }
+        };
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
@@ -344,7 +345,7 @@ function createEdge(entityID,relationshipID,cardinality,portAtEntity,portAtRelat
         contentType:"application/json",
         data : Obj,
         success : function(result) {
-            id=result.data.id;
+            id=result.data.edgeID;
         }, error : function() {
             id = -1;
         }
