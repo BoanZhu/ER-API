@@ -37,7 +37,7 @@ function handleDeleteStrongEntity(id,name){
 }
 
 
-// weak entity abd subset
+// weak entity and subset
 function handleDeleteOtherEntity(id,name,category){
     //delete this strong entity
     let is_success = deleteEntity(id,name)
@@ -53,9 +53,9 @@ function handleDeleteOtherEntity(id,name,category){
         return is_success;
     }
     // delete links connected
-    node.findLinksConnected().each(function (link){
-        is_success = deleteEdge(link.data.key) && is_success;
-    });
+    // node.findLinksConnected().each(function (link){
+    //     is_success = deleteEdge(link.data.key) && is_success;
+    // });
     return is_success;
 }
 

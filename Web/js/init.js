@@ -1,3 +1,7 @@
+var entityCounter = 119;
+var attributeCounter = 1;
+var weakEntityCounter = 1;
+var subsetCounter = 1;
 var entityCounter = 24;
 var attributeCounter = 5;
 var weakEntityCounter = 4;

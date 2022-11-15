@@ -136,6 +136,7 @@ function getSchema(id) {
         dataType:'json',
         data : {ID:id},
         success : function(result) {
+            console.log(result.data.schema);
             // entity list
             var entityList = result.data.schema.entityList;
             // relationship list
@@ -147,7 +148,7 @@ function getSchema(id) {
                 var entityData = {key:entityNode.id,name:entityNode.name,category:ENTITYTYPE[entityNode.entityType],
                     //todo：layout condition
                     location: {"class": "go.Point", "x": entityNode.layoutInfo.layoutX, "y": entityNode.layoutInfo.layoutY},
-                    from:true, to:true}
+                    from:true, to:true,"category":"entity"}
                 if(ENTITYTYPE[entityNode.entityType]!=="entity"){
                     entityData.parentId = entityNode.strongEntityID;
                 }
@@ -177,7 +178,7 @@ function getSchema(id) {
                 const firstType = myDiagram.findNodeForKey(edgeList[0].entityID).category;
                 const secondType = myDiagram.findNodeForKey(edgeList[1].entityID).category;
                 // all strong entity
-                if(firstType === "entity" && secondType=== "entity"){
+                if((firstType === "entity" && secondType=== "entity")||firstType === "" && secondType=== ""){
                     // create relation node
                     var relationNodeData = {"key":"relation_"+relationNode.id,"name":relationNode.name,
                         "location":{"class":"go.Point","x":relationNode.layoutInfo.layoutX,"y":relationNode.layoutInfo.layoutY},
@@ -233,7 +234,7 @@ function getSchema(id) {
                 }
             });
             modelStr = myDiagram.model.toJSON();
-            console.log(modelStr);
+            // console.log(modelStr);
             return modelStr;
         }, error : function(result) {
             console.log("false");

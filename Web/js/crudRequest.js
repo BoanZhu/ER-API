@@ -61,7 +61,7 @@ Entity functions
 function createStrongEntity(name,layoutX,layoutY){
     // return Math.ceil(Math.random()*1000);
     let id;
-    let Obj ={
+    const Obj =JSON.stringify({
         schemaID:schemaID,
         name: name,
         // aimPort:aimPort,
@@ -70,8 +70,7 @@ function createStrongEntity(name,layoutX,layoutY){
             layoutX: layoutX,
             layoutY: layoutY
         }
-    };
-    Obj = JSON.stringify(Obj);
+    });
 
     $.ajax({
         async: false,
@@ -132,7 +131,6 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
             layoutX: layoutX,
             layoutY: layoutY
         }
-
     };
 
     if (!changeName){
@@ -143,14 +141,26 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
                 layoutX: layoutX,
                 layoutY: layoutY
             }
-
         };
     }
-    Obj = JSON.stringify(Obj);
+    var cache = [];
+    var info = JSON.stringify(Obj, function(key, value) {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) {
+                // remove
+                return;
+            }
+            // collect all values
+            cache.push(value);
+        }
+        return value;
+    });
+    cache = null;
+
     $.ajax({
         type : "POST",
         url : "http://146.169.52.81:8080/er/entity/update",
-        data : Obj,
+        data : info,
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
@@ -879,7 +889,7 @@ function createSubset(){
             contentType : 'application/json',
             success : function(result) {
                 if(result.code === 0) {
-                    subsetData.key = result.data.ID;
+                    subsetData.key = result.data.id;
                     // subsetData.key = Math.ceil(Math.random()*1000);
                     myDiagram.model.addNodeData(subsetData);
                     // new link
