@@ -65,6 +65,8 @@
 <div style="display: inline-block; vertical-align: top; width:80%">
     <div id="myDiagramDiv" style="background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
     </div>
+    <div id="model" style="display:none; background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
+    </div>
 </div>
 
 
@@ -113,11 +115,7 @@
         document.getElementById("mySavedModel").value = myDiagram.model.toJson();
         myDiagram.isModified = false;
     }
-
-    var id = parseInt(location.href.substring(location.href.indexOf("id=")+3));
     //load model when first accessing the page
-    document.getElementById("mySavedModel").value = getSchema(id);
     window.addEventListener('DOMContentLoaded', init);
-    // load();
 </script>
 </html>

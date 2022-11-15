@@ -820,9 +820,6 @@ function init() {
         console.log("true");
 
     });
-
-
-
     myDiagram.addDiagramListener('SelectionDeleted',function(e) {
         if(!temporal_is_success) myDiagram.rollbackTransaction();
         temporal_is_success=true;
@@ -832,10 +829,13 @@ function init() {
     Get the current View Id and load the model
      */
     const id =  location.href.substring(location.href.indexOf("id=")+3);
-    // myDiagram.model = go.Model.fromJson(getView(id));
     myDiagram.model = new go.GraphLinksModel(
         { linkFromPortIdProperty: "fromPort",
             linkToPortIdProperty: "toPort",
             nodeDataArray: [],
             linkDataArray: []});
+
+    defineModel();
+    document.getElementById("mySavedModel").value = getSchema(schemaID);
+    myDiagram.model = go.Model.fromJson(getSchema(schemaID));
 }
