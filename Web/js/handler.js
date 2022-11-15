@@ -70,15 +70,15 @@ function handleChangPort(link,toEnd,newPort){
     let is_success = true;
     const fromCategory= fromNode.category;
     const toCategory = toNode.category;
-    if(fromCategory=== relationNodeCategory && !toEnd){
+    if(fromCategory=== relationNodeCategory && !toEnd){ //relation to attribute
         //relation-attribute link port change only change the from port (Attribute only have one port) todo attribute
-        modifyAttribute();
+        modifyAttributeToPort(toNode,newPort);
     }else if(fromCategory === subsetEntityNodeCategory && toEnd){
         // subset-entity link port change only change the to port (subset only have one port)
         updateEntity(fromNode.key,fromCategory.name,fromNode.data.location.x,fromNode.data.location.y,newPort,true,true);
     }else if(toCategory==="Attribute"&&!toEnd){
         //entity-attribute link port change only change the from port (Attribute only have one port) todo attribute
-        modifyAttribute();
+        modifyAttributeToPort(toNode,newPort);
     }
     else if(toCategory===weakEntityNodeCategory && !toEnd){
         updateEdge(link.edgeIDFirst,link.from,link.fromText,default_null,newPort,true);
@@ -96,4 +96,39 @@ function handleChangPort(link,toEnd,newPort){
     }
 
     return is_success;
+}
+
+function modifyAttributeToPort(attributNode,newPort){
+    var info ={
+        "attributeID": attributNode.data.key.split("_")[0],
+        "name": attributNode.data.name,
+        "dataType": attributNode.data.dataType,
+        isPrimay: attributNode.data.isPrimay,
+        nullable:attributNode.data.allowNotNull,
+        "aimPort": newPort,
+        "layoutInfo": {
+            layoutX: attributNode.data.location.x.toFixed(1),
+            layoutY: attributNode.data.location.y.toFixed(1)
+        }
+    }
+    // console.log(info);
+    info = JSON.stringify(info);
+    $.ajax({
+        type : "POST",
+        url: "http://146.169.52.81:8080/er/attribute/update",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        traditional : true,
+        data : info,
+        withCredentials:false,
+        dataType : "json",
+        contentType : 'application/json',
+        success : function(result) {
+            if(result.code === 0) {
+                console.log("change port");
+            }
+        }, error : function() {
+            console.log("update fail");
+        }
+    });
 }
