@@ -749,14 +749,14 @@ function init() {
                     }
                 }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromPortId"){
-                const is_success= handleChangPort(e.xn,false);
+                const is_success= handleChangPort(e.xn,false,e.newValue);
                 if (!is_success){
                     alert("change from port API fail!");
                     myDiagram.rollbackTransaction();
                 }
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkToPortId"){
-                const is_success= handleChangPort(e.xn,true);
+                const is_success= handleChangPort(e.xn,true,e.newValue);
                 if (!is_success){
                     alert("change to port API fail!");
                     myDiagram.rollbackTransaction();
