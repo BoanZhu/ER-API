@@ -783,7 +783,7 @@ function init() {
                 is_success = handleDeleteOtherEntity(id,name);
                 break;
             case ERLinkCategory:
-                is_success = deleteERLink(id);
+                is_success = deleteEdge(id);
                 break;
             case EWLinkCategory:
                 is_success = deleteEWLink(id);

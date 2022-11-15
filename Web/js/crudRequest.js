@@ -7,7 +7,6 @@ const schemaID= parseInt(location.href.substring(location.href.indexOf("id=")+3)
 
 //rename, get the new schema name and replace the new url
 function renameSchema() {
-    return;
     const name=prompt("Please enter new view name");
     if (name!=="" &&name!=null)
     {
@@ -35,7 +34,6 @@ function renameSchema() {
 
 //delete this schema and return to index page
 function deleteSchema() {
-    return;
     let Obj ={
         id: schemaID
     }
@@ -61,12 +59,11 @@ Entity functions
 
 //create Strong entity: API:done Test:
 function createStrongEntity(name,layoutX,layoutY){
-    return Math.ceil(Math.random()*1000);
     let id;
     const Obj =JSON.stringify({
         schemaID:schemaID,
         name: name,
-        aimPort:aimPort,
+        aimPort: default_null,
         layoutInfo: {
             layoutX: layoutX,
             layoutY: layoutY
@@ -90,69 +87,8 @@ function createStrongEntity(name,layoutX,layoutY){
     return id;
 }
 
-function handleDeleteRelationNode(id, name, fromEntity) {
-    let is_success = deleteRelationNode(id, name)
-    const relationNode = myDiagram.findNodeForKey(id)
-    if(!fromEntity){
-        relationNode.findLinksConnected().each(function (link){
-            is_success = deleteERLink(link.key);
-        });
-    }
-    return is_success;
-}
-
-//strong entity need to delete all related subset, attribute and weak entity  API:done Test:
-function handleDeleteStrongEntity(id,name){
-    //delete this strong entity
-    let is_success = true;
-    is_success = deleteEntity(id,name)
-
-    const strongEntity = myDiagram.findNodeForKey(id)
-    strongEntity.findNodesConnected().each(function (node){
-     if (category===relationNodeCategory && node.findNodesConnected().count<3){
-         is_success = handleDeleteRelationNode(node.key, node.name,true) && is_success;
-         myDiagram.model.removeNodeData(node.data);
-     }else if (category==="Attribute"){
-         //delete Attribute
-         is_success = deleteAttribute(node.key, node.name) && is_success;
-     }else{
-         //delete subset/weak entity
-         is_success = handleDeleteOtherEntity(node.key, node.name,node.category) && is_success;
-     }
-    });
-    strongEntity.findNodesConnected().each(function (link){
-        //delete all link connected
-        is_success = deleteERLink(link.key) && is_success;
-    });
-    return is_success;
-}
-
-
-// weak entity abd subset
-function handleDeleteOtherEntity(id,name,category){
-    return true;
-    //delete this strong entity
-    let is_success = deleteEntity(id,name)
-    const node = myDiagram.findNodeForKey(id)
-    if (category===weakEntityNodeCategory){
-        node.findLinksConnected().each(function (link){
-            is_success = deleteRelationNode(link.key) && is_success;
-            is_success = deleteERLink(link.fromText) && is_success;
-            is_success = deleteERLink(link.toText) && is_success;
-        });
-        return is_success;
-    }
-    // delete links connected
-    node.findLinksConnected().each(function (link){
-        is_success = deleteERLink(link.key) && is_success;
-    });
-    return is_success;
-}
-
-
 //delete all entities API:done Test:
 function deleteEntity(id,name){
-    return true;
     let is_success = true;
     let Obj ={
         id: id
@@ -178,7 +114,6 @@ function deleteEntity(id,name){
 //update entities
 function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubset){
     //if the change is about port then true
-    return;
     if (!isPortChange && isSubset){
         const subsetNode = myDiagram.findNodeForKey(entityID);
         subsetNode.findLinksOutOf().each(function (link){
@@ -222,7 +157,6 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
                             firstEntityPort,firstEntityRelationPort,
                             secondCardinality, secondEntityPort,secondEntityRelationPort,
                             layoutX,layoutY) {
-    return Math.ceil(Math.random()*1000);
     let id;
     let Obj = {
         "schemaID": 1,
@@ -266,7 +200,6 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
 
 //update the name of the relation API done Test:
 function updateRelationNode(id,name,layoutX,layoutY) {
-    return;
     const dbId = id.replace(/[^\d]/g)[0];
     let Obj ={
         "relationshipID": dbId,
@@ -296,7 +229,6 @@ function updateRelationNode(id,name,layoutX,layoutY) {
 
 //delete Relation Node API:done Test:
 function deleteRelationNode(id,name) {
-    return true;
     id = id.substr(id.indexOf(("_"))+1);
     let is_success = true;
     let Obj ={
@@ -320,6 +252,28 @@ function deleteRelationNode(id,name) {
     return is_success;
 }
 
+// delete edge
+function deleteEdge(id){
+    let is_success = true;
+    let Obj ={
+        id: id
+    }
+    Obj = JSON.stringify(Obj);
+    $.ajax({
+        async: false,
+        type : "POST",
+        headers: { "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        url : "http://146.169.52.81:8080/er/relationship/delete_edge",
+        contentType:"application/json",
+        data : Obj,
+        success : function(result) {
+        }, error : function() {
+            is_success = false;
+        }
+    });
+    return is_success;
+}
 
 /*
 ER relation functions;
@@ -327,7 +281,6 @@ ER relation functions;
 
 //create Entity_relation link API:done Test:
 function createERLink(entityID,relationshipID,cardinality,portAtEntity,portAtRelationship,ERLinkCreateVerify){
-    return Math.ceil(Math.random()*1000);
     if(ERLinkCreateVerify.has(entityID+relationshipID)) return;
     let id;
     let Obj = JSON.stringify({
@@ -354,32 +307,8 @@ function createERLink(entityID,relationshipID,cardinality,portAtEntity,portAtRel
     return id;
 }
 
-//delete Entity_relation link API: Test:
-function deleteERLink(id){
-    let is_success = true;
-    let Obj ={
-        id: id
-    }
-    Obj = JSON.stringify(Obj);
-    $.ajax({
-        async: false,
-        type : "POST",
-        headers: { "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        url : "http://146.169.52.81:8080/er/relationship/delete_edge",
-        contentType:"application/json",
-        data : Obj,
-        success : function(result) {
-        }, error : function() {
-            is_success = false;
-        }
-    });
-    return is_success;
-}
-
 //update Entity_relation API done: test:
 function updateERLink(relationshipEdgeID,entityID,cardinality,portAtRelationship,portAtEntity){
-    return;
     //todo:API allow change the relation id
     let Obj ={
         relationshipEdgeID: relationshipEdgeID,
@@ -423,30 +352,8 @@ function deleteEWLink(id){
     return is_success;
 }
 
-//TODO UpdateEWLINK handle found the changed Text either card/node name
 
-// delete edge TODO：重复将ERLink改成Edge
-function deleteEdge(id){
-    let is_success = true;
-    let Obj ={
-        id: id
-    }
-    Obj = JSON.stringify(Obj);
-    $.ajax({
-        async: false,
-        type : "POST",
-        headers: { "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        url : "http://146.169.52.81:8080/er/relationship/delete_edge",
-        contentType:"application/json",
-        data : Obj,
-        success : function(result) {
-        }, error : function() {
-            is_success = false;
-        }
-    });
-    return is_success;
-}
+
 /*
     attribute functions
 */
