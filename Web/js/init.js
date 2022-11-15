@@ -795,7 +795,7 @@ function init() {
                 temporal_is_success = handleDeleteRelationNode(id,name,false);
                 break;
             case weakEntityNodeCategory:
-                temporal_is_success = handleDeleteOtherEntity(id,name);
+                temporal_is_success = handleDeleteOtherEntity(id,name,weakEntityNodeCategory);
                 break;
             case "Attribute":
                 temporal_is_success = deleteAttribute(id)

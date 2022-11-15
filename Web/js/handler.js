@@ -4,7 +4,7 @@ function handleDeleteRelationNode(id, name, fromEntity) {
     const relationNode = myDiagram.findNodeForKey(id)
     if(!fromEntity){
         relationNode.findLinksConnected().each(function (link){
-            is_success = deleteEdge(link.key);
+            is_success = deleteEdge(link.data.key);
         });
     }
     return is_success;
@@ -19,19 +19,19 @@ function handleDeleteStrongEntity(id,name){
     const strongEntity = myDiagram.findNodeForKey(id)
     strongEntity.findNodesConnected().each(function (node){
         if (category===relationNodeCategory && node.findNodesConnected().count<3){
-            is_success = handleDeleteRelationNode(node.key, node.name,true) && is_success;
-            myDiagram.model.removeNodeData(node.data);
+            is_success = handleDeleteRelationNode(node.data.key, node.data.name,true) && is_success;
+            myDiagram.model.removeNodeData(node.data.data);
         }else if (category==="Attribute"){
             //delete Attribute
-            is_success = deleteAttribute(node.key, node.name) && is_success;
+            is_success = deleteAttribute(node.data.key, node.data.name) && is_success;
         }else{
             //delete subset/weak entity
-            is_success = handleDeleteOtherEntity(node.key, node.name,node.category) && is_success;
+            is_success = handleDeleteOtherEntity(node.data.key, node.data.name,node.data.category) && is_success;
         }
     });
     strongEntity.findNodesConnected().each(function (link){
         //delete all link connected
-        is_success = deleteEdge(link.key) && is_success;
+        is_success = deleteEdge(link.data.key) && is_success;
     });
     return is_success;
 }
@@ -44,15 +44,17 @@ function handleDeleteOtherEntity(id,name,category){
     const node = myDiagram.findNodeForKey(id)
     if (category===weakEntityNodeCategory){
         node.findLinksConnected().each(function (link){
-            is_success = deleteRelationNode(link.key) && is_success;
-            is_success = deleteEdge(link.edgeIDFirst) && is_success;
-            is_success = deleteEdge(link.edgeIDSecond) && is_success;
+            // console.log("handleDeleteOtherEntity");
+            console.log(link.data);
+            is_success = deleteRelationNode(prefixRelationNodeKey+link.data.key) && is_success;
+            is_success = deleteEdge(link.data.edgeIDFirst) && is_success;
+            is_success = deleteEdge(link.data.edgeIDSecond) && is_success;
         });
         return is_success;
     }
     // delete links connected
     node.findLinksConnected().each(function (link){
-        is_success = deleteEdge(link.key) && is_success;
+        is_success = deleteEdge(link.data.key) && is_success;
     });
     return is_success;
 }
