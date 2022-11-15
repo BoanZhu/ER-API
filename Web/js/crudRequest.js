@@ -114,7 +114,7 @@ function deleteEntity(id,name){
 }
 
 //update entities
-function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubset){
+function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubset,changeName){
     //if the change is about port then true
     if (!isPortChange && isSubset){
         const subsetNode = myDiagram.findNodeForKey(entityID);
@@ -132,6 +132,18 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
             layoutY: layoutY
         }
 
+    }
+
+    if (!changeName){
+        Obj ={
+            "entityID": entityID,
+            "aimPort":fromPort,
+            layoutInfo: {
+                layoutX: layoutX,
+                layoutY: layoutY
+            }
+
+        }
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
@@ -211,14 +223,23 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
 }
 
 //update the name of the relation API done Test://TODO:internal server error
-function updateRelationNode(id,name,layoutX,layoutY, isWeakEntity) {
-    const dbId = getRelationId(id)
+function updateRelationNode(id,name,layoutX,layoutY, isWeakEntity,changeName) {
+    const dbId = getRelationId(id);
     let Obj ={
         "relationshipID": dbId,
         "name": name,
         "layoutInfo": {
             "layoutX": layoutX,
             "layoutY": layoutY
+        }
+    }
+    if(!changeName){
+        Obj ={
+            "relationshipID": dbId,
+            "layoutInfo": {
+                "layoutX": layoutX,
+                "layoutY": layoutY
+            }
         }
     }
     if(isWeakEntity){

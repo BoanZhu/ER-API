@@ -572,7 +572,7 @@ function init() {
 
         switch(category){
             case entityNodeCategory:
-                updateEntity(id,name,item.location.x,item.location.y,default_null,false,false);
+                updateEntity(id,name,item.location.x,item.location.y,default_null,false,false,true);
                 break;
             case weakEntityNodeCategory:
                 var portNum = -1
@@ -582,13 +582,13 @@ function init() {
                     if(link.category === EWLinkCategory)
                         portNum = link.toPort;
                 });
-                updateEntity(id,name,item.location.x,item.location.y,portNum,false,false);
+                updateEntity(id,name,item.location.x,item.location.y,portNum,false,false,true);
                 break;
             case subsetEntityNodeCategory:
-                updateEntity(id,name,item.location.x,item.location.y,false,true);
+                updateEntity(id,name,item.location.x,item.location.y, portNum,false,true,true);
                 break;
             case relationNodeCategory:
-                updateRelationNode(id,name,item.location.x,item.location.y,false);
+                updateRelationNode(id,name,item.location.x,item.location.y,false,true);
                 break;
             case ERLinkCategory:
                 let cardinality = findRelationCode(item.fromText)
@@ -603,7 +603,7 @@ function init() {
                  const enteredText = e.subject.cc;
                 if (item.relation === enteredText){
                     // edit the weakEntity name
-                    updateRelationNode(id,enteredText,'','',true);
+                    updateRelationNode(id,enteredText,'','',true,true);
                 }else{
                     let cardinality = findRelationCode(item.fromText)
                     if(cardinality===undefined) {
@@ -627,7 +627,7 @@ function init() {
 
         switch(category){
             case entityNodeCategory:
-                updateEntity(id,name,item.location.x,item.location.y,default_null,false,false);
+                updateEntity(id,name,item.location.x,item.location.y,default_null,false,false,false);
                 break;
             case weakEntityNodeCategory:
                 var portNum = -1
@@ -637,13 +637,13 @@ function init() {
                     if(link.category === EWLinkCategory)
                         portNum = link.toPort;
                 });
-                updateEntity(id,name,item.location.x,item.location.y,portNum,false,false);
+                updateEntity(id,name,item.location.x,item.location.y,portNum,false,false,false);
                 break;
             case subsetEntityNodeCategory:
-                updateEntity(id,name,item.location.x,item.location.y,default_null,false,true);
+                updateEntity(id,name,item.location.x,item.location.y,default_null,false,true,false);
                 break;
             case relationNodeCategory:
-                updateRelationNode(id,name,item.location.x,item.location.y,false);
+                updateRelationNode(id,name,item.location.x,item.location.y,false,false);
                 break;
             case "Attribute"://delete attribute
                 //TODO:function update Attribute
@@ -697,6 +697,8 @@ function init() {
                 // case 2: entity-entity link, create new node
                 else if (node1.category === entityNodeCategory && node2.category === entityNodeCategory) {
                     myDiagram.rollbackTransaction();
+                    console.log(fromPort);
+                    console.log(toPort);
                     const relationNodeX = (node1.location.x + node2.location.x) / 2;
                     const relationNodeY = (node1.location.y + node2.location.y) / 2;
                     let relation_id = createRelationNode(relationNodeName,node1.key,node2.key,
@@ -717,6 +719,7 @@ function init() {
                             from: true,
                             to: true,
                         });
+
                         myDiagram.model.addLinkData(
                             {
                                 "from": node1.key, "to": relation_id, fromText: ERLinkCard,
