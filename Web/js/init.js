@@ -591,16 +591,28 @@ function init() {
                 updateRelationNode(id,name,item.location.x,item.location.y);
                 break;
             case ERLinkCategory:
-                let cardinality = item.fromText;
-                cardinality = findRelationCode(cardinality);
+                let cardinality = findRelationCode(item.fromText)
                 if(cardinality===undefined) {
                     alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
                     myDiagram.rollbackTransaction();
                 }else {
-                    updateERLink(id,item.from,item.fromText,item.toPort,item.fromPort)
+                    updateEdge(id,item.from,item.fromText,item.toPort,item.fromPort)
                 }
                 break;
             case EWLinkCategory:
+                 const enteredText = e.subject.cc;
+                if (item.relation === enteredText){
+                    // edit the weakEntity name
+                    updateRelationNode(id,enteredText,'','');
+                }else{
+                    let cardinality = findRelationCode(item.fromText)
+                    if(cardinality===undefined) {
+                        alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
+                        myDiagram.rollbackTransaction();
+                    }else {
+                        updateEdge(id,item.from,item.fromText,default_null,default_null)
+                    }
+                }
             default:break;
         }
     });

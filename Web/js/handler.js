@@ -56,18 +56,3 @@ function handleDeleteOtherEntity(id,name,category){
     });
     return is_success;
 }
-
-//TODO UpdateEWLINK handle found the changed Text either card/node name
-function handleUpdateEWLink(id){
-    // TODO：EWLink应该有name
-    const linkNode = myDiagram.findLinkForKey(id);
-
-    let is_success = deleteRelationNode(id,linkNode.name);
-    const firstEdge = linkNode.edgeIDFirst;
-    const secondEdge = linkNode.edgeIDSecond;
-    // delete relation node in backend
-    //delete edges
-    is_success = deleteEdge(firstEdge) && is_success;
-    is_success = deleteEdge(secondEdge) && is_success;
-    return is_success;
-}
