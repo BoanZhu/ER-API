@@ -64,7 +64,7 @@
             <if test="gmtModified != null">
                 and gmt_modified = #{gmtModified,jdbcType=DATETIME}
             </if>
-            and is_delete = #{isDelete,jdbcType=TINYINT}
+            and is_delete = 0
         </where>
     </select>
 
@@ -153,9 +153,6 @@
             </if>
             <if test="cardinality != null">
                 cardinality = #{cardinality,jdbcType=SMALLINT},
-            </if>
-            <if test="isDelete != null">
-                is_delete = #{isDelete,jdbcType=TINYINT},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT} and is_delete = 0
