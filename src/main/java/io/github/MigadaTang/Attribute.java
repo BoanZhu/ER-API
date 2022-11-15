@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
-@JsonSerialize(using = AttributeSerializer.class)
 public class Attribute {
     private Long ID;
     private Long belongObjID;

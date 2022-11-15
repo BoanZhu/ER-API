@@ -22,13 +22,12 @@
   }, {
     "name" : "manager",
     "entityType" : "SUBSET",
-    "belongStrongEntity" : "person",
     "attributeList" : [ {
       "name" : "mobile number",
       "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : false
-    } ]
-  } ],
-  "relationshipList" : [ ]
+    } ],
+    "belongStrongEntity" : "person"
+  } ]
 }

@@ -168,8 +168,11 @@ public class TestTransform {
 //                "sa", "");
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "jdbc:postgresql://db.doc.ic.ac.uk:5432/wh722",
 //                "wh722", "4jC@A3528>0N6");
-        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722",
-                "wh722", "4jC@A3528>0N6");
+//        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722",
+//                "wh722", "4jC@A3528>0N6");
+        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wt22",
+                "wt22", "22V**66+C5JPu");
         resultState.getData();
+        System.out.println(resultState.getData().toString());
     }
 }

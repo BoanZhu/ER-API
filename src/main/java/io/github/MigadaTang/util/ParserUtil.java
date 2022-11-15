@@ -42,7 +42,7 @@ public class ParserUtil {
             for (ColumnDTO column : tableDTO.getColumnDTOList()) {
                 if (!foreignTableList.contains(column.getForeignKeyTable())) {
                     foreignTableList.add(column.getForeignKeyTable());
-                    EntityWithCardinality entityWithCardinality = new EntityWithCardinality(tableDTOEntityMap.get(tableDTO.getId()), Cardinality.ZeroToMany);
+                    EntityWithCardinality entityWithCardinality = new EntityWithCardinality(tableDTOEntityMap.get(column.getForeignKeyTable()), Cardinality.ZeroToMany);
                     entityWithCardinalityList.add(entityWithCardinality);
                 }
             }
@@ -65,21 +65,26 @@ public class ParserUtil {
             int pkIsFk = 0;
             int fkNum = 0;
             Set<Long> fkTables = new HashSet<>();
+            Long fkTableId = null;
             for (ColumnDTO columnDTO : strongEntity.getColumnDTOList()) {
                 if (columnDTO.isForeign()) {
                     fkNum++;
                     fkTables.add(columnDTO.getForeignKeyTable());
-                    if (columnDTO.isPrimary())
+                    if (columnDTO.isPrimary()) {
                         pkIsFk++;
+                        fkTableId = columnDTO.getForeignKeyTable();
+                    }
                 }
             }
 
-            if (pkIsFk == strongEntity.getPrimaryKey().size() && fkTables.size() == 1) {
+            if (pkIsFk == strongEntity.getPrimaryKey().size() && fkTables.size() == 1 && pkIsFk > 0) {
+                strongEntity.setBelongStrongTableID(fkTableId);
                 possibleSubsetSet.add(strongEntity);
                 continue;
             }
             if (pkIsFk > 0 && fkTables.size() == 1) {
                 possibleWeakEntitySet.add(strongEntity);
+                strongEntity.setBelongStrongTableID(fkTableId);
                 continue;
             }
 

@@ -26,7 +26,6 @@ import java.util.List;
 
 @Getter
 @JsonDeserialize(using = SchemaDeserializer.class)
-@JsonSerialize(using = SchemaSerializer.class)
 public class Schema {
     private Long ID;
     private String name;
@@ -207,8 +206,7 @@ public class Schema {
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json;
         try {
-            json = objectMapper.writeValueAsString(this);
-//            json = ow.writeValueAsString(this);
+            json = ow.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
