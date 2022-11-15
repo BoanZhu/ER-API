@@ -53,7 +53,7 @@ function init() {
             allowDelete: true,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.ForceDirectedLayout, {isInitial: true, isOngoing: false}),
+            layout: $(go.LayeredDigraphLayout, {isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
             "clickCreatingTool.archetypeNodeData": {name: "New Entity", category:entityNodeCategory, from: true, to: true},
@@ -356,7 +356,7 @@ function init() {
         new go.Binding("location", "location").makeTwoWay(),
         // textbox
         $(go.Panel,"Auto",
-            {row: 0, column: 0, name: "AttributeName"},
+            {row: 0, column: 1, name: "AttributeName"},
             $(go.TextBlock,{
                     font: "bold 12px monospace",
                     margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
@@ -366,7 +366,7 @@ function init() {
             )
         ),
         $(go.Panel,"Table",
-            {row: 0, column: 1, name: "MAINBODY"},
+            {row: 0, column: 0, name: "MAINBODY"},
             $(go.Panel,"Auto",
                 {row: 1, column: 1},
                 $(go.Shape, "Circle",
@@ -553,7 +553,7 @@ function init() {
     function changedSelection(e){
         var tmpNodes = new go.List();
         myDiagram.nodes.each(function (node) {
-            if (node.data.category === "Attribute" && node.isSelected) {
+            if ((node.data.category === "Attribute"||node.data.category==="relation_attribute") && node.isSelected) {
                 tmpNodes.push(node);
                 document.getElementById('infoDraggableHandle').style.display = "block";
                 document.getElementById('AttributeIndo').style.display = "block";

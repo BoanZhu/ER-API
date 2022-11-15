@@ -181,7 +181,6 @@ Relation Node functions
 //get relation_id
 function getRelationId(id){
     return parseInt(id.substr(id.indexOf(("_"))+1));
-
 }
 
 //create Relation Node API:done Test: done
@@ -317,7 +316,7 @@ function deleteEdge(id){
     console.log(id);
     let is_success = true;
     let Obj ={
-        id: id
+        edgeID: id
     }
     Obj = JSON.stringify(Obj);
     $.ajax({
@@ -501,7 +500,7 @@ function addAttr(){
         // var angle = Math.random()*Math.PI*2;
         // pos.x+=Math.cos(angle)*120;
         // pos.y+=Math.sin(angle)*120;
-        pos.x-=120;
+        pos.x+=120;
         // decide the attribute position
         // save key
         var connectedAttr = [];
@@ -522,7 +521,7 @@ function addAttr(){
                 "dataType": tmp.data.dataType,
                 "isPrimary": tmp.data.isPrimary,
                 "nullable": tmp.data.allowNotNull,
-                "aimPort": 3,
+                "aimPort": 4,
                 "layoutInfo": {
                     "layoutX": tmp.data.location.x,
                     "layoutY": tmp.data.location.y
@@ -564,7 +563,7 @@ function addAttr(){
                 "dataType": 1, // default
                 "isPrimary": false,
                 "nullable": false,
-                "aimPort": 3,
+                "aimPort": 4,
                 "layoutInfo": {
                     "layoutX": pos.x.toFixed(1),
                     "layoutY": pos.y.toFixed(1)
@@ -579,7 +578,7 @@ function addAttr(){
                 "dataType": 1, // default
                 "isPrimary": true,
                 "nullable": false,
-                "aimPort": 3,
+                "aimPort": 4,
                 "layoutInfo": {
                     "layoutX": pos.x.toFixed(1),
                     "layoutY": pos.y.toFixed(1)
@@ -609,7 +608,7 @@ function addAttr(){
                         var link = {
                             from:myDiagram.model.getKeyForNodeData(selectedNode.part.data),
                             to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink",
-                            fromPort:3,toPort:5
+                            fromPort:4,toPort:5
                         };
                         myDiagram.model.addLinkData(link);
                         save();
@@ -627,7 +626,6 @@ function addAttr(){
 // set value
 function modifyAttributeClick() {
     var tmpNodes = new go.List();
-    myDiagram.startTransaction("edit attributes");
     myDiagram.nodes.each(function (node) {
         if (node.isSelected) {
             tmpNodes.push(node);
@@ -658,7 +656,6 @@ function modifyAttributeClick() {
         }
 
     });
-    myDiagram.commitTransaction("edit attributes");
 }
 
 //SUBMIT updates on attributes
@@ -705,8 +702,6 @@ function modifyAttribute(){
     //update link with the entity
     node.findLinksBetween(myDiagram.findNodeForKey(node.data.parentId)).each(l=>l.data.to=node.data.key);
     // const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
-    save();
-    load();
 
     var info ={
         "attributeID": dbId,
@@ -735,6 +730,8 @@ function modifyAttribute(){
         success : function(result) {
             if(result.code === 0) {
                 console.log(result);
+                save();
+                load();
             }
         }, error : function() {
             console.log("update fail");
@@ -782,7 +779,7 @@ function createWeakEntity(){
         var pos = selectedEntity.location.copy();
         var angle = Math.random()*Math.PI/2;
         pos.x+=Math.cos(Math.random()*Math.PI*2)*120;
-        pos.y-=Math.sin(angle)*200;
+        pos.y-=Math.sin(angle)*280;
         weakEntityData.location = pos;
         weakEntityData.parentId = selectedEData.key;
         const schemaID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
@@ -891,7 +888,7 @@ function createSubset(){
         subsetData.parentId = selectedEData.key;
         //todo: need id from backend
         var info = {
-            "name": subsetData.name,
+            "subsetName": subsetData.name,
             "belongStrongEntityID": subsetData.parentId,
             "aimPort": 2,
             "schemaID": schemaID,
@@ -903,7 +900,7 @@ function createSubset(){
         info = JSON.stringify(info);
         $.ajax({
             type : "POST",
-            url: "http://146.169.52.81:8080/er/entity/create_strong",
+            url: "http://146.169.52.81:8080/er/entity/create_subset",
             headers: { "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
             traditional : true,

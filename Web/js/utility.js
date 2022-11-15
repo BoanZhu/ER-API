@@ -616,11 +616,20 @@ function getSchema(id) {
         "  \"copiesArrays\": true,\n" +
         "  \"copiesArrayObjects\": true,\n" +
         "  \"nodeDataArray\": [],\n" +
-        "  \"linkDataArray\": []}"
+        "  \"linkDataArray\": []}";
+    const x = go.GraphObject.make;
     indexDiagram.model = new go.GraphLinksModel(
         {
             copiesArrays: true,
             copiesArrayObjects: true,
+            allowDelete: false,
+            allowCopy: false,
+            initialAutoScale: go.Diagram.Uniform,
+            layout: x(go.LayeredDigraphLayout, {isInitial: true, isOngoing: false}),
+        });
+    indexDiagram.model = new go.GraphLinksModel(
+        { linkFromPortIdProperty: "fromPort",
+            linkToPortIdProperty: "toPort",
             nodeDataArray: [],
             linkDataArray: []
         });
@@ -642,7 +651,7 @@ function getSchema(id) {
                 function (entityNode){
                 // add entity node
                 var entityData = {key:entityNode.id,name:entityNode.name,category:ENTITYTYPE[entityNode.entityType],
-                    from:true, to:true,"category":"entity"};
+                    from:true, to:true};
                 if(entityNode.layoutInfo!==null){
                         entityData.location = {"class": "go.Point", "x": entityNode.layoutInfo.layoutX, "y": entityNode.layoutInfo.layoutY};
                 }
@@ -651,21 +660,25 @@ function getSchema(id) {
                 }
                 indexDiagram.model.addNodeData(entityData);
                 if(entityNode.entityType!==3){
+                    //weak and strong entity
                     attributeList=entityNode.attributeList;
                     attributeList.forEach(
                         function (attributeNode){
                         // add attribute node
                         var attributeNodeData = {"name":attributeNode.name,"category":"Attribute",
                             "dataType":attributeNode.dataType,"parentId":entityNode.id,"allowNotNull":entityNode.nullable,
-                            "isPrimary":attributeNode.isPrimary,"key":attributeNode.id+"_"+attributeNode.name,"underline":attributeNode.isPrimary};
+                            "isPrimary":attributeNode.isPrimary,"key":attributeNode.id+"_"+attributeNode.name,"underline":attributeNode.isPrimary,
+                            "allowNotNull":attributeNode.nullable};
                         if(attributeNode.layoutInfo!==null){
                             attributeNodeData.location={"class":"go.Point","x":attributeNode.layoutInfo.layoutX,"y":attributeNode.layoutInfo.layoutY};
                         }
                         indexDiagram.model.addNodeData(attributeNodeData);
                         // add link between node and attribute
                         //todo 万一老师说可以乱挪attribute，那么entity给的port在json中放哪里
-                        var linkData = {"from":entityData.key,"to":attributeNodeData.key,"category":"normalLink","fromPort":entityNode.aimPort,"toPort":5}
-                            indexDiagram.model.addLinkData(linkData);
+                            // all attribute is from the left of the node(default)
+                        var linkData = {"from":entityData.key,"to":attributeNodeData.key,"category":"normalLink","fromPort":4,"toPort":5}
+                        if(attributeNode.aimPort!==-1){linkData.fromPort=attributeNode.aimPort;}
+                        indexDiagram.model.addLinkData(linkData);
                     });
                 }
             });
@@ -686,10 +699,19 @@ function getSchema(id) {
                     }
                     indexDiagram.model.addNodeData(relationNodeData);
                     // 2 or more links
+                    var i=1;
                     edgeList.forEach(
                         function (edge){
                             var edgeLinkData = {"from":edge.entityID,"to":relationNodeData.key,"fromText":findRelationName(edge.cardinality),
-                                "category":"entityLink","fromPort":edge.portAtEntity,"toPort":edge.portAtRelationship};
+                                "category":"entityLink"};
+                            if(edge.portAtEntity!==-1&&edge.portAtRelationship!==-1){
+                                edgeLinkData.fromPort=edge.portAtEntity;
+                                edgeLinkData.toPort=edge.portAtRelationship;
+                            }else{
+                                edgeLinkData.fromPort=4;
+                                edgeLinkData.toPort=i;
+                                i=(i+1)%4+1;
+                            }
                             indexDiagram.model.addLinkData(edgeLinkData);
                         }
                     );
@@ -697,19 +719,22 @@ function getSchema(id) {
                     const relationAttributeList = relationNode.attributeList;
                     relationAttributeList.forEach(
                         function (relationAttributeNode){
-                        // node
-                        var rAttrNodeData = {"name":relationNode.name,"category":"relation_attribute",
-                            "dataType":relationAttributeNode.dataType,"parentId":relationNodeData.key,
-                            "allowNotNull":relationAttributeNode.nullable,"key":relationAttributeNode.id+"_"+relationAttributeNode.name};
-                        if(relationAttributeNode.layoutInfo!==null){
-                            rAttrNodeData.location={"class":"go.Point","x":relationAttributeNode.layoutInfo.layoutX,"y":relationAttributeNode.layoutInfo.layoutY};
-                        }
-                        // link
-                        var linkNodeData = {"from":relationNodeData.key,"to":rAttrNodeData.key,"category":"normalLink",
-                            "fromPort":relationAttributeNode.aimPort,"toPort":5};
+                            // node
+                            var rAttrNodeData = {"name":relationAttributeNode.name,"category":"relation_attribute",
+                                "dataType":relationAttributeNode.dataType,"parentId":relationNodeData.key,
+                                "allowNotNull":relationAttributeNode.nullable,"key":relationAttributeNode.id+"_"+relationAttributeNode.name,
+                                "isPrimary":false,"underline":false};
+                            if(relationAttributeNode.layoutInfo!==null){
+                                rAttrNodeData.location={"class":"go.Point","x":relationAttributeNode.layoutInfo.layoutX,"y":relationAttributeNode.layoutInfo.layoutY};
+                            }
+                            // link
+                            var linkNodeData = {"from":relationNodeData.key,"to":rAttrNodeData.key,"category":"normalLink","toPort":5};
+                            if(relationAttributeNode.aimPort!==-1){
+                                linkNodeData.fromPort = relationAttributeNode.aimPort;
+                            }else{linkNodeData.fromPort = 4;}
                             indexDiagram.model.addNodeData(rAttrNodeData);
                             indexDiagram.model.addLinkData(linkNodeData);
-                    });
+                        });
                 }
                 // strong entity and weak entity
                 if(firstType === "weakEntity" || secondType === "weakEntity"){
@@ -719,8 +744,14 @@ function getSchema(id) {
                     // only preview, no need for primary key
                     var linkData = {"from":edgeList[1-tmp].entityID,"to":weakEntityNode.key,"toText":findRelationName(edgeList[tmp].cardinality),
                         "fromText":findRelationName(edgeList[1-tmp].cardinality),"relation":relationNode.name,"category":"weakLink",
-                        "fromPort":edgeList[1-tmp].portAtEntity,"toPort":edgeList[1-tmp].portAtEntity,"key":relationNode.id,
-                        "edgeIDFirst":edgeList[0].ID,"edgeIDSecond":edgeList[1].ID};
+                        "key":relationNode.id,"edgeIDFirst":edgeList[1-tmp].ID,"edgeIDSecond":edgeList[tmp].ID};
+                    if(edgeList[1-tmp].portAtEntity!==-1&&edgeList[tmp].portAtEntity!==-1){
+                        linkData.fromPort=edgeList[1-tmp].portAtEntity;
+                        linkData.toPort = edgeList[tmp].portAtEntity;
+                    }else {
+                        linkData.fromPort=1;
+                        linkData.toPort = 2;
+                    }
                     indexDiagram.model.addLinkData(linkData);
                 }
                 // strong entity and subset
@@ -728,9 +759,14 @@ function getSchema(id) {
                     // add parentID to subset node
                     var tmp = firstType==="subset"?0:1;
                     var subsetNode = indexDiagram.findNodeForKey(edgeList[tmp].entityID);
-                    var linkData ={"from":edgeList[1-tmp].entityID,"to":subsetNode.key,
-                        "category":"subsetLink","fromPort":edgeList[1-tmp].portAtEntity,"toPort":edgeList[tmp].portAtEntity};
-                    indexDiagram.model.addLinkData(linkData);
+                    var subLinkData ={"from":edgeList[1-tmp].entityID,"to":subsetNode.key,
+                        "category":"subsetLink","toPort":5};
+                    if(edgeList[1-tmp].portAtEntity!==-1){
+                        subLinkData.fromPort=edgeList[1-tmp].portAtEntity;
+                    }else{
+                        subLinkData.fromPort=1;
+                    }
+                    indexDiagram.model.addLinkData(subLinkData);
                 }
                 else{
                     // console.log("load fails");
