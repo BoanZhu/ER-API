@@ -110,7 +110,7 @@ const PORTS = {
 Link validation for index model
  */
 function isLinkValidIndex(fromNode, fromGraphObject, toNode, toGraphObject) {
-    return fromNode.findLinksTo(toNode).count + toNode.findLnksTo(fromNode).count < 1;}
+    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;}
 
 /*
 define model
@@ -123,7 +123,7 @@ function defineModel(){
             allowDelete: false,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.ForceDirectedLayout, {isInitial: true, isOngoing: false}),
+            layout: $(go.LayeredDigraphLayout, {isInitial: true, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
             "undoManager.isEnabled": false,
@@ -400,7 +400,7 @@ function defineModel(){
         new go.Binding("location", "location").makeTwoWay(),
         // textbox
         $(go.Panel,"Auto",
-            {row: 0, column: 0, name: "AttributeName"},
+            {row: 0, column: 1, name: "AttributeName"},
             $(go.TextBlock,{
                     font: "bold 12px monospace",
                     margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
@@ -410,7 +410,7 @@ function defineModel(){
             )
         ),
         $(go.Panel,"Table",
-            {row: 0, column: 1, name: "MAINBODY"},
+            {row: 0, column: 0, name: "MAINBODY"},
             $(go.Panel,"Auto",
                 {row: 1, column: 1},
                 $(go.Shape, "Circle",
@@ -736,7 +736,7 @@ function appendModel(){
                  options += '<option id =' + views[i].id+ '  value="' + views[i].name + '" />';
 
         }
-             console.log(options)
+             // console.log(options)
             document.getElementById('viewsList').innerHTML = options;
         }, error : function(result) {
             console.log("false");
