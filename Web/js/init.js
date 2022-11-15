@@ -1,4 +1,4 @@
-var entityCounter = 90000090;
+var entityCounter = 9000890;
 var attributeCounter = 5;
 var weakEntityCounter = 4;
 var subsetCounter = 0;
@@ -795,13 +795,13 @@ function init() {
                 temporal_is_success = handleDeleteRelationNode(id,name,false);
                 break;
             case weakEntityNodeCategory:
-                temporal_is_success = handleDeleteOtherEntity(id,name);
+                temporal_is_success = handleDeleteOtherEntity(id,name,weakEntityNodeCategory);
                 break;
             case "Attribute":
                 temporal_is_success = deleteAttribute(id)
                 break;
             case subsetEntityNodeCategory:
-                temporal_is_success = handleDeleteOtherEntity(id,name);
+                temporal_is_success = handleDeleteOtherEntity(id,name,subsetEntityNodeCategory);
                 break;
             case ERLinkCategory:
                 temporal_is_success = deleteEdge(id);

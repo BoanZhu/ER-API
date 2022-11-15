@@ -169,7 +169,7 @@ Relation Node functions
 
 //get relation_id
 function getRelationId(id){
-    return id.substr(id.indexOf(("_"))+1);
+    return parseInt(id.substr(id.indexOf(("_"))+1));
 
 }
 
@@ -294,6 +294,7 @@ function deleteRelationNode(id,name) {
 
 // delete edge
 function deleteEdge(id){
+    console.log(id);
     let is_success = true;
     let Obj ={
         id: id
@@ -325,8 +326,8 @@ function createEdge(entityID,relationshipID,cardinality,portAtEntity,portAtRelat
 
     let id;
     relationshipID = getRelationId(relationshipID);
-
     cardinality=findRelationCode(cardinality);
+
     let Obj = JSON.stringify({
         entityID: entityID,
         relationshipID: relationshipID,
@@ -348,6 +349,7 @@ function createEdge(entityID,relationshipID,cardinality,portAtEntity,portAtRelat
             id = -1;
         }
     });
+    console.log(id);
     return id;
 }
 

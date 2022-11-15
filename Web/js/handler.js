@@ -4,7 +4,7 @@ function handleDeleteRelationNode(id, name, fromEntity) {
     const relationNode = myDiagram.findNodeForKey(id)
     if(!fromEntity){
         relationNode.findLinksConnected().each(function (link){
-            is_success = deleteEdge(link.key);
+            is_success = deleteEdge(link.data.key);
         });
     }
     return is_success;
@@ -44,15 +44,15 @@ function handleDeleteOtherEntity(id,name,category){
     const node = myDiagram.findNodeForKey(id)
     if (category===weakEntityNodeCategory){
         node.findLinksConnected().each(function (link){
-            is_success = deleteRelationNode(link.key) && is_success;
-            is_success = deleteEdge(link.edgeIDFirst) && is_success;
-            is_success = deleteEdge(link.edgeIDSecond) && is_success;
+            is_success = deleteRelationNode(link.data.key) && is_success;
+            is_success = deleteEdge(link.data.edgeIDFirst) && is_success;
+            is_success = deleteEdge(link.data.edgeIDSecond) && is_success;
         });
         return is_success;
     }
     // delete links connected
     node.findLinksConnected().each(function (link){
-        is_success = deleteEdge(link.key) && is_success;
+        is_success = deleteEdge(link.data.key) && is_success;
     });
     return is_success;
 }
