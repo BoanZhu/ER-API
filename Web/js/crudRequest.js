@@ -57,7 +57,7 @@ function deleteSchema() {
 Entity functions
 */
 
-//create Strong entity: API:done Test:
+//create Strong entity: API:done Test: done
 function createStrongEntity(name,layoutX,layoutY){
     let id;
     const Obj =JSON.stringify({
@@ -152,15 +152,23 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
 Relation Node functions
  */
 
-//create Relation Node API:done Test:
+//get relation_id
+function getRelationId(id){
+    return id.substr(id.indexOf(("_"))+1);
+
+}
+
+//create Relation Node API:done Test: done
 function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
                             firstEntityPort,firstEntityRelationPort,
                             secondCardinality, secondEntityPort,secondEntityRelationPort,
                             layoutX,layoutY) {
     let id;
+    firstCardinality = findRelationCode(firstCardinality);
+    secondCardinality = findRelationCode(secondCardinality);
     let Obj = {
-        "schemaID": 1,
-        "name": "attribute name",
+        "schemaID": schemaID,
+        "name": name,
         "entityWithCardinalityList": [
             {
                 "entityID": firstEntityID,
@@ -168,6 +176,7 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
                 "portAtRelationship": firstEntityRelationPort,
                 "portAtEntity": firstEntityPort
             },
+
             {
                 "entityID": secondEntityID,
                 "cardinality": secondCardinality,
@@ -198,9 +207,9 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
     return id;
 }
 
-//update the name of the relation API done Test:
+//update the name of the relation API done Test://TODO:internal server error
 function updateRelationNode(id,name,layoutX,layoutY) {
-    const dbId = id.replace(/[^\d]/g)[0];
+    const dbId = getRelationId(id)
     let Obj ={
         "relationshipID": dbId,
         "name": name,
@@ -229,7 +238,7 @@ function updateRelationNode(id,name,layoutX,layoutY) {
 
 //delete Relation Node API:done Test:
 function deleteRelationNode(id,name) {
-    id = id.substr(id.indexOf(("_"))+1);
+    id = getRelationId(id);
     let is_success = true;
     let Obj ={
         id: id
@@ -279,10 +288,14 @@ function deleteEdge(id){
 ER relation functions;
  */
 
-//create Entity_relation link API:done Test:
-function createERLink(entityID,relationshipID,cardinality,portAtEntity,portAtRelationship,ERLinkCreateVerify){
+//create Entity_relation link API:done Test:done
+function createEdge(entityID,relationshipID,cardinality,portAtEntity,portAtRelationship,ERLinkCreateVerify){
     if(ERLinkCreateVerify.has(entityID+relationshipID)) return;
+
     let id;
+    relationshipID = getRelationId(relationshipID);
+
+    cardinality=findRelationCode(cardinality);
     let Obj = JSON.stringify({
         entityID: entityID,
         relationshipID: relationshipID,

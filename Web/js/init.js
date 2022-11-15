@@ -1,4 +1,4 @@
-var entityCounter = 0;
+var entityCounter = 20000;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;
@@ -11,7 +11,7 @@ const subsetEntityNodeCategory = "subset"
 /*
 lINk
  */
-const ERLinkCard = "1:1"
+const ERLinkCard = "1:N"
 const ERLinkCategory = "entityLink";
 const EWLinkCategory = "weakLink";
 const relationNodeName = "test";
@@ -666,7 +666,7 @@ function init() {
                     e.newValue.fromPort = is_node1_relation ? toPort : fromPort;
                     e.newValue.toPort = is_node1_relation ? fromPort : toPort;
 
-                    const er_id = createERLink(e.newValue.from, e.newValue.to, ERLinkCard,
+                    const er_id = createEdge(e.newValue.from, e.newValue.to, ERLinkCard,
                         e.newValue.fromPort, e.newValue.toPort,ERLinkCreateVerify);
                     if (er_id === -1) {
                         alert("can't create relation between this entity and this relation");
