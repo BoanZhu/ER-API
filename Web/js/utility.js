@@ -130,14 +130,14 @@ function defineModel(){
             allowDelete: false,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.ForceDirectedLayout, {isInitial: true, isOngoing: false}),
+            layout: $(go.LayeredDigraphLayout, {isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
             "undoManager.isEnabled": false,
             "maxSelectionCount": 1,
             "linkingTool.linkValidation": isLinkValidIndex,
             allowMove:false
-        })
+        });
 
     go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
         var geo = new go.Geometry();

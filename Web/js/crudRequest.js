@@ -638,7 +638,7 @@ function modifyAttributeClick() {
         // get attribute key and entity id
         document.getElementById("selectedAttributeKey").value = selectedAData.key;
         document.getElementById("entityNameInfo").value = myDiagram.findNodeForKey(selectedAData.parentId).data.name;
-        if(part.data.category === 'Attribute'){
+        if(part.data.category === 'Attribute'||part.data.category === 'relation_attribute'){
             document.getElementById("attributeNameInfo").value = selectedAData.name;
             //
             const dataType = parseInt(selectedAData.dataType);
@@ -654,7 +654,6 @@ function modifyAttributeClick() {
                 allowNotNull.checked = false;
             }else {allowNotNull.checked = true;}
         }
-
     });
 }
 
