@@ -10,7 +10,6 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import java.util.List;
 
 @Getter
-@JsonIgnoreProperties({"id", "relatedObjID", "relatedObjType", "height", "width"})
 public class LayoutInfo {
     private Long ID;
     private Long belongObjID;

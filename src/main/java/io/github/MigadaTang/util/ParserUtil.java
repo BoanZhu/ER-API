@@ -193,8 +193,9 @@ public class ParserUtil {
             List<RelationshipEdge> relationshipEdges = relationship.getEdgeList();
             List<Attribute> relationshipAttributeList = relationship.getAttributeList();
 
-            if (relationshipEdges.size() == 1) {
-                throw new ParseException("The relationship only reference to one table. Relationship ID: " + relationship.getID());
+            if (relationshipEdges.size() <= 1) {
+                continue;
+//                throw new ParseException("The relationship only reference to one table. Relationship ID: " + relationship.getID());
             }
 
             // weak entity
