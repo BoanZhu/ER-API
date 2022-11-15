@@ -128,7 +128,6 @@ function getSchema(id) {
         type : "GET",
         async: false,
         url : "http://146.169.52.81:8080/er/schema/get_by_id",
-        // url:"http://127.0.0.1:8000/er/schema/get_by_id",
         // headers: { "Access-Control-Allow-Origin": "*",
         //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         withCredentials:false,
@@ -146,9 +145,10 @@ function getSchema(id) {
                 function (entityNode){
                 // add entity node
                 var entityData = {key:entityNode.id,name:entityNode.name,category:ENTITYTYPE[entityNode.entityType],
-                    //todo：layout condition
-                    location: {"class": "go.Point", "x": entityNode.layoutInfo.layoutX, "y": entityNode.layoutInfo.layoutY},
-                    from:true, to:true,"category":"entity"}
+                    from:true, to:true,"category":"entity"};
+                if(entityNode.layoutInfo!==null){
+                        entityData.location = {"class": "go.Point", "x": entityNode.layoutInfo.layoutX, "y": entityNode.layoutInfo.layoutY};
+                }
                 if(ENTITYTYPE[entityNode.entityType]!=="entity"){
                     entityData.parentId = entityNode.strongEntityID;
                 }
@@ -181,8 +181,10 @@ function getSchema(id) {
                 if((firstType === "entity" && secondType=== "entity")||firstType === "" && secondType=== ""){
                     // create relation node
                     var relationNodeData = {"key":"relation_"+relationNode.id,"name":relationNode.name,
-                        "location":{"class":"go.Point","x":relationNode.layoutInfo.layoutX,"y":relationNode.layoutInfo.layoutY},
                         "category":"relation","from":true,"to":true};
+                    if(relationNode.layoutInfo!==null){
+                        relationNodeData.location={"class":"go.Point","x":relationNode.layoutInfo.layoutX,"y":relationNode.layoutInfo.layoutY};
+                    }
                     myDiagram.model.addNodeData(relationNodeData);
                     // 2 or more links
                     edgeList.forEach(
@@ -198,9 +200,11 @@ function getSchema(id) {
                         function (relationAttributeNode){
                         // node
                         var rAttrNodeData = {"name":relationNode.name,"category":"relation_attribute",
-                            "location":{"class":"go.Point","x":relationAttributeNode.layoutInfo.layoutX,"y":relationAttributeNode.layoutInfo.layoutY},
                             "dataType":relationAttributeNode.dataType,"parentId":relationNodeData.key,
                             "allowNotNull":relationAttributeNode.nullable,"key":relationAttributeNode.id+"_"+relationAttributeNode.name};
+                        if(relationAttributeNode.layoutInfo!==null){
+                            rAttrNodeData.location={"class":"go.Point","x":relationAttributeNode.layoutInfo.layoutX,"y":relationAttributeNode.layoutInfo.layoutY};
+                        }
                         // link
                         var linkNodeData = {"from":relationNodeData.key,"to":rAttrNodeData.key,"category":"normalLink",
                             "fromPort":relationAttributeNode.aimPort,"toPort":5};

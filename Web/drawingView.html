@@ -55,7 +55,7 @@
         <tr><td><button onclick="modifyAttribute()">submit</button></td></tr>
         </tbody></table></div>
     </div><br>
-    <!--TODO:这个operation是什么-->
+
     <div class="handle ui-draggable-handle">Operations</div><br>
     <button style="text-align: center" class="blue">export json</button><br /><br />
     <button style="text-align: center" class="blue">load json</button><br /><br />
@@ -113,7 +113,11 @@
         document.getElementById("mySavedModel").value = myDiagram.model.toJson();
         myDiagram.isModified = false;
     }
+
+    var id = parseInt(location.href.substring(location.href.indexOf("id=")+3));
     //load model when first accessing the page
+    document.getElementById("mySavedModel").value = getSchema(id);
     window.addEventListener('DOMContentLoaded', init);
+    // load();
 </script>
 </html>

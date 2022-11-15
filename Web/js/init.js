@@ -53,7 +53,7 @@ function init() {
             allowDelete: true,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.ForceDirectedLayout, {isInitial: false, isOngoing: false}),
+            layout: $(go.ForceDirectedLayout, {isInitial: true, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
             "clickCreatingTool.archetypeNodeData": {name: "New Entity", category:entityNodeCategory, from: true, to: true},
