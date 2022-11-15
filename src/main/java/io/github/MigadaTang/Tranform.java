@@ -8,6 +8,7 @@ import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.util.DatabaseUtil;
 import io.github.MigadaTang.util.GenerationSqlUtil;
+import io.github.MigadaTang.util.ParserUtil;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -44,9 +45,9 @@ public class Tranform {
             conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
             List<TableDTO> tableDTOList = DatabaseUtil.getDatabseInfo(conn);
+            DatabaseUtil.closeDBConnection(conn);
             Schema schema = ParserUtil.parseAttributeToRelationship(tableDTOList);
 
-            DatabaseUtil.closeDBConnection(conn);
             resultState = ResultState.ok(schema);
         } catch (DBConnectionException | SQLException | ParseException e) {
             resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
