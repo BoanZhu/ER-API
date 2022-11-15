@@ -374,7 +374,7 @@ function createEdge(entityID,relationshipID,cardinality,portAtEntity,portAtRelat
 }
 
 //update Entity_relation API done: test:
-function updateEdge(relationshipEdgeID,entityID,cardinality,portAtRelationship,portAtEntity){
+function updateEdge(relationshipEdgeID,entityID,cardinality,portAtRelationship,portAtEntity,portChange){
     cardinality = findRelationCode(cardinality);
     if (cardinality === undefined){
 
@@ -385,8 +385,32 @@ function updateEdge(relationshipEdgeID,entityID,cardinality,portAtRelationship,p
         cardinality:cardinality,
         portAtRelationship:portAtRelationship,
         portAtEntity:portAtEntity
+    };
+
+    if(portChange){
+        Obj ={
+            relationshipEdgeID: relationshipEdgeID,
+            cardinality:cardinality,
+            portAtRelationship:portAtRelationship,
+            portAtEntity:portAtEntity
+        };
+
     }
-    Obj = JSON.stringify(Obj);
+
+    var cache = [];
+    var info = JSON.stringify(Obj, function(key, value) {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) {
+                // remove
+                return;
+            }
+            // collect all values
+            cache.push(value);
+        }
+        return value;
+    });
+    cache = null;
+
     $.ajax({
         async: false,
         type : "POST",
@@ -394,7 +418,7 @@ function updateEdge(relationshipEdgeID,entityID,cardinality,portAtRelationship,p
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         url : "http://146.169.52.81:8080/er/relationship/update_edge",
         contentType:"application/json",
-        data : Obj,
+        data : info,
         success : function() {
         }, error : function() {
             myDiagram.rollbackTransaction();
@@ -549,7 +573,7 @@ function addAttr(){
         }else {
             attributeData.category = "relation_attribute";
             info = {
-                "belongObjID": attributeData.parentId,
+                "belongObjID": getRelationId(attributeData.parentId),
                 "belongObjType": 3,
                 "name": attributeData.name,
                 "dataType": 1, // default

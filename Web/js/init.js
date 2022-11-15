@@ -1,4 +1,4 @@
-var entityCounter = 119;
+var entityCounter = 46;
 var attributeCounter = 1;
 var weakEntityCounter = 1;
 var subsetCounter = 1;
@@ -600,7 +600,7 @@ function init() {
                     alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
                     myDiagram.rollbackTransaction();
                 }else {
-                    updateEdge(id,item.from,item.fromText,item.toPort,item.fromPort)
+                    updateEdge(id,item.from,item.fromText,item.toPort,item.fromPort,false)
                 }
                 break;
             case EWLinkCategory:
@@ -614,7 +614,7 @@ function init() {
                         alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
                         myDiagram.rollbackTransaction();
                     }else {
-                        updateEdge(id,item.from,item.fromText,default_null,default_null)
+                        updateEdge(id,item.from,item.fromText,default_null,default_null,false)
                     }
                 }
             default:break;

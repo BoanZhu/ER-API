@@ -72,27 +72,27 @@ function handleChangPort(link,toEnd,newPort){
     const toCategory = toNode.category;
     if(fromCategory=== relationNodeCategory && !toEnd){
         //relation-attribute link port change only change the from port (Attribute only have one port) todo attribute
-        is_success = modifyAttribute();
+        modifyAttribute();
     }else if(fromCategory === subsetEntityNodeCategory && toEnd){
         // subset-entity link port change only change the to port (subset only have one port)
-        updateEntity(fromNode.key,fromCategory.name,fromNode.layout.x,fromNode.layout.y,newPort,true,true);
+        updateEntity(fromNode.key,fromCategory.name,fromNode.data.location.x,fromNode.data.location.y,newPort,true,true);
     }else if(toCategory==="Attribute"&&!toEnd){
         //entity-attribute link port change only change the from port (Attribute only have one port) todo attribute
         modifyAttribute();
     }
     else if(toCategory===weakEntityNodeCategory && !toEnd){
-        updateEdge(link.edgeIDFirst,link.from,link.fromText,default_null,newPort);
+        updateEdge(link.edgeIDFirst,link.from,link.fromText,default_null,newPort,true);
     }
     else if(toCategory===weakEntityNodeCategory && toEnd){
-        updateEdge(link.edgeIDSecond,link.to,link.toText,newPort,default_null);
+        updateEdge(link.edgeIDSecond,link.to,link.toText,newPort,default_null,true);
     }
     else if(toCategory===relationNodeCategory && toEnd){
         //relation-entity chang the to side
-        updateEdge(link.key,link.from,link.fromText,newPort,link.fromPort);
+        updateEdge(link.key,link.from,link.fromText,newPort,link.fromPort,true);
     }
     else if(toCategory===relationNodeCategory && !toEnd){
         //relation-entity chang the to side
-        updateEdge(link.key,link.from,link.fromText,link.toPort,newPort);
+        updateEdge(link.key,link.from,link.fromText,link.toPort,newPort,true);
     }
 
     return is_success;
