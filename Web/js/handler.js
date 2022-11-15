@@ -56,3 +56,32 @@ function handleDeleteOtherEntity(id,name,category){
     });
     return is_success;
 }
+
+//function handle process from port change, toEnd true, then change the toPort
+/*
+from: entity    entity        entity    relation     subset
+to: relation  weak entity   attribute   attribute    entity
+ */
+function handleChangPort(link,toEnd,newPort){
+    const fromNode =  myDiagram.findNodeForKey(link.from);
+    const toNode =  myDiagram.findNodeForKey(link.to);
+    let is_success = true;
+    const fromCategory= fromNode.category;
+    const toCategory = toNode.category;
+    if(fromCategory=== relationNodeCategory && !toEnd){
+        //relation-attribute link port change only change the from port (Attribute only have one port) todo attribute
+        is_success = modifyAttribute();
+    }else if(fromCategory === subsetEntityNodeCategory && toEnd){
+        // subset-entity link port change only change the to port (subset only have one port)
+        updateEntity(fromNode.key,fromCategory.name,fromNode.layout.x,fromNode.layout.y,newPort,true,true);
+    }else if(toCategory==="Attribute"&&!toEnd){
+        //entity-attribute link port change only change the from port (Attribute only have one port) todo attribute
+        modifyAttribute();
+    }else if(toCategory===weakEntityNodeCategory && !toEnd){
+    }else if(toCategory===weakEntityNodeCategory && toEnd){
+    }else if(toCategory===relationNodeCategory && toEnd){
+    }else if(toCategory===relationNodeCategory && !toEnd){
+    }
+
+    return is_success;
+}
