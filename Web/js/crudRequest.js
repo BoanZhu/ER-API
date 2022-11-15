@@ -128,7 +128,7 @@ function handleDeleteStrongEntity(id,name){
 }
 
 
-// weak entity
+// weak entity abd subset
 function handleDeleteOtherEntity(id,name,category){
     return true;
     //delete this strong entity
@@ -356,7 +356,6 @@ function createERLink(entityID,relationshipID,cardinality,portAtEntity,portAtRel
 
 //delete Entity_relation link API: Test:
 function deleteERLink(id){
-    return true;
     let is_success = true;
     let Obj ={
         id: id
@@ -408,21 +407,25 @@ function updateERLink(relationshipEdgeID,entityID,cardinality,portAtRelationship
 }
 
 /*
-    delete EW Link
+    EW Link
  */
 function deleteEWLink(id){
+    // TODO：EWLink应该有name
     const linkNode = myDiagram.findLinkForKey(id);
+
+    let is_success = deleteRelationNode(id,linkNode.name);
     const firstEdge = linkNode.edgeIDFirst;
     const secondEdge = linkNode.edgeIDSecond;
     // delete relation node in backend
-    is_success = deleteRelationNode(id,"");
     //delete edges
     is_success = deleteEdge(firstEdge) && is_success;
     is_success = deleteEdge(secondEdge) && is_success;
     return is_success;
 }
 
-// delete edge
+//TODO UpdateEWLINK handle found the changed Text either card/node name
+
+// delete edge TODO：重复将ERLink改成Edge
 function deleteEdge(id){
     let is_success = true;
     let Obj ={
@@ -447,12 +450,16 @@ function deleteEdge(id){
 /*
     attribute functions
 */
+
+//delete attribute
 function deleteAttribute(id){
-    var info ={
+    let is_success = true;
+    let info ={
         "id":id
     }
     info = JSON.stringify(info);
     $.ajax({
+        async: false,
         type : "POST",
         // url : "http://127.0.0.1:8000/er/attribute/delete",
         url: "http://146.169.52.81:8080/er/attribute/delete",
@@ -468,10 +475,12 @@ function deleteAttribute(id){
                 console.log(result);
             }
         }, error : function() {
-            console.log("delete fail");
+            is_success = false;
         }
     });
+    return is_success;
 }
+
 // add attribute
 function addAttr(){
     var tmpNodes = new go.List();
@@ -740,6 +749,7 @@ function modifyAttribute(){
 /*
 operations about weak entity
  */
+
 //create weak entity
 function createWeakEntity(){
     var tmpNodes = new go.List();
@@ -849,6 +859,7 @@ function createWeakEntity(){
 operations about subset
  */
 
+//TODO:add link API与subset API中间经过了catch Transaction 检查事件发生的先后顺序
 function createSubset(){
     var tmpNodes = new go.List();
     myDiagram.startTransaction("add subset");
