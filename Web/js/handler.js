@@ -77,10 +77,20 @@ function handleChangPort(link,toEnd,newPort){
     }else if(toCategory==="Attribute"&&!toEnd){
         //entity-attribute link port change only change the from port (Attribute only have one port) todo attribute
         modifyAttribute();
-    }else if(toCategory===weakEntityNodeCategory && !toEnd){
-    }else if(toCategory===weakEntityNodeCategory && toEnd){
-    }else if(toCategory===relationNodeCategory && toEnd){
-    }else if(toCategory===relationNodeCategory && !toEnd){
+    }
+    else if(toCategory===weakEntityNodeCategory && !toEnd){
+        updateEdge(link.edgeIDFirst,link.from,link.fromText,default_null,newPort);
+    }
+    else if(toCategory===weakEntityNodeCategory && toEnd){
+        updateEdge(link.edgeIDSecond,link.to,link.toText,newPort,default_null);
+    }
+    else if(toCategory===relationNodeCategory && toEnd){
+        //relation-entity chang the to side
+        updateEdge(link.key,link.from,link.fromText,newPort,link.fromPort);
+    }
+    else if(toCategory===relationNodeCategory && !toEnd){
+        //relation-entity chang the to side
+        updateEdge(link.key,link.from,link.fromText,link.toPort,newPort);
     }
 
     return is_success;
