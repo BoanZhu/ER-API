@@ -123,7 +123,7 @@ function defineModel(){
             allowDelete: false,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.ForceDirectedLayout, {isInitial: false, isOngoing: false}),
+            layout: $(go.ForceDirectedLayout, {isInitial: true, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
             "undoManager.isEnabled": false,
@@ -606,6 +606,8 @@ function showSchema() {
     // Get the model name and id from list
     const id = getId();
     myDiagram.model = go.Model.fromJson(getSchema(id));
+    console.log(getSchema(id));
+
 }
 
 

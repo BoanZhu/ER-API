@@ -159,9 +159,11 @@ function getSchema(id) {
                         function (attributeNode){
                         // add attribute node
                         var attributeNodeData = {"name":attributeNode.name,"category":"Attribute",
-                            "location":{"class":"go.Point","x":attributeNode.layoutInfo.layoutX,"y":attributeNode.layoutInfo.layoutY},
                             "dataType":attributeNode.dataType,"parentId":entityNode.id,"allowNotNull":entityNode.nullable,
                             "isPrimary":attributeNode.isPrimary,"key":attributeNode.id+"_"+attributeNode.name,"underline":attributeNode.isPrimary};
+                        if(attributeNode.layoutInfo!==null){
+                            attributeNodeData.location={"class":"go.Point","x":attributeNode.layoutInfo.layoutX,"y":attributeNode.layoutInfo.layoutY};
+                        }
                         myDiagram.model.addNodeData(attributeNodeData);
                         // add link between node and attribute
                         //todo 万一老师说可以乱挪attribute，那么entity给的port在json中放哪里
