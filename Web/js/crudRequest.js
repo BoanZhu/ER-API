@@ -143,7 +143,7 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
         contentType: "application/json",
         success : function() {
         }, error : function() {
-            alert("update subset"+name+"fail!");
+            alert("update entity"+name+"fail!");
             myDiagram.rollbackTransaction();
 
         }
@@ -211,7 +211,7 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
 }
 
 //update the name of the relation API done Test://TODO:internal server error
-function updateRelationNode(id,name,layoutX,layoutY) {
+function updateRelationNode(id,name,layoutX,layoutY, isWeakEntity) {
     const dbId = getRelationId(id)
     let Obj ={
         "relationshipID": dbId,
@@ -221,6 +221,13 @@ function updateRelationNode(id,name,layoutX,layoutY) {
             "layoutY": layoutY
         }
     }
+    if(isWeakEntity){
+        Obj ={
+            "relationshipID": dbId,
+            "name": name,
+        }
+    }
+
     Obj = JSON.stringify(Obj);
     $.ajax({
         async: false,

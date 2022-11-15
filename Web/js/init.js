@@ -1,4 +1,4 @@
-var entityCounter = 9000000;
+var entityCounter = 90000090;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;
@@ -588,7 +588,7 @@ function init() {
                 updateEntity(id,name,item.location.x,item.location.y,false,true);
                 break;
             case relationNodeCategory:
-                updateRelationNode(id,name,item.location.x,item.location.y);
+                updateRelationNode(id,name,item.location.x,item.location.y,false);
                 break;
             case ERLinkCategory:
                 let cardinality = findRelationCode(item.fromText)
@@ -603,7 +603,7 @@ function init() {
                  const enteredText = e.subject.cc;
                 if (item.relation === enteredText){
                     // edit the weakEntity name
-                    updateRelationNode(id,enteredText,'','');
+                    updateRelationNode(id,enteredText,'','',true);
                 }else{
                     let cardinality = findRelationCode(item.fromText)
                     if(cardinality===undefined) {
@@ -643,7 +643,7 @@ function init() {
                 updateEntity(id,name,item.location.x,item.location.y,default_null,false,true);
                 break;
             case relationNodeCategory:
-                updateRelationNode(id,name,item.location.x,item.location.y);
+                updateRelationNode(id,name,item.location.x,item.location.y,false);
                 break;
             case "Attribute"://delete attribute
                 //TODO:function update Attribute
@@ -749,14 +749,18 @@ function init() {
                     }
                 }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkFromPortId"){
-                //TODO:This is handle the ERLink from port change including chang other entity
-
-
-                console.log("port from");
+                const is_success= handleChangPort(e.xn,false);
+                if (!is_success){
+                    alert("change from port API fail!");
+                    myDiagram.rollbackTransaction();
+                }
             }
             else if (e.change === go.ChangedEvent.Property && e.modelChange === "linkToPortId"){
-                //TODO:This is handle the ERLink to port change including chang other entity
-                console.log("port from");
+                const is_success= handleChangPort(e.xn,true);
+                if (!is_success){
+                    alert("change to port API fail!");
+                    myDiagram.rollbackTransaction();
+                }
             }
         });
     });
@@ -774,7 +778,7 @@ function init() {
     });
 
     var temporal_counter = 0;
-    let is_success = true;
+    let temporal_is_success = true;
 
     myDiagram.addDiagramListener('SelectionDeleting',function(e) {
         const category = e.subject.first().qb.category;
@@ -782,25 +786,25 @@ function init() {
 
         switch(category) {
             case entityNodeCategory:
-                is_success = handleDeleteStrongEntity(id,name);
+                temporal_is_success = handleDeleteStrongEntity(id,name);
                 break;
             case relationNodeCategory:
-                is_success = handleDeleteRelationNode(id,name,false);
+                temporal_is_success = handleDeleteRelationNode(id,name,false);
                 break;
             case weakEntityNodeCategory:
-                is_success = handleDeleteOtherEntity(id,name);
+                temporal_is_success = handleDeleteOtherEntity(id,name);
                 break;
             case "Attribute":
-                is_success = deleteAttribute(id)
+                temporal_is_success = deleteAttribute(id)
                 break;
             case subsetEntityNodeCategory:
-                is_success = handleDeleteOtherEntity(id,name);
+                temporal_is_success = handleDeleteOtherEntity(id,name);
                 break;
             case ERLinkCategory:
-                is_success = deleteEdge(id);
+                temporal_is_success = deleteEdge(id);
                 break;
             case EWLinkCategory:
-                is_success = deleteEWLink(id);
+                temporal_is_success = deleteEWLink(id);
                 break;
             default:break;
         }
@@ -813,8 +817,8 @@ function init() {
 
 
     myDiagram.addDiagramListener('SelectionDeleted',function(e) {
-        if(!is_success) myDiagram.rollbackTransaction();
-        is_success=true;
+        if(!temporal_is_success) myDiagram.rollbackTransaction();
+        temporal_is_success=true;
     });
 
     /*
