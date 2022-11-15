@@ -76,14 +76,29 @@
 
 <textarea id="mySavedModel" style="width:100%;height:240px">
 { "class": "GraphLinksModel",
-  "copiesArrays": true,
-  "copiesArrayObjects": true,
+  "linkFromPortIdProperty": "fromPort",
+  "linkToPortIdProperty": "toPort",
   "nodeDataArray": [
-{"name":"New Entity440","from":true,"to":true,"key":495,"location":{"class":"go.Point","x":-274.44921875,"y":-18.9140625}},
-{"name":"New Entity441","from":true,"to":true,"key":496,"location":{"class":"go.Point","x":-19.77734375,"y":-168.80859375}},
-{"name":"New Entity443","from":true,"to":true,"key":497,"location":{"class":"go.Point","x":-260.62890625,"y":-268.921875}}
+{"name":"New Entity0","category":"entity","from":true,"to":true,"key":745,"location":{"class":"go.Point","x":-153.83984375,"y":71.05859375}},
+{"name":"NewA0","category":"Attribute","location":{"class":"go.Point","x":-273.83984375,"y":71.05859375},"dataType":1,"parentId":745,"allowNotNull":false,"isPrimary":true,"key":"4_NewA0","underline":true},
+{"name":"NewA1","category":"Attribute","location":{"class":"go.Point","x":-273.83984375,"y":83.55859375},"dataType":1,"parentId":745,"allowNotNull":false,"isPrimary":false,"key":"902_NewA1"},
+{"name":"Subset0","category":"subset","location":{"class":"go.Point","x":-269.00079814449714,"y":204.92844684864258},"parentId":745,"key":296},
+{"name":"WeakE0","category":"weakEntity","primaryKey":"NewA0","location":{"class":"go.Point","x":-55.16122550945032,"y":-117.17285555010068},"parentId":745,"key":773},
+{"name":"New Entity1","category":"entity","from":true,"to":true,"key":307,"location":{"class":"go.Point","x":27.67578125,"y":218.8203125}},
+{"key":"relation_648","name":"test","location":{"class":"go.Point","x":-63.08203125,"y":144.939453125},"category":"relation","from":true,"to":true},
+{"name":"New Entity2","category":"entity","from":true,"to":true,"key":921,"location":{"class":"go.Point","x":127.34375,"y":62.109375}},
+{"name":"NewA2","category":"relation_attribute","location":{"class":"go.Point","x":-183.08203125,"y":144.939453125},"dataType":1,"parentId":"relation_648","allowNotNull":false,"key":"113_NewA2"}
 ],
-  "linkDataArray": [{"from":497,"to":496,"relation":"has","fromText":"1:1","key":120}]}
+  "linkDataArray": [
+{"from":745,"to":"4_NewA0","category":"normalLink","fromPort":3,"toPort":5},
+{"from":745,"to":"902_NewA1","category":"normalLink","fromPort":3,"toPort":5},
+{"from":296,"to":745,"category":"subsetLink","fromPort":5,"toPort":2},
+{"from":745,"to":773,"toText":"1:1","fromText":"0:N","relation":"for","category":"weakLink","fromPort":1,"toPort":2,"key":675,"edgeIDFirst":126,"edgeIDSecond":646},
+{"from":745,"to":"relation_648","fromText":"1:1","category":"entityLink","fromPort":4,"toPort":1},
+{"from":307,"to":"relation_648","fromText":"1:1","category":"entityLink","fromPort":1,"toPort":4},
+{"from":921,"to":"relation_648","fromPort":3,"toPort":4,"fromText":"1:N","category":"entityLink","key":833},
+{"from":"relation_648","to":"113_NewA2","category":"normalLink","fromPort":3,"toPort":5}
+]}
 </textarea>
 
 <footer>ERAPI.Copyright ©2021 | Imperial college london-Group project</footer>

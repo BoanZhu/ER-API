@@ -1,4 +1,4 @@
-var entityCounter = 2000988;
+var entityCounter = 9000000;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;

@@ -123,7 +123,7 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
         });
     }
     //if no port pass -1
-    let Obj =JSON.stringify({
+    let Obj ={
         "entityID": entityID,
         "name": name,
         "aimPort":fromPort,
@@ -132,7 +132,8 @@ function updateEntity(entityID,name,layoutX,layoutY,fromPort,isPortChange,isSubs
             layoutY: layoutY
         }
 
-    });
+    }
+    Obj = JSON.stringify(Obj);
     $.ajax({
         type : "POST",
         url : "http://146.169.52.81:8080/er/entity/update",
