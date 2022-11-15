@@ -45,8 +45,8 @@ function handleDeleteOtherEntity(id,name,category){
     if (category===weakEntityNodeCategory){
         node.findLinksConnected().each(function (link){
             is_success = deleteRelationNode(link.key) && is_success;
-            is_success = deleteEdge(link.fromText) && is_success;
-            is_success = deleteEdge(link.toText) && is_success;
+            is_success = deleteEdge(link.edgeIDFirst) && is_success;
+            is_success = deleteEdge(link.edgeIDSecond) && is_success;
         });
         return is_success;
     }

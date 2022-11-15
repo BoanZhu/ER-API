@@ -107,7 +107,7 @@ function deleteEntity(id,name){
         success : function() {
         }, error : function() {
             is_success = false;
-            alert("can't delete"+ name)
+            alert("can't delete "+ name)
         }
     });
     return is_success;
@@ -406,16 +406,16 @@ function deleteEWLink(id){
 */
 
 //delete attribute
+//TEST DONE
 function deleteAttribute(id){
     let is_success = true;
     let info ={
-        "id":id
+        "id":id.split("_")[0]
     }
     info = JSON.stringify(info);
     $.ajax({
         async: false,
         type : "POST",
-        // url : "http://127.0.0.1:8000/er/attribute/delete",
         url: "http://146.169.52.81:8080/er/attribute/delete",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
@@ -426,7 +426,7 @@ function deleteAttribute(id){
         contentType : 'application/json',
         success : function(result) {
             if(result.code === 0) {
-                console.log(result);
+                console.log("delete attribute");
             }
         }, error : function() {
             is_success = false;
@@ -435,7 +435,7 @@ function deleteAttribute(id){
     return is_success;
 }
 
-// add attribute
+// add attribute TEST:DONE
 function addAttr(){
     var tmpNodes = new go.List();
     var category;
@@ -470,13 +470,13 @@ function addAttr(){
             tmp.data.location.y = pos.y-((connectedAttr.length-1)/2-i)*20;
             tmp.data.location.x = pos.x;
 
-            updateInfo = {
-                "attributeID": tmp.data.key.replace(/[^\d]/g)[0],
-                "name": tmp.data.name,
+            var updateInfo = {
+                "attributeID": tmp.data.key.split("_")[0],
+                // "name": tmp.data.name,
                 "dataType": tmp.data.dataType,
                 "isPrimary": tmp.data.isPrimary,
                 "nullable": tmp.data.allowNotNull,
-                "aimPort": 5,
+                "aimPort": 3,
                 "layoutInfo": {
                     "layoutX": tmp.data.location.x,
                     "layoutY": tmp.data.location.y
@@ -485,8 +485,7 @@ function addAttr(){
             info = JSON.stringify(updateInfo);
             $.ajax({
                 type : "POST",
-                // url : "http://127.0.0.1:8000/er/attribute/update",
-                url: "hhttp://146.169.52.81:8080/er/attribute/update",
+                url: "http://146.169.52.81:8080/er/attribute/update",
                 headers: { "Access-Control-Allow-Origin": "*",
                     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
                 traditional : true,
@@ -499,7 +498,7 @@ function addAttr(){
                         console.log(result);
                     }
                 }, error : function() {
-                    console.log("update in (addAttr) fails");
+                    console.log("update in (addAttr) fails_"+tmp.data.name);
                 }
             });
         }
@@ -519,7 +518,7 @@ function addAttr(){
                 "dataType": 1, // default
                 "isPrimary": false,
                 "nullable": false,
-                "aimPort": 5,
+                "aimPort": 3,
                 "layoutInfo": {
                     "layoutX": pos.x.toFixed(1),
                     "layoutY": pos.y.toFixed(1)
@@ -534,7 +533,7 @@ function addAttr(){
                 "dataType": 1, // default
                 "isPrimary": true,
                 "nullable": false,
-                "aimPort": 5,
+                "aimPort": 3,
                 "layoutInfo": {
                     "layoutX": pos.x.toFixed(1),
                     "layoutY": pos.y.toFixed(1)
@@ -542,25 +541,21 @@ function addAttr(){
             }
 
         }
-        // info = JSON.stringify(info);
-        // $.ajax({
-        //     type : "POST",
-        //     // url : "http://127.0.0.1:8000/er/attribute/create",
-        //     url: "http://146.169.52.81:8080/er/attribute/create",
-        //     headers: { "Access-Control-Allow-Origin": "*",
-        //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        //     traditional : true,
-        //     data : info,
-        //     withCredentials:false,
-        //     contentType : 'application/json',
-        //     dataType:'json',
-        //     success : function(result) {
-        //         if(result.code === 0) {
-        //             $(function(){
-                        var tmp = Math.ceil(Math.random()*1000);
-                        const attributeKey = tmp+"_"+attributeData.name;
-                        // const attributeKey = result.data.id+"_"+attributeData.name;
-                        attributeData.key = attributeKey;
+        info = JSON.stringify(info);
+        $.ajax({
+            type : "POST",
+            url: "http://146.169.52.81:8080/er/attribute/create",
+            headers: { "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            traditional : true,
+            data : info,
+            withCredentials:false,
+            contentType : 'application/json',
+            dataType:'json',
+            success : function(result) {
+                if(result.code === 0) {
+                    $(function(){
+                        attributeData.key = result.data.id+"_"+attributeData.name;
                         myDiagram.model.addNodeData(attributeData);
                         // save();
                         // load();
@@ -571,14 +566,14 @@ function addAttr(){
                             fromPort:3,toPort:5
                         };
                         myDiagram.model.addLinkData(link);
-                        // save();
-                        // load();
-    //                 });
-    //             }
-    //         }, error : function(res) {
-    //             alert("creating attribute fails");
-    //         }
-    //     });
+                        save();
+                        load();
+                    });
+                }
+            }, error : function(res) {
+                alert("creating attribute fails");
+            }
+        });
     });
     myDiagram.commitTransaction("add attributes");
 }
@@ -627,7 +622,7 @@ function modifyAttribute(){
     const isPrimary = document.getElementById("isPrimaryKey").checked;
     const datatype = document.getElementById("datatypeChoices").value;
     const key = document.getElementById("selectedAttributeKey").value;
-    const dbId = key.replace(/[^\d]/g)[0];  // id in database
+    const dbId = key.split("_")[0];  // id in database
     const allowNotNull = document.getElementById("allowNotNull").checked;
     // update model
     //check primary key
@@ -663,7 +658,7 @@ function modifyAttribute(){
     node.data.key = dbId+"_"+node.data.name;
     //update link with the entity
     node.findLinksBetween(myDiagram.findNodeForKey(node.data.parentId)).each(l=>l.data.to=node.data.key);
-    const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
+    // const viewID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
     save();
     load();
 
@@ -673,7 +668,7 @@ function modifyAttribute(){
         "dataType": DATATYPE[datatype],
         isPrimay: isPrimary,
         nullable:allowNotNull,
-        "aimPort": 5,
+        // "aimPort": node.aimPort,  // won't change in submit
         "layoutInfo": {
             layoutX: node.data.location.x.toFixed(1),
             layoutY: node.data.location.y.toFixed(1)
@@ -758,10 +753,10 @@ function createWeakEntity(){
                 "layoutX": pos.x,
                 "layoutY": pos.y
             },
-            "relationshipLayoutInfo": {
-                "layoutX": "",
-                "layoutY": ""
-            }
+            // "relationshipLayoutInfo": {
+            //     "layoutX": "",
+            //     "layoutY": ""
+            // }
         }
         info = JSON.stringify(info);
         $.ajax({
@@ -790,8 +785,8 @@ function createWeakEntity(){
                         toPort:2,//result.data.relationshipEdgeList[1].portAtEntity
                         key:result.data.relationshipID,
                         // key:Math.ceil(Math.random()*1000),
-                        edgeIDFirst:result.data.relationshipEdgeList[0].ID,
-                        edgeIDSecond:result.data.relationshipEdgeList[1].ID
+                        edgeIDFirst:result.data.relationshipEdgeList[0].id,
+                        edgeIDSecond:result.data.relationshipEdgeList[1].id
                         // edgeIDFirst:Math.ceil(Math.random()*1000),
                         // edgeIDSecond:Math.ceil(Math.random()*1000),
                     };
@@ -852,7 +847,7 @@ function createSubset(){
         var info = {
             "name": subsetData.name,
             "belongStrongEntityID": subsetData.parentId,
-            "aimPort": 5,
+            "aimPort": 2,
             "schemaID": schemaID,
             "layoutInfo": {
                 "layoutX": pos.x,

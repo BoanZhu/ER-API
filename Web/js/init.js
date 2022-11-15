@@ -1,6 +1,6 @@
 var entityCounter = 90000090;
-var attributeCounter = 0;
-var weakEntityCounter = 0;
+var attributeCounter = 5;
+var weakEntityCounter = 4;
 var subsetCounter = 0;
 /*
 Node
