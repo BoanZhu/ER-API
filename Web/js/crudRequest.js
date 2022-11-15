@@ -59,11 +59,13 @@ Entity functions
 
 //create Strong entity: API:done Test: done
 function createStrongEntity(name,layoutX,layoutY){
+    // return Math.ceil(Math.random()*1000);
     let id;
     const Obj =JSON.stringify({
         schemaID:schemaID,
         name: name,
-        aimPort: default_null,
+        // aimPort:aimPort,
+        aimPort:1,
         layoutInfo: {
             layoutX: layoutX,
             layoutY: layoutY
@@ -483,10 +485,10 @@ function addAttr(){
             attributeData.isPrimary = false;
             info = {
                 "belongObjID": attributeData.parentId,
-                "belongObjType": 1,
+                "belongObjType": 2,
                 "name": attributeData.name,
                 "dataType": 1, // default
-                "isPrimary": true,
+                "isPrimary": false,
                 "nullable": false,
                 "aimPort": 5,
                 "layoutInfo": {
@@ -498,7 +500,7 @@ function addAttr(){
             attributeData.category = "relation_attribute";
             info = {
                 "belongObjID": attributeData.parentId,
-                "belongObjType": 2,
+                "belongObjType": 3,
                 "name": attributeData.name,
                 "dataType": 1, // default
                 "isPrimary": true,
@@ -511,26 +513,28 @@ function addAttr(){
             }
 
         }
-        info = JSON.stringify(info);
-        $.ajax({
-            type : "POST",
-            // url : "http://127.0.0.1:8000/er/attribute/create",
-            url: "http://146.169.52.81:8080/er/attribute/create",
-            headers: { "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-            traditional : true,
-            data : info,
-            withCredentials:false,
-            contentType : 'application/json',
-            dataType:'json',
-            success : function(result) {
-                if(result.code === 0) {
-                    $(function(){
-                        const attributeKey = result.data.id+"_"+attributeData.name;
+        // info = JSON.stringify(info);
+        // $.ajax({
+        //     type : "POST",
+        //     // url : "http://127.0.0.1:8000/er/attribute/create",
+        //     url: "http://146.169.52.81:8080/er/attribute/create",
+        //     headers: { "Access-Control-Allow-Origin": "*",
+        //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+        //     traditional : true,
+        //     data : info,
+        //     withCredentials:false,
+        //     contentType : 'application/json',
+        //     dataType:'json',
+        //     success : function(result) {
+        //         if(result.code === 0) {
+        //             $(function(){
+                        var tmp = Math.ceil(Math.random()*1000);
+                        const attributeKey = tmp+"_"+attributeData.name;
+                        // const attributeKey = result.data.id+"_"+attributeData.name;
                         attributeData.key = attributeKey;
                         myDiagram.model.addNodeData(attributeData);
-                        save();
-                        load();
+                        // save();
+                        // load();
                         // new link
                         var link = {
                             from:myDiagram.model.getKeyForNodeData(selectedNode.part.data),
@@ -538,14 +542,14 @@ function addAttr(){
                             fromPort:3,toPort:5
                         };
                         myDiagram.model.addLinkData(link);
-                        save();
-                        load();
-                    });
-                }
-            }, error : function(res) {
-                alert("creating attribute fails");
-            }
-        });
+                        // save();
+                        // load();
+    //                 });
+    //             }
+    //         }, error : function(res) {
+    //             alert("creating attribute fails");
+    //         }
+    //     });
     });
     myDiagram.commitTransaction("add attributes");
 }
@@ -650,7 +654,6 @@ function modifyAttribute(){
     info = JSON.stringify(info);
     $.ajax({
         type : "POST",
-        // url : "http://127.0.0.1:8000/er/attribute/update",
         url: "http://146.169.52.81:8080/er/attribute/update",
         headers: { "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
@@ -713,15 +716,15 @@ function createWeakEntity(){
         weakEntityData.location = pos;
         weakEntityData.parentId = selectedEData.key;
         const schemaID = parseInt(location.href.substring(location.href.indexOf("id=")+3));
-        info = {
+        var info = {
             "schemaID": schemaID,
             "weakEntityName": weakEntityData.name,
-            "weakEntityCardinality": defaultWeakToCard,
+            "weakEntityCardinality": findRelationCode(defaultWeakToCard),
             "strongEntityID": weakEntityData.parentId,
-            "strongEntityCardinality": defaultWeakFromCard,
+            "strongEntityCardinality": findRelationCode(defaultWeakFromCard),
             "relationshipName": "has",
-            "portAtRelationship": 1,
-            "portAtEntity": 1,
+            // "portAtRelationship": 1,
+            // "portAtEntity": 1,
             "weakEntityLayoutInfo": {
                 "layoutX": pos.x,
                 "layoutY": pos.y
@@ -732,21 +735,19 @@ function createWeakEntity(){
             }
         }
         info = JSON.stringify(info);
-        // $.ajax({
-        //     type : "POST",
-        //     url : "http://127.0.0.1:8000/er/entity/create_weak_entity",
-        //     // url: "http://146.169.52.81:8080/er/attribute/update",
-        //     headers: { "Access-Control-Allow-Origin": "*",
-        //         "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
-        //     traditional : true,
-        //     data : info,
-        //     withCredentials:false,
-        //     dataType : "json",
-        //     contentType : 'application/json',
-        //     success : function(result) {
-        //         if(result.code === 0) {
-        //             weakEntityData.key = result.data.weakEntityID;
-                        weakEntityData.key = Math.ceil(Math.random()*1000);
+        $.ajax({
+            type : "POST",
+            url: "http://146.169.52.81:8080/er/entity/create_weak_entity",
+            headers: { "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            traditional : true,
+            data : info,
+            withCredentials:false,
+            dataType : "json",
+            contentType : 'application/json',
+            success : function(result) {
+                if(result.code === 0) {
+                    weakEntityData.key = result.data.weakEntityID;
                     myDiagram.model.addNodeData(weakEntityData);
                     // new link
                     var link = {
@@ -758,20 +759,19 @@ function createWeakEntity(){
                         category: EWLinkCategory,
                         fromPort:1, //result.data.relationshipEdgeList[0].portAtEntity
                         toPort:2,//result.data.relationshipEdgeList[1].portAtEntity
-                        // key:result.data.relationshipID,
-                        key:Math.ceil(Math.random()*1000),
-                        //todo 重名？
-                        // edgeIDFirst:result.data.relationshipEdgeList[0].ID,
-                        // edgeIDSecond:result.data.relationshipEdgeList[1].ID
-                        edgeIDFirst:Math.ceil(Math.random()*1000),
-                        edgeIDSecond:Math.ceil(Math.random()*1000),
+                        key:result.data.relationshipID,
+                        // key:Math.ceil(Math.random()*1000),
+                        edgeIDFirst:result.data.relationshipEdgeList[0].ID,
+                        edgeIDSecond:result.data.relationshipEdgeList[1].ID
+                        // edgeIDFirst:Math.ceil(Math.random()*1000),
+                        // edgeIDSecond:Math.ceil(Math.random()*1000),
                     };
                     myDiagram.model.addLinkData(link);
-    //             }
-    //         }, error : function() {
-    //             alert("Creating weak entity fails");
-    //         }
-    //     });
+                }
+            }, error : function() {
+                alert("Creating weak entity fails");
+            }
+        });
     });
     myDiagram.commitTransaction("add weakEntity");
     save();
@@ -811,7 +811,6 @@ function createSubset(){
             alert("the entity doesn't have pk!");
             return;
         }
-        // new weak entity
         var subsetData = {name:"Subset"+weakEntityCounter.toString(),category:subsetEntityNodeCategory};
         subsetCounter++;
         var pos = selectedEntity.location.copy();
@@ -821,22 +820,49 @@ function createSubset(){
         subsetData.location = pos;
         subsetData.parentId = selectedEData.key;
         //todo: need id from backend
-
-        // weakEntityData.key = result.data.id;
-        subsetData.key = Math.ceil(Math.random()*1000);
-        myDiagram.model.addNodeData(subsetData);
-        // save();
-        // load();
-        // new link
-        var link = {
-            from:myDiagram.model.getKeyForNodeData(subsetData),
-            to:myDiagram.model.getKeyForNodeData(selectedEData),category: "subsetLink",
-            fromPort:5,
-            toPort:2
-        };
-        myDiagram.model.addLinkData(link);
+        var info = {
+            "name": subsetData.name,
+            "belongStrongEntityID": subsetData.parentId,
+            "aimPort": 5,
+            "schemaID": schemaID,
+            "layoutInfo": {
+                "layoutX": pos.x,
+                "layoutY": pos.y
+            }
+        }
+        info = JSON.stringify(info);
+        $.ajax({
+            type : "POST",
+            url: "http://146.169.52.81:8080/er/entity/create_strong",
+            headers: { "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
+            traditional : true,
+            data : info,
+            withCredentials:false,
+            dataType : "json",
+            contentType : 'application/json',
+            success : function(result) {
+                if(result.code === 0) {
+                    subsetData.key = result.data.ID;
+                    // subsetData.key = Math.ceil(Math.random()*1000);
+                    myDiagram.model.addNodeData(subsetData);
+                    // new link
+                    var link = {
+                        from:myDiagram.model.getKeyForNodeData(subsetData),
+                        to:myDiagram.model.getKeyForNodeData(selectedEData),category: "subsetLink",
+                        fromPort:5,
+                        toPort:2
+                    };
+                    myDiagram.model.addLinkData(link);
+                }
+            }, error : function() {
+                alert("Creating subset fails");
+            }
+        });
     });
     myDiagram.commitTransaction("add subset");
+    save();
+    load();
 }
 
 /*

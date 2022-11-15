@@ -127,8 +127,8 @@ function getSchema(id) {
     $.ajax({
         type : "GET",
         async: false,
-        // url : "http://146.169.52.81:8080/er/schema/get_by_id",
-        url:"http://127.0.0.1:8000/er/schema/get_by_id",
+        url : "http://146.169.52.81:8080/er/schema/get_by_id",
+        // url:"http://127.0.0.1:8000/er/schema/get_by_id",
         // headers: { "Access-Control-Allow-Origin": "*",
         //     "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         withCredentials:false,

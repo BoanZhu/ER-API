@@ -549,7 +549,7 @@ function init() {
     function changedSelection(e){
         var tmpNodes = new go.List();
         myDiagram.nodes.each(function (node) {
-            if (node.data.category == "Attribute" && node.isSelected) {
+            if (node.data.category === "Attribute" && node.isSelected) {
                 tmpNodes.push(node);
                 document.getElementById('infoDraggableHandle').style.display = "block";
                 document.getElementById('AttributeIndo').style.display = "block";

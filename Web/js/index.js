@@ -660,7 +660,7 @@ deleteModel():
 get view id and view name
 output: model list will be refresh
 */
-function deleteModel() {
+function deleteSchema() {
     const selected_name = $('#vInput').val();
     const id = $('#viewsList option[value="' + selected_name +'"]').attr('id');
 
@@ -729,7 +729,7 @@ function appendModel(){
         data : {},
         success : function(result) {
             let options='';
-            const views= result.data.viewList;
+            const views= result.data.schemaList;
              for (let i = 0; i < views.length; i++) {
                  options += '<option id =' + views[i].id+ '  value="' + views[i].name + '" />';
 
