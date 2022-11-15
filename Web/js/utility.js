@@ -130,7 +130,7 @@ function defineModel(){
             allowDelete: false,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.LayeredDigraphLayout, {isInitial: false, isOngoing: false}),
+            layout: $(go.LayeredDigraphLayout, {isInitial: true, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
             "undoManager.isEnabled": false,
@@ -233,7 +233,7 @@ function defineModel(){
                         strokeWidth: 3,
                         fromLinkableDuplicates: false, toLinkableDuplicates: false
                     }),
-                $(go.TextBlock, textStyle(),
+                $(go.TextBlock, textStyleFake(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
@@ -282,7 +282,7 @@ function defineModel(){
                 $(go.Panel, "Table",
                     { margin: 8, stretch: go.GraphObject.Fill },
                     $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-                    $(go.TextBlock,textStyle(),
+                    $(go.TextBlock,textStyleFake(),
                         {
                             row: 0,
                             alignment: go.Spot.Center,
@@ -327,7 +327,7 @@ function defineModel(){
                         strokeWidth: 3,
                         fromLinkableDuplicates: false, toLinkableDuplicates: false,
                     }),
-                $(go.TextBlock, textStyle(),
+                $(go.TextBlock, textStyleFake(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
@@ -372,7 +372,7 @@ function defineModel(){
                         fromLinkableDuplicates: false, toLinkableDuplicates: false
                     },
                     new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-                $(go.TextBlock,textStyle(),
+                $(go.TextBlock,textStyleFake(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
@@ -477,7 +477,7 @@ function defineModel(){
                 stroke: "gray",
                 width: 100,
                 height: 40}),
-            $(go.TextBlock,  textStyle(),
+            $(go.TextBlock,  textStyleFake(),
                 {   margin: 3,
                     textAlign: "center",
                     segmentIndex: -2,
@@ -488,7 +488,7 @@ function defineModel(){
                 },
                 new go.Binding("text", "relation").makeTwoWay())
         ),
-        $(go.TextBlock, textStyle(), // the "from" label
+        $(go.TextBlock, textStyleFake(), // the "from" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
@@ -498,7 +498,7 @@ function defineModel(){
                 segmentOrientation: go.Link.OrientUpright
             },
             new go.Binding("text", "fromText").makeTwoWay()),
-        $(go.TextBlock, textStyle(), // the "to" label
+        $(go.TextBlock, textStyleFake(), // the "to" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
@@ -523,7 +523,7 @@ function defineModel(){
         },
         $(go.Shape,  // the link shape
             {stroke: colors.lightblue, strokeWidth: 2.5 }),
-        $(go.TextBlock, textStyle(), // the "from" label
+        $(go.TextBlock, textStyleFake(), // the "from" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
@@ -565,7 +565,7 @@ function defineModel(){
         },
         $(go.Shape,  // the link shape
             {stroke: "#000000", strokeWidth: 2.5 }),
-        $(go.TextBlock, textStyle(), // the "from" label
+        $(go.TextBlock, textStyleFake(), // the "from" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
@@ -616,16 +616,6 @@ function getSchema(id) {
         "  \"copiesArrayObjects\": true,\n" +
         "  \"nodeDataArray\": [],\n" +
         "  \"linkDataArray\": []}";
-    const x = go.GraphObject.make;
-    indexDiagram.model = new go.GraphLinksModel(
-        {
-            copiesArrays: true,
-            copiesArrayObjects: true,
-            allowDelete: false,
-            allowCopy: false,
-            initialAutoScale: go.Diagram.Uniform,
-            layout: x(go.LayeredDigraphLayout, {isInitial: true, isOngoing: false}),
-        });
     indexDiagram.model = new go.GraphLinksModel(
         { linkFromPortIdProperty: "fromPort",
             linkToPortIdProperty: "toPort",
