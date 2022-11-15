@@ -3,8 +3,10 @@ package io.github.MigadaTang.util;
 import io.github.MigadaTang.bean.dto.transform.ColumnDTO;
 import io.github.MigadaTang.bean.dto.transform.TableDTO;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class GenerationSqlUtil {
 
@@ -15,7 +17,13 @@ public class GenerationSqlUtil {
             sqlStatement.append("CREATE TABLE `").append(tableDTO.getName()).append("` (\n");
             List<ColumnDTO> columnDTOList = tableDTO.getColumnDTOList();
             StringBuilder constraintStatement = new StringBuilder("");
+            Set<String> columnNames = new HashSet<>();
             for (ColumnDTO columnDTO : columnDTOList) {
+                if (columnNames.contains(columnDTO.getName()))
+                    columnDTO.setName(columnDTO.getName() + "1");
+                else
+                    columnNames.add(columnDTO.getName());
+
                 sqlStatement.append("    `").append(columnDTO.getName()).append("` ")
                         .append(columnDTO.getDataType().toUpperCase())
                         .append(" ").append(columnDTO.nullable()).append(",\n");

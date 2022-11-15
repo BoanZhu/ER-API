@@ -161,7 +161,8 @@ public class TestTransform {
 
 
     @Test
-    public void testRSToERModel() {
+    public void testRSToERModel() throws IOException, SQLException {
+        ER.initialize(true);
         Tranform tranform = new Tranform();
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.H2, "jdbc:h2:tcp://localhost/~/test",
 //                "sa", "");
