@@ -71,13 +71,13 @@ function handleChangPort(link,toEnd,newPort){
     const fromCategory= fromNode.category;
     const toCategory = toNode.category;
     if(fromCategory=== relationNodeCategory && !toEnd){ //relation to attribute
-        //relation-attribute link port change only change the from port (Attribute only have one port) todo attribute
+        //relation-attribute link port change only change the from port (Attribute only have one port)
         modifyAttributeToPort(toNode,newPort);
     }else if(fromCategory === subsetEntityNodeCategory && toEnd){
         // subset-entity link port change only change the to port (subset only have one port)
         updateEntity(fromNode.key,fromCategory.name,fromNode.data.location.x,fromNode.data.location.y,newPort,true,true);
     }else if(toCategory==="Attribute"&&!toEnd){
-        //entity-attribute link port change only change the from port (Attribute only have one port) todo attribute
+        //entity-attribute link port change only change the from port (Attribute only have one port)
         modifyAttributeToPort(toNode,newPort);
     }
     else if(toCategory===weakEntityNodeCategory && !toEnd){
