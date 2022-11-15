@@ -73,7 +73,7 @@ function isAllowReconnect(existinglink, newnode, newport, toend){
         else if (newNodeCategory !=='entity' && !toend){
             return false;
         }
-        else if(toend&&newNodeCategory==='relation'){
+        else if(toend&&newNodeCategory==='relation'&&newnode.key!==existinglink.toNode.key){
             //the number of connected entity
              let counter = 0;
             existinglink.toNode.findNodesConnected().each(function (node){

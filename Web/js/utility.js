@@ -145,6 +145,7 @@ function getSchema(id) {
                 function (entityNode){
                 // add entity node
                 var entityData = {key:entityNode.id,name:entityNode.name,category:ENTITYTYPE[entityNode.entityType],
+                    //todo：layout condition
                     location: {"class": "go.Point", "x": entityNode.layoutInfo.layoutX, "y": entityNode.layoutInfo.layoutY},
                     from:true, to:true}
                 if(ENTITYTYPE[entityNode.entityType]!=="entity"){

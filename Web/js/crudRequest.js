@@ -179,7 +179,7 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
                             firstEntityPort,firstEntityRelationPort,
                             secondCardinality, secondEntityPort,secondEntityRelationPort,
                             layoutX,layoutY) {
-    let id;
+    let idList = new Array();
     firstCardinality = findRelationCode(firstCardinality);
     secondCardinality = findRelationCode(secondCardinality);
     let Obj = {
@@ -215,12 +215,21 @@ function createRelationNode(name,firstEntityID,secondEntityID,firstCardinality,
         contentType:"application/json",
         data : Obj,
         success : function(result) {
-            id=result.data.id;
+            idList.push(result.data.id);
+            const firstEdgeID = firstEntityID === result.data.relationshipEdgeList[0].entityID ?
+                result.data.relationshipEdgeList[0].id :  result.data.relationshipEdgeList[1].id
+
+            idList.push(firstEdgeID);
+
+            const SecondEdgeID = firstEntityID === result.data.relationshipEdgeList[0].entityID ?
+                result.data.relationshipEdgeList[1].id :  result.data.relationshipEdgeList[0].id
+
+            idList.push(SecondEdgeID);
         }, error : function() {
-            id = -1
+            idList.push(-1)
         }
     });
-    return id;
+    return idList;
 }
 
 //update the name of the relation API done Test://TODO:internal server error

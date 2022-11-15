@@ -1,4 +1,4 @@
-var entityCounter = 9002;
+var entityCounter = 24;
 var attributeCounter = 5;
 var weakEntityCounter = 4;
 var subsetCounter = 0;
@@ -701,13 +701,13 @@ function init() {
                     console.log(toPort);
                     const relationNodeX = (node1.location.x + node2.location.x) / 2;
                     const relationNodeY = (node1.location.y + node2.location.y) / 2;
-                    let relation_id = createRelationNode(relationNodeName,node1.key,node2.key,
+                    let relation_id_list = createRelationNode(relationNodeName,node1.key,node2.key,
                         ERLinkCard,fromPort,toPort,ERLinkCard,toPort,fromPort, relationNodeX,relationNodeY);
-                    if (relation_id === -1) {
+                    if (relation_id_list[0] === -1) {
                         alert("can't build relation between two entity");
                         return;
                     } else {
-                        relation_id = prefixRelationNodeKey+relation_id;
+                        const relation_id = prefixRelationNodeKey+relation_id_list[0];
                         ERLinkCreateVerify.add(node1.key+relation_id);
                         ERLinkCreateVerify.add(node2.key+relation_id);
 
@@ -723,12 +723,12 @@ function init() {
                         myDiagram.model.addLinkData(
                             {
                                 "from": node1.key, "to": relation_id, fromText: ERLinkCard,
-                                category: ERLinkCategory, fromPort: fromPort, toPort: toPort
+                                category: ERLinkCategory, fromPort: fromPort, toPort: toPort, key: relation_id_list[1]
                             });
                         myDiagram.model.addLinkData(
                             {
                                 "from": node2.key, "to": relation_id, fromText: ERLinkCard, category: ERLinkCategory,
-                                fromPort: toPort, toPort: fromPort
+                                fromPort: toPort, toPort: fromPort, key: relation_id_list[2]
                             });
                     }
                     save();
