@@ -79,7 +79,7 @@ function isAllowReconnect(existinglink, newnode, newport, toend){
             existinglink.toNode.findNodesConnected().each(function (node){
                 if (node.category ===entityNodeCategory) counter = counter+1;
             });
-            if (counter>=2){
+            if (counter<=2){
                 const deteleNode = myDiagram.findNodeForKey(existinglink.toNode.key);
                 go.RelinkingTool.prototype.reconnectLink.call(this, existinglink, newnode, newport, toend);
                 myDiagram.startTransaction();
