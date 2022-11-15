@@ -3,13 +3,14 @@ package io.github.MigadaTang.mapper;
 import io.github.MigadaTang.ER;
 import io.github.MigadaTang.TestCommon;
 import io.github.MigadaTang.entity.RelationshipDO;
-import io.github.MigadaTang.util.RandomUtils;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class testRelationMapper {
@@ -53,5 +54,14 @@ public class testRelationMapper {
         ER.relationshipMapper.insert(relationshipDO);
         List<RelationshipDO> search = ER.relationshipMapper.selectByRelationship(relationshipDO);
         Assert.assertEquals(ER.relationshipMapper.deleteByID(search.get(0).getID()), 1);
+    }
+
+    @Test
+    public void testCountEntityNum() {
+        List<Long> entityIDs = new ArrayList<>();
+        entityIDs.add(438L);
+        entityIDs.add(439L);
+        List<CaseInsensitiveMap<String, Object>> list = ER.relationshipEdgeMapper.groupCountEntityNum(entityIDs);
+
     }
 }

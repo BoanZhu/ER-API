@@ -56,15 +56,15 @@ public class TestRelationship {
 
         // check duplicate link entity
         assertThrows(ERException.class, () -> relationship.linkEntity(classroom, Cardinality.ZeroToMany));
-        // todo finish check duplicate
-//        assertThrows(ERException.class, () -> testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
+        // check duplicate
+        assertThrows(ERException.class, () -> testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
     }
 
     @Test
     public void deleteRelationshipTest() {
         Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Assert.assertNotNull(relationship);
-        relationship.deleteDB();
+        testSchema.deleteRelationship(relationship);
 
         assertThrows(ERException.class, () -> Relationship.queryByID(relationship.getID()));
         for (RelationshipEdge edge : relationship.getEdgeList()) {

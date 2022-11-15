@@ -54,17 +54,14 @@ public class TestEntity {
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
         Entity seniorTeacher = testSchema.addSubset("senior_teacher", teacher);
-        seniorTeacher.deleteDB();
+        testSchema.deleteEntity(seniorTeacher);
         assertThrows(ERException.class, () -> Entity.queryByID(seniorTeacher.getID()));
 
         ImmutablePair<Entity, Relationship> pair = testSchema.addWeakEntity("card", teacher, "swipe", Cardinality.OneToMany, Cardinality.OneToMany);
-        pair.left.deleteDB();
-        assertThrows(ERException.class, () -> Entity.queryByID(pair.left.getID()));
-        assertThrows(ERException.class, () -> Relationship.queryByID(pair.right.getID()));
-        assertThrows(ERException.class, () -> Relationship.queryByID(pair.right.getEdgeList().get(0).getID()));
+        testSchema.deleteEntity(pair.left);
 
-        teacher.deleteDB();
-        assertThrows(ERException.class, () -> Entity.queryByID(teacher.getID()));
+        assertThrows(ERException.class, () -> Entity.queryByID(pair.left.getID()));
+        assertThrows(ERException.class, () -> RelationshipEdge.queryByID(pair.right.getEdgeList().get(0).getID()));
     }
 
     @Test
