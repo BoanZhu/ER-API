@@ -48,7 +48,10 @@ public class Tranform {
             DatabaseUtil.closeDBConnection(conn);
             Schema schema = ParserUtil.parseAttributeToRelationship(tableDTOList);
 
-            resultState = ResultState.ok(schema);
+            schema = ER.querySchemaByID(schema.getID());
+            String renderJSONStatement = schema.toRenderJSON();
+
+            resultState = ResultState.ok(renderJSONStatement);
         } catch (DBConnectionException | SQLException | ParseException e) {
             resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
             return resultState;

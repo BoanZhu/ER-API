@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.common.EntityWithCardinality;
@@ -13,6 +15,7 @@ import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.entity.SchemaDO;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.serializer.*;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -23,7 +26,7 @@ import java.util.List;
 
 @Getter
 @JsonDeserialize(using = SchemaDeserializer.class)
-@JsonIgnoreProperties({"id", "creator", "gmtCreate", "gmtModified"})
+@JsonSerialize(using = SchemaSerializer.class)
 public class Schema {
     private Long ID;
     private String name;
@@ -188,8 +191,36 @@ public class Schema {
     }
 
     public String toJSON() {
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(Schema.class, new SchemaSerializer(false));
+        module.addSerializer(Entity.class, new EntitySerializer(false));
+        module.addSerializer(Relationship.class, new RelationshipSerializer(false));
+        module.addSerializer(RelationshipEdge.class, new RelationshipEdgeSerializer(false));
+        module.addSerializer(Attribute.class, new AttributeSerializer(false));
+
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.registerModule(module);
+        ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(this);
+//            json = ow.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return json;
+    }
+
+    public String toRenderJSON() {
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(Schema.class, new SchemaSerializer(true));
+        module.addSerializer(Entity.class, new EntitySerializer(true));
+        module.addSerializer(Relationship.class, new RelationshipSerializer(true));
+        module.addSerializer(RelationshipEdge.class, new RelationshipEdgeSerializer(true));
+        module.addSerializer(Attribute.class, new AttributeSerializer(true));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(module);
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String json;
         try {

@@ -1,5 +1,6 @@
 package io.github.MigadaTang;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
