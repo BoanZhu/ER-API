@@ -1,4 +1,4 @@
-var entityCounter = 20000;
+var entityCounter = 2000988;
 var attributeCounter = 0;
 var weakEntityCounter = 0;
 var subsetCounter = 0;
@@ -591,9 +591,11 @@ function init() {
                 updateRelationNode(id,name,item.location.x,item.location.y);
                 break;
             case ERLinkCategory:
-                const cardinality = item.fromText;
+                let cardinality = item.fromText;
+                cardinality = findRelationCode(cardinality);
                 if(cardinality===undefined) {
                     alert("only accept following cardinality: null, 0:N, 1:1, 1:N, 0:1");
+                    myDiagram.rollbackTransaction();
                 }else {
                     updateERLink(id,item.from,item.fromText,item.toPort,item.fromPort)
                 }

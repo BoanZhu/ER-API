@@ -322,7 +322,6 @@ function createEdge(entityID,relationshipID,cardinality,portAtEntity,portAtRelat
 
 //update Entity_relation API done: test:
 function updateERLink(relationshipEdgeID,entityID,cardinality,portAtRelationship,portAtEntity){
-    //todo:API allow change the relation id
     let Obj ={
         relationshipEdgeID: relationshipEdgeID,
         entityID:entityID,
