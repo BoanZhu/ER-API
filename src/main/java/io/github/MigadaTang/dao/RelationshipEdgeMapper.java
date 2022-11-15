@@ -1,6 +1,7 @@
 package io.github.MigadaTang.dao;
 
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.util.List;
 
@@ -8,6 +9,8 @@ public interface RelationshipEdgeMapper {
     RelationshipEdgeDO selectByID(Long ID);
 
     List<RelationshipEdgeDO> selectByRelationshipEdge(RelationshipEdgeDO relationshipEdgeDO);
+
+    List<CaseInsensitiveMap<String, Object>> groupCountEntityNum(List<Long> entityIDs);
 
     int insert(RelationshipEdgeDO relationshipEdgeDO);
 

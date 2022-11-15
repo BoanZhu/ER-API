@@ -7,10 +7,13 @@ import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.exception.ERException;
 import io.github.MigadaTang.serializer.RelationshipEdgeSerializer;
 import lombok.Data;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.ibatis.exceptions.PersistenceException;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @JsonSerialize(using = RelationshipEdgeSerializer.class)
@@ -60,10 +63,33 @@ public class RelationshipEdge {
             this.cardinality = cardinality;
         }
         if (entity != null) {
-            // todo check if there is already relationship between these entities
+            Relationship relationship = Relationship.queryByID(this.relationshipID);
+            List<Long> entityIDs = new ArrayList<>();
+            for (RelationshipEdge edge : relationship.getEdgeList()) {
+                entityIDs.add(edge.getEntity().getID());
+            }
+            entityIDs.remove(this.entity.getID());
+            entityIDs.add(entity.getID());
+            if (checkEntitesInSameRelationship(entityIDs)) {
+                throw new ERException("entities have been in the same relationship");
+            }
             this.entity = entity;
         }
         ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.entity.getID(), this.cardinality, this.portAtRelationship, this.portAtEntity, 0, this.gmtCreate, new Date()));
+    }
+
+    // check if these entities have been in the same relationship
+    protected static boolean checkEntitesInSameRelationship(List<Long> entityIDs) {
+        List<CaseInsensitiveMap<String, Object>> numList = ER.relationshipEdgeMapper.groupCountEntityNum(entityIDs);
+        if (numList == null) {
+            return false;
+        }
+        for (Map<String, Object> objectMap : numList) {
+            if ((Long) objectMap.get("ENTITY_NUM") >= entityIDs.size()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void updatePorts(Integer portAtRelationship, Integer portAtEntity) throws ERException {

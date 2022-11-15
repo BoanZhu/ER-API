@@ -132,7 +132,7 @@ public class TestAttribute {
         Attribute a1 = teacher.addAttribute("teacher_id", DataType.VARCHAR, true, false);
 
         // delete
-        a1.deleteDB();
+        teacher.deleteAttribute(a1);
 
         assertThrows(ERException.class, () -> Attribute.queryByID(a1.getID()));
     }

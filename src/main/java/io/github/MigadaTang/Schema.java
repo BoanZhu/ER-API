@@ -148,6 +148,7 @@ public class Schema {
         if (entityWithCardinalityList.size() <= 1) {
             throw new ERException("must have more than 2 entities to create relationship");
         }
+        List<Long> entityIDs = new ArrayList<>();
         for (EntityWithCardinality eCard : entityWithCardinalityList) {
             Entity entity = eCard.getEntity();
             if (Entity.queryByID(entity.getID()) == null) {
@@ -156,7 +157,10 @@ public class Schema {
             if (!entity.getSchemaID().equals(this.ID)) {
                 throw new ERException(String.format("entity: %s does not belong to this schema", entity.getName()));
             }
-            // todo check if there is already a relationship between all these entities
+            entityIDs.add(entity.getID());
+        }
+        if (RelationshipEdge.checkEntitesInSameRelationship(entityIDs)) {
+            throw new ERException("entities have been in the same relationship");
         }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
         for (EntityWithCardinality eCard : entityWithCardinalityList) {

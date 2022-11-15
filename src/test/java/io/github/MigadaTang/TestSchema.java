@@ -56,7 +56,7 @@ public class TestSchema {
         testDeleteSchema = Schema.queryByID(testDeleteSchema.getID());
         Assert.assertNotNull(testDeleteSchema);
 
-        testDeleteSchema.deleteDB();
+        ER.deleteSchema(testDeleteSchema);
 
         Schema finalTestDeleteSchema = testDeleteSchema;
         assertThrows(ERException.class, () -> Schema.queryByID(finalTestDeleteSchema.getID()));
@@ -75,6 +75,7 @@ public class TestSchema {
         assertThrows(ERException.class, () -> Entity.queryByID(firstEntity.getID()));
     }
 
+    @Test
     public void querySchemaTest() {
         Schema firstSchema = ER.createSchema("first schema", "tw");
         List<Schema> schemas = Schema.queryAll();

@@ -65,6 +65,18 @@
         </where>
     </select>
 
+    <select id="groupCountEntityNum" parameterType="java.util.List"
+            resultType="org.apache.commons.collections4.map.CaseInsensitiveMap">
+        select RELATIONSHIP_ID, count(*) as ENTITY_NUM from relationship_edge
+        where is_delete = 0 and
+        <foreach item="entityID" index="index" collection="list"
+                 open="entity_id in (" separator="," close=")">
+            #{entityID,jdbcType=BIGINT}
+        </foreach>
+        group by relationship_id
+        order by entity_num desc
+    </select>
+
     <insert id="insert" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO" useGeneratedKeys="true"
             keyProperty="ID">
         insert into relationship_edge

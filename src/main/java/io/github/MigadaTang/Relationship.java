@@ -12,8 +12,11 @@ import io.github.MigadaTang.serializer.RelationshipSerializer;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static io.github.MigadaTang.RelationshipEdge.checkEntitesInSameRelationship;
 
 @Getter
 @JsonSerialize(using = RelationshipSerializer.class)
@@ -118,6 +121,15 @@ public class Relationship {
         List<RelationshipEdge> relationshipEdges = RelationshipEdge.query(new RelationshipEdgeDO(this.ID, entity.getID()));
         if (relationshipEdges.size() != 0) {
             throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
+        }
+        Relationship relationship = Relationship.queryByID(this.ID);
+        List<Long> entityIDs = new ArrayList<>();
+        for (RelationshipEdge edge : relationship.getEdgeList()) {
+            entityIDs.add(edge.getEntity().getID());
+        }
+        entityIDs.add(entity.getID());
+        if (checkEntitesInSameRelationship(entityIDs)) {
+            throw new ERException("entities have been in the same relationship");
         }
         RelationshipEdge edge = new RelationshipEdge(0L, this.ID, this.schemaID, entity, cardinality, -1, -1, new Date(), new Date());
         this.edgeList.add(edge);
