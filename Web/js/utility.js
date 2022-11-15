@@ -139,7 +139,6 @@ function defineModel(){
             allowMove:false
         })
 
-
     go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
         var geo = new go.Geometry();
         var fig = new go.PathFigure(0.05*w,0.05*w, true);  // clockwise
