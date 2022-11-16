@@ -20,10 +20,11 @@ function getId(){
 /*
 Show model at rignt
  */
+var defineCounter = 0;
 function showSchema() {
     // Get the model name and id from list
     const id = getId();
-    let isInitial = true;
+    let isInitial = false;
     $.ajax({
         type : "GET",
         async: false,
@@ -35,19 +36,58 @@ function showSchema() {
         success : function(result) {
             // entity list
             var entityList = result.data.schema.entityList;
+            var relationshipList = result.data.schema.relationshipList;
+            var attributeList = []
             entityList.forEach(
                 function (entityNode){
-                    if(entityNode.layoutInfo!==null){
-                        isInitial=false;
+                    if(entityNode.layoutInfo===null){
+                        isInitial=true;
+                    }
+                    if(entityNode.entityType!==3){
+                        //weak and strong entity
+                        attributeList=entityNode.attributeList;
+                        attributeList.forEach(
+                            function (attributeNode){
+                                if(attributeNode.layoutInfo===null){
+                                    isInitial=true;
+                                }
+                            });
+                    }
+                });
+
+            relationshipList.forEach(
+                function (relationNode){
+                    const edgeList = relationNode.edgeList;
+                    // if the relation is strong&weak or strong&subset, only 2
+                    const firstType = indexDiagram.findNodeForKey(edgeList[0].entityID).category;
+                    const secondType = indexDiagram.findNodeForKey(edgeList[1].entityID).category;
+                    // all strong entity
+                    if((firstType === "entity" && secondType=== "entity")||firstType === "" && secondType=== ""){
+                        if(relationNode.layoutInfo===null){
+                            isInitial=true;
+                        }
+                        const relationAttributeList = relationNode.attributeList;
+                        relationAttributeList.forEach(
+                            function (relationAttributeNode){
+                                if(relationAttributeNode.layoutInfo===null){
+                                    isInitial=true;
+                                }
+                            });
                     }
                 });
         }, error : function(result) {
             console.log("false");
         }
     });
+    if(defineCounter!==0){
+        indexDiagram.div = null;
+        indexDiagram=null;
+    }
+    console.log(isInitial);
     defineModel(isInitial);
     var schema = getSchema(id);
     indexDiagram.model = go.Model.fromJSON(schema);
+    defineCounter++;
 }
 
 
