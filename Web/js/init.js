@@ -6,20 +6,7 @@ var entityCounter = 24;
 var attributeCounter = 5;
 var weakEntityCounter = 4;
 var subsetCounter = 0;
-/*
-Node
- */
-const entityNodeCategory = "entity"
-const weakEntityNodeCategory = "weakEntity"
-const subsetEntityNodeCategory = "subset"
-/*
-lINk
- */
-const ERLinkCard = "1:N"
-const ERLinkCategory = "entityLink";
-const EWLinkCategory = "weakLink";
-const relationNodeName = "test";
-const relationNodeCategory = "relation";
+
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
 const edgeIDFirst = "edgeIDFirst"; //from: strong entity side
@@ -33,16 +20,7 @@ const weakEntityLinkPort = -1;
 const defaultWeakFromCard = "0:N";
 const defaultWeakToCard = "1:1";
 
-/*
-Ports
- */
-const PORTS = {
-    "U":1,  // up
-    "B":2,  // bottom
-    "L":3,  // left
-    "R":4,  // right
-    "M":5,  // middle
-}
+
 function init() {
     /*
     Get the editable model Template

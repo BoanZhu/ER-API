@@ -105,39 +105,113 @@ anonymous function:
     2. slide down and up function
  */
 
-
-
-// Common text styling
-function textStyleFake() {
-    return {
-        margin: 6,
-        wrap: go.TextBlock.WrapFit,
-        textAlign: "center",
-        editable: false,
-    }
-}
 /*
 define model
  */
 
-function isLinkValidIndex(fromNode, fromGraphObject, toNode, toGraphObject) {
-    return fromNode.findLinksTo(toNode).count + toNode.findLinksTo(fromNode).count < 1;}
 
-function defineModel(){
+
+/*
+Node
+ */
+const entityNodeCategory = "entity"
+const weakEntityNodeCategory = "weakEntity"
+const subsetEntityNodeCategory = "subset"
+/*
+lINk
+ */
+const ERLinkCard = "1:N"
+const ERLinkCategory = "entityLink";
+const EWLinkCategory = "weakLink";
+const relationNodeName = "test";
+const relationNodeCategory = "relation";
+
+const colors =
+    {
+        'lightblue': '#afd4fe',
+        'lightgrey': '#a4a8ad',
+        'lightyellow': '#fcffbe'
+    }
+// Common text styling
+function textStyle() {
+    return {
+        margin: 6,
+        wrap: go.TextBlock.WrapFit,
+        textAlign: "center",
+        editable: true,
+    }
+}
+
+/*
+Ports
+ */
+const PORTS = {
+    "U":1,  // up
+    "B":2,  // bottom
+    "L":3,  // left
+    "R":4,  // right
+    "M":5,  // middle
+}
+function defineModel() {
+    /*
+    Get the editable model Template
+     */
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     indexDiagram = $(go.Diagram, "model",  // must name or refer to the DIV HTML element
         {
-            allowDelete: false,
+            allowDelete: true,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.LayeredDigraphLayout, {isInitial: true, isOngoing: false}),
+            layout: $(go.LayeredDigraphLayout, {isInitial: false, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
-            "undoManager.isEnabled": false,
-            "maxSelectionCount": 1,
-            "linkingTool.linkValidation": isLinkValidIndex,
-            allowMove:false
+            "undoManager.isEnabled": true,
+            "maxSelectionCount": 1
         });
+
+    /*
+    All adornment
+    */
+
+    function leftPort() {
+        // L port
+        return $(go.Panel, "Vertical", {row: 1, column: 0},
+            $(go.Shape, {
+                width: 3, height: 3, portId: 3, toSpot: go.Spot.Left, fromSpot: go.Spot.Left,
+                fromLinkable: true, toLinkable: true
+            }));
+    }
+
+    function rightPort() {
+        // R port
+        return $(go.Panel, "Vertical", {row: 1, column: 2},
+            $(go.Shape, {
+                width: 3, height: 3, portId: 4, toSpot: go.Spot.Right, fromSpot: go.Spot.Right,
+                fromLinkable: true, toLinkable: true
+            }));
+    }
+
+    function bottomPort() {
+        // B port
+        return $(go.Panel, "Horizontal", {row: 2, column: 1},
+            $(go.Shape, {
+                width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom, fromSpot: go.Spot.Bottom,
+                fromLinkable: true, toLinkable: true
+            }));
+    }
+
+    function topPort() {
+        // U port
+        return $(go.Panel, "Vertical", {row: 0, column: 1},
+            $(go.Shape, {
+                width: 3, height: 3, portId: 1, toSpot: go.Spot.Top, fromSpot: go.Spot.Top,
+                fromLinkable: true, toLinkable: true
+            }));
+    }
+
+    /*
+        All Node(Entity+Attribute) templates
+     */
 
     go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
         var geo = new go.Geometry();
@@ -165,40 +239,6 @@ function defineModel(){
         return geo;
     });
 
-    /*
-     4 ports
-     */
-
-    function leftPort(){
-        // L port
-        return $(go.Panel, "Vertical", {row: 1, column: 0},
-            $(go.Shape, {width: 3, height: 3, portId: 3, toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                fromLinkable: false,toLinkable: false
-            }));
-    }
-    function rightPort(){
-        // R port
-        return $(go.Panel, "Vertical", {row: 1, column: 2},
-            $(go.Shape,  {width: 3, height: 3, portId: 4, toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                fromLinkable: false,toLinkable: false}));
-    }
-    function bottomPort(){
-        // B port
-        return $(go.Panel, "Horizontal", {row:2, column: 1},
-            $(go.Shape, {width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                fromLinkable: false,toLinkable: false}));
-    }
-    function topPort(){
-        // U port
-        return $(go.Panel, "Vertical",{row: 0, column: 1},
-            $(go.Shape, {width: 3, height: 3, portId: 1, toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                fromLinkable: false,toLinkable: false}));
-    }
-
-    /*
-        All Node(Entity+Attribute) templates
-     */
-
     //strong entity template
     const entityTemplate =
         $(go.Node, "Table",  // the whole node panel
@@ -209,6 +249,7 @@ function defineModel(){
             },
             {
                 locationSpot: go.Spot.Center,
+                selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
@@ -233,17 +274,17 @@ function defineModel(){
                         strokeWidth: 3,
                         fromLinkableDuplicates: false, toLinkableDuplicates: false
                     }),
-                $(go.TextBlock, textStyleFake(),
+                $(go.TextBlock, textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
-                        editable: false
+                        editable: true
                     },
                     new go.Binding("text", "name").makeTwoWay()),
             ),
             //port
-            leftPort(),rightPort(),topPort(),bottomPort()
+            leftPort(), rightPort(), topPort(), bottomPort()
         );
 
     //relationNodeTemplate
@@ -251,10 +292,12 @@ function defineModel(){
         $(go.Node, "Table",
             {
                 locationObject: "BODY",
-                locationSpot:go.Spot.Center,
+                locationSpot: go.Spot.Center,
+                selectionObjectName: "BODY"
             },
             {
                 locationSpot: go.Spot.Center,
+                selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
@@ -263,7 +306,7 @@ function defineModel(){
             },
             new go.Binding("location", "location").makeTwoWay(),
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
-            $(go.Panel,"Auto",
+            $(go.Panel, "Auto",
                 {row: 1, column: 1, name: "BODY"},
                 $(go.Shape, "Diamond",
                     {
@@ -274,25 +317,25 @@ function defineModel(){
                         fromSpot: go.Spot.AllSides,
                         toSpot: go.Spot.AllSides,
                         strokeWidth: 3,
-                        width: 100,
-                        height: 40,
+                        // width: 100,
+                        height: 50,
                         fromLinkableDuplicates: false, toLinkableDuplicates: false
                     },
                     new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
                 $(go.Panel, "Table",
-                    { margin: 8, stretch: go.GraphObject.Fill },
-                    $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
-                    $(go.TextBlock,textStyleFake(),
+                    {margin: 8, stretch: go.GraphObject.Fill},
+                    $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
+                    $(go.TextBlock, textStyle(),
                         {
                             row: 0,
                             alignment: go.Spot.Center,
                             font: "bold 16px sans-serif",
-                            editable: false
+                            editable: true
                         },
                         new go.Binding("text", "name").makeTwoWay()))
             ),
             //port
-            leftPort(),rightPort(),topPort(),bottomPort()
+            leftPort(), rightPort(), topPort(), bottomPort()
         );
 
     // weak entity template
@@ -300,10 +343,12 @@ function defineModel(){
         $(go.Node, "Table",  // the whole node panel
             {
                 locationObject: "BODY",
-                locationSpot:go.Spot.Center,
+                locationSpot: go.Spot.Center,
+                selectionObjectName: "BODY"
             },
             {
                 locationSpot: go.Spot.Center,
+                selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
@@ -312,7 +357,7 @@ function defineModel(){
             },
             new go.Binding("location", "location").makeTwoWay(),
             new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
-            $(go.Panel,"Auto",
+            $(go.Panel, "Auto",
                 {
                     row: 1, column: 1, name: "BODY",
                 },
@@ -327,17 +372,17 @@ function defineModel(){
                         strokeWidth: 3,
                         fromLinkableDuplicates: false, toLinkableDuplicates: false,
                     }),
-                $(go.TextBlock, textStyleFake(),
+                $(go.TextBlock, textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
-                        editable: false
+                        editable: true
                     },
                     new go.Binding("text", "name").makeTwoWay()),
             ), //end Auto Panel Body
             //port
-            leftPort(),rightPort(),topPort(),bottomPort()
+            leftPort(), rightPort(), topPort(), bottomPort()
         );
 
     // subset template
@@ -346,9 +391,11 @@ function defineModel(){
             {
                 locationObject: "BODY",
                 locationSpot: go.Spot.Center,
+                selectionObjectName: "BODY",
             },
             {
                 locationSpot: go.Spot.Center,
+                selectionAdorned: true,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
@@ -362,7 +409,7 @@ function defineModel(){
                 {row: 1, column: 1, name: "BODY"},
                 $(go.Shape, "RoundedRectangle",
                     {
-                        fill:"#e8c446",
+                        fill: "#e8c446",
                         portId: "",
                         stroke: "#e8c446",
                         cursor: "pointer",
@@ -372,29 +419,31 @@ function defineModel(){
                         fromLinkableDuplicates: false, toLinkableDuplicates: false
                     },
                     new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-                $(go.TextBlock,textStyleFake(),
+                $(go.TextBlock, textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
-                        editable: false
+                        editable: true
                     },
                     new go.Binding("text", "name").makeTwoWay()),
-                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
             ), // end Table Panel
             //port
             $(go.Panel, "Vertical", {row: 1, column: 1},
-                $(go.Shape, {width: 0, height: 0, portId: 5,
-                    fromLinkable: true,toLinkable: true,
-                    fill: "#e8c446",stroke: "#e8c446",
+                $(go.Shape, {
+                    width: 0, height: 0, portId: 5,
+                    fromLinkable: true, toLinkable: true,
+                    fill: "#e8c446", stroke: "#e8c446",
                 })),
         );
 
     // attribute template
-    var attributeTemplate=$(go.Node, "Table",
+    var attributeTemplate = $(go.Node, "Table",
         {
             locationObject: "MAINBODY",
-            locationSpot:go.Spot.Center,
+            locationSpot: go.Spot.Center,
+            selectionObjectName: "MAINBODY"
         },
         {
             selectionAdorned: true,
@@ -405,19 +454,19 @@ function defineModel(){
         },
         new go.Binding("location", "location").makeTwoWay(),
         // textbox
-        $(go.Panel,"Auto",
-            {row: 0, column: 0, name: "AttributeName"},
-            $(go.TextBlock,{
+        $(go.Panel, "Auto",
+            {row: 0, column: 1, name: "AttributeName"},
+            $(go.TextBlock, {
                     font: "bold 12px monospace",
                     margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
                 },
-                new go.Binding("text","name").makeTwoWay(),
+                new go.Binding("text", "name").makeTwoWay(),
                 new go.Binding("isUnderline", "underline")
             )
         ),
-        $(go.Panel,"Table",
-            {row: 0, column: 1, name: "MAINBODY"},
-            $(go.Panel,"Auto",
+        $(go.Panel, "Table",
+            {row: 0, column: 0, name: "MAINBODY"},
+            $(go.Panel, "Auto",
                 {row: 1, column: 1},
                 $(go.Shape, "Circle",
                     {
@@ -435,9 +484,10 @@ function defineModel(){
             ),
             //port
             $(go.Panel, "Vertical", {row: 1, column: 1},
-                $(go.Shape, {width: 3, height: 3, portId: 5,
-                    fromLinkable: true,toLinkable: true,
-                    fill: colors.lightblue,stroke: colors.lightblue,
+                $(go.Shape, {
+                    width: 3, height: 3, portId: 5,
+                    fromLinkable: true, toLinkable: true,
+                    fill: colors.lightblue, stroke: colors.lightblue,
                 })),
         )
     );
@@ -446,14 +496,14 @@ function defineModel(){
     var templateMap = new go.Map();
     // default template
     indexDiagram.nodeTemplate = entityTemplate;
-    templateMap.add("",entityTemplate);
+    templateMap.add("", entityTemplate);
     templateMap.add(entityNodeCategory, entityTemplate);
     templateMap.add(weakEntityNodeCategory, weakEntityTemplate);
-    templateMap.add(subsetEntityNodeCategory,subsetTemplate);
-    templateMap.add("Attribute",attributeTemplate);
-    templateMap.add("relation_attribute",attributeTemplate);
+    templateMap.add(subsetEntityNodeCategory, subsetTemplate);
+    templateMap.add("Attribute", attributeTemplate);
+    templateMap.add("relation_attribute", attributeTemplate);
 
-    templateMap.add(relationNodeCategory ,relationTemplate);
+    templateMap.add(relationNodeCategory, relationTemplate);
 
     indexDiagram.nodeTemplateMap = templateMap;
 
@@ -461,6 +511,7 @@ function defineModel(){
     var weakLink = $(go.Link,  // the whole link panel
         {
             deletable: false,
+            selectionAdorned: true,
             layerName: "Foreground",
             reshapable: true,
             routing: go.Link.AvoidsNodes,
@@ -470,15 +521,17 @@ function defineModel(){
             relinkableTo: true
         },
         $(go.Shape,  // the link shape
-            {stroke: "#303B45", strokeWidth: 2.5 }),
+            {stroke: "#303B45", strokeWidth: 2.5}),
         $(go.Panel, "Auto",  // this whole Panel is a link label
             $(go.Shape, "Diamond", {
                 fill: "yellow",
                 stroke: "gray",
                 width: 100,
-                height: 40}),
-            $(go.TextBlock,  textStyleFake(),
-                {   margin: 3,
+                height: 40
+            }),
+            $(go.TextBlock, textStyle(),
+                {
+                    margin: 3,
                     textAlign: "center",
                     segmentIndex: -2,
                     segmentOffset: new go.Point(NaN, NaN),
@@ -488,7 +541,7 @@ function defineModel(){
                 },
                 new go.Binding("text", "relation").makeTwoWay())
         ),
-        $(go.TextBlock, textStyleFake(), // the "from" label
+        $(go.TextBlock, textStyle(), // the "from" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
@@ -498,8 +551,9 @@ function defineModel(){
                 segmentOrientation: go.Link.OrientUpright
             },
             new go.Binding("text", "fromText").makeTwoWay()),
-        $(go.TextBlock, textStyleFake(), // the "to" label
+        $(go.TextBlock, textStyle(), // the "to" label
             {
+                editable: false,
                 textAlign: "center",
                 font: "bold 14px sans-serif",
                 stroke: "#1967B3",
@@ -522,8 +576,8 @@ function defineModel(){
             relinkableTo: true
         },
         $(go.Shape,  // the link shape
-            {stroke: colors.lightblue, strokeWidth: 2.5 }),
-        $(go.TextBlock, textStyleFake(), // the "from" label
+            {stroke: colors.lightblue, strokeWidth: 2.5}),
+        $(go.TextBlock, textStyle(), // the "from" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
@@ -548,13 +602,14 @@ function defineModel(){
             relinkableTo: true
         },
         $(go.Shape,  // the link shape
-            {stroke: "#e8c446", strokeWidth: 2.5 }),
+            {stroke: "#e8c446", strokeWidth: 2.5}),
         $(go.Shape,   // the arrowhead
-            { toArrow: "OpenTriangle", fill: null, stroke:"#e8c446",strokeWidth:2.5}),
+            {toArrow: "OpenTriangle", fill: null, stroke: "#e8c446", strokeWidth: 2.5}),
     );
 
     var entityLink = $(go.Link,
         {
+            selectionAdorned: true,
             layerName: "Foreground",
             reshapable: true,
             routing: go.Link.AvoidsNodes,
@@ -564,8 +619,8 @@ function defineModel(){
             relinkableTo: true
         },
         $(go.Shape,  // the link shape
-            {stroke: "#000000", strokeWidth: 2.5 }),
-        $(go.TextBlock, textStyleFake(), // the "from" label
+            {stroke: "#000000", strokeWidth: 2.5}),
+        $(go.TextBlock, textStyle(), // the "from" label
             {
                 textAlign: "center",
                 font: "bold 14px sans-serif",
@@ -575,17 +630,16 @@ function defineModel(){
                 segmentOrientation: go.Link.OrientUpright
             },
             new go.Binding("text", "fromText").makeTwoWay()),
-
     );
 
 
     var linkTemplateMap = new go.Map();
     linkTemplateMap.add(EWLinkCategory, weakLink);
-    linkTemplateMap.add("normalLink",normalLink);
-    linkTemplateMap.add("subsetLink",subsetLink);
-    linkTemplateMap.add(ERLinkCategory,entityLink);
+    linkTemplateMap.add("normalLink", normalLink);
+    linkTemplateMap.add("subsetLink", subsetLink);
+    linkTemplateMap.add(ERLinkCategory, entityLink);
     // default
-    linkTemplateMap.add("",entityLink);
+    linkTemplateMap.add("", entityLink);
     indexDiagram.linkTemplateMap = linkTemplateMap;
 
     indexDiagram.model = new go.GraphLinksModel(
@@ -596,7 +650,6 @@ function defineModel(){
             linkDataArray: []
         });
 }
-
 
 const RELATION = {
     UNKNOWN:"",
@@ -616,6 +669,16 @@ function getSchema(id) {
         "  \"copiesArrayObjects\": true,\n" +
         "  \"nodeDataArray\": [],\n" +
         "  \"linkDataArray\": []}";
+    // const x = go.GraphObject.make;
+    // indexDiagram.model = new go.GraphLinksModel(
+    //     {
+    //         copiesArrays: true,
+    //         copiesArrayObjects: true,
+    //         allowDelete: false,
+    //         allowCopy: false,
+    //         initialAutoScale: go.Diagram.Uniform,
+    //         layout: x(go.LayeredDigraphLayout, {isInitial: true, isOngoing: false}),
+    //     });
     indexDiagram.model = new go.GraphLinksModel(
         { linkFromPortIdProperty: "fromPort",
             linkToPortIdProperty: "toPort",
@@ -762,6 +825,7 @@ function getSchema(id) {
                 }
             });
             modelStr = indexDiagram.model.toJSON();
+            indexDiagram.model = go.Model.fromJSON(modelStr);
             console.log(modelStr);
         }, error : function(result) {
             console.log("false");

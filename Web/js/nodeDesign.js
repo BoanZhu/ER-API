@@ -19,42 +19,6 @@ function findRelationCode(relationText){
     return Object.values(RCODE)[index];
 }
 
-
-const DATATYPE = {
-    UNKNOWN:0,
-    CHAR:1,
-    VARCHAR:2,
-    TEXT:3,
-    TINYINT:4,
-    SMALLINT:5,
-    INT:6,
-    BIGINT:7,
-    FLOAT:8,
-    DOUBLE:9,
-    DATETIME:10
-}
-let findDataType = (value, compare = (a, b) => a === b) => {
-    return Object.keys(DATATYPE).find(k => compare(DATATYPE[k], value))
-}
-
-// Common color
-const colors =
-    {
-        'lightblue': '#afd4fe',
-        'lightgrey': '#a4a8ad',
-        'lightyellow': '#fcffbe'
-    }
-
-// Common text styling
-function textStyle() {
-    return {
-        margin: 6,
-        wrap: go.TextBlock.WrapFit,
-        textAlign: "center",
-        editable: true,
-    }
-}
-
 const limitConnectNode = new Set([subsetEntityNodeCategory,weakEntityNodeCategory,"Attribute","relation_attribute"]);
 
 function isAllowReconnect(existinglink, newnode, newport, toend){
