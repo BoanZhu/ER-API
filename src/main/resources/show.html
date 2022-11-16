@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/html"><head><meta charset="UTF-8">    <title>API image</title>    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="API.js"></script></head><body>    <div id="model" style="background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;"></div>    <div id ="image"></div>    <div id = "modelData">{"schema":{
+  "id" : 550,
+  "name" : "reverseEng",
+  "entityList" : [ {
+    "id" : 1323,
+    "name" : "new_entity0",
+    "entityType" : 1,
+    "attributeList" : [ {
+      "id" : 1345,
+      "name" : "e0_pk",
+      "dataType" : 3,
+      "isPrimary" : true,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "id" : 1346,
+      "name" : "e0_c1",
+      "dataType" : 3,
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "id" : 1347,
+      "name" : "e0_c2",
+      "dataType" : 3,
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    } ],
+    "aimPort" : -1,
+    "belongStrongEntityID" : null
+  }, {
+    "id" : 1324,
+    "name" : "new_entity1",
+    "entityType" : 1,
+    "attributeList" : [ {
+      "id" : 1348,
+      "name" : "e1_pk",
+      "dataType" : 3,
+      "isPrimary" : true,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "id" : 1349,
+      "name" : "e1_c1",
+      "dataType" : 3,
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    } ],
+    "aimPort" : -1,
+    "belongStrongEntityID" : null
+  }, {
+    "id" : 1325,
+    "name" : "new_entity2",
+    "entityType" : 1,
+    "attributeList" : [ {
+      "id" : 1350,
+      "name" : "e2_pk",
+      "dataType" : 3,
+      "isPrimary" : true,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "id" : 1351,
+      "name" : "e2_c1",
+      "dataType" : 3,
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    } ],
+    "aimPort" : -1,
+    "belongStrongEntityID" : null
+  }, {
+    "id" : 1326,
+    "name" : "weak_entity",
+    "entityType" : 2,
+    "attributeList" : [ {
+      "id" : 1352,
+      "name" : "we_pk",
+      "dataType" : 3,
+      "isPrimary" : true,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "id" : 1353,
+      "name" : "we_c1",
+      "dataType" : 3,
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    } ],
+    "aimPort" : -1,
+    "belongStrongEntityID" : "1323"
+  }, {
+    "id" : 1327,
+    "name" : "subset",
+    "entityType" : 3,
+    "attributeList" : [ {
+      "id" : 1354,
+      "name" : "sub_c1",
+      "dataType" : 3,
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    } ],
+    "aimPort" : -1,
+    "belongStrongEntityID" : "1323"
+  } ],
+  "relationshipList" : [ {
+    "id" : 424,
+    "name" : "unknow",
+    "attributeList" : [ ],
+    "edgeList" : [ {
+      "id" : 903,
+      "relationshipID" : 424,
+      "entityID" : 1326,
+      "cardinality" : 3,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    }, {
+      "id" : 904,
+      "relationshipID" : 424,
+      "entityID" : 1323,
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    } ]
+  }, {
+    "id" : 425,
+    "name" : "unknow",
+    "attributeList" : [ ],
+    "edgeList" : [ {
+      "id" : 905,
+      "relationshipID" : 425,
+      "entityID" : 1323,
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    }, {
+      "id" : 906,
+      "relationshipID" : 425,
+      "entityID" : 1324,
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    }, {
+      "id" : 907,
+      "relationshipID" : 425,
+      "entityID" : 1325,
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    } ]
+  } ]
+}}    </div></body><script id="code">    function load() {        const modelData = JSON.parse(document.getElementById("modelData").innerHTML);        showSchema(modelData);        const image = APIDiagram.makeImage({ background: "white"});        document.getElementById("image").innerHTML = image.src;    }    window.addEventListener('DOMContentLoaded', load);</script></html>
