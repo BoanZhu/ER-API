@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-@JsonSerialize(using = RelationshipEdgeSerializer.class)
-@JsonIgnoreProperties({"id", "relationshipID", "schemaID", "gmtCreate", "gmtModified"})
 public class RelationshipEdge {
     private Long ID;
     private Long relationshipID;
@@ -41,7 +39,7 @@ public class RelationshipEdge {
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
             insertDB();
-        }
+    }
     }
 
     private void insertDB() {

@@ -19,7 +19,6 @@ import java.util.List;
 import static io.github.MigadaTang.RelationshipEdge.checkEntitesInSameRelationship;
 
 @Getter
-@JsonSerialize(using = RelationshipSerializer.class)
 public class Relationship {
     private Long ID;
     private String name;
