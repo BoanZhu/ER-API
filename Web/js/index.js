@@ -23,9 +23,32 @@ Show model at rignt
 function showSchema() {
     // Get the model name and id from list
     const id = getId();
-    getSchema(id);
+    let isInitial = true;
+    $.ajax({
+        type : "GET",
+        async: false,
+        url : "http://146.169.52.81:8080/er/schema/get_by_id",
+        withCredentials:false,
+        contentType : 'application/json',
+        dataType:'json',
+        data : {ID:id},
+        success : function(result) {
+            // entity list
+            var entityList = result.data.schema.entityList;
+            entityList.forEach(
+                function (entityNode){
+                    if(entityNode.layoutInfo!==null){
+                        isInitial=false;
+                    }
+                });
+        }, error : function(result) {
+            console.log("false");
+        }
+    });
+    defineModel(isInitial);
+    var schema = getSchema(id);
+    indexDiagram.model = go.Model.fromJSON(schema);
 }
-
 
 
 /*
@@ -102,7 +125,6 @@ function deleteSchema() {
     });
 }
 
-
 /*
 Create new... jump to drawing html and create the new model
 createModel():
@@ -161,7 +183,12 @@ function appendModel(){
 }
 
 window.addEventListener('DOMContentLoaded', appendModel);
-window.addEventListener('DOMContentLoaded', defineModel);
+
+// window.addEventListener('DOMContentLoaded', function (){
+//
+//     defineModel(true);
+//
+// });
 
 /*
 HTML list slide down

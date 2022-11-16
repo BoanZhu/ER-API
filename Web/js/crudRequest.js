@@ -554,7 +554,7 @@ function addAttr(){
         attributeData.allowNotNull = false; //default value false：NOT allow null
         // send data to backend
         var info;
-        if (category==="entity") {
+        if (category==="entity"||category==="weakEntity") {
             attributeData.isPrimary = false;
             info = {
                 "belongObjID": attributeData.parentId,
@@ -569,7 +569,7 @@ function addAttr(){
                     "layoutY": pos.y.toFixed(1)
                 },
             }
-        }else {
+        }else if(category==="relation"){
             attributeData.category = "relation_attribute";
             info = {
                 "belongObjID": getRelationId(attributeData.parentId),

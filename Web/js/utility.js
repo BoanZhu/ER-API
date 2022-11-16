@@ -168,7 +168,8 @@ const PORTS = {
     "R":4,  // right
     "M":5,  // middle
 }
-function defineModel() {
+
+function defineModel(isInitial) {
     /*
     Get the editable model Template
      */
@@ -178,7 +179,7 @@ function defineModel() {
             allowDelete: true,
             allowCopy: false,
             initialAutoScale: go.Diagram.Uniform,
-            layout: $(go.LayeredDigraphLayout, {isInitial: false, isOngoing: false}),
+            layout: $(go.LayeredDigraphLayout, {isInitial: isInitial, isOngoing: false}),
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
             "undoManager.isEnabled": true,
@@ -841,7 +842,7 @@ function getSchema(id) {
                 }
             });
             modelStr = indexDiagram.model.toJSON();
-            indexDiagram.model = go.Model.fromJSON(modelStr);
+            // indexDiagram.model = go.Model.fromJSON(modelStr);
             console.log(modelStr);
         }, error : function(result) {
             console.log("false");

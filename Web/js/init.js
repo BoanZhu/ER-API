@@ -5,7 +5,7 @@ var subsetCounter = 1;
 var entityCounter = 24;
 var attributeCounter = 5;
 var weakEntityCounter = 4;
-var subsetCounter = 0;
+var subsetCounter = 5;
 
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
@@ -813,7 +813,7 @@ function init() {
             nodeDataArray: [],
             linkDataArray: []});
 
-    defineModel();
+    defineModel(false);
     document.getElementById("mySavedModel").value = getSchema(schemaID);
     myDiagram.model = go.Model.fromJson(getSchema(schemaID));
 }
