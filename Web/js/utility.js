@@ -683,6 +683,10 @@ function findRelationName(indexs){
 }
 const ENTITYTYPE=["","entity","weakEntity","subset","attribute"]
 
+function isNullOrUndefined(layout){
+    return layout === null || layout === undefined;
+}
+
 function getSchema(id) {
     let modelStr = "{ \"class\": \"GraphLinksModel\",\n" +
         "  \"copiesArrays\": true,\n" +
@@ -729,10 +733,10 @@ function getSchema(id) {
                         function (attributeNode){
                         // add attribute node
                         var attributeNodeData = {"name":attributeNode.name,"category":"Attribute",
-                            "dataType":attributeNode.dataType,"parentId":entityNode.id,"allowNotNull":entityNode.nullable,
+                            "dataType":attributeNode.dataType,"parentId":entityNode.id,
                             "isPrimary":attributeNode.isPrimary,"key":attributeNode.id+"_"+attributeNode.name,"underline":attributeNode.isPrimary,
                             "allowNotNull":attributeNode.nullable};
-                        if(attributeNode.layoutInfo!==null){
+                        if(!isNullOrUndefined(attributeNode.layoutInfo)){
                             attributeNodeData.location={"class":"go.Point","x":attributeNode.layoutInfo.layoutX,"y":attributeNode.layoutInfo.layoutY};
                         }
                         indexDiagram.model.addNodeData(attributeNodeData);
@@ -760,7 +764,7 @@ function getSchema(id) {
                                 "dataType":attributeNode.dataType,"parentId":entityNode.id,
                                 "isPrimary":false,"key":attributeNode.id+"_"+attributeNode.name,"underline":false,
                                 "allowNotNull":attributeNode.nullable};
-                            if(attributeNode.layoutInfo!==null){
+                            if(!isNullOrUndefined(attributeNode.layoutInfo)){
                                 attributeNodeData.location={"class":"go.Point","x":attributeNode.layoutInfo.layoutX,"y":attributeNode.layoutInfo.layoutY};
                             }
                             indexDiagram.model.addNodeData(attributeNodeData);
@@ -784,7 +788,7 @@ function getSchema(id) {
                     // create relation node
                     var relationNodeData = {"key":"relation_"+relationNode.id,"name":relationNode.name,
                         "category":"relation","from":true,"to":true};
-                    if(relationNode.layoutInfo!==null){
+                    if(!isNullOrUndefined(relationNode.layoutInfo)){
                         relationNodeData.location={"class":"go.Point","x":relationNode.layoutInfo.layoutX,"y":relationNode.layoutInfo.layoutY};
                     }
                     indexDiagram.model.addNodeData(relationNodeData);
@@ -814,7 +818,7 @@ function getSchema(id) {
                                 "dataType":relationAttributeNode.dataType,"parentId":relationNodeData.key,
                                 "allowNotNull":relationAttributeNode.nullable,"key":relationAttributeNode.id+"_"+relationAttributeNode.name,
                                 "isPrimary":false,"underline":false};
-                            if(relationAttributeNode.layoutInfo!==null){
+                            if(!isNullOrUndefined(relationAttributeNode.layoutInfo)){
                                 rAttrNodeData.location={"class":"go.Point","x":relationAttributeNode.layoutInfo.layoutX,"y":relationAttributeNode.layoutInfo.layoutY};
                             }
                             // link

@@ -21,6 +21,7 @@ function getId(){
 Show model at rignt
  */
 var defineCounter = 0;
+
 function showSchema() {
     // Get the model name and id from list
     const id = getId();
@@ -40,7 +41,7 @@ function showSchema() {
             var attributeList = []
             entityList.forEach(
                 function (entityNode){
-                    if(entityNode.layoutInfo===null){
+                    if(isNullOrUndefined(entityNode.layoutInfo)){
                         isInitial=true;
                     }
                     if(entityNode.entityType!==3){
@@ -48,7 +49,7 @@ function showSchema() {
                         attributeList=entityNode.attributeList;
                         attributeList.forEach(
                             function (attributeNode){
-                                if(attributeNode.layoutInfo===null){
+                                if(isNullOrUndefined(attributeNode.layoutInfo)){
                                     isInitial=true;
                                 }
                             });
@@ -63,13 +64,13 @@ function showSchema() {
                     const secondType = indexDiagram.findNodeForKey(edgeList[1].entityID).category;
                     // all strong entity
                     if((firstType === "entity" && secondType=== "entity")||firstType === "" && secondType=== ""){
-                        if(relationNode.layoutInfo===null){
+                        if(isNullOrUndefined(relationNode.layoutInfo)){
                             isInitial=true;
                         }
                         const relationAttributeList = relationNode.attributeList;
                         relationAttributeList.forEach(
                             function (relationAttributeNode){
-                                if(relationAttributeNode.layoutInfo===null){
+                                if(isNullOrUndefined(relationAttributeNode.layoutInfo)){
                                     isInitial=true;
                                 }
                             });

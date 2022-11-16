@@ -527,6 +527,9 @@ function addAttr(){
                     "layoutY": tmp.data.location.y
                 }
             };
+            if(category==="subset"){
+                updateInfo.aimPort=5;
+            }
             info = JSON.stringify(updateInfo);
             $.ajax({
                 type : "POST",
@@ -569,6 +572,9 @@ function addAttr(){
                     "layoutY": pos.y.toFixed(1)
                 },
             }
+            if(category==="subset"){
+                info.aimPort=5;
+            }
         }else if(category==="relation"){
             attributeData.category = "relation_attribute";
             info = {
@@ -610,6 +616,9 @@ function addAttr(){
                             to:myDiagram.model.getKeyForNodeData(attributeData),category: "normalLink",
                             fromPort:4,toPort:5
                         };
+                        if(category==="subset"){
+                            link.fromPort=5;
+                        }
                         myDiagram.model.addLinkData(link);
                         save();
                         load();
@@ -706,7 +715,7 @@ function modifyAttribute(){
         "attributeID": dbId,
         "name": name,
         "dataType": DATATYPE[datatype],
-        isPrimay: isPrimary,
+        isPrimary: isPrimary,
         nullable:allowNotNull,
         // "aimPort": node.aimPort,  // won't change in submit
         "layoutInfo": {
