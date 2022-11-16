@@ -184,7 +184,8 @@ function defineModel(isInitial) {
             "draggingTool.dragsLink": false,
             "draggingTool.isGridSnapEnabled": false,
             "undoManager.isEnabled": true,
-            "maxSelectionCount": 1
+            "maxSelectionCount": 1,
+            allowMove: false,
         });
 
     /*
@@ -196,7 +197,7 @@ function defineModel(isInitial) {
         return $(go.Panel, "Vertical", {row: 1, column: 0},
             $(go.Shape, {
                 width: 3, height: 3, portId: 3, toSpot: go.Spot.Left, fromSpot: go.Spot.Left,
-                fromLinkable: true, toLinkable: true
+                fromLinkable: false, toLinkable: false
             }));
     }
 
@@ -205,7 +206,7 @@ function defineModel(isInitial) {
         return $(go.Panel, "Vertical", {row: 1, column: 2},
             $(go.Shape, {
                 width: 3, height: 3, portId: 4, toSpot: go.Spot.Right, fromSpot: go.Spot.Right,
-                fromLinkable: true, toLinkable: true
+                fromLinkable: false, toLinkable: false
             }));
     }
 
@@ -214,7 +215,7 @@ function defineModel(isInitial) {
         return $(go.Panel, "Horizontal", {row: 2, column: 1},
             $(go.Shape, {
                 width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom, fromSpot: go.Spot.Bottom,
-                fromLinkable: true, toLinkable: true
+                fromLinkable: false, toLinkable: false
             }));
     }
 
@@ -223,7 +224,7 @@ function defineModel(isInitial) {
         return $(go.Panel, "Vertical", {row: 0, column: 1},
             $(go.Shape, {
                 width: 3, height: 3, portId: 1, toSpot: go.Spot.Top, fromSpot: go.Spot.Top,
-                fromLinkable: true, toLinkable: true
+                fromLinkable: false, toLinkable: false
             }));
     }
 
@@ -267,7 +268,7 @@ function defineModel(isInitial) {
             },
             {
                 locationSpot: go.Spot.Center,
-                selectionAdorned: true,
+                selectionAdorned: false,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
@@ -297,7 +298,7 @@ function defineModel(isInitial) {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
-                        editable: true
+                        editable: false
                     },
                     new go.Binding("text", "name").makeTwoWay()),
             ),
@@ -315,7 +316,7 @@ function defineModel(isInitial) {
             },
             {
                 locationSpot: go.Spot.Center,
-                selectionAdorned: true,
+                selectionAdorned: false,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
@@ -348,7 +349,7 @@ function defineModel(isInitial) {
                             row: 0,
                             alignment: go.Spot.Center,
                             font: "bold 16px sans-serif",
-                            editable: true
+                            editable: false
                         },
                         new go.Binding("text", "name").makeTwoWay()))
             ),
@@ -366,7 +367,7 @@ function defineModel(isInitial) {
             },
             {
                 locationSpot: go.Spot.Center,
-                selectionAdorned: true,
+                selectionAdorned: false,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
@@ -395,7 +396,7 @@ function defineModel(isInitial) {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
-                        editable: true
+                        editable: false
                     },
                     new go.Binding("text", "name").makeTwoWay()),
             ), //end Auto Panel Body
@@ -413,7 +414,7 @@ function defineModel(isInitial) {
             },
             {
                 locationSpot: go.Spot.Center,
-                selectionAdorned: true,
+                selectionAdorned: false,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
@@ -442,7 +443,7 @@ function defineModel(isInitial) {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
                         font: "bold 16px sans-serif",
-                        editable: true
+                        editable: false
                     },
                     new go.Binding("text", "name").makeTwoWay()),
                 $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
@@ -451,7 +452,7 @@ function defineModel(isInitial) {
             $(go.Panel, "Vertical", {row: 1, column: 1},
                 $(go.Shape, {
                     width: 0, height: 0, portId: 5,
-                    fromLinkable: true, toLinkable: true,
+                    fromLinkable: false, toLinkable: false,
                     fill: "#e8c446", stroke: "#e8c446",
                 })),
         );
@@ -464,7 +465,7 @@ function defineModel(isInitial) {
             selectionObjectName: "MAINBODY"
         },
         {
-            selectionAdorned: true,
+            selectionAdorned: false,
             // selectionAdornmentTemplate: attributeAdornment,
             resizable: false,
             layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
@@ -477,6 +478,7 @@ function defineModel(isInitial) {
             $(go.TextBlock, {
                     font: "bold 12px monospace",
                     margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
+                    editable:false
                 },
                 new go.Binding("text", "name").makeTwoWay(),
                 new go.Binding("isUnderline", "underline")
@@ -504,7 +506,7 @@ function defineModel(isInitial) {
             $(go.Panel, "Vertical", {row: 1, column: 1},
                 $(go.Shape, {
                     width: 3, height: 3, portId: 5,
-                    fromLinkable: true, toLinkable: true,
+                    fromLinkable: false, toLinkable: false,
                     fill: colors.lightblue, stroke: colors.lightblue,
                 })),
         )
@@ -529,14 +531,14 @@ function defineModel(isInitial) {
     var weakLink = $(go.Link,  // the whole link panel
         {
             deletable: false,
-            selectionAdorned: true,
+            selectionAdorned: false,
             layerName: "Foreground",
-            reshapable: true,
+            reshapable: false,
             routing: go.Link.AvoidsNodes,
             corner: 5,
             curve: go.Link.JumpOver,
-            relinkableFrom: true,
-            relinkableTo: true
+            relinkableFrom: false,
+            relinkableTo: false
         },
         $(go.Shape,  // the link shape
             {stroke: "#303B45", strokeWidth: 2.5}),
@@ -584,14 +586,14 @@ function defineModel(isInitial) {
 
     var normalLink = $(go.Link,
         {
-            selectionAdorned: true,
+            selectionAdorned: false,
             layerName: "Foreground",
-            // reshapable: true,
+            reshapable: false,
             // routing: go.Link.AvoidsNodes,
             // corner: 5,
             // curve: go.Link.JumpOver,
-            relinkableFrom: true,
-            relinkableTo: true
+            relinkableFrom: false,
+            relinkableTo: false
         },
         $(go.Shape,  // the link shape
             {stroke: colors.lightblue, strokeWidth: 2.5}),
@@ -610,14 +612,14 @@ function defineModel(isInitial) {
     var subsetLink = $(go.Link,
         {
             deletable: false,
-            selectionAdorned: true,
+            selectionAdorned: false,
             layerName: "Foreground",
-            reshapable: true,
+            reshapable: false,
             routing: go.Link.AvoidsNodes,
             corner: 5,
             curve: go.Link.JumpOver,
-            relinkableFrom: true,
-            relinkableTo: true
+            relinkableFrom: false,
+            relinkableTo: false
         },
         $(go.Shape,  // the link shape
             {stroke: "#e8c446", strokeWidth: 2.5}),
@@ -627,14 +629,14 @@ function defineModel(isInitial) {
 
     var entityLink = $(go.Link,
         {
-            selectionAdorned: true,
+            selectionAdorned: false,
             layerName: "Foreground",
-            reshapable: true,
+            reshapable: false,
             routing: go.Link.AvoidsNodes,
             corner: 5,
             curve: go.Link.JumpOver,
-            relinkableFrom: true,
-            relinkableTo: true
+            relinkableFrom: false,
+            relinkableTo: false
         },
         $(go.Shape,  // the link shape
             {stroke: "#000000", strokeWidth: 2.5}),

@@ -500,7 +500,7 @@ function addAttr(){
         // var angle = Math.random()*Math.PI*2;
         // pos.x+=Math.cos(angle)*120;
         // pos.y+=Math.sin(angle)*120;
-        pos.x+=120;
+        pos.x+=150;
         // decide the attribute position
         // save key
         var connectedAttr = [];
@@ -889,7 +889,7 @@ function createSubset(){
         var info = {
             "subsetName": subsetData.name,
             "belongStrongEntityID": subsetData.parentId,
-            "aimPort": 2,
+            "aimPort": 3,
             "schemaID": schemaID,
             "layoutInfo": {
                 "layoutX": pos.x,
@@ -917,7 +917,7 @@ function createSubset(){
                         from:myDiagram.model.getKeyForNodeData(subsetData),
                         to:myDiagram.model.getKeyForNodeData(selectedEData),category: "subsetLink",
                         fromPort:5,
-                        toPort:2
+                        toPort:3
                     };
                     myDiagram.model.addLinkData(link);
                 }
