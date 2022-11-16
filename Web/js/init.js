@@ -82,6 +82,14 @@ function init() {
             $("Button", {alignment: go.Spot.TopRight, click: addAttr},
                 $(go.Shape, "PlusLine", {desiredSize: new go.Size(6, 6)})));
 
+    // adornment for subset
+    const subsetAdornment =
+        $(go.Adornment, "Spot",
+            $(go.Panel, "Auto",
+                $(go.Shape, {fill: null, stroke: "dodgerblue", strokeWidth: 3}),
+                $(go.Placeholder)),
+            $("Button", {alignment: go.Spot.TopRight, click: addAttr},
+                $(go.Shape, "PlusLine", {desiredSize: new go.Size(6, 6)})));
     /*
      4 ports
      */
@@ -276,6 +284,7 @@ function init() {
             {
                 locationSpot: go.Spot.Center,
                 selectionAdorned: true,
+                selectionAdornmentTemplate: weakEntityAdornment,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
