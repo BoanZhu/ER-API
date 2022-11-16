@@ -30,6 +30,10 @@ let findDataType = (value, compare = (a, b) => a === b) => {
     return Object.keys(DATATYPE).find(k => compare(DATATYPE[k], value))
 }
 
+function is_empty(item){
+    return typeof item ==='undefined' || item === null;
+}
+
 const weakEntityNodeCategory = ENTITYTYPE[2]
 const entityNodeCategory = ENTITYTYPE[1]
 
@@ -67,31 +71,41 @@ function showSchema(data){
 function getInitialParameter(data){
     let flag = false;
     let entities = data.schema.entityList;
-    for (let i = 0; i < entities.length; i++) {
-        let entityNode = entities[i];
-        if (entityNode.layoutInfo == null) {
-            flag = true;
-        }
-        let attributeList = entityNode.attributeList;
-        for (let j = 0; j < attributeList.length; j++) {
-            let attributeNode = attributeList[j];
-            if (attributeNode.layoutInfo == null) {
+    if (!is_empty(entities)) {
+        for (let i = 0; i < entities.length; i++) {
+            let entityNode = entities[i];
+            if (is_empty(entityNode.layoutInfo)) {
                 flag = true;
+            }
+            let attributeList = entityNode.attributeList;
+            if (!is_empty(attributeList)) {
+                for (let j = 0; j < attributeList.length; j++) {
+                    let attributeNode = attributeList[j];
+                    if (is_empty(attributeNode.layoutInfo)) {
+                        flag = true;
+                    }
+                }
             }
         }
     }
 
     let relationList = data.schema.relationshipList;
-    for (let i = 0; i < relationList.length; i++) {
-        let relationNode = relationList[i];
-        if (relationNode.layoutInfo == null) {
-            flag = true;
-        }
-        let attributeList = relationNode.attributeList;
-        for (let j = 0; j < attributeList.length; j++) {
-            let attributeNode = attributeList[j];
-            if (attributeNode.layoutInfo == null) {
+    if (!is_empty(relationList)) {
+        for (let i = 0; i < relationList.length; i++) {
+            let relationNode = relationList[i];
+            if (is_empty(relationNode.layoutInfo)) {
                 flag = true;
+            }
+
+            let attributeList = relationNode.attributeList;
+
+            if (!is_empty(attributeList)) {
+                for (let j = 0; j < attributeList.length; j++) {
+                    let attributeNode = attributeList[j];
+                    if (is_empty(attributeNode.layoutInfo)) {
+                        flag = true;
+                    }
+                }
             }
         }
     }
@@ -99,6 +113,7 @@ function getInitialParameter(data){
 }
 
 function defineModel(isInitial){
+
     const $ = go.GraphObject.make;  // for conciseness in defining templates
     APIDiagram = $(go.Diagram, "model",  // must name or refer to the DIV HTML element
         {
@@ -608,153 +623,207 @@ function getSchema(data){
         });
     const entityList = data.schema.entityList;
     const relationshipList = data.schema.relationshipList;
-    console.log(entityList.length);
-    for(let i = 0; i < entityList.length; i++) {
-        // add entity node
-        let entityNode = entityList[i]
-        let entityData = {
-            key: entityNode.id, name: entityNode.name, category: ENTITYTYPE[entityNode.entityType],
-            from: true, to: true
-        };
-        entityMap.set(entityData.key,entityData.category);
-        if (entityNode.layoutInfo !== null) {
-            entityData.location = {
-                "class": "go.Point",
-                "x": entityNode.layoutInfo.layoutX,
-                "y": entityNode.layoutInfo.layoutY
+    if(!is_empty(entityList)) {
+        for (let i = 0; i < entityList.length; i++) {
+            // add entity node
+            let entityNode = entityList[i]
+            let entityData = {
+                key: entityNode.id, name: entityNode.name, category: ENTITYTYPE[entityNode.entityType],
+                from: true, to: true
             };
-        }
-        if (ENTITYTYPE[entityNode.entityType] !== "entity") {
-            entityData.parentId = entityNode.strongEntityID;
-        }
-
-        let attributeList = entityNode.attributeList;
-
-        for(let j = 0; j < attributeList.length; j++) {
-            let attributeNode = attributeList[j];
-            let attributeNodeData = {
-                "name": attributeNode.name,
-                "category": "Attribute",
-                "dataType": attributeNode.dataType,
-                "parentId": entityNode.id,
-                "isPrimary": attributeNode.isPrimary,
-                "key": attributeNode.id + "_" + attributeNode.name,
-                "underline": attributeNode.isPrimary,
-                "allowNotNull": attributeNode.nullable
-            };
-
-            if (attributeNode.layoutInfo !== null) {
-                attributeNodeData.location = {
+            entityMap.set(entityData.key, entityData.category);
+            if (!is_empty(entityNode.layoutInfo)) {
+                entityData.location = {
                     "class": "go.Point",
-                    "x": attributeNode.layoutInfo.layoutX,
-                    "y": attributeNode.layoutInfo.layoutY
+                    "x": entityNode.layoutInfo.layoutX,
+                    "y": entityNode.layoutInfo.layoutY
                 };
             }
-            APIDiagram.model.addNodeData(attributeNodeData);
-            // add link between node and attribute
-            let linkData = {
-                "from": entityData.key,
-                "to": attributeNodeData.key,
-                "category": "normalLink",
-                "fromPort": 4,
-                "toPort": 5
+            if (ENTITYTYPE[entityNode.entityType] !== "entity") {
+                entityData.parentId = entityNode.strongEntityID;
             }
-            if (attributeNode.aimPort !== -1) {
-                linkData.fromPort = attributeNode.aimPort;
-            }
-            APIDiagram.model.addLinkData(linkData);
-        }
-    }
+            APIDiagram.model.addNodeData(entityData);
 
-    for (let i = 0; i < relationshipList.length; i++) {
-        let relationNode = relationshipList[i];
-        let edgeList = relationNode.edgeList;
-        let firstType = entityMap.get(edgeList[0].entityID);
-        let secondType = entityMap.get(edgeList[1].entityID);
-
-        if((firstType === "entity" && secondType=== "entity")||firstType === "" && secondType=== ""){
-            var relationNodeData = {"key":"relation_"+relationNode.id,"name":relationNode.name,
-                "category":"relation","from":true,"to":true};
-            if(relationNode.layoutInfo!==null){
-                relationNodeData.location={"class":"go.Point","x":relationNode.layoutInfo.layoutX,"y":relationNode.layoutInfo.layoutY};
-            }
-            APIDiagram.model.addNodeData(relationNodeData);
-            // 2 or more links
-            var j=1;
-            for (let k = 0; k < edgeList.length; k++) {
-                let edge = edgeList[k];
-                let edgeLinkData = {"from":edge.entityID,"to":relationNodeData.key,"fromText":findRelationName(edge.cardinality),
-                    "category":"entityLink"};
-                if(edge.portAtEntity!==-1&&edge.portAtRelationship!==-1){
-                    edgeLinkData.fromPort=edge.portAtEntity;
-                    edgeLinkData.toPort=edge.portAtRelationship;
+            if(entityNode.entityType===3){
+                // subset
+                let linkData = {"from":entityNode.id,"to":entityNode.belongStrongEntityID,"category":"subsetLink","toPort":5};
+                if(entityNode.aimPort!==-1){
+                    linkData.fromPort = entityNode.aimPort;
                 }else{
-                    edgeLinkData.fromPort=4;
-                    edgeLinkData.toPort=j;
-                    j=(j+1)%4+1;
+                    linkData.fromPort = 2;
                 }
-                APIDiagram.model.addLinkData(edgeLinkData);
+                APIDiagram.model.addLinkData(linkData);
             }
 
-            const relationAttributeList = relationNode.attributeList;
-            for (let k = 0; k < relationAttributeList.length; k++) {
-                let relationAttributeNode = relationAttributeList[k];
-                let rAttrNodeData = {"name":relationAttributeNode.name,"category":"relation_attribute",
-                    "dataType":relationAttributeNode.dataType,"parentId":relationNodeData.key,
-                    "allowNotNull":relationAttributeNode.nullable,"key":relationAttributeNode.id+"_"+relationAttributeNode.name,
-                    "isPrimary":false,"underline":false};
+            let attributeList = entityNode.attributeList;
 
-                if(relationAttributeNode.layoutInfo!==null){
-                    rAttrNodeData.location={"class":"go.Point","x":relationAttributeNode.layoutInfo.layoutX,"y":relationAttributeNode.layoutInfo.layoutY};
+            if (!is_empty(attributeList)) {
+                for (let j = 0; j < attributeList.length; j++) {
+                    let attributeNode = attributeList[j];
+                    let attributeNodeData = {
+                        "name": attributeNode.name,
+                        "category": "Attribute",
+                        "dataType": attributeNode.dataType,
+                        "parentId": entityNode.id,
+                        "isPrimary": attributeNode.isPrimary,
+                        "key": attributeNode.id + "_" + attributeNode.name,
+                        "underline": attributeNode.isPrimary,
+                        "allowNotNull": attributeNode.nullable
+                    };
+
+                    if (!is_empty(attributeNode.layoutInfo)) {
+                        attributeNodeData.location = {
+                            "class": "go.Point",
+                            "x": attributeNode.layoutInfo.layoutX,
+                            "y": attributeNode.layoutInfo.layoutY
+                        };
+                    }
+                    APIDiagram.model.addNodeData(attributeNodeData);
+                    // add link between node and attribute
+                    let linkData = {
+                        "from": entityData.key,
+                        "to": attributeNodeData.key,
+                        "category": "normalLink",
+                        "fromPort": 4,
+                        "toPort": 5
+                    }
+                    if (attributeNode.aimPort !== -1) {
+                        linkData.fromPort = attributeNode.aimPort;
+                    }
+                    APIDiagram.model.addLinkData(linkData);
                 }
-                // link
-                let linkNodeData = {"from":relationNodeData.key,"to":rAttrNodeData.key,"category":"normalLink","toPort":5};
-                if(relationAttributeNode.aimPort!==-1){
-                    linkNodeData.fromPort = relationAttributeNode.aimPort;
-                }else{linkNodeData.fromPort = 4;}
-                APIDiagram.model.addNodeData(rAttrNodeData);
-                APIDiagram.model.addLinkData(linkNodeData);
-
-
 
             }
-
-        }
-
-        // strong entity and weak entity
-        if(firstType === "weakEntity" || secondType === "weakEntity"){
-            // add parentID to weak entity node
-            var tmp = firstType==="weakEntity"?0:1;
-            var weakEntityNode = APIDiagram.findNodeForKey(edgeList[tmp].entityID);
-            // only preview, no need for primary key
-            var linkData = {"from":edgeList[1-tmp].entityID,"to":weakEntityNode.key,"toText":findRelationName(edgeList[tmp].cardinality),
-                "fromText":findRelationName(edgeList[1-tmp].cardinality),"relation":relationNode.name,"category":"weakLink",
-                "key":relationNode.id,"edgeIDFirst":edgeList[1-tmp].ID,"edgeIDSecond":edgeList[tmp].ID};
-            if(edgeList[1-tmp].portAtEntity!==-1&&edgeList[tmp].portAtEntity!==-1){
-                linkData.fromPort=edgeList[1-tmp].portAtEntity;
-                linkData.toPort = edgeList[tmp].portAtEntity;
-            }else {
-                linkData.fromPort=1;
-                linkData.toPort = 2;
-            }
-            APIDiagram.model.addLinkData(linkData);
-        }
-        // strong entity and subset
-        if(firstType === "subset" || secondType === "subset"){
-            // add parentID to subset node
-            var tmp = firstType==="subset"?0:1;
-            var subsetNode = APIDiagram.findNodeForKey(edgeList[tmp].entityID);
-            var subLinkData ={"from":edgeList[1-tmp].entityID,"to":subsetNode.key,
-                "category":"subsetLink","toPort":5};
-            if(edgeList[1-tmp].portAtEntity!==-1){
-                subLinkData.fromPort=edgeList[1-tmp].portAtEntity;
-            }else{
-                subLinkData.fromPort=1;
-            }
-            APIDiagram.model.addLinkData(subLinkData);
         }
     }
+        if(!is_empty(relationshipList)) {
+            for (let i = 0; i < relationshipList.length; i++) {
+                let relationNode = relationshipList[i];
+                let edgeList = relationNode.edgeList;
+                let firstType = entityMap.get(edgeList[0].entityID);
+                let secondType = entityMap.get(edgeList[1].entityID);
+
+                if ((firstType === "entity" && secondType === "entity") || firstType === "" && secondType === "") {
+                    var relationNodeData = {
+                        "key": "relation_" + relationNode.id, "name": relationNode.name,
+                        "category": "relation", "from": true, "to": true
+                    };
+
+                    if (!is_empty(relationNode.layoutInfo)) {
+                        relationNodeData.location = {
+                            "class": "go.Point",
+                            "x": relationNode.layoutInfo.layoutX,
+                            "y": relationNode.layoutInfo.layoutY
+                        };
+                    }
+                    APIDiagram.model.addNodeData(relationNodeData);
+                    // 2 or more links
+                    var j = 1;
+                    for (let k = 0; k < edgeList.length && typeof (edgeList) !== 'undefined'; k++) {
+                        let edge = edgeList[k];
+                        let edgeLinkData = {
+                            "from": edge.entityID,
+                            "to": relationNodeData.key,
+                            "fromText": findRelationName(edge.cardinality),
+                            "category": "entityLink"
+                        };
+                        if (edge.portAtEntity !== -1 && edge.portAtRelationship !== -1) {
+                            edgeLinkData.fromPort = edge.portAtEntity;
+                            edgeLinkData.toPort = edge.portAtRelationship;
+                        } else {
+                            edgeLinkData.fromPort = 4;
+                            edgeLinkData.toPort = j;
+                            j = (j + 1) % 4 + 1;
+                        }
+                        APIDiagram.model.addLinkData(edgeLinkData);
+                    }
+
+                    const relationAttributeList = relationNode.attributeList;
+                    for (let k = 0; k < relationAttributeList.length; k++) {
+                        let relationAttributeNode = relationAttributeList[k];
+                        let rAttrNodeData = {
+                            "name": relationAttributeNode.name,
+                            "category": "relation_attribute",
+                            "dataType": relationAttributeNode.dataType,
+                            "parentId": relationNodeData.key,
+                            "allowNotNull": relationAttributeNode.nullable,
+                            "key": relationAttributeNode.id + "_" + relationAttributeNode.name,
+                            "isPrimary": false,
+                            "underline": false
+                        };
+
+                        if (!is_empty(relationAttributeNode.layoutInfo)) {
+                            rAttrNodeData.location = {
+                                "class": "go.Point",
+                                "x": relationAttributeNode.layoutInfo.layoutX,
+                                "y": relationAttributeNode.layoutInfo.layoutY
+                            };
+                        }
+                        // link
+                        let linkNodeData = {
+                            "from": relationNodeData.key,
+                            "to": rAttrNodeData.key,
+                            "category": "normalLink",
+                            "toPort": 5
+                        };
+                        if (relationAttributeNode.aimPort !== -1) {
+                            linkNodeData.fromPort = relationAttributeNode.aimPort;
+                        } else {
+                            linkNodeData.fromPort = 4;
+                        }
+                        APIDiagram.model.addNodeData(rAttrNodeData);
+                        APIDiagram.model.addLinkData(linkNodeData);
+
+                    }
+
+                }
+
+                // strong entity and weak entity
+                if (firstType === "weakEntity" || secondType === "weakEntity") {
+                    // add parentID to weak entity node
+                    var tmp = firstType === "weakEntity" ? 0 : 1;
+                    var weakEntityNode = APIDiagram.findNodeForKey(edgeList[tmp].entityID);
+                    // only preview, no need for primary key
+                    var linkData = {
+                        "from": edgeList[1 - tmp].entityID,
+                        "to": weakEntityNode.key,
+                        "toText": findRelationName(edgeList[tmp].cardinality),
+                        "fromText": findRelationName(edgeList[1 - tmp].cardinality),
+                        "relation": relationNode.name,
+                        "category": "weakLink",
+                        "key": relationNode.id,
+                        "edgeIDFirst": edgeList[1 - tmp].ID,
+                        "edgeIDSecond": edgeList[tmp].ID
+                    };
+                    if (edgeList[1 - tmp].portAtEntity !== -1 && edgeList[tmp].portAtEntity !== -1) {
+                        linkData.fromPort = edgeList[1 - tmp].portAtEntity;
+                        linkData.toPort = edgeList[tmp].portAtEntity;
+                    } else {
+                        linkData.fromPort = 1;
+                        linkData.toPort = 2;
+                    }
+                    APIDiagram.model.addLinkData(linkData);
+                }
+                // strong entity and subset
+                if (firstType === "subset" || secondType === "subset") {
+                    // add parentID to subset node
+                    var tmp = firstType === "subset" ? 0 : 1;
+                    var subsetNode = APIDiagram.findNodeForKey(edgeList[tmp].entityID);
+                    var subLinkData = {
+                        "from": edgeList[1 - tmp].entityID, "to": subsetNode.key,
+                        "category": "subsetLink", "toPort": 5
+                    };
+                    if (edgeList[1 - tmp].portAtEntity !== -1) {
+                        subLinkData.fromPort = edgeList[1 - tmp].portAtEntity;
+                    } else {
+                        subLinkData.fromPort = 1;
+                    }
+                    APIDiagram.model.addLinkData(subLinkData);
+                }
+            }
+        }
     modelStr = APIDiagram.model.toJSON();
+
     console.log(modelStr)
     return modelStr
 }
