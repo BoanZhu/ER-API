@@ -1,11 +1,12 @@
-var entityCounter = 46;
-var attributeCounter = 1;
-var weakEntityCounter = 1;
-var subsetCounter = 1;
-var entityCounter = 24;
-var attributeCounter = 5;
-var weakEntityCounter = 4;
-var subsetCounter = 5;
+console.log((new Date()).valueOf().toString());
+var entityCounter = parseInt((new Date()).valueOf().toString().substring(8,12));
+var attributeCounter = entityCounter;
+var weakEntityCounter = entityCounter;
+var subsetCounter = entityCounter;
+var entityCounter = entityCounter;
+var attributeCounter = entityCounter;
+var weakEntityCounter = entityCounter;
+var subsetCounter = entityCounter;
 
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"

@@ -765,7 +765,7 @@ function getSchema(id) {
                         function (attributeNode){
                             // add attribute node
                             var attributeNodeData = {"name":attributeNode.name,"category":"Attribute",
-                                "dataType":attributeNode.dataType,"parentId":entityNode.id,"allowNotNull":entityNode.nullable,
+                                "dataType":attributeNode.dataType,"parentId":entityNode.id,
                                 "isPrimary":false,"key":attributeNode.id+"_"+attributeNode.name,"underline":false,
                                 "allowNotNull":attributeNode.nullable};
                             if(attributeNode.layoutInfo!==null){
