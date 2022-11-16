@@ -109,6 +109,22 @@ anonymous function:
 define model
  */
 
+const DATATYPE = {
+    UNKNOWN:0,
+    CHAR:1,
+    VARCHAR:2,
+    TEXT:3,
+    TINYINT:4,
+    SMALLINT:5,
+    INT:6,
+    BIGINT:7,
+    FLOAT:8,
+    DOUBLE:9,
+    DATETIME:10
+}
+let findDataType = (value, compare = (a, b) => a === b) => {
+    return Object.keys(DATATYPE).find(k => compare(DATATYPE[k], value))
+}
 
 
 /*
