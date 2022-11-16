@@ -823,6 +823,7 @@ function getSchema(data){
             }
         }
     modelStr = APIDiagram.model.toJSON();
+
     console.log(modelStr)
     return modelStr
 }

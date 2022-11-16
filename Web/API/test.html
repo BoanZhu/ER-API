@@ -9,7 +9,7 @@
 
 </head>
 <body>
-    <div id="model" style="background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
+    <div id="model" style="display:none; background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
 </div>
     <div id ="image"></div>
     <div id = "modelData">{
@@ -176,8 +176,9 @@
     function load() {
         const modelData = JSON.parse(document.getElementById("modelData").innerHTML);
         showSchema(modelData);
-        const image = APIDiagram.makeImage({ background: "white"});
-        document.getElementById("image").innerHTML = image.src;
+        const image = APIDiagram.makeImage({ background: "white" });
+        // document.getElementById("image").innerHTML = image.src;
+        document.getElementById("image").innerHTML = image
     }
     window.addEventListener('DOMContentLoaded', load);
 </script>
