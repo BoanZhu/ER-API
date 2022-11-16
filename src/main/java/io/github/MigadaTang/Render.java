@@ -1,4 +1,4 @@
-package com.ic.er;
+package io.github.MigadaTang;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
