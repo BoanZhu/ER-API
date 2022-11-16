@@ -33,7 +33,7 @@ public class Render {
 
     public static void writeFile(String jsonString) throws IOException {
 
-        File f = new File("src/main/resources/mode.html");
+        File f = new File("src/main/resources/template.html");
         InputStreamReader isr1 = new InputStreamReader(new FileInputStream(f), "UTF-8");
         BufferedReader br = new BufferedReader(isr1);
         String s;
