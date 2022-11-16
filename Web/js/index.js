@@ -47,7 +47,7 @@ function showSchema() {
     });
     defineModel(isInitial);
     var schema = getSchema(id);
-    indexDiagram.model = go.Model.fromJSON(schema);
+    // indexDiagram.model = go.Model.fromJSON(schema);
 }
 
 

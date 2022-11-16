@@ -1,0 +1,81 @@
+{
+  "schema": {
+    "name": "BranchAccountMovement",
+    "entityList": [
+      {
+        "name": "branch",
+        "entityType": 1,
+        "aimPort": 1,
+        "strongEntityID": 1,
+        "layoutInfo": {
+          "layoutX": 0.0,
+          "layoutY": 0.0
+        },
+        "attributeList": [
+          {
+            "belongObjID": 1,
+            "belongObjType": 5,
+            "aimPort": 1,
+            "name": "sortcode",
+            "dataType": 6,
+            "isPrimary": true,
+            "nullable": false,
+            "layoutInfo": {
+              "layoutX": 0.0,
+              "layoutY": 0.0
+            },
+            "id": 491
+          }
+        ],
+        "id": 589
+      }
+    ],
+    "relationshipList": [
+      {
+        "name": "holds",
+        "layoutInfo": {
+          "layoutX": 0.0,
+          "layoutY": 0.0
+        },
+        "edgeList": [
+          {
+            "ID": 1,
+            "relationshipID": 10,
+            "entityID": 5,
+            "entityName": "haha",
+            "cardinality": 1,
+            "portAtRelationship": 5,
+            "portAtEntity": 2
+          },
+          {
+            "ID": 2,
+            "relationshipID": 10,
+            "entityID": 6,
+            "entityName": "hehe",
+            "cardinality": 1,
+            "portAtRelationship": 5,
+            "portAtEntity": 2
+          }
+        ],
+        "id": 150,
+        "attributeList": [
+          {
+            "belongObjID": 1,
+            "belongObjType": 5,
+            "aimPort": 1,
+            "name": "sortcode",
+            "dataType": 6,
+            "isPrimary": true,
+            "nullable": false,
+            "layoutInfo": {
+              "layoutX": 0.0,
+              "layoutY": 0.0
+            },
+            "id": 491
+          }
+        ]
+      }
+    ],
+    "id": 340
+  }
+}
