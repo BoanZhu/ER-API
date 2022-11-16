@@ -554,7 +554,7 @@ function addAttr(){
         attributeData.allowNotNull = false; //default value false：NOT allow null
         // send data to backend
         var info;
-        if (category==="entity"||category==="weakEntity") {
+        if (category==="entity"||category==="weakEntity"||category==="subset") {
             attributeData.isPrimary = false;
             info = {
                 "belongObjID": attributeData.parentId,

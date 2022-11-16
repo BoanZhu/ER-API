@@ -1,11 +1,12 @@
-var entityCounter = 46;
-var attributeCounter = 1;
-var weakEntityCounter = 1;
-var subsetCounter = 1;
-var entityCounter = 24;
-var attributeCounter = 5;
-var weakEntityCounter = 4;
-var subsetCounter = 5;
+console.log((new Date()).valueOf().toString());
+var entityCounter = parseInt((new Date()).valueOf().toString().substring(8,12));
+var attributeCounter = entityCounter;
+var weakEntityCounter = entityCounter;
+var subsetCounter = entityCounter;
+var entityCounter = entityCounter;
+var attributeCounter = entityCounter;
+var weakEntityCounter = entityCounter;
+var subsetCounter = entityCounter;
 
 const prefixRelationNodeKey = "relation_"
 let ERLinkCreateVerify =new Set(); // Value:"fromEntityIDRelationID"
@@ -82,6 +83,14 @@ function init() {
             $("Button", {alignment: go.Spot.TopRight, click: addAttr},
                 $(go.Shape, "PlusLine", {desiredSize: new go.Size(6, 6)})));
 
+    // adornment for subset
+    const subsetAdornment =
+        $(go.Adornment, "Spot",
+            $(go.Panel, "Auto",
+                $(go.Shape, {fill: null, stroke: "dodgerblue", strokeWidth: 3}),
+                $(go.Placeholder)),
+            $("Button", {alignment: go.Spot.TopRight, click: addAttr},
+                $(go.Shape, "PlusLine", {desiredSize: new go.Size(6, 6)})));
     /*
      4 ports
      */
@@ -276,6 +285,7 @@ function init() {
             {
                 locationSpot: go.Spot.Center,
                 selectionAdorned: true,
+                selectionAdornmentTemplate: weakEntityAdornment,
                 resizable: false,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 isShadowed: true,
