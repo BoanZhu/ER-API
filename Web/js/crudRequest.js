@@ -46,7 +46,7 @@ function deleteSchema() {
             "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"},
         contentType: "application/json",
         success : function() {
-            window.location.href = "index_dev.html";
+            window.location.href = "index.html";
         }, error : function() {
             alert("fail to delete schema")
         }
