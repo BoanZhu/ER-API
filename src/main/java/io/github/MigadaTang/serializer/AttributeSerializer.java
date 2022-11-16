@@ -23,17 +23,15 @@ public class AttributeSerializer extends JsonSerializer<Attribute> {
         jgen.writeStartObject();
 
 
+        if (isRenderFormat) {
+            jgen.writeNumberField("id", attribute.getID());
+        }
         jgen.writeStringField("name", attribute.getName());
-        jgen.writeStringField("dataType", attribute.getDataType().toString());
+        jgen.writeNumberField("dataType", attribute.getDataType().ordinal());
         jgen.writeBooleanField("isPrimary", attribute.getIsPrimary());
         jgen.writeBooleanField("nullable", attribute.getNullable());
 
-        if (attribute.getAimPort() != -1) {
-            jgen.writeNumberField("aimPort", attribute.getAimPort());
-        } else if (isRenderFormat) {
-            jgen.writeNumberField("aimPort", 1);
-        }
-
+        jgen.writeNumberField("aimPort", attribute.getAimPort());
         if (attribute.getLayoutInfo() != null) {
             jgen.writeObjectField("layoutInfo", attribute.getLayoutInfo());
         }

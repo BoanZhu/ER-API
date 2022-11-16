@@ -164,8 +164,6 @@ public class TestTransform {
     public void testRSToERModel() throws IOException, SQLException {
         ER.initialize(true);
         Tranform tranform = new Tranform();
-//        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.H2, "jdbc:h2:tcp://localhost/~/test",
-//                "sa", "");
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "jdbc:postgresql://db.doc.ic.ac.uk:5432/wh722",
 //                "wh722", "4jC@A3528>0N6");
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722",

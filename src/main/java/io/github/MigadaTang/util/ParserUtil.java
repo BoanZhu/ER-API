@@ -136,8 +136,7 @@ public class ParserUtil {
             if (!tableDTOEntityMap.containsKey(subset.getBelongStrongTableID()))
                 throw new ParseException("Api only support subset relies on strong entity for current version");
 
-            Entity entity = schema.addWeakEntity(subset.getName(), tableDTOEntityMap.get(subset.getBelongStrongTableID()),
-                    "unknow", Cardinality.OneToOne, Cardinality.ZeroToMany).getLeft();
+            Entity entity = schema.addSubset(subset.getName(), tableDTOEntityMap.get(subset.getBelongStrongTableID()));
             tableDTOEntityMap.put(subset.getId(), entity);
             List<ColumnDTO> columnDTOList = subset.getColumnDTOList();
             Set<Long> foreignTableList = new HashSet<>();

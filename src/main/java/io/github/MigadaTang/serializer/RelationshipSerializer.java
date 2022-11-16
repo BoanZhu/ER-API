@@ -26,7 +26,7 @@ public class RelationshipSerializer extends JsonSerializer<Relationship> {
         jgen.writeStartObject();
 
         if (isRenderFormat) {
-            jgen.writeNumberField("ID", relationship.getID());
+            jgen.writeNumberField("id", relationship.getID());
         }
 
 

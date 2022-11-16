@@ -24,15 +24,11 @@ public class EntitySerializer extends JsonSerializer<Entity> {
         jgen.writeStartObject();
 
         if (isRenderFormat) {
-            jgen.writeNumberField("ID", entity.getID());
+            jgen.writeNumberField("id", entity.getID());
             jgen.writeStringField("name", entity.getName());
-            jgen.writeStringField("entityType", entity.getEntityType().getValue());
+            jgen.writeNumberField("entityType", entity.getEntityType().getCode());
             jgen.writeObjectField("attributeList", entity.getAttributeList());
-            if (entity.getAimPort() == -1) {
-                jgen.writeNumberField("aimPort", 1);
-            } else {
-                jgen.writeNumberField("aimPort", entity.getAimPort());
-            }
+            jgen.writeNumberField("aimPort", entity.getAimPort());
 
             if (entity.getBelongStrongEntity() != null) {
                 jgen.writeStringField("belongStrongEntityID", entity.getBelongStrongEntity().getID().toString());

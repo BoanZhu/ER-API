@@ -22,24 +22,16 @@ public class RelationshipEdgeSerializer extends JsonSerializer<RelationshipEdge>
         jgen.writeStartObject();
 
         if (isRenderFormat) {
-            jgen.writeNumberField("ID", edge.getID());
+            jgen.writeNumberField("id", edge.getID());
             jgen.writeNumberField("relationshipID", edge.getRelationshipID());
             jgen.writeNumberField("entityID", edge.getEntity().getID());
         } else {
             jgen.writeStringField("entity", edge.getEntity().getName());
         }
 
-        jgen.writeStringField("cardinality", edge.getCardinality().getValue());
-        if (edge.getPortAtRelationship() != -1) {
-            jgen.writeNumberField("portAtRelationship", edge.getPortAtRelationship());
-        } else if (isRenderFormat) {
-            jgen.writeNumberField("portAtRelationship", 1);
-        }
-        if (edge.getPortAtEntity() != -1) {
-            jgen.writeNumberField("portAtEntity", edge.getPortAtEntity());
-        } else if (isRenderFormat) {
-            jgen.writeNumberField("portAtEntity", 1);
-        }
+        jgen.writeNumberField("cardinality", edge.getCardinality().getCode());
+        jgen.writeNumberField("portAtRelationship", edge.getPortAtRelationship());
+        jgen.writeNumberField("portAtEntity", edge.getPortAtEntity());
 
         jgen.writeEndObject();
     }
