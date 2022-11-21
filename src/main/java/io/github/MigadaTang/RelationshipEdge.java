@@ -1,11 +1,8 @@
 package io.github.MigadaTang;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.exception.ERException;
-import io.github.MigadaTang.serializer.RelationshipEdgeSerializer;
 import lombok.Data;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -39,7 +36,7 @@ public class RelationshipEdge {
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
             insertDB();
-    }
+        }
     }
 
     private void insertDB() {

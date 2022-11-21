@@ -1,6 +1,5 @@
 package io.github.MigadaTang;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.entity.LayoutInfoDO;
 import io.github.MigadaTang.exception.ERException;

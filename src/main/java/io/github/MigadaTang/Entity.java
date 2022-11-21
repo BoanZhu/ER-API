@@ -1,13 +1,11 @@
 package io.github.MigadaTang;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.entity.AttributeDO;
 import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.exception.ERException;
-import io.github.MigadaTang.serializer.EntitySerializer;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
