@@ -68,16 +68,19 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
         for (EntityType type : types) {
             if (type == entityType) {
                 switch (entityType) {
-                    case STRONG -> {
+                    case STRONG: {
                         entity = schema.addEntity(entityName);
+                        break;
                     }
-                    case WEAK -> {
+                    case WEAK: {
                         entity = schema.addIsolatedWeakEntity(entityName, entityNameMap.get(strongEntityName));
+                        break;
                     }
-                    case SUBSET -> {
+                    case SUBSET: {
                         entity = schema.addSubset(entityName, entityNameMap.get(strongEntityName));
+                        break;
                     }
-                    default -> {
+                    default: {
                         throw new ERException(String.format("deserialize schema fail: fail to create entity: %s", entityName));
                     }
                 }
