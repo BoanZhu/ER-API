@@ -10,6 +10,7 @@ import io.github.MigadaTang.util.DatabaseUtil;
 import io.github.MigadaTang.util.GenerationSqlUtil;
 import io.github.MigadaTang.util.ParserUtil;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,11 +51,14 @@ public class Tranform {
 
             schema = ER.querySchemaByID(schema.getID());
             String renderJSONStatement = schema.toRenderJSON();
+            Render.render(renderJSONStatement);
 
             resultState = ResultState.ok(renderJSONStatement);
         } catch (DBConnectionException | SQLException | ParseException e) {
             resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
             return resultState;
+        } catch (InterruptedException | IOException e) {
+            resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
         }
 
         return resultState;

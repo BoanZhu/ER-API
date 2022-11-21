@@ -27,7 +27,7 @@ public class SchemaSerializer extends JsonSerializer<Schema> {
         jgen.writeStartObject();
 
         if (isRenderFormat)
-            jgen.writeNumberField("ID", schema.getID());
+            jgen.writeNumberField("id", schema.getID());
         jgen.writeStringField("name", schema.getName());
 
         if (isRenderFormat || (schema.getEntityList() != null && schema.getEntityList().size() != 0))
