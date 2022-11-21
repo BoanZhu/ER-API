@@ -1,7 +1,5 @@
-package io.github.MigadaTang.bean.dto.transform;
+package io.github.MigadaTang;
 
-import io.github.MigadaTang.Attribute;
-import io.github.MigadaTang.Entity;
 import io.github.MigadaTang.common.EntityType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +13,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TableDTO {
+public class Table {
     private Long id;
 
     private String name;
@@ -24,16 +22,16 @@ public class TableDTO {
 
     private Long belongStrongTableID;
 
-    private List<ColumnDTO> columnDTOList;
+    private List<Column> columnList;
 
-    private List<ColumnDTO> primaryKey;
+    private List<Column> primaryKey;
 
-    private Map<Long, List<ColumnDTO>> foreignKey;
+    private Map<Long, List<Column>> foreignKey;
 
     public void tranformEntity(Entity entity) {
         this.id = entity.getID();
         this.name = entity.getName();
-        this.columnDTOList = new ArrayList<>();
+        this.columnList = new ArrayList<>();
         this.primaryKey = new ArrayList<>();
         this.tableType = entity.getEntityType();
         if (entity.getBelongStrongEntity() != null) {
@@ -41,11 +39,11 @@ public class TableDTO {
         }
         this.foreignKey = new HashMap<>();
         for (Attribute attribute : entity.getAttributeList()) {
-            ColumnDTO columnDTO = new ColumnDTO();
-            columnDTO.transformAttribute(attribute);
-            this.columnDTOList.add(columnDTO);
-            if (columnDTO.isPrimary()) {
-                this.primaryKey.add(columnDTO);
+            Column column = new Column();
+            column.transformAttribute(attribute);
+            this.columnList.add(column);
+            if (column.isPrimary()) {
+                this.primaryKey.add(column);
             }
         }
     }

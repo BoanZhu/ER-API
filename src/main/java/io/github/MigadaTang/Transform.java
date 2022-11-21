@@ -1,6 +1,5 @@
 package io.github.MigadaTang;
 
-import io.github.MigadaTang.bean.dto.transform.TableDTO;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
@@ -37,9 +36,9 @@ public class Transform {
             driver = DatabaseUtil.recognDriver(databaseType);
             conn = DatabaseUtil.acquireDBConnection(driver, dbUrl, userName, password);
             conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            List<TableDTO> tableDTOList = DatabaseUtil.getDatabseInfo(conn);
+            List<Table> tableList = DatabaseUtil.getDatabseInfo(conn);
             DatabaseUtil.closeDBConnection(conn);
-            Schema schema = ParserUtil.parseAttributeToRelationship(tableDTOList);
+            Schema schema = ParserUtil.parseAttributeToRelationship(tableList);
             schema = ER.querySchemaByID(schema.getID());
             String renderJSONStatement = schema.toRenderJSON();
             Render.render(renderJSONStatement);
@@ -55,7 +54,7 @@ public class Transform {
 
     public String ERModelToSql(Long viewId) throws ParseException {
         Schema schema = Schema.queryByID(viewId);
-        Map<Long, TableDTO> tableDTOList;
+        Map<Long, Table> tableDTOList;
         try {
             tableDTOList = ParserUtil.parseRelationshipsToAttribute(schema.getEntityList(), schema.getRelationshipList());
         } catch (ParseException e) {

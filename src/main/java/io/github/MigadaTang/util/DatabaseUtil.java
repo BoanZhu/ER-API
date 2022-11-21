@@ -1,7 +1,7 @@
 package io.github.MigadaTang.util;
 
-import io.github.MigadaTang.bean.dto.transform.ColumnDTO;
-import io.github.MigadaTang.bean.dto.transform.TableDTO;
+import io.github.MigadaTang.Column;
+import io.github.MigadaTang.Table;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 public class DatabaseUtil {
-    public static List<TableDTO> getDatabseInfo(Connection conn) throws DBConnectionException {
-        List<TableDTO> tableDTOList = new ArrayList<>();
-        Map<String, Map<String, ColumnDTO>> columnTracker = new HashMap<>();
-        Map<String, TableDTO> tableTracker = new HashMap<>();
+    public static List<Table> getDatabseInfo(Connection conn) throws DBConnectionException {
+        List<Table> tableList = new ArrayList<>();
+        Map<String, Map<String, Column>> columnTracker = new HashMap<>();
+        Map<String, Table> tableTracker = new HashMap<>();
         try {
             DatabaseMetaData meta = conn.getMetaData();
 
@@ -29,7 +29,7 @@ public class DatabaseUtil {
 
             while (tableRs.next()) {
                 String tableName = tableRs.getString("TABLE_NAME");
-                TableDTO table = new TableDTO();
+                Table table = new Table();
                 table.setName(tableName);
                 table.setId(RandomUtils.generateID());
 
@@ -37,53 +37,53 @@ public class DatabaseUtil {
                 PreparedStatement statement = conn.prepareStatement("select * from " + tableName);
                 ResultSet columnRs = statement.executeQuery();
                 ResultSetMetaData rsmd = columnRs.getMetaData();
-                List<ColumnDTO> columnDTOList = new ArrayList<>();
-                Map<String, ColumnDTO> columnTrackInTable = new HashMap<>();
+                List<Column> columnList = new ArrayList<>();
+                Map<String, Column> columnTrackInTable = new HashMap<>();
 
                 for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                    ColumnDTO columnDTO = new ColumnDTO();
+                    Column column = new Column();
                     String columnName = rsmd.getColumnName(i);
                     String columnDataType = rsmd.getColumnTypeName(i);
                     int nullable = rsmd.isNullable(i);
                     if (nullable >= 1) {
-                        columnDTO.setNullable(true);
+                        column.setNullable(true);
                     } else {
-                        columnDTO.setNullable(false);
+                        column.setNullable(false);
                     }
-                    columnDTO.setID(RandomUtils.generateID());
-                    columnDTO.setDataType(columnDataType);
-                    columnDTO.setName(columnName);
-                    columnDTO.setBelongTo(table.getId());
-                    columnDTOList.add(columnDTO);
-                    columnTrackInTable.put(columnName, columnDTO);
+                    column.setID(RandomUtils.generateID());
+                    column.setDataType(columnDataType);
+                    column.setName(columnName);
+                    column.setBelongTo(table.getId());
+                    columnList.add(column);
+                    columnTrackInTable.put(columnName, column);
                 }
 
-                table.setColumnDTOList(columnDTOList);
-                tableDTOList.add(table);
+                table.setColumnList(columnList);
+                tableList.add(table);
 
                 columnTracker.put(tableName, columnTrackInTable);
                 tableTracker.put(tableName, table);
             }
 
-            for (TableDTO table : tableDTOList) {
+            for (Table table : tableList) {
                 ResultSet foreignKeyRs = meta.getImportedKeys(catalog, schemaPattern, table.getName());
                 ResultSet primaryKeyRs = meta.getPrimaryKeys(catalog, schemaPattern, table.getName());
-                Map<String, ColumnDTO> columnTrackInTable = columnTracker.get(table.getName());
-                List<ColumnDTO> primaryKeyList = new ArrayList<>();
+                Map<String, Column> columnTrackInTable = columnTracker.get(table.getName());
+                List<Column> primaryKeyList = new ArrayList<>();
                 while (primaryKeyRs.next()) {
                     String name = primaryKeyRs.getString("COLUMN_NAME");
-                    ColumnDTO pk = columnTrackInTable.get(name);
+                    Column pk = columnTrackInTable.get(name);
                     pk.setPrimary(true);
                     primaryKeyList.add(pk);
                 }
                 table.setPrimaryKey(primaryKeyList);
 
-                Map<Long, List<ColumnDTO>> foreignKeyList = new HashMap<>();
+                Map<Long, List<Column>> foreignKeyList = new HashMap<>();
                 while (foreignKeyRs.next()) {
                     // TODO how to recognize multi column combine one fk
                     String name = foreignKeyRs.getString("FKCOLUMN_NAME");
-                    List<ColumnDTO> fks = new ArrayList<>();
-                    ColumnDTO fk = columnTrackInTable.get(name);
+                    List<Column> fks = new ArrayList<>();
+                    Column fk = columnTrackInTable.get(name);
                     fk.setForeign(true);
                     String foreignTableName = foreignKeyRs.getString("PKTABLE_NAME");
                     String foreignColumnName = foreignKeyRs.getString("PKCOLUMN_NAME");
@@ -101,7 +101,7 @@ public class DatabaseUtil {
             throw new DBConnectionException("Fail to read the tables or columns info from database.");
         }
 
-        return tableDTOList;
+        return tableList;
     }
 
 
