@@ -2,78 +2,66 @@ package io.github.MigadaTang;
 
 import io.github.MigadaTang.bean.dto.transform.TableDTO;
 import io.github.MigadaTang.common.RDBMSType;
-import io.github.MigadaTang.common.ResultState;
-import io.github.MigadaTang.common.ResultStateCode;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.util.DatabaseUtil;
 import io.github.MigadaTang.util.GenerationSqlUtil;
 import io.github.MigadaTang.util.ParserUtil;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-public class Tranform {
+public class Transform {
 
-    public ResultState relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
-            , String userName, String password) {
-        ResultState resultState;
+    public void relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
+            , String userName, String password) throws ParseException, DBConnectionException {
         String dbUrl = "";
         try {
             dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
+            relationSchemasToERModel(databaseType, dbUrl, userName, password);
         } catch (ParseException e) {
-            resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
-            return resultState;
+            throw new ParseException(e.getMessage());
+        } catch (DBConnectionException e) {
+            throw new DBConnectionException(e.getMessage());
         }
-
-        resultState = relationSchemasToERModel(databaseType, dbUrl, userName, password);
-
-        return resultState;
     }
 
-    public ResultState relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password) {
+    public void relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password) throws DBConnectionException, ParseException {
         Connection conn = null;
-        ResultState resultState;
         String driver = "";
 
         try {
             driver = DatabaseUtil.recognDriver(databaseType);
             conn = DatabaseUtil.acquireDBConnection(driver, dbUrl, userName, password);
             conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
             List<TableDTO> tableDTOList = DatabaseUtil.getDatabseInfo(conn);
             DatabaseUtil.closeDBConnection(conn);
             Schema schema = ParserUtil.parseAttributeToRelationship(tableDTOList);
-
             schema = ER.querySchemaByID(schema.getID());
             String renderJSONStatement = schema.toRenderJSON();
             Render.render(renderJSONStatement);
-
-            resultState = ResultState.ok(renderJSONStatement);
-        } catch (DBConnectionException | SQLException | ParseException e) {
-            resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
-            return resultState;
-        } catch (InterruptedException | IOException e) {
-            resultState = ResultState.build(ResultStateCode.Failure, e.getMessage());
+        } catch (ParseException parseException) {
+            throw new ParseException(parseException.getMessage());
+        } catch (DBConnectionException dbConnectionException) {
+            throw new DBConnectionException(dbConnectionException.getMessage());
+        } catch (SQLException throwables) {
+            throw new DBConnectionException("Fail to create db statement");
         }
-
-        return resultState;
     }
 
 
-    public ResultState ERModelToSql(Long viewId) {
+    public String ERModelToSql(Long viewId) throws ParseException {
         Schema schema = Schema.queryByID(viewId);
         Map<Long, TableDTO> tableDTOList;
         try {
             tableDTOList = ParserUtil.parseRelationshipsToAttribute(schema.getEntityList(), schema.getRelationshipList());
         } catch (ParseException e) {
-            return ResultState.build(ResultStateCode.Failure, e.getMessage());
+            throw new ParseException(e.getMessage());
         }
         String sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
-        return ResultState.ok(sqlStatement);
+        return sqlStatement;
     }
 }

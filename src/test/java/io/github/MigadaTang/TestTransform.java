@@ -1,7 +1,10 @@
 package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.*;
+import io.github.MigadaTang.exception.DBConnectionException;
+import io.github.MigadaTang.exception.ParseException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
@@ -33,11 +36,13 @@ public class TestTransform {
         Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.ZeroToMany, Cardinality.OneToMany);
 
 
-        Tranform tranform = new Tranform();
-        ResultState resultState = tranform.ERModelToSql(view.getID());
-        System.out.println(resultState.getMsg());
-        assert resultState.getStatus().equals(ResultStateCode.Success);
-        String sql = (String) resultState.getData();
+        Transform transform = new Transform();
+        String sql = "";
+        try {
+            sql = transform.ERModelToSql(view.getID());
+        } catch (ParseException e) {
+            Assert.fail();
+        }
         System.out.println(sql);
     }
 
@@ -63,10 +68,14 @@ public class TestTransform {
         Relationship stbtr = view.createRelationship("teach by", student, teacher, Cardinality.ZeroToMany, Cardinality.OneToMany);
 
 
-        Tranform tranform = new Tranform();
-        ResultState resultState = tranform.ERModelToSql(view.getID());
-        assert resultState.getStatus().equals(ResultStateCode.Failure);
-        System.out.println(resultState.getMsg());
+        Transform transform = new Transform();
+        String sql = "";
+        try {
+            sql = transform.ERModelToSql(view.getID());
+        } catch (ParseException e) {
+            Assert.assertTrue(true);
+            System.out.println(e.getMessage());
+        }
     }
 
 
@@ -91,11 +100,14 @@ public class TestTransform {
         Relationship bhar = view.createRelationship("holds", branch, account, Cardinality.ZeroToMany, Cardinality.OneToOne);
         Relationship ahmr = view.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
 
-        Tranform tranform = new Tranform();
-        ResultState resultState = tranform.ERModelToSql(view.getID());
-        assert resultState.getStatus().equals(ResultStateCode.Success);
-        String sql = (String) resultState.getData();
-        System.out.print(sql);
+        Transform transform = new Transform();
+        String sql = "";
+        try {
+            sql = transform.ERModelToSql(view.getID());
+        } catch (ParseException e) {
+            Assert.assertTrue(true);
+            System.out.println(e.getMessage());
+        }
     }
 
 
@@ -120,10 +132,14 @@ public class TestTransform {
         entityWithCardinalityList.add(entity3);
         view.createNaryRelationship("works in", entityWithCardinalityList);
 
-        Tranform tranform = new Tranform();
-        ResultState resultState = tranform.ERModelToSql(view.getID());
-        assert resultState.getStatus().equals(ResultStateCode.Success);
-        String sql = (String) resultState.getData();
+        Transform transform = new Transform();
+        String sql = "";
+        try {
+            sql = transform.ERModelToSql(view.getID());
+        } catch (ParseException e) {
+            Assert.fail();
+            System.out.println(e.getMessage());
+        }
         System.out.print(sql);
     }
 
@@ -152,10 +168,14 @@ public class TestTransform {
         entityWithCardinalityList.add(entity3);
         view.createNaryRelationship("works in", entityWithCardinalityList);
 
-        Tranform tranform = new Tranform();
-        ResultState resultState = tranform.ERModelToSql(view.getID());
-        assert resultState.getStatus().equals(ResultStateCode.Success);
-        String sql = (String) resultState.getData();
+        Transform transform = new Transform();
+        String sql = "";
+        try {
+            sql = transform.ERModelToSql(view.getID());
+        } catch (ParseException e) {
+            Assert.fail();
+            System.out.println(e.getMessage());
+        }
         System.out.print(sql);
     }
 
@@ -163,14 +183,16 @@ public class TestTransform {
     @Test
     public void testRSToERModel() throws IOException, SQLException {
         ER.initialize(true);
-        Tranform tranform = new Tranform();
+        Transform transform = new Transform();
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "jdbc:postgresql://db.doc.ic.ac.uk:5432/wh722",
 //                "wh722", "4jC@A3528>0N6");
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722",
 //                "wh722", "4jC@A3528>0N6");
-        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wt22",
-                "wt22", "22V**66+C5JPu");
-        resultState.getData();
-        System.out.println(resultState.getData().toString());
+        try {
+            transform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wt22",
+                    "wt22", "22V**66+C5JPu");
+        } catch (ParseException | DBConnectionException e) {
+            Assert.fail();
+        }
     }
 }
