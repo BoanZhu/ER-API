@@ -3,7 +3,6 @@ package io.github.MigadaTang.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.github.MigadaTang.RelationshipEdge;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ public class RelationshipEdgeSerializer extends JsonSerializer<RelationshipEdge>
 
         jgen.writeNumberField("cardinality", edge.getCardinality().getCode());
         jgen.writeNumberField("portAtRelationship", edge.getPortAtRelationship());
-        jgen.writeNumberField("portAtEntity", edge.getPortAtEntity());
+        jgen.writeNumberField("portAtEntity", edge.getPortAtBelongObj());
 
         jgen.writeEndObject();
     }

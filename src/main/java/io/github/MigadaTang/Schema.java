@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.common.EntityWithCardinality;
@@ -116,7 +117,7 @@ public class Schema {
 
     public void deleteEntity(Entity entity) {
         // firstly,  delete all the edges connected to this entity
-        List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(null, entity.getID()));
+        List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(null, entity.getID(), BelongObjType.ENTITY));
         for (RelationshipEdge edge : edgeList) {
             edge.deleteDB();
         }

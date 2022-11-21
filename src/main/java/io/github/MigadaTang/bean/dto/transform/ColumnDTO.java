@@ -39,7 +39,7 @@ public class ColumnDTO {
         this.isForeign = false;
         this.foreignKeyColumn = null;
         this.foreignKeyColumnName = null;
-        this.nullable = attribute.getNullable();
+//        this.nullable = attribute.getAttributeType();
         this.foreignKeyTable = null;
     }
 
@@ -50,9 +50,9 @@ public class ColumnDTO {
             return "NOT NULL";
         }
     }
-    
+
     public ColumnDTO getForeignClone(Long tableID, boolean isPk, String foreignTableName) {
-        ColumnDTO clone = new ColumnDTO(RandomUtils.generateID(), foreignTableName+"_"+this.name, this.dataType, isPk,
+        ColumnDTO clone = new ColumnDTO(RandomUtils.generateID(), foreignTableName + "_" + this.name, this.dataType, isPk,
                 true, this.ID, this.name, tableID, false, null);
         return clone;
     }

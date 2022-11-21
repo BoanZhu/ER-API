@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import io.github.MigadaTang.common.Cardinality;
-import io.github.MigadaTang.common.DataType;
-import io.github.MigadaTang.common.EntityType;
-import io.github.MigadaTang.common.EntityWithCardinality;
+import io.github.MigadaTang.common.*;
 import io.github.MigadaTang.exception.ERException;
 
 import java.io.IOException;
@@ -94,8 +91,8 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
                 String attributeName = attributeJSONNode.get("name").textValue();
                 DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
                 Boolean attributeIsPrimary = attributeJSONNode.get("isPrimary").booleanValue();
-                Boolean attributeNullable = attributeJSONNode.get("nullable").booleanValue();
-                Attribute attribute = entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeNullable);
+                AttributeType attributeType = AttributeType.valueOf(attributeJSONNode.get("attributeType").textValue());
+                Attribute attribute = entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeType);
                 JsonNode aimPortNode = attributeJSONNode.get("aimPort");
                 if (aimPortNode != null) {
                     attribute.updateAimPort(aimPortNode.intValue());
@@ -141,8 +138,8 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
                 for (JsonNode attributeJSONNode : attributeList) {
                     String attributeName = attributeJSONNode.get("name").textValue();
                     DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
-                    Boolean attributeNullable = attributeJSONNode.get("nullable").booleanValue();
-                    Attribute attribute = relationship.addAttribute(attributeName, attributeDataType, attributeNullable);
+                    AttributeType attributeType = AttributeType.valueOf(attributeJSONNode.get("attributeType").textValue());
+                    Attribute attribute = relationship.addAttribute(attributeName, attributeDataType, attributeType);
                     JsonNode aimPortNode = attributeJSONNode.get("aimPort");
                     if (aimPortNode != null) {
                         attribute.updateAimPort(aimPortNode.intValue());

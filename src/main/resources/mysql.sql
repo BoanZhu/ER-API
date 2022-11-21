@@ -49,7 +49,7 @@ CREATE TABLE relationship_edge (
                                      belong_obj_type smallint NOT NULL COMMENT 'belong_obj_type of the other end',
                                      cardinality smallint NOT NULL COMMENT 'look here cardinality, 0-unknown, 1-0:1, 2-0:N, 3-1:1, 4-1:N',
                                      port_at_relationship smallint NULL COMMENT 'the port index of relationship the edge connects to',
-                                     port_at_entity smallint NULL COMMENT 'the port index of entity the edge connects to',
+                                     port_at_belong_obj smallint NULL COMMENT 'the port index of belong obj the edge connects to',
                                      is_delete tinyint NOT NULL DEFAULT 0 COMMENT '0-undeleted，1-delete，default 0',
                                      gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
                                      gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modified time',

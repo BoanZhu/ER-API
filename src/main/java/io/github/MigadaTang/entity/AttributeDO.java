@@ -1,5 +1,6 @@
 package io.github.MigadaTang.entity;
 
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ public class AttributeDO {
     private String name;
     private DataType dataType;
     private Boolean isPrimary;
-    private Boolean nullable;
+    private AttributeType attributeType;
     private Integer aimPort;
     private Integer isDelete;
     private Date gmtCreate;

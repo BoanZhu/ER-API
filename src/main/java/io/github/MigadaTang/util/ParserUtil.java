@@ -3,7 +3,9 @@ package io.github.MigadaTang.util;
 import io.github.MigadaTang.*;
 import io.github.MigadaTang.bean.dto.transform.ColumnDTO;
 import io.github.MigadaTang.bean.dto.transform.TableDTO;
-import io.github.MigadaTang.common.*;
+import io.github.MigadaTang.common.Cardinality;
+import io.github.MigadaTang.common.EntityType;
+import io.github.MigadaTang.common.EntityWithCardinality;
 import io.github.MigadaTang.exception.ParseException;
 
 import java.util.*;
@@ -53,8 +55,8 @@ public class ParserUtil {
     }
 
     private static void parseEntity(List<TableDTO> tableDTOList, Map<Long, Entity> tableDTOEntityMap,
-                                          List<TableDTO> tableGenerateByRelationship, Schema schema,
-                                          List<ColumnDTO> foreignKeyList) throws ParseException {
+                                    List<TableDTO> tableGenerateByRelationship, Schema schema,
+                                    List<ColumnDTO> foreignKeyList) throws ParseException {
         List<TableDTO> possibleWeakEntitySet = new ArrayList<>();
         List<TableDTO> possibleSubsetSet = new ArrayList<>();
 
@@ -103,7 +105,7 @@ public class ParserUtil {
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
+//                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
                 }
             }
 
@@ -127,7 +129,7 @@ public class ParserUtil {
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
+//                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
                 }
             }
         }
@@ -148,7 +150,7 @@ public class ParserUtil {
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
+//                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
                 }
             }
         }

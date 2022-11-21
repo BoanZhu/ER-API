@@ -1,5 +1,6 @@
 package io.github.MigadaTang;
 
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.entity.AttributeDO;
@@ -19,14 +20,14 @@ public class Attribute {
     private String name;
     private DataType dataType;
     private Boolean isPrimary;
-    private Boolean nullable;
+    private AttributeType attributeType;
     private Integer aimPort;
     private LayoutInfo layoutInfo;
     private Date gmtCreate;
     private Date gmtModified;
 
     protected Attribute(Long ID, Long belongObjID, BelongObjType belongObjType, Long schemaID, String name, DataType dataType,
-                        Boolean isPrimary, Boolean nullable, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+                        Boolean isPrimary, AttributeType attributeType, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.belongObjID = belongObjID;
         this.belongObjType = belongObjType;
@@ -34,7 +35,7 @@ public class Attribute {
         this.name = name;
         this.dataType = dataType;
         this.isPrimary = isPrimary;
-        this.nullable = nullable;
+        this.attributeType = attributeType;
         this.aimPort = aimPort;
         this.layoutInfo = layoutInfo;
         this.gmtCreate = gmtCreate;
@@ -46,7 +47,7 @@ public class Attribute {
 
     private void insertDB() throws PersistenceException {
         try {
-            AttributeDO aDo = new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, this.gmtModified);
+            AttributeDO aDo = new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.attributeMapper.insert(aDo);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -61,7 +62,7 @@ public class Attribute {
         ER.attributeMapper.deleteByID(this.ID);
     }
 
-    public void updateInfo(String name, DataType dataType, Boolean isPrimary, Boolean nullable) throws ERException {
+    public void updateInfo(String name, DataType dataType, Boolean isPrimary, AttributeType attributeType) throws ERException {
         if (name != null) {
             this.name = name;
         }
@@ -71,8 +72,8 @@ public class Attribute {
         if (isPrimary != null) {
             this.isPrimary = isPrimary;
         }
-        if (nullable != null) {
-            this.nullable = nullable;
+        if (attributeType != null) {
+            this.attributeType = attributeType;
         }
         if (name != null) {
             List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, this.schemaID, name));
@@ -86,10 +87,10 @@ public class Attribute {
                 throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
             }
         }
-        if (this.nullable && this.isPrimary) {
-            throw new ERException("primary attribute cannot be null");
+        if (this.isPrimary && this.attributeType != AttributeType.Mandatory) {
+            throw new ERException("primary attribute must be mandatory");
         }
-        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, new Date()));
+        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, this.gmtCreate, new Date()));
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY) throws ERException {
@@ -103,7 +104,7 @@ public class Attribute {
         if (aimPort != null) {
             this.aimPort = aimPort;
         }
-        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, new Date()));
+        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, this.gmtCreate, new Date()));
     }
 
     public static List<Attribute> query(AttributeDO attributeDO) {

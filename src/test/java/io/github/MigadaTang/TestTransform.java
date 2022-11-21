@@ -4,10 +4,10 @@ import io.github.MigadaTang.common.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 
-import java.util.List;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TestTransform {
     Schema view;
@@ -17,16 +17,16 @@ public class TestTransform {
         ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity student = view.addEntity("student");
-        Attribute studentId = student.addAttribute("id", DataType.INT, true, false);
-        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, false);
-        Attribute studentAge = student.addAttribute("age", DataType.INT, false, false);
+        Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
+        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute studentAge = student.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
         Entity teacher = view.addEntity("teacher");
-        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true, false);
-        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false, false);
-        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false, true);
+        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
+        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
         Entity school = view.addEntity("school");
-        Attribute schoolId = school.addAttribute("id", DataType.INT, true, false);
-        Attribute schoolName = school.addAttribute("name", DataType.INT, false, false);
+        Attribute schoolId = school.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
+        Attribute schoolName = school.addAttribute("name", DataType.INT, false, AttributeType.Mandatory);
 
         Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
         Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToOne, Cardinality.OneToMany);
@@ -47,16 +47,16 @@ public class TestTransform {
         ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity student = view.addEntity("student");
-        Attribute studentId = student.addAttribute("id", DataType.INT, true, false);
-        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, false);
-        Attribute studentAge = student.addAttribute("age", DataType.INT, false, false);
+        Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
+        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute studentAge = student.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
         Entity teacher = view.addEntity("teacher");
-        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true, false);
-        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false, false);
-        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false, true);
+        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
+        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
         Entity school = view.addEntity("school");
-        Attribute schoolId = school.addAttribute("id", DataType.INT, false, false);
-        Attribute schoolName = school.addAttribute("name", DataType.INT, false, false);
+        Attribute schoolId = school.addAttribute("id", DataType.INT, false, AttributeType.Mandatory);
+        Attribute schoolName = school.addAttribute("name", DataType.INT, false, AttributeType.Mandatory);
 
         Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
         Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToOne, Cardinality.OneToMany);
@@ -75,18 +75,18 @@ public class TestTransform {
         ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity branch = view.addEntity("branch");
-        Attribute sortcode = branch.addAttribute("sortcode", DataType.INT, true, false);
-        Attribute bname = branch.addAttribute("bname", DataType.VARCHAR, false, false);
-        Attribute cash = branch.addAttribute("cash", DataType.FLOAT, false, false);
+        Attribute sortcode = branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
+        Attribute bname = branch.addAttribute("bname", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute cash = branch.addAttribute("cash", DataType.FLOAT, false, AttributeType.Mandatory);
         Entity account = view.addEntity("account");
-        Attribute no = account.addAttribute("no", DataType.INT, true, false);
-        Attribute type = account.addAttribute("type", DataType.VARCHAR, false, false);
-        Attribute cname = account.addAttribute("cname", DataType.VARCHAR, false, false);
-        Attribute rate = account.addAttribute("rate", DataType.FLOAT, false, true);
+        Attribute no = account.addAttribute("no", DataType.INT, true, AttributeType.Mandatory);
+        Attribute type = account.addAttribute("type", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute cname = account.addAttribute("cname", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute rate = account.addAttribute("rate", DataType.FLOAT, false, AttributeType.Optional);
         Entity movement = view.addEntity("movement");
-        Attribute mid = movement.addAttribute("mid", DataType.INT, true, false);
-        Attribute tdate = movement.addAttribute("tdate", DataType.DATETIME, false, false);
-        Attribute amount = movement.addAttribute("amount", DataType.FLOAT, false, false);
+        Attribute mid = movement.addAttribute("mid", DataType.INT, true, AttributeType.Mandatory);
+        Attribute tdate = movement.addAttribute("tdate", DataType.DATETIME, false, AttributeType.Mandatory);
+        Attribute amount = movement.addAttribute("amount", DataType.FLOAT, false, AttributeType.Mandatory);
 
         Relationship bhar = view.createRelationship("holds", branch, account, Cardinality.ZeroToMany, Cardinality.OneToOne);
         Relationship ahmr = view.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
@@ -104,10 +104,10 @@ public class TestTransform {
         ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity department = view.addEntity("department");
-        department.addAttribute("dname", DataType.INT, true, false);
+        department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
 
         Entity person = view.addEntity("person");
-        person.addAttribute("salary_number", DataType.INT, true, false);
+        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
 
         Entity manager = view.addSubset("manager", person);
 
@@ -133,15 +133,15 @@ public class TestTransform {
         ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransformWeakEntity", "wd");
         Entity department = view.addEntity("department");
-        department.addAttribute("dname", DataType.INT, true, false);
+        department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
 
         Entity person = view.addEntity("person");
-        person.addAttribute("salary_number", DataType.INT, true, false);
+        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
 
         ImmutablePair<Entity, Relationship> managerRelPair = view.addWeakEntity("manager", person
                 , "is a ", Cardinality.OneToOne, Cardinality.OneToMany);
         Entity manager = managerRelPair.left;
-        manager.addAttribute("name", DataType.VARCHAR, true, false);
+        manager.addAttribute("name", DataType.VARCHAR, true, AttributeType.Mandatory);
 
         List<EntityWithCardinality> entityWithCardinalityList = new ArrayList<>();
         EntityWithCardinality entity1 = new EntityWithCardinality(department, Cardinality.ZeroToMany);

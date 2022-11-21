@@ -3,7 +3,6 @@ package io.github.MigadaTang.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.github.MigadaTang.Attribute;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class AttributeSerializer extends JsonSerializer<Attribute> {
         jgen.writeStringField("name", attribute.getName());
         jgen.writeNumberField("dataType", attribute.getDataType().ordinal());
         jgen.writeBooleanField("isPrimary", attribute.getIsPrimary());
-        jgen.writeBooleanField("nullable", attribute.getNullable());
+        jgen.writeStringField("attributeType", attribute.getAttributeType().toString());
 
         jgen.writeNumberField("aimPort", attribute.getAimPort());
         if (attribute.getLayoutInfo() != null) {

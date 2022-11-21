@@ -1,5 +1,6 @@
 package io.github.MigadaTang;
 
+import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.exception.ERException;
@@ -17,21 +18,21 @@ public class RelationshipEdge {
     private Long ID;
     private Long relationshipID;
     private Long schemaID;
-    private Entity entity;
+    private BelongObj belongObj;
     private Cardinality cardinality;
     private Integer portAtRelationship;
-    private Integer portAtEntity;
+    private Integer portAtBelongObj;
     private Date gmtCreate;
     private Date gmtModified;
 
-    protected RelationshipEdge(Long ID, Long relationshipID, Long schemaID, Entity entity, Cardinality cardinality, Integer portAtRelationship, Integer portAtEntity, Date gmtCreate, Date gmtModified) {
+    protected RelationshipEdge(Long ID, Long relationshipID, Long schemaID, BelongObj belongObj, Cardinality cardinality, Integer portAtRelationship, Integer portAtBelongObj, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.relationshipID = relationshipID;
         this.schemaID = schemaID;
-        this.entity = entity;
+        this.belongObj = belongObj;
         this.cardinality = cardinality;
         this.portAtRelationship = portAtRelationship;
-        this.portAtEntity = portAtEntity;
+        this.portAtBelongObj = portAtBelongObj;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
@@ -42,7 +43,7 @@ public class RelationshipEdge {
     private void insertDB() {
         try {
             RelationshipEdgeDO edgeDO = new RelationshipEdgeDO(0L, this.relationshipID, this.schemaID,
-                    this.entity.getID(), this.cardinality, this.portAtRelationship, this.portAtEntity, 0, new Date(), new Date());
+                    this.belongObj.getID(), BelongObjType.ENTITY, this.cardinality, this.portAtRelationship, this.portAtBelongObj, 0, new Date(), new Date());
             int ret = ER.relationshipEdgeMapper.insert(edgeDO);
             if (ret == 0) {
                 throw new ERException("relationshipEdge insert db fail");
@@ -70,7 +71,7 @@ public class RelationshipEdge {
             }
             this.entity = entity;
         }
-        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.entity.getID(), this.cardinality, this.portAtRelationship, this.portAtEntity, 0, this.gmtCreate, new Date()));
+        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.entity.getID(), BelongObjType.ENTITY, this.cardinality, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
     // check if these entities have been in the same relationship
@@ -80,7 +81,7 @@ public class RelationshipEdge {
             return false;
         }
         for (Map<String, Object> objectMap : numList) {
-            if ((Long) objectMap.get("ENTITY_NUM") >= entityIDs.size()) {
+            if ((Long) objectMap.get("belong_obj_num") >= entityIDs.size()) {
                 return true;
             }
         }
@@ -92,9 +93,9 @@ public class RelationshipEdge {
             this.portAtRelationship = portAtRelationship;
         }
         if (portAtEntity != null) {
-            this.portAtEntity = portAtEntity;
+            this.portAtBelongObj = portAtEntity;
         }
-        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.entity.getID(), this.cardinality, this.portAtRelationship, this.portAtEntity, 0, this.gmtCreate, new Date()));
+        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.entity.getID(), BelongObjType.ENTITY, this.cardinality, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
     public static List<RelationshipEdge> query(RelationshipEdgeDO relationshipEdgeDO) {

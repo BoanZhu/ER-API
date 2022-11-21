@@ -1,5 +1,6 @@
 package io.github.MigadaTang;
 
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.exception.ERException;
@@ -23,14 +24,14 @@ public class TestSchema {
         Schema testSchema = ER.createSchema("testSchema", "wt22");
 
         Entity teacher = testSchema.addEntity("teacher");
-        teacher.addAttribute("teacher_id", DataType.VARCHAR, true, false);
-        teacher.addAttribute("name", DataType.VARCHAR, false, false);
-        teacher.addAttribute("age", DataType.INT, false, false);
+        teacher.addAttribute("teacher_id", DataType.VARCHAR, true, AttributeType.Mandatory);
+        teacher.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
+        teacher.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
 
         Entity student = testSchema.addEntity("student");
-        student.addAttribute("student_id", DataType.VARCHAR, true, false);
-        student.addAttribute("name", DataType.VARCHAR, false, false);
-        student.addAttribute("grade", DataType.INT, false, false);
+        student.addAttribute("student_id", DataType.VARCHAR, true, AttributeType.Mandatory);
+        student.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
+        student.addAttribute("grade", DataType.INT, false, AttributeType.Mandatory);
 
         Relationship ts = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
 

@@ -1,5 +1,6 @@
 package io.github.MigadaTang;
 
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.common.EntityWithCardinality;
@@ -46,20 +47,20 @@ public class TestER {
         Schema example = ER.createSchema("vanilla-BranchAccountMovement", "");
 
         Entity branch = example.addEntity("branch");
-        branch.addAttribute("sortcode", DataType.INT, true, false);
-        branch.addAttribute("bname", DataType.VARCHAR, false, false);
-        branch.addAttribute("cash", DataType.DOUBLE, false, false);
+        branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
+        branch.addAttribute("bname", DataType.VARCHAR, false, AttributeType.Mandatory);
+        branch.addAttribute("cash", DataType.DOUBLE, false, AttributeType.Mandatory);
 
         Entity account = example.addEntity("account");
-        account.addAttribute("no", DataType.INT, true, false);
-        account.addAttribute("type", DataType.CHAR, false, false);
-        account.addAttribute("cname", DataType.VARCHAR, false, false);
-        account.addAttribute("rate", DataType.DOUBLE, false, true);
+        account.addAttribute("no", DataType.INT, true, AttributeType.Mandatory);
+        account.addAttribute("type", DataType.CHAR, false, AttributeType.Mandatory);
+        account.addAttribute("cname", DataType.VARCHAR, false, AttributeType.Mandatory);
+        account.addAttribute("rate", DataType.DOUBLE, false, AttributeType.Mandatory);
 
         Entity movement = example.addEntity("movement");
-        movement.addAttribute("mid", DataType.INT, true, false);
-        movement.addAttribute("amount", DataType.DOUBLE, false, false);
-        movement.addAttribute("tdate", DataType.DATETIME, false, false);
+        movement.addAttribute("mid", DataType.INT, true, AttributeType.Mandatory);
+        movement.addAttribute("amount", DataType.DOUBLE, false, AttributeType.Mandatory);
+        movement.addAttribute("tdate", DataType.DATETIME, false, AttributeType.Mandatory);
 
         Relationship holds = example.createRelationship("holds", account, branch, Cardinality.OneToOne, Cardinality.ZeroToMany);
         Relationship has = example.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
@@ -75,16 +76,16 @@ public class TestER {
         Schema example = ER.createSchema("weakEntity-SwipeCardForPerson", "");
 
         Entity person = example.addEntity("person");
-        person.addAttribute("salary number", DataType.VARCHAR, true, false);
+        person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
 
         ImmutablePair<Entity, Relationship> pair = example.addWeakEntity("swipe card", person, "for", Cardinality.OneToOne, Cardinality.ZeroToMany);
         Entity swipeCard = pair.left;
         Relationship relationship = pair.right;
-        swipeCard.addAttribute("issue", DataType.INT, true, false);
-        swipeCard.addAttribute("date", DataType.VARCHAR, false, false);
+        swipeCard.addAttribute("issue", DataType.INT, true, AttributeType.Mandatory);
+        swipeCard.addAttribute("date", DataType.VARCHAR, false, AttributeType.Mandatory);
 
         String jsonString = example.toJSON();
-        FileWriter myWriter = new FileWriter(String.format(outputFormat+"2", example.getName()));
+        FileWriter myWriter = new FileWriter(String.format(outputFormat + "2", example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
     }
@@ -117,8 +118,8 @@ public class TestER {
         Entity department = example.addEntity("department");
 
         Relationship worksIn = example.createRelationship("works in", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-        worksIn.addAttribute("start_date", DataType.VARCHAR, false);
-        worksIn.addAttribute("end_date", DataType.VARCHAR, true);
+        worksIn.addAttribute("start_date", DataType.VARCHAR, AttributeType.Mandatory);
+        worksIn.addAttribute("end_date", DataType.VARCHAR, AttributeType.Optional);
 
         String jsonString = example.toJSON();
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
@@ -131,12 +132,12 @@ public class TestER {
         Schema example = ER.createSchema("subset-ManagerPerson", "");
 
         Entity person = example.addEntity("person");
-        person.addAttribute("salary number", DataType.VARCHAR, true, false);
-        person.addAttribute("bonus", DataType.VARCHAR, false, true);
-        person.addAttribute("name", DataType.VARCHAR, false, false);
+        person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
+        person.addAttribute("bonus", DataType.VARCHAR, false, AttributeType.Optional);
+        person.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
 
         Entity manager = example.addSubset("manager", person);
-        manager.addAttribute("mobile number", DataType.VARCHAR, false, false);
+        manager.addAttribute("mobile number", DataType.VARCHAR, false, AttributeType.Mandatory);
 
         String jsonString = example.toJSON();
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
@@ -151,14 +152,14 @@ public class TestER {
         Schema testSchema = ER.createSchema("PersonWorksDepartment", "wt22");
 
         Entity person = testSchema.addEntity("person");
-        person.addAttribute("salary_number", DataType.VARCHAR, true, false);
+        person.addAttribute("salary_number", DataType.VARCHAR, true, AttributeType.Mandatory);
 
         Entity department = testSchema.addEntity("department");
-        department.addAttribute("dname", DataType.VARCHAR, true, false);
+        department.addAttribute("dname", DataType.VARCHAR, true, AttributeType.Mandatory);
 
         Relationship ts = testSchema.createRelationship("works in", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-        ts.addAttribute("start_date", DataType.VARCHAR, false);
-        ts.addAttribute("end_date", DataType.VARCHAR, true);
+        ts.addAttribute("start_date", DataType.VARCHAR, AttributeType.Mandatory);
+        ts.addAttribute("end_date", DataType.VARCHAR, AttributeType.Optional);
 
         Schema dbSchema = Schema.queryByID(testSchema.getID());
         Assert.assertNotNull(dbSchema);

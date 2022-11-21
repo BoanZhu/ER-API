@@ -1,5 +1,6 @@
 package io.github.MigadaTang;
 
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.common.EntityType;
@@ -13,52 +14,41 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
-public class Entity {
-    private Long ID;
-    private String name;
-    private Long schemaID;
+public class Entity extends BelongObj {
     private EntityType entityType;
     private Entity belongStrongEntity;
     private List<Attribute> attributeList;
     private Integer aimPort;
-    private LayoutInfo layoutInfo;
-    private Date gmtCreate;
-    private Date gmtModified;
 
     protected Entity(Long ID, String name, Long schemaID, EntityType entityType, Entity belongStrongEntity, List<Attribute> attributeList, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
-        this.ID = ID;
-        this.name = name;
-        this.schemaID = schemaID;
+        super(ID, name, schemaID, layoutInfo, gmtCreate, gmtModified);
         this.entityType = entityType;
         this.belongStrongEntity = belongStrongEntity;
         this.attributeList = attributeList;
         this.aimPort = aimPort;
-        this.layoutInfo = layoutInfo;
-        this.gmtCreate = gmtCreate;
-        this.gmtModified = gmtModified;
-        if (this.ID == 0) {
-            this.insertDB();
+        if (getID() == 0) {
+            setID(insertDB());
         }
     }
 
 
     // addAttribute without the layout information
-    public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary, Boolean nullable) {
+    public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary, AttributeType attributeType) {
         if (attributeName.equals("")) {
             throw new ERException("attributeName cannot be empty");
         }
-        if (isPrimary && nullable) {
-            throw new ERException("primary attribute cannot be null");
+        if (isPrimary && attributeType != AttributeType.Mandatory) {
+            throw new ERException("primary attribute must be mandatory");
         }
-        List<Attribute> attributeList = Attribute.query(new AttributeDO(null, this.ID, BelongObjType.ENTITY, this.schemaID, attributeName, null, null, null, null, null, null, null));
+        List<Attribute> attributeList = Attribute.query(new AttributeDO(null, getID(), BelongObjType.ENTITY, getSchemaID(), attributeName, null, null, null, null, null, null, null));
         if (attributeList.size() != 0) {
-            throw new ERException(String.format("attribute with name: %s already exists", this.name));
+            throw new ERException(String.format("attribute with name: %s already exists", getName()));
         }
-        attributeList = Attribute.query(new AttributeDO(null, this.ID, BelongObjType.ENTITY, this.schemaID, null, null, null, true, null, null, null, null));
+        attributeList = Attribute.query(new AttributeDO(null, getID(), BelongObjType.ENTITY, getSchemaID(), null, null, true, null, null, null, null, null));
         if (isPrimary && attributeList.size() != 0) {
-            throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
+            throw new ERException(String.format("primary key already exists, name: %s", attributeList.get(0).getName()));
         }
-        Attribute attribute = new Attribute(0L, this.ID, BelongObjType.ENTITY, this.schemaID, attributeName, dataType, isPrimary, nullable, -1, null, new Date(), new Date());
+        Attribute attribute = new Attribute(0L, getID(), BelongObjType.ENTITY, getSchemaID(), attributeName, dataType, isPrimary, attributeType, -1, null, new Date(), new Date());
         this.attributeList.add(attribute);
         return attribute;
     }
@@ -68,18 +58,18 @@ public class Entity {
         attribute.deleteDB();
     }
 
-    private void insertDB() {
+    private Long insertDB() {
         try {
             Long belongStrongEntityID = null;
             if (this.getBelongStrongEntity() != null) {
                 belongStrongEntityID = this.belongStrongEntity.getID();
             }
-            EntityDO entityDO = new EntityDO(0L, this.name, this.schemaID, this.entityType, belongStrongEntityID, this.aimPort, 0, this.gmtCreate, this.gmtModified);
+            EntityDO entityDO = new EntityDO(0L, getName(), getSchemaID(), this.entityType, belongStrongEntityID, this.aimPort, 0, getGmtCreate(), getGmtModified());
             int ret = ER.entityMapper.insert(entityDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
-            this.ID = entityDO.getID();
+            return entityDO.getID();
         } catch (PersistenceException e) {
             throw new ERException("insertDB fail", e);
         }
@@ -89,14 +79,14 @@ public class Entity {
         for (Attribute attribute : attributeList) {
             attribute.deleteDB();
         }
-        ER.entityMapper.deleteByID(this.ID);
+        ER.entityMapper.deleteByID(getID());
     }
 
     public void updateInfo(String name) {
         if (name != null) {
-            this.name = name;
-            List<Entity> entities = Entity.query(new EntityDO(name, this.schemaID, null));
-            if (entities.size() != 0 && !entities.get(0).getID().equals(this.ID)) {
+            setName(name);
+            List<Entity> entities = Entity.query(new EntityDO(name, getSchemaID(), null));
+            if (entities.size() != 0 && !entities.get(0).getID().equals(getID())) {
                 throw new ERException(String.format("entity with name: %s already exists", name));
             }
         }
@@ -104,22 +94,22 @@ public class Entity {
         if (this.belongStrongEntity != null) {
             belongStrongEntityID = this.belongStrongEntity.getID();
         }
-        ER.entityMapper.updateByID(new EntityDO(this.ID, this.name, this.schemaID, this.entityType, belongStrongEntityID, this.aimPort, 0, this.gmtCreate, new Date()));
+        ER.entityMapper.updateByID(new EntityDO(getID(), getName(), getSchemaID(), this.entityType, belongStrongEntityID, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
 
     public void updateLayoutInfo(Double layoutX, Double layoutY) {
-        if (this.layoutInfo == null) {
-            this.layoutInfo = new LayoutInfo(0L, this.ID, BelongObjType.ENTITY, layoutX, layoutY);
+        if (getLayoutInfo() == null) {
+            setLayoutInfo(new LayoutInfo(0L, getID(), BelongObjType.ENTITY, layoutX, layoutY));
         }
-        this.layoutInfo.update(layoutX, layoutY);
+        getLayoutInfo().update(layoutX, layoutY);
     }
 
     public void updateAimPort(Integer aimPort) throws ERException {
         if (aimPort != null) {
             this.aimPort = aimPort;
         }
-        ER.entityMapper.updateByID(new EntityDO(this.ID, this.aimPort));
+        ER.entityMapper.updateByID(new EntityDO(getID(), this.aimPort));
     }
 
     public static List<Entity> query(EntityDO entityDO) {

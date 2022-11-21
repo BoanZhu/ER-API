@@ -9,6 +9,7 @@
                      javaType="io.github.MigadaTang.common.BelongObjType"/>
         <typeHandler handler="io.github.MigadaTang.common.CardinalityEnumTypeHandler"/>
         <typeHandler handler="io.github.MigadaTang.common.EntityTypeEnumTypeHandler"/>
+        <typeHandler handler="io.github.MigadaTang.common.AttributeTypeEnumTypeHandler"/>
     </typeHandlers>
     <environments default='development'>
         <environment id='development'>

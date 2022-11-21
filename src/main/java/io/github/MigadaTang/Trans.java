@@ -23,7 +23,7 @@ public class Trans {
     protected static Attribute TransformFromDB(AttributeDO attributeDO) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(attributeDO.getID(), BelongObjType.ATTRIBUTE);
         return new Attribute(attributeDO.getID(), attributeDO.getBelongObjId(), attributeDO.getBelongObjType(), attributeDO.getSchemaID(),
-                attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(), attributeDO.getNullable(), attributeDO.getAimPort(),
+                attributeDO.getName(), attributeDO.getDataType(), attributeDO.getIsPrimary(), attributeDO.getAttributeType(), attributeDO.getAimPort(),
                 layoutInfo, attributeDO.getGmtCreate(), attributeDO.getGmtModified());
     }
 
@@ -56,7 +56,7 @@ public class Trans {
 
     protected static Relationship TransformFromDB(RelationshipDO relationshipDO) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(relationshipDO.getID(), BelongObjType.RELATIONSHIP);
-        List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(relationshipDO.getID(), null));
+        List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(relationshipDO.getID(), null, null));
         List<Attribute> attributeList = Attribute.query(new AttributeDO(relationshipDO.getID(), BelongObjType.RELATIONSHIP, null, null));
         return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getSchemaID(), attributeList, edgeList,
                 layoutInfo, relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
@@ -71,9 +71,9 @@ public class Trans {
     }
 
     protected static RelationshipEdge TransformFromDB(RelationshipEdgeDO edgeDO) {
-        Entity entity = Entity.queryByID(edgeDO.getEntityID());
+        Entity entity = Entity.queryByID(edgeDO.getBelongObjID());
         return new RelationshipEdge(edgeDO.getID(), edgeDO.getRelationshipID(), edgeDO.getSchemaID(),
-                entity, edgeDO.getCardinality(), edgeDO.getPortAtRelationship(), edgeDO.getPortAtEntity(),
+                entity, edgeDO.getCardinality(), edgeDO.getPortAtRelationship(), edgeDO.getPortAtBelongObj(),
                 edgeDO.getGmtCreate(), edgeDO.getGmtModified());
     }
 
