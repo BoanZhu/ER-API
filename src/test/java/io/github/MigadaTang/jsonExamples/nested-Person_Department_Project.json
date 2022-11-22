@@ -1,0 +1,64 @@
+{
+  "name" : "nested-Person_Department_Project",
+  "entityList" : [ {
+    "name" : "person",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "salary number",
+      "dataType" : 2,
+      "isPrimary" : true,
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
+    } ]
+  }, {
+    "name" : "department",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "dname",
+      "dataType" : 2,
+      "isPrimary" : false,
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
+    } ]
+  }, {
+    "name" : "project",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "pcode",
+      "dataType" : 2,
+      "isPrimary" : false,
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
+    } ]
+  } ],
+  "relationshipList" : [ {
+    "name" : "works in",
+    "edgeList" : [ {
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    }, {
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    } ]
+  }, {
+    "name" : "member",
+    "attributeList" : [ {
+      "name" : "role",
+      "dataType" : 2,
+      "isPrimary" : false,
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
+    } ],
+    "edgeList" : [ {
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    }, {
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    } ]
+  } ]
+}
