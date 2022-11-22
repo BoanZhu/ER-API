@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum RelatedObjType {
+public enum BelongObjType {
     UNKNOWN(0),
     ATTRIBUTE(1),
     ENTITY(2),

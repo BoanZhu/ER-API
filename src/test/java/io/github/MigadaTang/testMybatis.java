@@ -30,7 +30,7 @@ public class testMybatis {
 
     @Test
     public void testDBConnection() throws IOException, SQLException {
-        ER.initialize(true);
+        ER.initialize(TestCommon.usePostgre);
         Assert.assertNotNull(ER.sqlSession);
         System.out.println(ER.sqlSession.getConnection());
     }

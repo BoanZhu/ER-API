@@ -1,0 +1,38 @@
+{
+  "name" : "weakEntity-SwipeCardForPerson",
+  "entityList" : [ {
+    "name" : "person",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "salary number",
+      "dataType" : "VARCHAR",
+      "isPrimary" : true,
+      "nullable" : false
+    } ]
+  }, {
+    "name" : "swipe card",
+    "entityType" : "WEAK",
+    "belongStrongEntity" : "person",
+    "attributeList" : [ {
+      "name" : "issue",
+      "dataType" : "INT",
+      "isPrimary" : true,
+      "nullable" : false
+    }, {
+      "name" : "date",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "nullable" : false
+    } ]
+  } ],
+  "relationshipList" : [ {
+    "name" : "for",
+    "edgeList" : [ {
+      "entity" : "swipe card",
+      "cardinality" : "1:1"
+    }, {
+      "entity" : "person",
+      "cardinality" : "0:N"
+    } ]
+  } ]
+}

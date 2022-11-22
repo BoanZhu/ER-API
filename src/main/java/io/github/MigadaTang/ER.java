@@ -24,6 +24,7 @@ public class ER {
     public static AttributeMapper attributeMapper;
     public static EntityMapper entityMapper;
     public static RelationshipMapper relationshipMapper;
+    public static RelationshipEdgeMapper relationshipEdgeMapper;
     public static SchemaMapper schemaMapper;
     public static LayoutInfoMapper layoutInfoMapper;
 
@@ -39,6 +40,7 @@ public class ER {
         attributeMapper = sqlSession.getMapper(AttributeMapper.class);
         entityMapper = sqlSession.getMapper(EntityMapper.class);
         relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
+        relationshipEdgeMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
         schemaMapper = sqlSession.getMapper(SchemaMapper.class);
         layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
         if (!usePostgre) {
@@ -49,7 +51,7 @@ public class ER {
     private static void createTables() throws SQLException, IOException {
         Connection conn = sqlSession.getConnection();
         Statement stmt = conn.createStatement();
-        String sql = new String(Resources.getResourceAsStream("schema-v1.sql").readAllBytes(), StandardCharsets.UTF_8);
+        String sql = new String(Resources.getResourceAsStream("mysql.sql").readAllBytes(), StandardCharsets.UTF_8);
         stmt.execute(sql);
     }
 

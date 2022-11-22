@@ -8,25 +8,28 @@
         <id column="id" property="ID"/>
         <result column="name" property="name"/>
         <result column="schema_id" property="schemaID"/>
+        <result column="aim_port" property="aimPort"/>
+        <result column="entity_type" property="entityType"/>
+        <result column="belong_strong_entity_id" property="belongStrongEntityID"/>
         <result column="is_delete" property="isDelete"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, schema_id
+        id, name, schema_id, aim_port, entity_type, belong_strong_entity_id
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,name,schema_id,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,aim_port,entity_type,belong_strong_entity_id,is_delete,gmt_create,gmt_modified
         from entity
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
 
     <select id="selectByEntity" parameterType="io.github.MigadaTang.entity.EntityDO" resultMap="BaseResultMap">
         select
-        id,name,schema_id,is_delete,gmt_create,gmt_modified
+        id,name,schema_id,aim_port,entity_type,belong_strong_entity_id,is_delete,gmt_create,gmt_modified
         from entity
         <where>
             <if test="ID != null">
@@ -37,6 +40,15 @@
             </if>
             <if test="schemaID != null">
                 and schema_id = #{schemaID,jdbcType=BIGINT}
+            </if>
+            <if test="aimPort != null">
+                and aim_port = #{aimPort,jdbcType=SMALLINT}
+            </if>
+            <if test="entityType != null">
+                and entity_type = #{entityType.code,jdbcType=SMALLINT}
+            </if>
+            <if test="belongStrongEntityID != null">
+                and belong_strong_entity_id = #{belongStrongEntityID,jdbcType=BIGINT}
             </if>
             <if test="gmtCreate != null">
                 and gmt_create = #{gmtCreate,jdbcType=DATETIME}
@@ -57,6 +69,15 @@
             <if test="schemaID != null">
                 schema_id,
             </if>
+            <if test="aimPort != null">
+                aim_port,
+            </if>
+            <if test="entityType != null">
+                entity_type,
+            </if>
+            <if test="belongStrongEntityID != null">
+                belong_strong_entity_id,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null">
@@ -64,6 +85,15 @@
             </if>
             <if test="schemaID != null">
                 #{schemaID,jdbcType=BIGINT},
+            </if>
+            <if test="aimPort != null">
+                #{aimPort,jdbcType=SMALLINT},
+            </if>
+            <if test="entityType != null">
+                #{entityType.code,jdbcType=SMALLINT},
+            </if>
+            <if test="belongStrongEntityID != null">
+                #{belongStrongEntityID,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>
@@ -82,6 +112,15 @@
             </if>
             <if test="schemaID != null">
                 schema_id = #{schemaID,jdbcType=BIGINT},
+            </if>
+            <if test="aimPort != null">
+                aim_port = #{aimPort,jdbcType=SMALLINT},
+            </if>
+            <if test="entityType != null">
+                entity_type = #{entityType.code,jdbcType=SMALLINT},
+            </if>
+            <if test="belongStrongEntityID != null">
+                belong_strong_entity_id = #{belongStrongEntityID,jdbcType=BIGINT},
             </if>
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0

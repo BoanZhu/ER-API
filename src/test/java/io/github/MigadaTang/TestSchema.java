@@ -19,7 +19,7 @@ public class TestSchema {
     }
 
     @Test
-    public void createSchemaTest() {
+    public void createVanillaERTest() {
         Schema testSchema = ER.createSchema("testSchema", "wt22");
 
         Entity teacher = testSchema.addEntity("teacher");
@@ -56,7 +56,7 @@ public class TestSchema {
         testDeleteSchema = Schema.queryByID(testDeleteSchema.getID());
         Assert.assertNotNull(testDeleteSchema);
 
-        testDeleteSchema.deleteDB();
+        ER.deleteSchema(testDeleteSchema);
 
         Schema finalTestDeleteSchema = testDeleteSchema;
         assertThrows(ERException.class, () -> Schema.queryByID(finalTestDeleteSchema.getID()));

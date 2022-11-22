@@ -1,0 +1,103 @@
+{
+  "name" : "vanilla-BranchAccountMovement",
+  "entityList" : [ {
+    "name" : "branch",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "sortcode",
+      "dataType" : "INT",
+      "isPrimary" : true,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "name" : "bname",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "name" : "cash",
+      "dataType" : "DOUBLE",
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    } ]
+  }, {
+    "name" : "account",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "no",
+      "dataType" : "INT",
+      "isPrimary" : true,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "name" : "type",
+      "dataType" : "CHAR",
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "name" : "cname",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "name" : "rate",
+      "dataType" : "DOUBLE",
+      "isPrimary" : false,
+      "nullable" : true,
+      "aimPort" : -1
+    } ]
+  }, {
+    "name" : "movement",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "mid",
+      "dataType" : "INT",
+      "isPrimary" : true,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "name" : "amount",
+      "dataType" : "DOUBLE",
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    }, {
+      "name" : "tdate",
+      "dataType" : "DATATIME",
+      "isPrimary" : false,
+      "nullable" : false,
+      "aimPort" : -1
+    } ]
+  } ],
+  "relationshipList" : [ {
+    "name" : "holds",
+    "edgeList" : [ {
+      "entity" : "account",
+      "cardinality" : "1:1",
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    }, {
+      "entity" : "branch",
+      "cardinality" : "0:N",
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    } ]
+  }, {
+    "name" : "has",
+    "edgeList" : [ {
+      "entity" : "account",
+      "cardinality" : "0:N",
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    }, {
+      "entity" : "movement",
+      "cardinality" : "1:1",
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
+    } ]
+  } ]
+}

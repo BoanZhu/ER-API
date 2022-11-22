@@ -6,8 +6,9 @@
     <properties resource='jdbc.properties'/>
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
-                     javaType="io.github.MigadaTang.common.RelatedObjType"/>
+                     javaType="io.github.MigadaTang.common.BelongObjType"/>
         <typeHandler handler="io.github.MigadaTang.common.CardinalityEnumTypeHandler"/>
+        <typeHandler handler="io.github.MigadaTang.common.EntityTypeEnumTypeHandler"/>
     </typeHandlers>
     <environments default='development'>
         <environment id='development'>
@@ -26,5 +27,6 @@
         <mapper resource='mapper/RelationshipMapper.xml'/>
         <mapper resource='mapper/SchemaMapper.xml'/>
         <mapper resource='mapper/LayoutInfoMapper.xml'/>
+        <mapper resource='mapper/RelationshipEdgeMapper.xml'/>
     </mappers>
 </configuration>
