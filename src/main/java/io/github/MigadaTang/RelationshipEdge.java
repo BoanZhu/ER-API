@@ -55,6 +55,35 @@ public class RelationshipEdge {
         }
     }
 
+    public BelongObjType getConnObjType() {
+        if (this.connObj instanceof Entity) {
+            return BelongObjType.ENTITY;
+        } else if (this.connObj instanceof Relationship) {
+            return BelongObjType.RELATIONSHIP;
+        }
+        return BelongObjType.UNKNOWN;
+    }
+
+    public void migrateToAnotherRelationship(Long relationshipID) {
+        if (relationshipID == null) {
+            return;
+        }
+        Relationship relationship = Relationship.queryByID(relationshipID);
+        if (relationship == null) {
+            throw new ERException(String.format("cannot find relationID: %d", relationshipID));
+        }
+        List<ERConnectableObj> belongObjList = new ArrayList<>();
+        for (RelationshipEdge edge : relationship.getEdgeList()) {
+            belongObjList.add(edge.getConnObj());
+        }
+        belongObjList.add(this.getConnObj());
+        if (checkEntitesInSameRelationship(belongObjList)) {
+            throw new ERException("entities have been in the same relationship");
+        }
+        this.relationshipID = relationshipID;
+        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), BelongObjType.ENTITY, this.cardinality, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
+    }
+
     public void updateInfo(Cardinality cardinality, ERConnectableObj connObj) throws ERException {
         if (cardinality != null) {
             this.cardinality = cardinality;

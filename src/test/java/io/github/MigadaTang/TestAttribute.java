@@ -77,7 +77,7 @@ public class TestAttribute {
         Assert.assertEquals(attribute.getName(), attributeName);
         Assert.assertEquals(attribute.getDataType(), dataType);
         Assert.assertEquals(attribute.getIsPrimary(), false);
-        Assert.assertEquals(attribute.getAttributeType(), false);
+        Assert.assertEquals(attribute.getAttributeType(), AttributeType.Mandatory);
         Assert.assertEquals(attribute.getBelongObjID(), relationship.getID());
         Assert.assertEquals(attribute.getBelongObjType(), BelongObjType.RELATIONSHIP);
         Assert.assertEquals(attribute.getAimPort(), Integer.valueOf(-1));

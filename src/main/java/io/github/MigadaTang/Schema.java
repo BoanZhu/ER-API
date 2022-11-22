@@ -132,6 +132,10 @@ public class Schema {
         this.entityList.remove(entity);
     }
 
+    Relationship createEmptyRelationship(String relationshipName) {
+        return new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
+    }
+
     public Relationship createRelationship(String relationshipName, ERConnectableObj firstObj, ERConnectableObj secondObj, Cardinality firstCardinality, Cardinality secondCardinality) {
         ArrayList<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
         connObjWithCardinalityList.add(new ConnObjWithCardinality(firstObj, firstCardinality));
@@ -203,6 +207,24 @@ public class Schema {
         } catch (PersistenceException e) {
             throw new ERException("insertDB fail", e);
         }
+    }
+
+    public boolean checkCorrectness() throws ERException {
+        for (Entity entity : entityList) {
+            for (Attribute attribute : entity.getAttributeList()) {
+                // primary key check
+                // relying on strong entity check
+            }
+        }
+        for (Relationship relationship : relationshipList) {
+            for (Attribute attribute : relationship.getAttributeList()) {
+                // primary key check
+            }
+            for (RelationshipEdge edge : relationship.getEdgeList()) {
+                // no
+            }
+        }
+        return true;
     }
 
     public String toJSON() {

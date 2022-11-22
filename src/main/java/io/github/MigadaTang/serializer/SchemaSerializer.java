@@ -32,7 +32,6 @@ public class SchemaSerializer extends JsonSerializer<Schema> {
             if ((schema.getEntityList() != null && schema.getEntityList().size() != 0)) {
                 jgen.writeObjectField("entityList", schema.getEntityList());
             }
-            jgen.writeObjectField("relationshipList", schema.getRelationshipList());
             if (schema.getRelationshipList() != null && schema.getRelationshipList().size() != 0) {
                 jgen.writeObjectField("relationshipList", schema.getRelationshipList());
             }

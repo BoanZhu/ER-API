@@ -52,6 +52,10 @@ public class TestER {
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
+
+        jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
+        Schema schema = ER.loadFromJSON(jsonString);
+        Assert.assertNotNull(schema);
     }
 
     @Test
@@ -71,6 +75,10 @@ public class TestER {
         FileWriter myWriter = new FileWriter(String.format(outputFormat + "2", example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
+
+        jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
+        Schema schema = ER.loadFromJSON(jsonString);
+        Assert.assertNotNull(schema);
     }
 
     @Test
@@ -91,6 +99,10 @@ public class TestER {
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
+
+        jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
+        Schema schema = ER.loadFromJSON(jsonString);
+        Assert.assertNotNull(schema);
     }
 
     @Test
@@ -108,6 +120,10 @@ public class TestER {
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
+
+        jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
+        Schema schema = ER.loadFromJSON(jsonString);
+        Assert.assertNotNull(schema);
     }
 
     @Test
@@ -126,6 +142,10 @@ public class TestER {
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
+
+        jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
+        Schema schema = ER.loadFromJSON(jsonString);
+        Assert.assertNotNull(schema);
     }
 
     @Test
@@ -149,12 +169,16 @@ public class TestER {
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
+
+        jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
+        Schema schema = ER.loadFromJSON(jsonString);
+        Assert.assertNotNull(schema);
     }
 
 
     @Test
     public void loadFromJSONTest() throws IOException {
-        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/vanilla-BranchAccountMovement.json"), Charset.defaultCharset());
+        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/nested-Person_Department_Project.json"), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         Assert.assertNotNull(schema);
     }

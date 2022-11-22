@@ -5,39 +5,34 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "salary number",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : true,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     } ]
   }, {
     "name" : "swipe card",
     "entityType" : "WEAK",
     "attributeList" : [ {
       "name" : "issue",
-      "dataType" : 6,
+      "dataType" : "INT",
       "isPrimary" : true,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     }, {
       "name" : "date",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     } ],
     "belongStrongEntity" : "person"
   } ],
   "relationshipList" : [ {
     "name" : "for",
     "edgeList" : [ {
-      "cardinality" : 3,
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "entity" : "swipe card",
+      "cardinality" : "1:1"
     }, {
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "entity" : "person",
+      "cardinality" : "0:N"
     } ]
   } ]
 }

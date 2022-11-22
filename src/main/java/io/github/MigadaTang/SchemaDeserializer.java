@@ -15,6 +15,7 @@ import java.util.Map;
 public class SchemaDeserializer extends StdDeserializer<Schema> {
 
     private Map<String, Entity> entityNameMap = new HashMap<>();
+    private Map<String, Relationship> relationshipNameMap = new HashMap<>();
 
 
     public SchemaDeserializer() {
@@ -34,6 +35,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
         Schema schema = ER.createSchema(schemaName, "");
 
         parseEntityList(schema, schemaJSONNode.get("entityList"));
+        prepareEmptyRelationship(schema, schemaJSONNode.get("relationshipList"));
         parseRelationshipList(schema, schemaJSONNode.get("relationshipList"));
 
         return schema;
@@ -114,6 +116,17 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
         entityNameMap.put(entityName, entity);
     }
 
+    private void prepareEmptyRelationship(Schema schema, JsonNode relationshipList) {
+        if (relationshipList == null) {
+            return;
+        }
+        for (JsonNode relationshipJSONNode : relationshipList) {
+            String relationshipName = relationshipJSONNode.get("name").textValue();
+            Relationship relationship = schema.createEmptyRelationship(relationshipName);
+            relationshipNameMap.put(relationshipName, relationship);
+        }
+    }
+
     private void parseRelationshipList(Schema schema, JsonNode relationshipList) {
         if (relationshipList == null) {
             return;
@@ -126,10 +139,18 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
             }
             ArrayList<ConnObjWithCardinality> eCardList = new ArrayList<>();
             for (JsonNode edgeJsonNode : edgeList) {
-                String entityName = edgeJsonNode.get("entity").textValue();
+                JsonNode entityNode = edgeJsonNode.get("entity");
+                JsonNode relationshipNode = edgeJsonNode.get("relationship");
                 Cardinality cardinality = Cardinality.getFromValue(edgeJsonNode.get("cardinality").textValue());
-                Entity entity = entityNameMap.get(entityName);
-                eCardList.add(new ConnObjWithCardinality(entity, cardinality));
+                if (entityNode != null) {
+                    Entity entity = entityNameMap.get(entityNode.textValue());
+                    eCardList.add(new ConnObjWithCardinality(entity, cardinality));
+                } else if (relationshipNode != null) {
+                    Relationship relationship = relationshipNameMap.get(relationshipNode.textValue());
+                    eCardList.add(new ConnObjWithCardinality(relationship, cardinality));
+                } else {
+                    throw new ERException("missing entity or relationship in the edge");
+                }
             }
             Relationship relationship = schema.createNaryRelationship(relationshipName, eCardList);
 

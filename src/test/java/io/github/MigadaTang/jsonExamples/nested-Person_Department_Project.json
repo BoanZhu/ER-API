@@ -5,60 +5,52 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "salary number",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : true,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     } ]
   }, {
     "name" : "department",
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "dname",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     } ]
   }, {
     "name" : "project",
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "pcode",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     } ]
   } ],
   "relationshipList" : [ {
     "name" : "works in",
     "edgeList" : [ {
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "entity" : "person",
+      "cardinality" : "0:N"
     }, {
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "entity" : "department",
+      "cardinality" : "0:N"
     } ]
   }, {
     "name" : "member",
     "attributeList" : [ {
       "name" : "role",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     } ],
     "edgeList" : [ {
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "relationship" : "works in",
+      "cardinality" : "0:N"
     }, {
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "entity" : "project",
+      "cardinality" : "0:N"
     } ]
   } ]
 }

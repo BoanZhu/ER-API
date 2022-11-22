@@ -1,153 +1,88 @@
 <!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/html"><head><meta charset="UTF-8">    <title>API image</title>    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="API.js"></script></head><body>    <div id="model" style="background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;"></div>    <div id ="image"></div>    <div id = "modelData">{"schema":{
-  "id" : 552,
+  "id" : 1,
   "name" : "reverseEng",
   "entityList" : [ {
-    "id" : 1335,
+    "id" : 1,
     "name" : "new_entity0",
     "entityType" : 1,
-    "attributeList" : [ {
-      "id" : 1358,
-      "name" : "e0_pk",
-      "dataType" : 3,
-      "isPrimary" : true,
-      "nullable" : false,
-      "aimPort" : -1
-    }, {
-      "id" : 1359,
-      "name" : "e0_c1",
-      "dataType" : 3,
-      "isPrimary" : false,
-      "nullable" : false,
-      "aimPort" : -1
-    }, {
-      "id" : 1360,
-      "name" : "e0_c2",
-      "dataType" : 3,
-      "isPrimary" : false,
-      "nullable" : false,
-      "aimPort" : -1
-    } ],
+    "attributeList" : [ ],
     "aimPort" : -1,
     "belongStrongEntityID" : null
   }, {
-    "id" : 1336,
+    "id" : 2,
     "name" : "new_entity1",
     "entityType" : 1,
-    "attributeList" : [ {
-      "id" : 1361,
-      "name" : "e1_pk",
-      "dataType" : 3,
-      "isPrimary" : true,
-      "nullable" : false,
-      "aimPort" : -1
-    }, {
-      "id" : 1362,
-      "name" : "e1_c1",
-      "dataType" : 3,
-      "isPrimary" : false,
-      "nullable" : false,
-      "aimPort" : -1
-    } ],
+    "attributeList" : [ ],
     "aimPort" : -1,
     "belongStrongEntityID" : null
   }, {
-    "id" : 1337,
+    "id" : 3,
     "name" : "new_entity2",
     "entityType" : 1,
-    "attributeList" : [ {
-      "id" : 1363,
-      "name" : "e2_pk",
-      "dataType" : 3,
-      "isPrimary" : true,
-      "nullable" : false,
-      "aimPort" : -1
-    }, {
-      "id" : 1364,
-      "name" : "e2_c1",
-      "dataType" : 3,
-      "isPrimary" : false,
-      "nullable" : false,
-      "aimPort" : -1
-    } ],
+    "attributeList" : [ ],
     "aimPort" : -1,
     "belongStrongEntityID" : null
   }, {
-    "id" : 1338,
+    "id" : 4,
     "name" : "weak_entity",
     "entityType" : 2,
-    "attributeList" : [ {
-      "id" : 1365,
-      "name" : "we_pk",
-      "dataType" : 3,
-      "isPrimary" : true,
-      "nullable" : false,
-      "aimPort" : -1
-    }, {
-      "id" : 1366,
-      "name" : "we_c1",
-      "dataType" : 3,
-      "isPrimary" : false,
-      "nullable" : false,
-      "aimPort" : -1
-    } ],
+    "attributeList" : [ ],
     "aimPort" : -1,
-    "belongStrongEntityID" : "1335"
+    "belongStrongEntityID" : "1"
   }, {
-    "id" : 1339,
+    "id" : 5,
     "name" : "subset",
     "entityType" : 3,
-    "attributeList" : [ {
-      "id" : 1367,
-      "name" : "sub_c1",
-      "dataType" : 3,
-      "isPrimary" : false,
-      "nullable" : false,
-      "aimPort" : -1
-    } ],
+    "attributeList" : [ ],
     "aimPort" : -1,
-    "belongStrongEntityID" : "1335"
+    "belongStrongEntityID" : "1"
   } ],
   "relationshipList" : [ {
-    "id" : 429,
+    "id" : 1,
     "name" : "unknow",
     "attributeList" : [ ],
     "edgeList" : [ {
-      "id" : 915,
-      "relationshipID" : 429,
-      "entityID" : 1338,
+      "id" : 1,
+      "relationshipID" : 1,
+      "belongObjID" : 4,
+      "belongObjType" : 2,
       "cardinality" : 3,
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     }, {
-      "id" : 916,
-      "relationshipID" : 429,
-      "entityID" : 1335,
+      "id" : 2,
+      "relationshipID" : 1,
+      "belongObjID" : 1,
+      "belongObjType" : 2,
       "cardinality" : 2,
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     } ]
   }, {
-    "id" : 430,
+    "id" : 2,
     "name" : "unknow",
     "attributeList" : [ ],
     "edgeList" : [ {
-      "id" : 917,
-      "relationshipID" : 430,
-      "entityID" : 1335,
+      "id" : 3,
+      "relationshipID" : 2,
+      "belongObjID" : 1,
+      "belongObjType" : 2,
       "cardinality" : 2,
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     }, {
-      "id" : 918,
-      "relationshipID" : 430,
-      "entityID" : 1336,
+      "id" : 4,
+      "relationshipID" : 2,
+      "belongObjID" : 2,
+      "belongObjType" : 2,
       "cardinality" : 2,
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     }, {
-      "id" : 919,
-      "relationshipID" : 430,
-      "entityID" : 1337,
+      "id" : 5,
+      "relationshipID" : 2,
+      "belongObjID" : 3,
+      "belongObjType" : 2,
       "cardinality" : 2,
       "portAtRelationship" : -1,
       "portAtEntity" : -1

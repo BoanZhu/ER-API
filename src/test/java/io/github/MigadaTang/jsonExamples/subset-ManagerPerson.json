@@ -5,32 +5,28 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "salary number",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : true,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     }, {
       "name" : "bonus",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
-      "attributeType" : "Optional",
-      "aimPort" : -1
+      "attributeType" : "Optional"
     }, {
       "name" : "name",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     } ]
   }, {
     "name" : "manager",
     "entityType" : "SUBSET",
     "attributeList" : [ {
       "name" : "mobile number",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
-      "attributeType" : "Mandatory",
-      "aimPort" : -1
+      "attributeType" : "Mandatory"
     } ],
     "belongStrongEntity" : "person"
   } ]
