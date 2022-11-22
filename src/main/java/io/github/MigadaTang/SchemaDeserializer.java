@@ -91,7 +91,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
         if (entityJSONNode.get("attributeList") != null) {
             for (JsonNode attributeJSONNode : entityJSONNode.get("attributeList")) {
                 String attributeName = attributeJSONNode.get("name").textValue();
-                DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
+                DataType attributeDataType = DataType.getFromValue(attributeJSONNode.get("dataType").textValue());
                 Boolean attributeIsPrimary = attributeJSONNode.get("isPrimary").booleanValue();
                 AttributeType attributeType = AttributeType.valueOf(attributeJSONNode.get("attributeType").textValue());
                 Attribute attribute = entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeType);

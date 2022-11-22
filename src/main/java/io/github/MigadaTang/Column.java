@@ -1,6 +1,5 @@
-package io.github.MigadaTang.bean.dto.transform;
+package io.github.MigadaTang;
 
-import io.github.MigadaTang.Attribute;
 import io.github.MigadaTang.util.RandomUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ColumnDTO {
+public class Column {
 
     private Long ID;
 
@@ -39,7 +38,7 @@ public class ColumnDTO {
         this.isForeign = false;
         this.foreignKeyColumn = null;
         this.foreignKeyColumnName = null;
-//        this.nullable = attribute.getAttributeType();
+        this.nullable = attribute.getNullable();
         this.foreignKeyTable = null;
     }
 
@@ -50,9 +49,9 @@ public class ColumnDTO {
             return "NOT NULL";
         }
     }
-
-    public ColumnDTO getForeignClone(Long tableID, boolean isPk, String foreignTableName) {
-        ColumnDTO clone = new ColumnDTO(RandomUtils.generateID(), foreignTableName + "_" + this.name, this.dataType, isPk,
+    
+    public Column getForeignClone(Long tableID, boolean isPk, String foreignTableName) {
+        Column clone = new Column(RandomUtils.generateID(), foreignTableName+"_"+this.name, this.dataType, isPk,
                 true, this.ID, this.name, tableID, false, null);
         return clone;
     }

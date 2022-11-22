@@ -1,7 +1,7 @@
 package io.github.MigadaTang.util;
 
-import io.github.MigadaTang.bean.dto.transform.ColumnDTO;
-import io.github.MigadaTang.bean.dto.transform.TableDTO;
+import io.github.MigadaTang.Column;
+import io.github.MigadaTang.Table;
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,52 +10,52 @@ import java.util.Set;
 
 public class GenerationSqlUtil {
 
-    public static String toSqlStatement(Map<Long, TableDTO> tableDTOList) {
+    public static String toSqlStatement(Map<Long, Table> tableDTOList) {
         StringBuilder sqlStatement = new StringBuilder("");
 
-        for (TableDTO tableDTO : tableDTOList.values()) {
-            sqlStatement.append("CREATE TABLE `").append(tableDTO.getName()).append("` (\n");
-            List<ColumnDTO> columnDTOList = tableDTO.getColumnDTOList();
+        for (Table table : tableDTOList.values()) {
+            sqlStatement.append("CREATE TABLE `").append(table.getName()).append("` (\n");
+            List<Column> columnList = table.getColumnList();
             StringBuilder constraintStatement = new StringBuilder("");
             Set<String> columnNames = new HashSet<>();
-            for (ColumnDTO columnDTO : columnDTOList) {
-                if (columnNames.contains(columnDTO.getName()))
-                    columnDTO.setName(columnDTO.getName() + "1");
+            for (Column column : columnList) {
+                if (columnNames.contains(column.getName()))
+                    column.setName(column.getName() + "1");
                 else
-                    columnNames.add(columnDTO.getName());
+                    columnNames.add(column.getName());
 
-                sqlStatement.append("    `").append(columnDTO.getName()).append("` ")
-                        .append(columnDTO.getDataType().toUpperCase())
-                        .append(" ").append(columnDTO.nullable()).append(",\n");
+                sqlStatement.append("    `").append(column.getName()).append("` ")
+                        .append(column.getDataType().toUpperCase())
+                        .append(" ").append(column.nullable()).append(",\n");
             }
 
-            if (tableDTO.getPrimaryKey().size() > 0) {
-                constraintStatement.append("    CONSTRAINT ").append(tableDTO.getName()).append("_pk").append(" PRIMARY KEY (");
-                for (ColumnDTO columnDTO : tableDTO.getPrimaryKey()) {
-                    constraintStatement.append(columnDTO.getName()).append(",");
+            if (table.getPrimaryKey().size() > 0) {
+                constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_pk").append(" PRIMARY KEY (");
+                for (Column column : table.getPrimaryKey()) {
+                    constraintStatement.append(column.getName()).append(",");
                 }
                 constraintStatement.deleteCharAt(constraintStatement.lastIndexOf(","));
                 constraintStatement.append("),\n");
             }
 
-            if (tableDTO.getForeignKey().size() > 0) {
+            if (table.getForeignKey().size() > 0) {
                 int fkIndex = 1;
-                for (Long referTableId : tableDTO.getForeignKey().keySet()) {
-                    List<ColumnDTO> foreignKey = tableDTO.getForeignKey().get(referTableId);
+                for (Long referTableId : table.getForeignKey().keySet()) {
+                    List<Column> foreignKey = table.getForeignKey().get(referTableId);
                     if (foreignKey.size() == 0) {
                         continue;
                     }
                     StringBuilder fkName = new StringBuilder();
                     StringBuilder relatedName = new StringBuilder();
 
-                    for (ColumnDTO column : foreignKey) {
+                    for (Column column : foreignKey) {
                         fkName.append(column.getName()).append(",");
                         relatedName.append(column.getForeignKeyColumnName()).append(",");
                     }
                     fkName.deleteCharAt(fkName.lastIndexOf(","));
                     relatedName.deleteCharAt(relatedName.lastIndexOf(","));
 
-                    constraintStatement.append("    CONSTRAINT ").append(tableDTO.getName()).append("_fk").append(fkIndex)
+                    constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_fk").append(fkIndex)
                             .append(" FOREIGN KEY (").append(fkName).append(")")
                             .append(" REFERENCES ").append(tableDTOList.get(referTableId).getName())
                             .append("(").append(relatedName).append(")").append(",\n");

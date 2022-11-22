@@ -2,6 +2,7 @@ package io.github.MigadaTang;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import io.github.MigadaTang.exception.ParseException;
 
 import java.io.*;
 import java.util.Base64;
@@ -12,16 +13,25 @@ public class Render {
     private final static Pattern pattern = Pattern.compile("^(data:(.*?);base64,)");
     private final static String FILENAME= "test.png";
 
-    public static void render(String jsonString) throws IOException, InterruptedException {
+    public static void render(String jsonString) throws ParseException {
 
         // load page using HTML Unit and fire scripts
 
-        writeFile(jsonString);
+        try {
+            writeFile(jsonString);
+        } catch (IOException e) {
+            throw new ParseException("Fail to write the json string to file: " + e.getMessage());
+        }
 
         WebClient webClient = new WebClient();
         webClient.getOptions().setJavaScriptEnabled(true);
         webClient.getOptions().setDownloadImages(true);
-        HtmlPage myPage = webClient.getPage(new File("src/main/resources/show.html").toURI().toURL());
+        HtmlPage myPage = null;
+        try {
+            myPage = webClient.getPage(new File("src/main/resources/show.html").toURI().toURL());
+        } catch (IOException e) {
+            throw new ParseException("Fail to read the file: show.html");
+        }
         // get the base64 code
         String baseImageCode = myPage.getElementById("image").asNormalizedText();
         // close connection
