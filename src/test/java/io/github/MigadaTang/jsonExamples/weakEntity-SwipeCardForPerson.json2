@@ -5,7 +5,7 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "salary number",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : true,
       "nullable" : false,
       "aimPort" : -1
@@ -15,13 +15,13 @@
     "entityType" : "WEAK",
     "attributeList" : [ {
       "name" : "issue",
-      "dataType" : 6,
+      "dataType" : "INT",
       "isPrimary" : true,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "date",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
@@ -32,12 +32,12 @@
     "name" : "for",
     "edgeList" : [ {
       "entity" : "swipe card",
-      "cardinality" : 3,
+      "cardinality" : "1:1",
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     }, {
       "entity" : "person",
-      "cardinality" : 2,
+      "cardinality" : "0:N",
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     } ]

@@ -27,7 +27,12 @@ public class AttributeSerializer extends JsonSerializer<Attribute> {
             jgen.writeNumberField("id", attribute.getID());
         }
         jgen.writeStringField("name", attribute.getName());
-        jgen.writeNumberField("dataType", attribute.getDataType().ordinal());
+
+        if (isRenderFormat) {
+            jgen.writeNumberField("dataType", attribute.getDataType().ordinal());
+        } else {
+            jgen.writeStringField("dataType", attribute.getDataType().getValue());
+        }
         jgen.writeBooleanField("isPrimary", attribute.getIsPrimary());
         jgen.writeBooleanField("nullable", attribute.getNullable());
 

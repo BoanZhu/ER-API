@@ -5,19 +5,19 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "sortcode",
-      "dataType" : 6,
+      "dataType" : "INT",
       "isPrimary" : true,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "bname",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "cash",
-      "dataType" : 9,
+      "dataType" : "DOUBLE",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
@@ -27,25 +27,25 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "no",
-      "dataType" : 6,
+      "dataType" : "INT",
       "isPrimary" : true,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "type",
-      "dataType" : 1,
+      "dataType" : "CHAR",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "cname",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "rate",
-      "dataType" : 9,
+      "dataType" : "DOUBLE",
       "isPrimary" : false,
       "nullable" : true,
       "aimPort" : -1
@@ -55,19 +55,19 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "mid",
-      "dataType" : 6,
+      "dataType" : "INT",
       "isPrimary" : true,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "amount",
-      "dataType" : 9,
+      "dataType" : "DOUBLE",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "tdate",
-      "dataType" : 10,
+      "dataType" : "DATATIME",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
@@ -77,12 +77,12 @@
     "name" : "holds",
     "edgeList" : [ {
       "entity" : "account",
-      "cardinality" : 3,
+      "cardinality" : "1:1",
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     }, {
       "entity" : "branch",
-      "cardinality" : 2,
+      "cardinality" : "0:N",
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     } ]
@@ -90,12 +90,12 @@
     "name" : "has",
     "edgeList" : [ {
       "entity" : "account",
-      "cardinality" : 2,
+      "cardinality" : "0:N",
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     }, {
       "entity" : "movement",
-      "cardinality" : 3,
+      "cardinality" : "1:1",
       "portAtRelationship" : -1,
       "portAtEntity" : -1
     } ]

@@ -5,19 +5,19 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "salary number",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : true,
       "nullable" : false,
       "aimPort" : -1
     }, {
       "name" : "bonus",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : true,
       "aimPort" : -1
     }, {
       "name" : "name",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
@@ -27,7 +27,7 @@
     "entityType" : "SUBSET",
     "attributeList" : [ {
       "name" : "mobile number",
-      "dataType" : 2,
+      "dataType" : "VARCHAR",
       "isPrimary" : false,
       "nullable" : false,
       "aimPort" : -1
