@@ -9,10 +9,10 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BelongObj {
+public class ERBaseObj {
     private Long ID;
-    private String name;
     private Long schemaID;
+    private String name;
     private LayoutInfo layoutInfo;
     private Date gmtCreate;
     private Date gmtModified;

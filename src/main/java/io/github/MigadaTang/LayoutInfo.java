@@ -33,7 +33,7 @@ public class LayoutInfo {
 
     public static List<LayoutInfo> query(LayoutInfoDO layoutInfoDO) {
         List<LayoutInfoDO> LayoutInfoDOList = ER.layoutInfoMapper.selectByLayoutInfo(layoutInfoDO);
-        return Trans.TransLayoutInfoListFormDB(LayoutInfoDOList);
+        return ObjConv.ConvLayoutInfoListFormDB(LayoutInfoDOList);
     }
 
     public static LayoutInfo queryByObjIDAndObjType(Long relatedObjID, BelongObjType belongObjType) {

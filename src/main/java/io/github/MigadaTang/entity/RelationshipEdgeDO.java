@@ -1,5 +1,8 @@
 package io.github.MigadaTang.entity;
 
+import io.github.MigadaTang.ERConnectableObj;
+import io.github.MigadaTang.Entity;
+import io.github.MigadaTang.Relationship;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import lombok.AllArgsConstructor;
@@ -28,9 +31,15 @@ public class RelationshipEdgeDO {
         this.ID = ID;
     }
 
-    public RelationshipEdgeDO(Long relationshipID, Long belongObjID, BelongObjType belongObjType) {
+    public RelationshipEdgeDO(Long relationshipID, ERConnectableObj connObj) {
         this.relationshipID = relationshipID;
-        this.belongObjID = belongObjID;
-        this.belongObjType = belongObjType;
+        if (connObj != null) {
+            this.belongObjID = connObj.getID();
+            if (connObj instanceof Entity) {
+                this.belongObjType = BelongObjType.ENTITY;
+            } else if (connObj instanceof Relationship) {
+                this.belongObjType = BelongObjType.RELATIONSHIP;
+            }
+        }
     }
 }

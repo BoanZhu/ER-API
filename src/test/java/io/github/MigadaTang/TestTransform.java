@@ -111,14 +111,14 @@ public class TestTransform {
 
         Entity manager = view.addSubset("manager", person);
 
-        List<EntityWithCardinality> entityWithCardinalityList = new ArrayList<>();
-        EntityWithCardinality entity1 = new EntityWithCardinality(department, Cardinality.ZeroToMany);
-        EntityWithCardinality entity2 = new EntityWithCardinality(person, Cardinality.ZeroToMany);
-        EntityWithCardinality entity3 = new EntityWithCardinality(manager, Cardinality.ZeroToMany);
-        entityWithCardinalityList.add(entity1);
-        entityWithCardinalityList.add(entity2);
-        entityWithCardinalityList.add(entity3);
-        view.createNaryRelationship("works in", entityWithCardinalityList);
+        List<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
+        ConnObjWithCardinality entity1 = new ConnObjWithCardinality(department, Cardinality.ZeroToMany);
+        ConnObjWithCardinality entity2 = new ConnObjWithCardinality(person, Cardinality.ZeroToMany);
+        ConnObjWithCardinality entity3 = new ConnObjWithCardinality(manager, Cardinality.ZeroToMany);
+        connObjWithCardinalityList.add(entity1);
+        connObjWithCardinalityList.add(entity2);
+        connObjWithCardinalityList.add(entity3);
+        view.createNaryRelationship("works in", connObjWithCardinalityList);
 
         Tranform tranform = new Tranform();
         ResultState resultState = tranform.ERModelToSql(view.getID());
@@ -143,14 +143,14 @@ public class TestTransform {
         Entity manager = managerRelPair.left;
         manager.addAttribute("name", DataType.VARCHAR, true, AttributeType.Mandatory);
 
-        List<EntityWithCardinality> entityWithCardinalityList = new ArrayList<>();
-        EntityWithCardinality entity1 = new EntityWithCardinality(department, Cardinality.ZeroToMany);
-        EntityWithCardinality entity2 = new EntityWithCardinality(person, Cardinality.ZeroToMany);
-        EntityWithCardinality entity3 = new EntityWithCardinality(manager, Cardinality.ZeroToMany);
-        entityWithCardinalityList.add(entity1);
-        entityWithCardinalityList.add(entity2);
-        entityWithCardinalityList.add(entity3);
-        view.createNaryRelationship("works in", entityWithCardinalityList);
+        List<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
+        ConnObjWithCardinality entity1 = new ConnObjWithCardinality(department, Cardinality.ZeroToMany);
+        ConnObjWithCardinality entity2 = new ConnObjWithCardinality(person, Cardinality.ZeroToMany);
+        ConnObjWithCardinality entity3 = new ConnObjWithCardinality(manager, Cardinality.ZeroToMany);
+        connObjWithCardinalityList.add(entity1);
+        connObjWithCardinalityList.add(entity2);
+        connObjWithCardinalityList.add(entity3);
+        view.createNaryRelationship("works in", connObjWithCardinalityList);
 
         Tranform tranform = new Tranform();
         ResultState resultState = tranform.ERModelToSql(view.getID());

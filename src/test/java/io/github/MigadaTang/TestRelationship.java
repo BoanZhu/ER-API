@@ -17,8 +17,6 @@ public class TestRelationship {
     private Entity teacher;
     private Entity student;
     private Entity classroom;
-    private Entity secondSchemaEntity1;
-    private Entity secondSchemaEntity2;
 
     @Before
     public void init() throws Exception {
@@ -29,8 +27,6 @@ public class TestRelationship {
         classroom = testSchema.addEntity("classroom");
 
         secondSchema = ER.createSchema("secondSchema", "wt22");
-        secondSchemaEntity1 = secondSchema.addEntity("ent1");
-        secondSchemaEntity2 = secondSchema.addEntity("ent2");
         Assert.assertNotNull(teacher);
         Assert.assertNotNull(student);
         Assert.assertNotNull(classroom);
@@ -47,7 +43,7 @@ public class TestRelationship {
         RelationshipEdge edge = relationship.linkEntity(classroom, Cardinality.ZeroToMany);
         edge = RelationshipEdge.queryByID(edge.getID());
         Assert.assertNotNull(edge);
-        Assert.assertEquals(edge.getEntity().getID(), classroom.getID());
+        Assert.assertEquals(edge.getConnObj().getID(), classroom.getID());
         Assert.assertEquals(edge.getRelationshipID(), relationship.getID());
 
         // check edge num equal
@@ -92,7 +88,7 @@ public class TestRelationship {
         edge.updateInfo(cardi, newEntity);
         edge = RelationshipEdge.queryByID(edge.getID());
         Assert.assertEquals(edge.getCardinality(), cardi);
-        Assert.assertEquals(edge.getEntity().getID(), newEntity.getID());
+        Assert.assertEquals(edge.getConnObj().getID(), newEntity.getID());
     }
 
     @Test

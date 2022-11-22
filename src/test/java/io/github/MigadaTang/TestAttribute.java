@@ -27,8 +27,8 @@ public class TestAttribute {
 
     @Test
     public void addAttributeTest() {
-        // primary key cannot be nullable
-        assertThrows(ERException.class, () -> teacher.addAttribute("testPrimaryWithNullable", DataType.INT, true, AttributeType.Mandatory));
+        // primary key must be mandatory
+        assertThrows(ERException.class, () -> teacher.addAttribute("testPrimaryWithNullable", DataType.INT, true, AttributeType.Optional));
 
         String attributeName = "teacher_id";
         DataType dataType = DataType.VARCHAR;
@@ -39,7 +39,7 @@ public class TestAttribute {
         Assert.assertEquals(attribute.getName(), attributeName);
         Assert.assertEquals(attribute.getDataType(), dataType);
         Assert.assertEquals(attribute.getIsPrimary(), true);
-        Assert.assertEquals(attribute.getAttributeType(), false);
+        Assert.assertEquals(attribute.getAttributeType(), AttributeType.Mandatory);
         Assert.assertEquals(attribute.getBelongObjID(), teacher.getID());
         Assert.assertEquals(attribute.getBelongObjType(), BelongObjType.ENTITY);
         Assert.assertEquals(attribute.getAimPort(), Integer.valueOf(-1));
@@ -54,6 +54,12 @@ public class TestAttribute {
         Assert.assertNotNull(attribute.getLayoutInfo());
         Assert.assertEquals(attribute.getLayoutInfo().getLayoutX(), Double.valueOf(1.2));
         Assert.assertEquals(attribute.getLayoutInfo().getLayoutY(), Double.valueOf(1.3));
+
+        Attribute a2 = teacher.addAttribute("phone", dataType, false, AttributeType.Optional);
+        Assert.assertEquals(a2.getAttributeType(), AttributeType.Optional);
+        a2.updateInfo(null, null, null, AttributeType.Both);
+        attribute = Attribute.queryByID(a2.getID());
+        Assert.assertEquals(attribute.getAttributeType(), AttributeType.Both);
 
         // duplicate name exception test
         assertThrows(ERException.class, () -> teacher.addAttribute(attributeName, DataType.INT, false, AttributeType.Mandatory));

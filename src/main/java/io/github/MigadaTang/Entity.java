@@ -14,14 +14,14 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
-public class Entity extends BelongObj {
+public class Entity extends ERBaseObj implements ERConnectableObj {
     private EntityType entityType;
     private Entity belongStrongEntity;
     private List<Attribute> attributeList;
     private Integer aimPort;
 
     protected Entity(Long ID, String name, Long schemaID, EntityType entityType, Entity belongStrongEntity, List<Attribute> attributeList, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
-        super(ID, name, schemaID, layoutInfo, gmtCreate, gmtModified);
+        super(ID, schemaID, name, layoutInfo, gmtCreate, gmtModified);
         this.entityType = entityType;
         this.belongStrongEntity = belongStrongEntity;
         this.attributeList = attributeList;
@@ -114,7 +114,7 @@ public class Entity extends BelongObj {
 
     public static List<Entity> query(EntityDO entityDO) {
         List<EntityDO> entityDOList = ER.entityMapper.selectByEntity(entityDO);
-        return Trans.TransEntityListFormFromDB(entityDOList);
+        return ObjConv.ConvEntityListFormFromDB(entityDOList);
     }
 
     public static Entity queryByID(Long ID) {

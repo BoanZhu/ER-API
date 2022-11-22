@@ -5,81 +5,95 @@
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "sortcode",
-      "dataType" : "INT",
+      "dataType" : 6,
       "isPrimary" : true,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     }, {
       "name" : "bname",
-      "dataType" : "VARCHAR",
+      "dataType" : 2,
       "isPrimary" : false,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     }, {
       "name" : "cash",
-      "dataType" : "DOUBLE",
+      "dataType" : 9,
       "isPrimary" : false,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     } ]
   }, {
     "name" : "account",
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "no",
-      "dataType" : "INT",
+      "dataType" : 6,
       "isPrimary" : true,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     }, {
       "name" : "type",
-      "dataType" : "CHAR",
+      "dataType" : 1,
       "isPrimary" : false,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     }, {
       "name" : "cname",
-      "dataType" : "VARCHAR",
+      "dataType" : 2,
       "isPrimary" : false,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     }, {
       "name" : "rate",
-      "dataType" : "DOUBLE",
+      "dataType" : 9,
       "isPrimary" : false,
-      "nullable" : true
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     } ]
   }, {
     "name" : "movement",
     "entityType" : "STRONG",
     "attributeList" : [ {
       "name" : "mid",
-      "dataType" : "INT",
+      "dataType" : 6,
       "isPrimary" : true,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     }, {
       "name" : "amount",
-      "dataType" : "DOUBLE",
+      "dataType" : 9,
       "isPrimary" : false,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     }, {
       "name" : "tdate",
-      "dataType" : "DATETIME",
+      "dataType" : 10,
       "isPrimary" : false,
-      "nullable" : false
+      "attributeType" : "Mandatory",
+      "aimPort" : -1
     } ]
   } ],
   "relationshipList" : [ {
     "name" : "holds",
     "edgeList" : [ {
-      "entity" : "account",
-      "cardinality" : "1:1"
+      "cardinality" : 3,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
     }, {
-      "entity" : "branch",
-      "cardinality" : "0:N"
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
     } ]
   }, {
     "name" : "has",
     "edgeList" : [ {
-      "entity" : "account",
-      "cardinality" : "0:N"
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
     }, {
-      "entity" : "movement",
-      "cardinality" : "1:1"
+      "cardinality" : 3,
+      "portAtRelationship" : -1,
+      "portAtEntity" : -1
     } ]
   } ]
 }

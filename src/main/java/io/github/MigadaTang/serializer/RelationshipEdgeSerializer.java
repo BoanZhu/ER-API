@@ -19,13 +19,13 @@ public class RelationshipEdgeSerializer extends JsonSerializer<RelationshipEdge>
             RelationshipEdge edge, JsonGenerator jgen, SerializerProvider provider)
             throws IOException {
         jgen.writeStartObject();
-
+        // todo fix render
         if (isRenderFormat) {
             jgen.writeNumberField("id", edge.getID());
             jgen.writeNumberField("relationshipID", edge.getRelationshipID());
-            jgen.writeNumberField("entityID", edge.getEntity().getID());
+//            jgen.writeNumberField("entityID", edge.getEntity().getID());
         } else {
-            jgen.writeStringField("entity", edge.getEntity().getName());
+//            jgen.writeStringField("entity", edge.getEntity().getName());
         }
 
         jgen.writeNumberField("cardinality", edge.getCardinality().getCode());

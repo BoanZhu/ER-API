@@ -4,8 +4,8 @@ import io.github.MigadaTang.*;
 import io.github.MigadaTang.bean.dto.transform.ColumnDTO;
 import io.github.MigadaTang.bean.dto.transform.TableDTO;
 import io.github.MigadaTang.common.Cardinality;
+import io.github.MigadaTang.common.ConnObjWithCardinality;
 import io.github.MigadaTang.common.EntityType;
-import io.github.MigadaTang.common.EntityWithCardinality;
 import io.github.MigadaTang.exception.ParseException;
 
 import java.util.*;
@@ -39,16 +39,16 @@ public class ParserUtil {
 
         // parser table generate by relationship
         for (TableDTO tableDTO : tableGenerateByRelationship) {
-            List<EntityWithCardinality> entityWithCardinalityList = new ArrayList<>();
+            List<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
             Set<Long> foreignTableList = new HashSet<>();
             for (ColumnDTO column : tableDTO.getColumnDTOList()) {
                 if (!foreignTableList.contains(column.getForeignKeyTable())) {
                     foreignTableList.add(column.getForeignKeyTable());
-                    EntityWithCardinality entityWithCardinality = new EntityWithCardinality(tableDTOEntityMap.get(column.getForeignKeyTable()), Cardinality.ZeroToMany);
-                    entityWithCardinalityList.add(entityWithCardinality);
+                    ConnObjWithCardinality connObjWithCardinality = new ConnObjWithCardinality(tableDTOEntityMap.get(column.getForeignKeyTable()), Cardinality.ZeroToMany);
+                    connObjWithCardinalityList.add(connObjWithCardinality);
                 }
             }
-            schema.createNaryRelationship("unknow", entityWithCardinalityList);
+            schema.createNaryRelationship("unknow", connObjWithCardinalityList);
         }
 
         return schema;
@@ -210,8 +210,8 @@ public class ParserUtil {
                         !tableDTOMap.containsKey(relationshipEdges.get(1).getSchemaID())) {
                     throw new ParseException("The table which relationship reference to does not exist. Relationship ID: " + relationship.getID());
                 }
-                TableDTO firstTable = tableDTOMap.get(relationshipEdges.get(0).getEntity().getID());
-                TableDTO secondTable = tableDTOMap.get(relationshipEdges.get(1).getEntity().getID());
+                TableDTO firstTable = tableDTOMap.get(relationshipEdges.get(0).getConnObj().getID());
+                TableDTO secondTable = tableDTOMap.get(relationshipEdges.get(1).getConnObj().getID());
                 if (firstTable.getTableType() == EntityType.WEAK && firstTable.getBelongStrongTableID().equals(secondTable.getId())) {
                     parseWeakEntity(firstTable, secondTable);
                     continue;
@@ -295,7 +295,7 @@ public class ParserUtil {
         cardinalityListMap.put(Cardinality.ZeroToOne, new ArrayList<>());
 
         for (RelationshipEdge edge : relationship.getEdgeList()) {
-            Long tableID = edge.getEntity().getID();
+            Long tableID = edge.getConnObj().getID();
             if (!tableDTOMap.containsKey(tableID)) {
                 throw new ParseException("The table relationship connected does not exist. Relationship ID: "
                         + relationship.getID() + ", Table id: " + tableID);

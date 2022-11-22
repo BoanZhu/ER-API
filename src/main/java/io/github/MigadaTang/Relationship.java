@@ -15,16 +15,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static io.github.MigadaTang.RelationshipEdge.checkEntitesInSameRelationship;
 
 @Getter
-public class Relationship extends BelongObj {
+public class Relationship extends ERBaseObj implements ERConnectableObj {
     private List<Attribute> attributeList;
     private List<RelationshipEdge> edgeList;
 
     // do not handle layout info during creation, use update to add layout info
     protected Relationship(Long ID, String name, Long schemaID, List<Attribute> attributeList, List<RelationshipEdge> edgeList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
-        super(ID, name, schemaID, layoutInfo, gmtCreate, gmtModified);
+        super(ID, schemaID, name, layoutInfo, gmtCreate, gmtModified);
         this.attributeList = attributeList;
         this.edgeList = edgeList;
         if (getID() == 0) {
@@ -47,12 +46,20 @@ public class Relationship extends BelongObj {
         }
     }
 
-    public static List<Relationship> query(RelationshipDO RelationshipDO) {
-        return Trans.TransRelationshipListFromDB(ER.relationshipMapper.selectByRelationship(RelationshipDO));
+    public static List<Relationship> query(RelationshipDO relationshipDO) {
+        return query(relationshipDO, true);
+    }
+
+    public static List<Relationship> query(RelationshipDO relationshipDO, boolean cascade) {
+        return ObjConv.ConvRelationshipListFromDB(ER.relationshipMapper.selectByRelationship(relationshipDO), cascade);
     }
 
     public static Relationship queryByID(Long ID) throws ERException {
-        List<Relationship> relationships = query(new RelationshipDO(ID));
+        return queryByID(ID, true);
+    }
+
+    public static Relationship queryByID(Long ID, boolean cascade) throws ERException {
+        List<Relationship> relationships = query(new RelationshipDO(ID), cascade);
         if (relationships.size() == 0) {
             throw new ERException(String.format("Relationship with ID: %d not found ", ID));
         } else {
@@ -98,27 +105,27 @@ public class Relationship extends BelongObj {
         attribute.deleteDB();
     }
 
-    public RelationshipEdge linkEntity(Entity entity, Cardinality cardinality) {
-        if (Entity.queryByID(entity.getID()) == null) {
-            throw new ERException(String.format("entity with ID: %d not found", entity.getID()));
+    public RelationshipEdge linkEntity(ERConnectableObj belongObj, Cardinality cardinality) {
+        if (Entity.queryByID(belongObj.getID()) == null) {
+            throw new ERException(String.format("entity with ID: %d not found", belongObj.getID()));
         }
-        if (!entity.getSchemaID().equals(getSchemaID())) {
-            throw new ERException(String.format("entity: %s does not belong to this schema", entity.getName()));
+        if (!belongObj.getSchemaID().equals(getSchemaID())) {
+            throw new ERException(String.format("entity: %s does not belong to this schema", belongObj.getName()));
         }
-        List<RelationshipEdge> relationshipEdges = RelationshipEdge.query(new RelationshipEdgeDO(getID(), entity.getID(), BelongObjType.ENTITY));
+        List<RelationshipEdge> relationshipEdges = RelationshipEdge.query(new RelationshipEdgeDO(getID(), belongObj));
         if (relationshipEdges.size() != 0) {
             throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
         }
         Relationship relationship = Relationship.queryByID(getID());
-        List<Long> entityIDs = new ArrayList<>();
+        List<ERConnectableObj> belongObjList = new ArrayList<>();
         for (RelationshipEdge edge : relationship.getEdgeList()) {
-            entityIDs.add(edge.getEntity().getID());
+            belongObjList.add(edge.getConnObj());
         }
-        entityIDs.add(entity.getID());
-        if (checkEntitesInSameRelationship(entityIDs)) {
+        belongObjList.add(belongObj);
+        if (RelationshipEdge.checkEntitesInSameRelationship(belongObjList)) {
             throw new ERException("entities have been in the same relationship");
         }
-        RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), entity, cardinality, -1, -1, new Date(), new Date());
+        RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, -1, -1, new Date(), new Date());
         this.edgeList.add(edge);
         return edge;
     }

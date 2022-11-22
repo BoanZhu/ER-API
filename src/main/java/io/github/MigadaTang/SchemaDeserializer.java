@@ -124,12 +124,12 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
             if (edgeList == null || edgeList.size() == 0) {
                 throw new ERException(String.format("deserialize schema fail edgeList of relationship: %s cannot be empty", relationshipName));
             }
-            ArrayList<EntityWithCardinality> eCardList = new ArrayList<>();
+            ArrayList<ConnObjWithCardinality> eCardList = new ArrayList<>();
             for (JsonNode edgeJsonNode : edgeList) {
                 String entityName = edgeJsonNode.get("entity").textValue();
                 Cardinality cardinality = Cardinality.getFromValue(edgeJsonNode.get("cardinality").textValue());
                 Entity entity = entityNameMap.get(entityName);
-                eCardList.add(new EntityWithCardinality(entity, cardinality));
+                eCardList.add(new ConnObjWithCardinality(entity, cardinality));
             }
             Relationship relationship = schema.createNaryRelationship(relationshipName, eCardList);
 

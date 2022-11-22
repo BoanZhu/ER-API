@@ -2,6 +2,7 @@ package io.github.MigadaTang.mapper;
 
 import io.github.MigadaTang.ER;
 import io.github.MigadaTang.TestCommon;
+import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.entity.RelationshipDO;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.junit.Assert;
@@ -61,7 +62,7 @@ public class testRelationMapper {
         List<Long> entityIDs = new ArrayList<>();
         entityIDs.add(438L);
         entityIDs.add(439L);
-        List<CaseInsensitiveMap<String, Object>> list = ER.relationshipEdgeMapper.groupCountEntityNum(entityIDs);
+        List<CaseInsensitiveMap<String, Object>> list = ER.relationshipEdgeMapper.groupCountEntityNum(entityIDs, BelongObjType.ENTITY);
 
     }
 }

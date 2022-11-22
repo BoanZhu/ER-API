@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS attribute;
 CREATE TABLE attribute (
                            id bigint NOT NULL AUTO_INCREMENT COMMENT 'uuid of the attribute',
                            belong_obj_id bigint NOT NULL COMMENT 'related entity id',
-                           belong_obj_type smallint NOT NULL COMMENT 'the type of obj the attribute belongs to',
+                           belong_obj_type smallint NOT NULL COMMENT 'the type of obj the attribute belongs to, 0-unknown, 1-attribute, 2-entity, 3-relationship',
                            schema_id bigint NOT NULL COMMENT 'related schema id',
                            name varchar(255) NOT NULL COMMENT 'attribute name',
                            data_type varchar(50) NOT NULL COMMENT 'data type of this attribute',
@@ -46,7 +46,7 @@ CREATE TABLE relationship_edge (
                                      relationship_id bigint NOT NULL COMMENT 'related schema id',
                                      schema_id bigint NOT NULL COMMENT 'related schema id',
                                      belong_obj_id bigint NOT NULL COMMENT 'belong_obj_id of the other end',
-                                     belong_obj_type smallint NOT NULL COMMENT 'belong_obj_type of the other end',
+                                     belong_obj_type smallint NOT NULL COMMENT 'the type of obj the attribute belongs to, 0-unknown, 2-entity, 3-relationship',
                                      cardinality smallint NOT NULL COMMENT 'look here cardinality, 0-unknown, 1-0:1, 2-0:N, 3-1:1, 4-1:N',
                                      port_at_relationship smallint NULL COMMENT 'the port index of relationship the edge connects to',
                                      port_at_belong_obj smallint NULL COMMENT 'the port index of belong obj the edge connects to',

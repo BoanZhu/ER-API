@@ -12,59 +12,48 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
-public class Attribute {
-    private Long ID;
+public class Attribute extends ERBaseObj {
     private Long belongObjID;
     private BelongObjType belongObjType;
-    private Long schemaID;
-    private String name;
     private DataType dataType;
     private Boolean isPrimary;
     private AttributeType attributeType;
     private Integer aimPort;
-    private LayoutInfo layoutInfo;
-    private Date gmtCreate;
-    private Date gmtModified;
 
     protected Attribute(Long ID, Long belongObjID, BelongObjType belongObjType, Long schemaID, String name, DataType dataType,
                         Boolean isPrimary, AttributeType attributeType, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
-        this.ID = ID;
+        super(ID, schemaID, name, layoutInfo, gmtCreate, gmtModified);
         this.belongObjID = belongObjID;
         this.belongObjType = belongObjType;
-        this.schemaID = schemaID;
-        this.name = name;
         this.dataType = dataType;
         this.isPrimary = isPrimary;
         this.attributeType = attributeType;
         this.aimPort = aimPort;
-        this.layoutInfo = layoutInfo;
-        this.gmtCreate = gmtCreate;
-        this.gmtModified = gmtModified;
-        if (this.ID == 0) {
-            this.insertDB();
+        if (getID() == 0) {
+            setID(insertDB());
         }
     }
 
-    private void insertDB() throws PersistenceException {
+    private Long insertDB() throws PersistenceException {
         try {
-            AttributeDO aDo = new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, this.gmtCreate, this.gmtModified);
+            AttributeDO aDo = new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), getGmtModified());
             int ret = ER.attributeMapper.insert(aDo);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
-            this.ID = aDo.getID();
+            return aDo.getID();
         } catch (PersistenceException e) {
             throw new ERException("insertDB fail", e);
         }
     }
 
     protected void deleteDB() {
-        ER.attributeMapper.deleteByID(this.ID);
+        ER.attributeMapper.deleteByID(getID());
     }
 
     public void updateInfo(String name, DataType dataType, Boolean isPrimary, AttributeType attributeType) throws ERException {
         if (name != null) {
-            this.name = name;
+            setName(name);
         }
         if (dataType != null) {
             this.dataType = dataType;
@@ -76,43 +65,43 @@ public class Attribute {
             this.attributeType = attributeType;
         }
         if (name != null) {
-            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, this.schemaID, name));
-            if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(this.ID)) {
-                throw new ERException(String.format("attribute with name: %s already exists", this.name));
+            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, getSchemaID(), name));
+            if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(getID())) {
+                throw new ERException(String.format("attribute with name: %s already exists", getName()));
             }
         }
         if (isPrimary != null && isPrimary) {
-            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, this.schemaID, null));
-            if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(this.ID)) {
+            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, getSchemaID(), null));
+            if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(getID())) {
                 throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
             }
         }
         if (this.isPrimary && this.attributeType != AttributeType.Mandatory) {
             throw new ERException("primary attribute must be mandatory");
         }
-        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, this.gmtCreate, new Date()));
+        ER.attributeMapper.updateByID(new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
     public void updateLayoutInfo(Double layoutX, Double layoutY) throws ERException {
-        if (this.layoutInfo == null) {
-            this.layoutInfo = new LayoutInfo(0L, this.ID, BelongObjType.ATTRIBUTE, layoutX, layoutY);
+        if (getLayoutInfo() == null) {
+            setLayoutInfo(new LayoutInfo(0L, getBelongObjID(), BelongObjType.ATTRIBUTE, layoutX, layoutY));
         }
-        this.layoutInfo.update(layoutX, layoutY);
+        getLayoutInfo().update(layoutX, layoutY);
     }
 
     public void updateAimPort(Integer aimPort) throws ERException {
         if (aimPort != null) {
             this.aimPort = aimPort;
         }
-        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, this.gmtCreate, new Date()));
+        ER.attributeMapper.updateByID(new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
     public static List<Attribute> query(AttributeDO attributeDO) {
-        return Trans.TransAttributeListFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
+        return ObjConv.ConvAttributeListFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
     }
 
     public static Attribute queryByID(Long ID) throws ERException {
-        List<Attribute> attributeList = Trans.TransAttributeListFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
+        List<Attribute> attributeList = ObjConv.ConvAttributeListFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
         if (attributeList.size() == 0) {
             throw new ERException(String.format("Attribute with ID: %d not found ", ID));
         } else {

@@ -5,10 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
+import io.github.MigadaTang.common.ConnObjWithCardinality;
 import io.github.MigadaTang.common.EntityType;
-import io.github.MigadaTang.common.EntityWithCardinality;
 import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.entity.SchemaDO;
@@ -117,7 +116,7 @@ public class Schema {
 
     public void deleteEntity(Entity entity) {
         // firstly,  delete all the edges connected to this entity
-        List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(null, entity.getID(), BelongObjType.ENTITY));
+        List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(null, entity));
         for (RelationshipEdge edge : edgeList) {
             edge.deleteDB();
         }
@@ -133,40 +132,55 @@ public class Schema {
         this.entityList.remove(entity);
     }
 
+    public Relationship createRelationship(String relationshipName, ERConnectableObj firstObj, ERConnectableObj secondObj, Cardinality firstCardinality, Cardinality secondCardinality) {
+        ArrayList<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
+        connObjWithCardinalityList.add(new ConnObjWithCardinality(firstObj, firstCardinality));
+        connObjWithCardinalityList.add(new ConnObjWithCardinality(secondObj, secondCardinality));
+        return createNaryRelationship(relationshipName, connObjWithCardinalityList);
+    }
+
     public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality) {
-        ArrayList<EntityWithCardinality> entityWithCardinalityList = new ArrayList<>();
-        entityWithCardinalityList.add(new EntityWithCardinality(firstEntity, firstCardinality));
-        entityWithCardinalityList.add(new EntityWithCardinality(secondEntity, secondCardinality));
-        return createNaryRelationship(relationshipName, entityWithCardinalityList);
+        ArrayList<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
+        connObjWithCardinalityList.add(new ConnObjWithCardinality(firstEntity, firstCardinality));
+        connObjWithCardinalityList.add(new ConnObjWithCardinality(secondEntity, secondCardinality));
+        return createNaryRelationship(relationshipName, connObjWithCardinalityList);
     }
 
     // createNaryRelationship
-    public Relationship createNaryRelationship(String relationshipName, List<EntityWithCardinality> entityWithCardinalityList) {
+    public Relationship createNaryRelationship(String relationshipName, List<ConnObjWithCardinality> connObjWithCardinalityList) {
         if (relationshipName.equals("")) {
             throw new ERException("relationshipName cannot be empty");
         }
-        if (entityWithCardinalityList.size() <= 1) {
+        if (connObjWithCardinalityList.size() <= 1) {
             throw new ERException("must have more than 2 entities to create relationship");
         }
-        List<Long> entityIDs = new ArrayList<>();
-        for (EntityWithCardinality eCard : entityWithCardinalityList) {
-            Entity entity = eCard.getEntity();
-            if (Entity.queryByID(entity.getID()) == null) {
-                throw new ERException(String.format("entity with ID: %d not found", entity.getID()));
+        List<ERConnectableObj> connObjList = new ArrayList<>();
+        for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
+            if (eCard.getConnObj() instanceof Entity) {
+                ERConnectableObj entity = eCard.getConnObj();
+                if (Entity.queryByID(entity.getID()) == null) {
+                    throw new ERException(String.format("entity with ID: %d not found", entity.getID()));
+                }
+                if (!entity.getSchemaID().equals(this.ID)) {
+                    throw new ERException(String.format("entity: %s does not belong to this schema", entity.getName()));
+                }
+            } else if (eCard.getConnObj() instanceof Relationship) {
+                ERConnectableObj relationship = eCard.getConnObj();
+                if (Relationship.queryByID(relationship.getID(), false) == null) {
+                    throw new ERException(String.format("relationship with ID: %d not found", relationship.getID()));
+                }
+                if (!relationship.getSchemaID().equals(this.ID)) {
+                    throw new ERException(String.format("relationship: %s does not belong to this schema", relationship.getName()));
+                }
             }
-            if (!entity.getSchemaID().equals(this.ID)) {
-                throw new ERException(String.format("entity: %s does not belong to this schema", entity.getName()));
-            }
-            entityIDs.add(entity.getID());
+            connObjList.add(eCard.getConnObj());
         }
-        if (RelationshipEdge.checkEntitesInSameRelationship(entityIDs)) {
-            throw new ERException("entities have been in the same relationship");
+        if (RelationshipEdge.checkEntitesInSameRelationship(connObjList)) {
+            throw new ERException("connObj have been in the same relationship");
         }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
-        for (EntityWithCardinality eCard : entityWithCardinalityList) {
-            Entity entity = eCard.getEntity();
-            Cardinality cardinality = eCard.getCardinality();
-            RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, entity, cardinality, -1, -1, new Date(), new Date());
+        for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
+            RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, eCard.getConnObj(), eCard.getCardinality(), -1, -1, new Date(), new Date());
             relationship.getEdgeList().add(relationshipEdge);
         }
         this.relationshipList.add(relationship);
@@ -232,12 +246,12 @@ public class Schema {
     }
 
     public static List<Schema> queryAll() {
-        return Trans.TransSchemaListFromDB(ER.schemaMapper.selectAll());
+        return ObjConv.ConvSchemaListFromDB(ER.schemaMapper.selectAll());
     }
 
     public static List<Schema> queryBySchema(SchemaDO SchemaDO) {
         List<SchemaDO> schemaDOList = ER.schemaMapper.selectBySchema(SchemaDO);
-        return Trans.TransSchemaListFromDB(schemaDOList);
+        return ObjConv.ConvSchemaListFromDB(schemaDOList);
     }
 
     public static Schema queryByID(Long ID) {

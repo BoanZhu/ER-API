@@ -70,14 +70,17 @@
         </where>
     </select>
 
-    <select id="groupCountEntityNum" parameterType="java.util.List"
+    <select id="groupCountEntityNum"
             resultType="org.apache.commons.collections4.map.CaseInsensitiveMap">
         select RELATIONSHIP_ID, count(*) as belong_obj_num from relationship_edge
-        where is_delete = 0 and
-        <foreach item="belongObjID" index="index" collection="list"
-                 open="belong_obj_id in (" separator="," close=")">
+        where is_delete = 0 and belong_obj_id in
+        <foreach item="belongObjID" index="index" collection="belongObjIDList"
+                 open=" (" separator="," close=")">
             #{belongObjID,jdbcType=BIGINT}
         </foreach>
+        <if test="belongObjType != null">
+            and belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT}
+        </if>
         group by relationship_id
         order by belong_obj_num desc
     </select>

@@ -57,7 +57,7 @@
                 and is_primary = #{isPrimary,jdbcType=TINYINT}
             </if>
             <if test="attributeType != null">
-                and attribute_type = #{attributeType,jdbcType=TINYINT}
+                and attribute_type = #{attributeType,jdbcType=SMALLINT}
             </if>
             <if test="aimPort != null">
                 and aim_port = #{aimPort,jdbcType=SMALLINT}
@@ -118,7 +118,7 @@
                 #{isPrimary,jdbcType=TINYINT},
             </if>
             <if test="attributeType != null">
-                #{attribute_type,jdbcType=TINYINT},
+                #{attributeType,jdbcType=SMALLINT},
             </if>
             <if test="aimPort != null">
                 #{aimPort,jdbcType=SMALLINT},
@@ -157,7 +157,7 @@
                 is_primary = #{isPrimary,jdbcType=TINYINT},
             </if>
             <if test="attributeType != null">
-                attribute_type = #{attributeType,jdbcType=TINYINT},
+                attribute_type = #{attributeType,jdbcType=SMALLINT},
             </if>
             <if test="aimPort != null">
                 aim_port = #{aimPort,jdbcType=SMALLINT},
