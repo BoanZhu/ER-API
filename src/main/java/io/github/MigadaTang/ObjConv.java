@@ -35,20 +35,24 @@ public class ObjConv {
         return ret;
     }
 
-    protected static Entity ConvFromDB(EntityDO entityDO) {
+    protected static Entity ConvFromDB(EntityDO entityDO, boolean cascade) {
         List<Attribute> attributeList = Attribute.query(new AttributeDO(entityDO.getID(), BelongObjType.ENTITY, entityDO.getSchemaID(), null));
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), BelongObjType.ENTITY);
         Entity strongEntity = null;
-        if (entityDO.getBelongStrongEntityID() != null && entityDO.getBelongStrongEntityID() != 0) {
-            strongEntity = Entity.queryByID(entityDO.getBelongStrongEntityID());
+        if (cascade) {
+            if (entityDO.getBelongStrongEntityID() != null && entityDO.getBelongStrongEntityID() != 0) {
+                // only fetch one layer of the relying on entity,
+                // do not fetch the relying on entity of the relying on entity
+                strongEntity = Entity.queryByID(entityDO.getBelongStrongEntityID(), false);
+            }
         }
         return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getSchemaID(), entityDO.getEntityType(), strongEntity, attributeList, entityDO.getAimPort(), layoutInfo, entityDO.getGmtCreate(), entityDO.getGmtModified());
     }
 
-    protected static List<Entity> ConvEntityListFormFromDB(List<EntityDO> doList) {
+    protected static List<Entity> ConvEntityListFormFromDB(List<EntityDO> doList, boolean cascade) {
         List<Entity> ret = new ArrayList<>();
         for (EntityDO EntityDO : doList) {
-            ret.add(ConvFromDB(EntityDO));
+            ret.add(ConvFromDB(EntityDO, cascade));
         }
         return ret;
     }
@@ -82,7 +86,7 @@ public class ObjConv {
             connObj = Entity.queryByID(edgeDO.getBelongObjID());
         }
         return new RelationshipEdge(edgeDO.getID(), edgeDO.getRelationshipID(), edgeDO.getSchemaID(),
-                connObj, edgeDO.getCardinality(), edgeDO.getPortAtRelationship(), edgeDO.getPortAtBelongObj(),
+                connObj, edgeDO.getCardinality(), edgeDO.getIsKey(), edgeDO.getPortAtRelationship(), edgeDO.getPortAtBelongObj(),
                 edgeDO.getGmtCreate(), edgeDO.getGmtModified());
     }
 

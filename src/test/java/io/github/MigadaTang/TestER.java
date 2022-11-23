@@ -72,7 +72,7 @@ public class TestER {
         swipeCard.addAttribute("date", DataType.VARCHAR, false, AttributeType.Mandatory);
 
         String jsonString = example.toJSON();
-        FileWriter myWriter = new FileWriter(String.format(outputFormat + "2", example.getName()));
+        FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
 

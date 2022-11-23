@@ -14,19 +14,13 @@
     "name" : "works in",
     "edgeList" : [ {
       "entity" : "person",
-      "cardinality" : "0:N",
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "cardinality" : "0:N"
     }, {
       "entity" : "manager",
-      "cardinality" : "0:N",
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "cardinality" : "0:N"
     }, {
       "entity" : "department",
-      "cardinality" : "0:N",
-      "portAtRelationship" : -1,
-      "portAtEntity" : -1
+      "cardinality" : "0:N"
     } ]
   } ]
 }

@@ -82,7 +82,7 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         ER.entityMapper.deleteByID(getID());
     }
 
-    public void updateInfo(String name) {
+    public void updateInfo(String name, EntityType entityType, Entity belongStrongEntity) {
         if (name != null) {
             setName(name);
             List<Entity> entities = Entity.query(new EntityDO(name, getSchemaID(), null));
@@ -91,10 +91,28 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
             }
         }
         Long belongStrongEntityID = null;
+        if (belongStrongEntity != null) {
+            this.belongStrongEntity = belongStrongEntity;
+            belongStrongEntityID = belongStrongEntity.getID();
+        }
+        if (entityType != null) {
+            if (entityType != EntityType.SUBSET) {
+                removeBelongStrongEntity();
+            }
+            this.entityType = entityType;
+        }
         if (this.belongStrongEntity != null) {
             belongStrongEntityID = this.belongStrongEntity.getID();
         }
         ER.entityMapper.updateByID(new EntityDO(getID(), getName(), getSchemaID(), this.entityType, belongStrongEntityID, this.aimPort, 0, getGmtCreate(), new Date()));
+    }
+
+    public void removeBelongStrongEntity() {
+        if (this.entityType != EntityType.SUBSET) {
+            return;
+        }
+        this.belongStrongEntity = null;
+        ER.entityMapper.updateByID(new EntityDO(getID(), getName(), getSchemaID(), this.entityType, null, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
 
@@ -113,12 +131,20 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
     }
 
     public static List<Entity> query(EntityDO entityDO) {
+        return query(entityDO, true);
+    }
+
+    public static List<Entity> query(EntityDO entityDO, boolean cascade) {
         List<EntityDO> entityDOList = ER.entityMapper.selectByEntity(entityDO);
-        return ObjConv.ConvEntityListFormFromDB(entityDOList);
+        return ObjConv.ConvEntityListFormFromDB(entityDOList, cascade);
     }
 
     public static Entity queryByID(Long ID) {
-        List<Entity> entityDOList = query(new EntityDO(ID));
+        return queryByID(ID, true);
+    }
+
+    public static Entity queryByID(Long ID, boolean cascade) {
+        List<Entity> entityDOList = query(new EntityDO(ID), cascade);
         if (entityDOList.size() == 0) {
             throw new ERException(String.format("entity with ID: %d not found", ID));
         } else {

@@ -50,6 +50,10 @@ public class Schema {
         return addEntity(entityName, EntityType.STRONG, null);
     }
 
+    public Entity addEntity(String entityName, EntityType entityType) {
+        return addEntity(entityName, entityType, null);
+    }
+
     public Entity addSubset(String entityName, Entity strongEntity) {
         // check if the specified strong entity that this subset relies on exists
         Entity entity;
@@ -77,27 +81,27 @@ public class Schema {
             throw new ERException("entity does not belong to this schema");
         }
         // add weak entity
-        Entity weakEntity = addEntity(entityName, EntityType.WEAK, strongEntity);
+        Entity weakEntity = addEntity(entityName, EntityType.WEAK, null);
         // add relationship
         Relationship relationship = createRelationship(relationshipName, weakEntity, strongEntity, weakEntityCardinality, strongEntityCardinality);
         return new ImmutablePair<>(weakEntity, relationship);
     }
 
-    protected Entity addIsolatedWeakEntity(String entityName, Entity strongEntity) {
-        // check if the specified strong entity that this subset relies on exists
-        Entity entity;
-        try {
-            entity = Entity.queryByID(strongEntity.getID());
-        } catch (ERException ex) {
-            throw new ERException("addIsolatedWeakEntity fail: the specified strong entity does not exist");
-        }
-        // check if the strong entity belongs to this schema
-        if (!entity.getSchemaID().equals(this.ID)) {
-            throw new ERException("entity does not belong to this schema");
-        }
-        // add weak entity
-        return addEntity(entityName, EntityType.WEAK, strongEntity);
-    }
+//    protected Entity addIsolatedWeakEntity(String entityName, Entity strongEntity) {
+//        // check if the specified strong entity that this subset relies on exists
+//        Entity entity;
+//        try {
+//            entity = Entity.queryByID(strongEntity.getID());
+//        } catch (ERException ex) {
+//            throw new ERException("addIsolatedWeakEntity fail: the specified strong entity does not exist");
+//        }
+//        // check if the strong entity belongs to this schema
+//        if (!entity.getSchemaID().equals(this.ID)) {
+//            throw new ERException("entity does not belong to this schema");
+//        }
+//        // add weak entity
+//        return addEntity(entityName, EntityType.WEAK, strongEntity);
+//    }
 
     // addEntity base method for addEntity, for internal use only,
     // users should add entity through other public methods
@@ -115,7 +119,7 @@ public class Schema {
     }
 
     public void deleteEntity(Entity entity) {
-        // firstly,  delete all the edges connected to this entity
+        // firstly, delete all the edges connected to this entity
         List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(null, entity));
         for (RelationshipEdge edge : edgeList) {
             edge.deleteDB();
@@ -132,7 +136,7 @@ public class Schema {
         this.entityList.remove(entity);
     }
 
-    Relationship createEmptyRelationship(String relationshipName) {
+    public Relationship createEmptyRelationship(String relationshipName) {
         return new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
     }
 
@@ -184,7 +188,7 @@ public class Schema {
         }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
-            RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, eCard.getConnObj(), eCard.getCardinality(), -1, -1, new Date(), new Date());
+            RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, eCard.getConnObj(), eCard.getCardinality(), false, -1, -1, new Date(), new Date());
             relationship.getEdgeList().add(relationshipEdge);
         }
         this.relationshipList.add(relationship);

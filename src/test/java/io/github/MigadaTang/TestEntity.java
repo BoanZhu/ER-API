@@ -42,10 +42,21 @@ public class TestEntity {
         Entity card = Entity.queryByID(pair.left.getID());
         Relationship relationship = Relationship.queryByID(pair.right.getID());
         Assert.assertNotEquals(card.getID(), Long.valueOf(0));
-        Assert.assertEquals(card.getBelongStrongEntity().getID(), teacher.getID());
         Assert.assertEquals(card.getEntityType(), EntityType.WEAK);
         Assert.assertNotEquals(relationship.getID(), Long.valueOf(0));
         Assert.assertEquals(relationship.getEdgeList().size(), 2);
+
+        // add empty subset
+        Entity emptySubset = testSchema.addEntity("empty subset", EntityType.SUBSET);
+        Assert.assertNotNull(emptySubset);
+        emptySubset = Entity.queryByID(emptySubset.getID());
+        Assert.assertNull(emptySubset.getBelongStrongEntity());
+
+        // add empty weak entity
+        Entity emptyWeakEntity = testSchema.addEntity("empty weak entity", EntityType.WEAK);
+        Assert.assertNotNull(emptyWeakEntity);
+        emptyWeakEntity = Entity.queryByID(emptyWeakEntity.getID());
+        Assert.assertNull(emptyWeakEntity.getBelongStrongEntity());
     }
 
     @Test
@@ -70,10 +81,29 @@ public class TestEntity {
         Entity student = testSchema.addEntity("student");
         Assert.assertNotEquals(teacher.getID(), Long.valueOf(0));
 
-        teacher.updateInfo("new teacher name");
+        teacher.updateInfo("new teacher name", null, null);
         Entity entity = Entity.queryByID(teacher.getID());
         Assert.assertNotNull(entity);
         Assert.assertEquals(entity.getName(), "new teacher name");
+
+        Entity studentSub = testSchema.addSubset("student_sub", student);
+        Assert.assertEquals(studentSub.getBelongStrongEntity().getID(), student.getID());
+        // check subset update belong strong entity id
+        studentSub.updateInfo(null, null, teacher);
+        Assert.assertEquals(studentSub.getBelongStrongEntity().getID(), teacher.getID());
+        // remove belong strong entity id
+        studentSub.removeBelongStrongEntity();
+        studentSub = Entity.queryByID(studentSub.getID());
+        Assert.assertNull(studentSub.getBelongStrongEntity());
+
+        studentSub.updateInfo(null, null, student);
+        studentSub = Entity.queryByID(studentSub.getID());
+        Assert.assertEquals(studentSub.getBelongStrongEntity().getID(), student.getID());
+
+        // check when modify to entity types other than subset, remove all belong strong entities
+        studentSub.updateInfo(null, EntityType.WEAK, null);
+        studentSub = Entity.queryByID(studentSub.getID());
+        Assert.assertNull(studentSub.getBelongStrongEntity());
 
         teacher.updateLayoutInfo(1.5, 2.5);
         entity = Entity.queryByID(teacher.getID());
@@ -85,7 +115,7 @@ public class TestEntity {
         Assert.assertEquals(entity.getAimPort(), Integer.valueOf(3));
 
         // test duplicate entity exception
-        assertThrows(ERException.class, () -> teacher.updateInfo("student"));
+        assertThrows(ERException.class, () -> teacher.updateInfo("student", null, null));
     }
 
     @Test

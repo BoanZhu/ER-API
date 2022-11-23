@@ -38,7 +38,7 @@ public class Column {
         this.isForeign = false;
         this.foreignKeyColumn = null;
         this.foreignKeyColumnName = null;
-        this.nullable = attribute.getNullable();
+//        this.nullable = attribute.getNullable();
         this.foreignKeyTable = null;
     }
 
@@ -49,9 +49,9 @@ public class Column {
             return "NOT NULL";
         }
     }
-    
+
     public Column getForeignClone(Long tableID, boolean isPk, String foreignTableName) {
-        Column clone = new Column(RandomUtils.generateID(), foreignTableName+"_"+this.name, this.dataType, isPk,
+        Column clone = new Column(RandomUtils.generateID(), foreignTableName + "_" + this.name, this.dataType, isPk,
                 true, this.ID, this.name, tableID, false, null);
         return clone;
     }

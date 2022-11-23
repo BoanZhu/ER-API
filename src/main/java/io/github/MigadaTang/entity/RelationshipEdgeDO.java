@@ -21,6 +21,7 @@ public class RelationshipEdgeDO {
     private Long belongObjID;
     private BelongObjType belongObjType;
     private Cardinality cardinality;
+    private Boolean isKey;
     private Integer portAtRelationship;
     private Integer portAtBelongObj;
     private Integer isDelete;

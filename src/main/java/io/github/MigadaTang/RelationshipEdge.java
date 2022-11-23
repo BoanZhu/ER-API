@@ -20,18 +20,20 @@ public class RelationshipEdge {
     private Long schemaID;
     private ERConnectableObj connObj;
     private Cardinality cardinality;
+    private Boolean isKey;
     private Integer portAtRelationship;
     private Integer portAtBelongObj;
     private Date gmtCreate;
     private Date gmtModified;
 
     protected RelationshipEdge(Long ID, Long relationshipID, Long schemaID, ERConnectableObj connObj,
-                               Cardinality cardinality, Integer portAtRelationship, Integer portAtBelongObj, Date gmtCreate, Date gmtModified) {
+                               Cardinality cardinality, Boolean isKey, Integer portAtRelationship, Integer portAtBelongObj, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.relationshipID = relationshipID;
         this.schemaID = schemaID;
         this.connObj = connObj;
         this.cardinality = cardinality;
+        this.isKey = isKey;
         this.portAtRelationship = portAtRelationship;
         this.portAtBelongObj = portAtBelongObj;
         this.gmtCreate = gmtCreate;
@@ -44,7 +46,7 @@ public class RelationshipEdge {
     private void insertDB() {
         try {
             RelationshipEdgeDO edgeDO = new RelationshipEdgeDO(0L, this.relationshipID, this.schemaID,
-                    this.connObj.getID(), BelongObjType.ENTITY, this.cardinality, this.portAtRelationship, this.portAtBelongObj, 0, new Date(), new Date());
+                    this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, new Date(), new Date());
             int ret = ER.relationshipEdgeMapper.insert(edgeDO);
             if (ret == 0) {
                 throw new ERException("relationshipEdge insert db fail");
@@ -81,12 +83,15 @@ public class RelationshipEdge {
             throw new ERException("entities have been in the same relationship");
         }
         this.relationshipID = relationshipID;
-        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), BelongObjType.ENTITY, this.cardinality, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
+        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
-    public void updateInfo(Cardinality cardinality, ERConnectableObj connObj) throws ERException {
+    public void updateInfo(Cardinality cardinality, ERConnectableObj connObj, Boolean isKey) throws ERException {
         if (cardinality != null) {
             this.cardinality = cardinality;
+        }
+        if (isKey != null) {
+            this.isKey = isKey;
         }
         if (connObj != null) {
             Relationship relationship = Relationship.queryByID(this.relationshipID);
@@ -101,7 +106,7 @@ public class RelationshipEdge {
             }
             this.connObj = connObj;
         }
-        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), BelongObjType.ENTITY, this.cardinality, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
+        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
     // check if these entities have been in the same relationship
@@ -142,14 +147,14 @@ public class RelationshipEdge {
         return false;
     }
 
-    public void updatePorts(Integer portAtRelationship, Integer portAtEntity) throws ERException {
+    public void updatePorts(Integer portAtRelationship, Integer portAtBelongObj) throws ERException {
         if (portAtRelationship != null) {
             this.portAtRelationship = portAtRelationship;
         }
-        if (portAtEntity != null) {
-            this.portAtBelongObj = portAtEntity;
+        if (portAtBelongObj != null) {
+            this.portAtBelongObj = portAtBelongObj;
         }
-        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), BelongObjType.ENTITY, this.cardinality, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
+        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
     public static List<RelationshipEdge> query(RelationshipEdgeDO relationshipEdgeDO) {

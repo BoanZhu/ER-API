@@ -21,7 +21,7 @@ CREATE TABLE entity (
                           name varchar(255) NOT NULL COMMENT 'attribute name',
                           schema_id bigint NOT NULL COMMENT 'related schema id',
                           entity_type smallint NOT NULL COMMENT 'the type of the entity, 0-unknown, 1-strong entity, 2-weak entity, 3-subset',
-                          belong_strong_entity_ids text NULL COMMENT 'the list of strong entity ids this entity belongs to, only for subset',
+                          belong_strong_entity_id bigint NULL COMMENT 'the strong entity ids this entity belongs to, only for subset',
                           aim_port smallint NULL COMMENT 'the port index of the entity connect to this sub-entity',
                           is_delete tinyint NOT NULL DEFAULT 0 COMMENT '0-undeleted，1-delete，default 0',
                           gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
@@ -76,7 +76,5 @@ CREATE TABLE layout_info (
                                belong_obj_type smallint NOT NULL COMMENT 'type of the belong object, 0: Unknown, 1: Attribute, 2: Entity, 3: Relationship',
                                layout_x NUMERIC(8,3) NOT NULL COMMENT 'x position on the schema',
                                layout_y NUMERIC(8,3) NOT NULL COMMENT 'y position on the schema',
-                               width NUMERIC(8,3) NOT NULL COMMENT 'the width of object',
-                               height NUMERIC(8,3) NOT NULL COMMENT 'the height of object',
                                PRIMARY KEY (`id`)
 );

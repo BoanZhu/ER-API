@@ -72,7 +72,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
                         break;
                     }
                     case WEAK: {
-                        entity = schema.addIsolatedWeakEntity(entityName, entityNameMap.get(strongEntityName));
+                        entity = schema.addEntity(entityName, EntityType.WEAK);
                         break;
                     }
                     case SUBSET: {
@@ -91,7 +91,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
         if (entityJSONNode.get("attributeList") != null) {
             for (JsonNode attributeJSONNode : entityJSONNode.get("attributeList")) {
                 String attributeName = attributeJSONNode.get("name").textValue();
-                DataType attributeDataType = DataType.getFromValue(attributeJSONNode.get("dataType").textValue());
+                DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
                 Boolean attributeIsPrimary = attributeJSONNode.get("isPrimary").booleanValue();
                 AttributeType attributeType = AttributeType.valueOf(attributeJSONNode.get("attributeType").textValue());
                 Attribute attribute = entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeType);

@@ -11,6 +11,7 @@
         <result column="belong_obj_id" property="belongObjID"/>
         <result column="belong_obj_type" property="belongObjType"/>
         <result column="cardinality" property="cardinality"/>
+        <result column="is_key" property="isKey"/>
         <result column="port_at_relationship" property="portAtRelationship"/>
         <result column="port_at_belong_obj" property="portAtBelongObj"/>
         <result column="is_delete" property="isDelete"/>
@@ -19,13 +20,13 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, relationship_id, schema_id, belong_obj_id,belong_obj_type, cardinality, port_at_relationship,
+        id, relationship_id, schema_id, belong_obj_id,belong_obj_type, cardinality, is_key, port_at_relationship,
         port_at_belong_obj
     </sql>
 
     <select id="selectByID" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        id,relationship_id,schema_id,belong_obj_id,belong_obj_type,cardinality,port_at_relationship,port_at_belong_obj,is_delete,gmt_create,gmt_modified
+        id,relationship_id,schema_id,belong_obj_id,belong_obj_type,cardinality,is_key,port_at_relationship,port_at_belong_obj,is_delete,gmt_create,gmt_modified
         from relationship_edge
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </select>
@@ -33,7 +34,7 @@
     <select id="selectByRelationshipEdge" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO"
             resultMap="BaseResultMap">
         select
-        id,relationship_id,schema_id,belong_obj_id,belong_obj_type,cardinality,port_at_relationship,port_at_belong_obj,is_delete,gmt_create,gmt_modified
+        id,relationship_id,schema_id,belong_obj_id,belong_obj_type,cardinality,is_key,port_at_relationship,port_at_belong_obj,is_delete,gmt_create,gmt_modified
         from relationship_edge
         <where>
             <if test="ID != null">
@@ -53,6 +54,9 @@
             </if>
             <if test="cardinality != null">
                 and cardinality = #{cardinality.code,jdbcType=SMALLINT}
+            </if>
+            <if test="isKey != null">
+                and is_key = #{isKey,jdbcType=TINYINT},
             </if>
             <if test="portAtRelationship != null">
                 and port_at_relationship = #{portAtRelationship,jdbcType=SMALLINT}
@@ -104,6 +108,9 @@
             <if test="cardinality != null">
                 cardinality,
             </if>
+            <if test="isKey != null">
+                is_key,
+            </if>
             <if test="portAtRelationship != null">
                 port_at_relationship,
             </if>
@@ -126,6 +133,9 @@
             </if>
             <if test="cardinality != null">
                 #{cardinality.code,jdbcType=SMALLINT},
+            </if>
+            <if test="isKey != null">
+                #{isKey,jdbcType=TINYINT},
             </if>
             <if test="portAtRelationship != null">
                 #{portAtRelationship,jdbcType=SMALLINT},
@@ -159,6 +169,9 @@
             </if>
             <if test="cardinality != null">
                 cardinality = #{cardinality.code,jdbcType=SMALLINT},
+            </if>
+            <if test="isKey != null">
+                is_key = #{isKey,jdbcType=TINYINT},
             </if>
             <if test="portAtRelationship != null">
                 port_at_relationship = #{portAtRelationship,jdbcType=SMALLINT},

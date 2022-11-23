@@ -106,6 +106,10 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
     }
 
     public RelationshipEdge linkEntity(ERConnectableObj belongObj, Cardinality cardinality) {
+        return linkEntity(belongObj, cardinality, false);
+    }
+
+    public RelationshipEdge linkEntity(ERConnectableObj belongObj, Cardinality cardinality, Boolean isKey) {
         if (Entity.queryByID(belongObj.getID()) == null) {
             throw new ERException(String.format("entity with ID: %d not found", belongObj.getID()));
         }
@@ -125,7 +129,7 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         if (RelationshipEdge.checkEntitesInSameRelationship(belongObjList)) {
             throw new ERException("entities have been in the same relationship");
         }
-        RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, -1, -1, new Date(), new Date());
+        RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, isKey, -1, -1, new Date(), new Date());
         this.edgeList.add(edge);
         return edge;
     }
