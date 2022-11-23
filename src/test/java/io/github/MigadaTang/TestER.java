@@ -150,7 +150,7 @@ public class TestER {
 
     @Test
     public void createNestedRelationship() throws IOException {
-        Schema example = ER.createSchema("nested-Person_Department_Project", "");
+        Schema example = ER.createSchema("nested-PersonDepartmentProject", "");
 
         Entity person = example.addEntity("person");
         person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
@@ -178,7 +178,7 @@ public class TestER {
 
     @Test
     public void loadFromJSONTest() throws IOException {
-        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/nested-Person_Department_Project.json"), Charset.defaultCharset());
+        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/nested-PersonDepartmentProject.json"), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         Assert.assertNotNull(schema);
     }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.ConnObjWithCardinality;
 import io.github.MigadaTang.common.EntityType;
@@ -17,9 +18,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @JsonDeserialize(using = SchemaDeserializer.class)
@@ -84,6 +83,11 @@ public class Schema {
         Entity weakEntity = addEntity(entityName, EntityType.WEAK, null);
         // add relationship
         Relationship relationship = createRelationship(relationshipName, weakEntity, strongEntity, weakEntityCardinality, strongEntityCardinality);
+        for (RelationshipEdge edge : relationship.getEdgeList()) {
+            if (edge.getConnObj().getID().equals(weakEntity.getID())) {
+                edge.updateInfo(null, null, true);
+            }
+        }
         return new ImmutablePair<>(weakEntity, relationship);
     }
 
@@ -213,25 +217,140 @@ public class Schema {
         }
     }
 
-    public boolean checkCorrectness() throws ERException {
+    // sanity check to check if this er schema can be rebuilt
+    public void sanityCheck() throws ERException {
+        Map<Long, Integer> weakEntityKeyRelationshipCountMap = new HashMap<>();
         for (Entity entity : entityList) {
+            int primaryKeyNum = 0;
             for (Attribute attribute : entity.getAttributeList()) {
-                // primary key check
-                // relying on strong entity check
+                if (attribute.getIsPrimary()) {
+                    primaryKeyNum += 1;
+                }
+            }
+            switch (entity.getEntityType()) {
+                case WEAK:
+                case STRONG:
+                    break;
+                case SUBSET:
+                    if (primaryKeyNum != 0) {
+                        throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
+                    }
+                    if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG) {
+                        throw new ERException(String.format("subset (%s) must have a relying on strong entity", entity.getName()));
+                    }
+                    break;
+                default:
+                    throw new ERException(String.format("unknown entity type of entity (%s)"));
             }
         }
         for (Relationship relationship : relationshipList) {
             for (Attribute attribute : relationship.getAttributeList()) {
-                // primary key check
+                if (attribute.getIsPrimary()) {
+                    throw new ERException(String.format("attribute (%s) of relationship (%s) cannot be primary key", attribute.getName(), relationship.getName()));
+                }
+            }
+            if (relationship.getEdgeList().size() < 2) {
+                throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
             }
             for (RelationshipEdge edge : relationship.getEdgeList()) {
-                // no
+                if (edge.getIsKey()) {
+                    // key relationship can only be used by weak entity
+                    boolean isWeakEntity = false;
+                    if (edge.getConnObjType() == BelongObjType.ENTITY) {
+                        Entity entity = Entity.queryByID(edge.getConnObj().getID());
+                        if (entity.getEntityType() == EntityType.WEAK) {
+                            isWeakEntity = true;
+                            Integer previous = weakEntityKeyRelationshipCountMap.getOrDefault(entity.getID(), 0);
+                            weakEntityKeyRelationshipCountMap.put(entity.getID(), previous + 1);
+                        }
+                    }
+                    if (!isWeakEntity) {
+                        throw new ERException(String.format("key relationship can only be used by weak entity, while (%s) is not", edge.getConnObj().getName()));
+                    }
+                }
             }
         }
-        return true;
+
+        for (Entity entity : entityList) {
+            if (entity.getEntityType() == EntityType.WEAK) {
+                Integer keyRelationshipCount = weakEntityKeyRelationshipCountMap.getOrDefault(entity.getID(), 0);
+                if (keyRelationshipCount == 0) {
+                    throw new ERException(String.format("weak entity (%s) must have at least one key relationship", entity.getName()));
+                }
+            }
+        }
     }
 
+    // do an all round check for generating DDL
+    public void allRoundCheck() throws ERException {
+        Map<Long, Integer> weakEntityKeyRelationshipCountMap = new HashMap<>();
+        for (Entity entity : entityList) {
+            int primaryKeyNum = 0;
+            for (Attribute attribute : entity.getAttributeList()) {
+                if (attribute.getIsPrimary()) {
+                    primaryKeyNum += 1;
+                }
+            }
+            switch (entity.getEntityType()) {
+                case STRONG:
+                case WEAK:
+                    if (primaryKeyNum != 1) {
+                        throw new ERException(String.format("strong entity (%s) must have exactly one primary key", entity.getName()));
+                    }
+                    break;
+                case SUBSET:
+                    if (primaryKeyNum != 0) {
+                        throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
+                    }
+                    if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG) {
+                        throw new ERException(String.format("subset (%s) must have a relying on strong entity", entity.getName()));
+                    }
+                    break;
+                default:
+                    throw new ERException(String.format("unknown entity type of entity (%s)"));
+            }
+        }
+        for (Relationship relationship : relationshipList) {
+            for (Attribute attribute : relationship.getAttributeList()) {
+                if (attribute.getIsPrimary()) {
+                    throw new ERException(String.format("attribute (%s) of relationship (%s) cannot be primary key", attribute.getName(), relationship.getName()));
+                }
+            }
+            if (relationship.getEdgeList().size() < 2) {
+                throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
+            }
+            for (RelationshipEdge edge : relationship.getEdgeList()) {
+                if (edge.getIsKey()) {
+                    // key relationship can only be used by weak entity
+                    boolean isWeakEntity = false;
+                    if (edge.getConnObjType() == BelongObjType.ENTITY) {
+                        Entity entity = Entity.queryByID(edge.getConnObj().getID());
+                        if (entity.getEntityType() == EntityType.WEAK) {
+                            isWeakEntity = true;
+                            Integer previous = weakEntityKeyRelationshipCountMap.getOrDefault(entity.getID(), 0);
+                            weakEntityKeyRelationshipCountMap.put(entity.getID(), previous + 1);
+                        }
+                    }
+                    if (!isWeakEntity) {
+                        throw new ERException(String.format("key relationship can only be used by weak entity, while (%s) is not", edge.getConnObj().getName()));
+                    }
+                }
+            }
+        }
+
+        for (Entity entity : entityList) {
+            if (entity.getEntityType() == EntityType.WEAK) {
+                Integer keyRelationshipCount = weakEntityKeyRelationshipCountMap.getOrDefault(entity.getID(), 0);
+                if (keyRelationshipCount == 0) {
+                    throw new ERException(String.format("weak entity (%s) must have at least one key relationship", entity.getName()));
+                }
+            }
+        }
+    }
+
+
     public String toJSON() {
+        sanityCheck();
         SimpleModule module = new SimpleModule();
         module.addSerializer(Schema.class, new SchemaSerializer(false));
         module.addSerializer(Entity.class, new EntitySerializer(false));
