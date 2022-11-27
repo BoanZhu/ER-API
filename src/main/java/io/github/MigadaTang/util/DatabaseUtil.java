@@ -139,7 +139,7 @@ public class DatabaseUtil {
         } else if (databaseType == RDBMSType.DB2) {
             return "jdbc:db2://" + hostname + ":" + portNum + "/" + databaseName;
         } else if (databaseType == RDBMSType.H2) {
-            return "jdbc:h2:tcp://" + hostname + ":" + portNum + "/" + databaseName;
+            return "jdbc:h2:" + hostname + ":" + databaseName;
         } else if (databaseType == RDBMSType.POSTGRESQL) {
             return "jdbc:postgresql://" + hostname + ":" + portNum + "/" + databaseName;
         } else if (databaseType == RDBMSType.SQLSERVER) {

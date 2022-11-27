@@ -84,7 +84,7 @@ public class Attribute extends ERBaseObj {
 
     public void updateLayoutInfo(Double layoutX, Double layoutY) throws ERException {
         if (getLayoutInfo() == null) {
-            setLayoutInfo(new LayoutInfo(0L, getBelongObjID(), BelongObjType.ATTRIBUTE, layoutX, layoutY));
+            setLayoutInfo(new LayoutInfo(0L, getID(), BelongObjType.ATTRIBUTE, layoutX, layoutY));
         }
         getLayoutInfo().update(layoutX, layoutY);
     }

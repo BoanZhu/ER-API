@@ -105,13 +105,21 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         attribute.deleteDB();
     }
 
-    public RelationshipEdge linkEntity(ERConnectableObj belongObj, Cardinality cardinality) {
-        return linkEntity(belongObj, cardinality, false);
+    public RelationshipEdge linkObj(ERConnectableObj belongObj, Cardinality cardinality) {
+        return linkObj(belongObj, cardinality, false);
     }
 
-    public RelationshipEdge linkEntity(ERConnectableObj belongObj, Cardinality cardinality, Boolean isKey) {
-        if (Entity.queryByID(belongObj.getID()) == null) {
-            throw new ERException(String.format("entity with ID: %d not found", belongObj.getID()));
+    public RelationshipEdge linkObj(ERConnectableObj belongObj, Cardinality cardinality, Boolean isKey) {
+        if (belongObj instanceof Entity) {
+            if (Entity.queryByID(belongObj.getID()) == null) {
+                throw new ERException(String.format("entity with ID: %d not found", belongObj.getID()));
+            }
+        } else if (belongObj instanceof Relationship) {
+            if (Relationship.queryByID(belongObj.getID()) == null) {
+                throw new ERException(String.format("relationship with ID: %d not found", belongObj.getID()));
+            }
+        } else {
+            throw new ERException("unsupported belong obj");
         }
         if (!belongObj.getSchemaID().equals(getSchemaID())) {
             throw new ERException(String.format("entity: %s does not belong to this schema", belongObj.getName()));

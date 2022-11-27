@@ -1,12 +1,8 @@
 package io.github.MigadaTang;
 
-import io.github.MigadaTang.common.AttributeType;
-import io.github.MigadaTang.common.Cardinality;
-import io.github.MigadaTang.common.ConnObjWithCardinality;
-import io.github.MigadaTang.common.DataType;
+import io.github.MigadaTang.common.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.FileWriter;
@@ -14,15 +10,28 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
 import java.util.ArrayList;
+
+import static junit.framework.TestCase.assertNotNull;
 
 public class TestER {
 
     private static String outputFormat = "src/test/java/io/github/MigadaTang/jsonExamples/%s.json";
 
-    @Before
-    public void setUp() throws Exception {
-        ER.initialize(TestCommon.usePostgre);
+    @BeforeClass
+    public static void init() throws Exception {
+        TestCommon.setUp();
+    }
+
+    @Test
+    public void initializeTest() throws Exception {
+        ER.initialize();
+        Connection connection = ER.sqlSession.getConnection();
+        assertNotNull(connection);
+        ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
+        connection = ER.sqlSession.getConnection();
+        assertNotNull(connection);
     }
 
     @Test
@@ -55,7 +64,7 @@ public class TestER {
 
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
-        Assert.assertNotNull(schema);
+        assertNotNull(schema);
     }
 
     @Test
@@ -78,7 +87,7 @@ public class TestER {
 
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
-        Assert.assertNotNull(schema);
+        assertNotNull(schema);
     }
 
     @Test
@@ -102,7 +111,7 @@ public class TestER {
 
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
-        Assert.assertNotNull(schema);
+        assertNotNull(schema);
     }
 
     @Test
@@ -123,7 +132,7 @@ public class TestER {
 
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
-        Assert.assertNotNull(schema);
+        assertNotNull(schema);
     }
 
     @Test
@@ -145,7 +154,7 @@ public class TestER {
 
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
-        Assert.assertNotNull(schema);
+        assertNotNull(schema);
     }
 
     @Test
@@ -172,7 +181,7 @@ public class TestER {
 
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
-        Assert.assertNotNull(schema);
+        assertNotNull(schema);
     }
 
 
@@ -180,6 +189,6 @@ public class TestER {
     public void loadFromJSONTest() throws IOException {
         String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/nested-PersonDepartmentProject.json"), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
-        Assert.assertNotNull(schema);
+        assertNotNull(schema);
     }
 }

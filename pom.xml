@@ -6,12 +6,46 @@
 
     <groupId>io.github.MigadaTang</groupId>
     <artifactId>amazing-er</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>amazing-er</name>
-    <description>this project contains java classes with which users could create their own ER schema and export to JSON
-        format files.
+    <description>A library containing classes with which users could create their own ER schema and export to JSON
+        or image format.
     </description>
     <url>https://github.com/MigadaTang/AmazingER</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Wei Tang</name>
+            <email>wei.tang22@imperial.ac.uk</email>
+        </developer>
+        <developer>
+            <name>Wendi Han</name>
+            <email>wendi.han22@imperial.ac.uk</email>
+        </developer>
+        <developer>
+            <name>Song Jie</name>
+            <email>jie.song22@imperial.ac.uk</email>
+        </developer>
+        <developer>
+            <name>Yaqi Zhou</name>
+            <email>yaqi.zhou22@imperial.ac.uk</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/MigadaTang/AmazingER.git</connection>
+        <developerConnection>scm:git:https://github.com/MigadaTang/AmazingER.git</developerConnection>
+        <url>https://github.com/MigadaTang/AmazingER/tree/${project.scm.tag}</url>
+        <tag>master</tag>
+    </scm>
+
 
     <distributionManagement>
         <snapshotRepository>
@@ -54,6 +88,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
@@ -147,19 +189,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.2</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.24</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.9.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>

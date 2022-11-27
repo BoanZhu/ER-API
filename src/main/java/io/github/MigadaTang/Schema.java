@@ -128,13 +128,13 @@ public class Schema {
         for (RelationshipEdge edge : edgeList) {
             edge.deleteDB();
         }
-        // secondly, delete all the subset and weak entities on this strong entity
-        if (entity.getEntityType() == EntityType.STRONG) {
-            List<Entity> entityList = Entity.query(new EntityDO(null, null, null, null, entity.getID(), null, null, null, null));
-            for (Entity subEntity : entityList) {
-                deleteEntity(subEntity);
-            }
-        }
+//        // secondly, delete all the subsets of this strong entity
+//        if (entity.getEntityType() == EntityType.STRONG) {
+//            List<Entity> entityList = Entity.query(new EntityDO(null, null, null, null, entity.getID(), null, null, null, null));
+//            for (Entity subEntity : entityList) {
+//                deleteEntity(subEntity);
+//            }
+//        }
 
         entity.deleteDB();
         this.entityList.remove(entity);

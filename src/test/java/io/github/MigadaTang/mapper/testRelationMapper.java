@@ -5,19 +5,19 @@ import io.github.MigadaTang.TestCommon;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.entity.RelationshipDO;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
+
+
 public class testRelationMapper {
-    @Before
-    public void init() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
+    @BeforeClass
+    public static void init() throws Exception {
+        TestCommon.setUp();
     }
 
 
@@ -38,7 +38,7 @@ public class testRelationMapper {
     @Test
     public void testCreateRelation() {
         RelationshipDO relationshipDO = new RelationshipDO("testCreate", 1L);
-        Assert.assertEquals(ER.relationshipMapper.insert(relationshipDO), 1);
+        assertEquals(ER.relationshipMapper.insert(relationshipDO), 1);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class testRelationMapper {
         RelationshipDO relationshipDO = new RelationshipDO("testCreate", 1L);
         ER.relationshipMapper.insert(relationshipDO);
         List<RelationshipDO> search = ER.relationshipMapper.selectByRelationship(relationshipDO);
-        Assert.assertEquals(ER.relationshipMapper.deleteByID(search.get(0).getID()), 1);
+        assertEquals(ER.relationshipMapper.deleteByID(search.get(0).getID()), 1);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class testRelationMapper {
         RelationshipDO relationshipDO = new RelationshipDO("testCreate", 1L);
         ER.relationshipMapper.insert(relationshipDO);
         List<RelationshipDO> search = ER.relationshipMapper.selectByRelationship(relationshipDO);
-        Assert.assertEquals(ER.relationshipMapper.deleteByID(search.get(0).getID()), 1);
+        assertEquals(ER.relationshipMapper.deleteByID(search.get(0).getID()), 1);
     }
 
     @Test

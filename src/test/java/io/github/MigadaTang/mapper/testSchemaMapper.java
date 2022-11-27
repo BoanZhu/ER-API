@@ -4,19 +4,19 @@ import io.github.MigadaTang.ER;
 import io.github.MigadaTang.TestCommon;
 import io.github.MigadaTang.entity.SchemaDO;
 import io.github.MigadaTang.util.RandomUtils;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+
 public class testSchemaMapper {
-    @Before
-    public void init() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
+    @BeforeClass
+    public static void init() throws Exception {
+        TestCommon.setUp();
     }
 
 
@@ -25,7 +25,7 @@ public class testSchemaMapper {
         SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
         ER.schemaMapper.insert(schemaDO);
         List<SchemaDO> schemaDOList = ER.schemaMapper.selectAll();
-        Assert.assertTrue(schemaDOList.size() > 0);
+        assertTrue(schemaDOList.size() > 0);
     }
 
     @Test
@@ -39,14 +39,14 @@ public class testSchemaMapper {
     @Test
     public void testCreateSchema() {
         SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
-        Assert.assertEquals(ER.schemaMapper.insert(schemaDO), 1);
+        assertEquals(ER.schemaMapper.insert(schemaDO), 1);
     }
 
     @Test
     public void testDeleteSchema() {
         SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
         ER.schemaMapper.insert(schemaDO);
-        Assert.assertEquals(ER.schemaMapper.deleteByID(schemaDO.getID()), 1);
+        assertEquals(ER.schemaMapper.deleteByID(schemaDO.getID()), 1);
     }
 
     @Test
@@ -61,6 +61,6 @@ public class testSchemaMapper {
     public void testUpdateSchema() {
         SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3update", "creator3update", Long.valueOf(1), 0, new Date(), new Date());
         ER.schemaMapper.insert(schemaDO);
-        Assert.assertEquals(ER.schemaMapper.updateByID(schemaDO), 1);
+        assertEquals(ER.schemaMapper.updateByID(schemaDO), 1);
     }
 }

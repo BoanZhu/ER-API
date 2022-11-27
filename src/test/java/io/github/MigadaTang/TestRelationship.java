@@ -4,13 +4,15 @@ import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.entity.RelationshipDO;
 import io.github.MigadaTang.exception.ERException;
-import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 public class TestRelationship {
     private Schema testSchema;
@@ -19,18 +21,23 @@ public class TestRelationship {
     private Entity student;
     private Entity classroom;
 
+    @BeforeClass
+    public static void init() throws Exception {
+        TestCommon.setUp();
+    }
+
+
     @Before
-    public void init() throws Exception {
-        ER.initialize(TestCommon.usePostgre);
+    public void initializeSchema() throws Exception {
         testSchema = ER.createSchema("testSchema", "wt22");
         teacher = testSchema.addEntity("teacher");
         student = testSchema.addEntity("student");
         classroom = testSchema.addEntity("classroom");
 
         secondSchema = ER.createSchema("secondSchema", "wt22");
-        Assert.assertNotNull(teacher);
-        Assert.assertNotNull(student);
-        Assert.assertNotNull(classroom);
+        assertNotNull(teacher);
+        assertNotNull(student);
+        assertNotNull(classroom);
     }
 
     @Test
@@ -39,20 +46,26 @@ public class TestRelationship {
         assertThrows(ERException.class, () -> secondSchema.createRelationship("teaches", student, teacher, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
 
         Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-        Assert.assertNotNull(relationship);
+        assertNotNull(relationship);
 
-        RelationshipEdge edge = relationship.linkEntity(classroom, Cardinality.ZeroToMany);
+        Relationship emptyRelationship = testSchema.createEmptyRelationship("empty relationship");
+        RelationshipEdge link = relationship.linkObj(emptyRelationship, Cardinality.ZeroToMany);
+        assertNotNull(link);
+        assertEquals(link.getConnObj().getID(), emptyRelationship.getID());
+        assertEquals(link.getRelationshipID(), relationship.getID());
+
+        RelationshipEdge edge = relationship.linkObj(classroom, Cardinality.ZeroToMany);
         edge = RelationshipEdge.queryByID(edge.getID());
-        Assert.assertNotNull(edge);
-        Assert.assertEquals(edge.getConnObj().getID(), classroom.getID());
-        Assert.assertEquals(edge.getRelationshipID(), relationship.getID());
+        assertNotNull(edge);
+        assertEquals(edge.getConnObj().getID(), classroom.getID());
+        assertEquals(edge.getRelationshipID(), relationship.getID());
 
         // check edge num equal
         Relationship queryRelationship = Relationship.queryByID(relationship.getID());
-        Assert.assertEquals(queryRelationship.getEdgeList().size(), 3);
+        assertEquals(queryRelationship.getEdgeList().size(), 4);
 
         // check duplicate link entity
-        assertThrows(ERException.class, () -> relationship.linkEntity(classroom, Cardinality.ZeroToMany, false));
+        assertThrows(ERException.class, () -> relationship.linkObj(classroom, Cardinality.ZeroToMany, false));
         // check duplicate
         assertThrows(ERException.class, () -> testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
     }
@@ -60,7 +73,7 @@ public class TestRelationship {
     @Test
     public void deleteRelationshipTest() {
         Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-        Assert.assertNotNull(relationship);
+        assertNotNull(relationship);
         testSchema.deleteRelationship(relationship);
 
         assertThrows(ERException.class, () -> Relationship.queryByID(relationship.getID()));
@@ -74,14 +87,20 @@ public class TestRelationship {
     public void updateRelationshipTest() {
         Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Relationship tc = testSchema.createRelationship("T-C", teacher, classroom, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-        Assert.assertNotNull(relationship);
+        assertNotNull(relationship);
 
         String newName = "new name";
 
         relationship.updateInfo(newName);
         relationship = Relationship.queryByID(relationship.getID());
-        Assert.assertNotNull(relationship);
-        Assert.assertEquals(relationship.getName(), newName);
+        assertNotNull(relationship);
+        assertEquals(relationship.getName(), newName);
+
+        relationship.updateLayoutInfo(1.5, 2.5);
+        relationship = Relationship.queryByID(relationship.getID());
+        assertEquals(relationship.getLayoutInfo().getLayoutX(), Double.valueOf(1.5));
+        assertEquals(relationship.getLayoutInfo().getLayoutY(), Double.valueOf(2.5));
+
 
         // update edge test
         RelationshipEdge edge = relationship.getEdgeList().get(0);
@@ -89,36 +108,36 @@ public class TestRelationship {
         Entity newEntity = testSchema.addEntity("new entity");
         edge.updateInfo(cardi, newEntity, true);
         edge = RelationshipEdge.queryByID(edge.getID());
-        Assert.assertEquals(edge.getCardinality(), cardi);
-        Assert.assertEquals(edge.getConnObj().getID(), newEntity.getID());
-        Assert.assertEquals(edge.getIsKey(), true);
+        assertEquals(edge.getCardinality(), cardi);
+        assertEquals(edge.getConnObj().getID(), newEntity.getID());
+        assertEquals(edge.getIsKey(), Boolean.TRUE);
 
         // update belong obj id to relationship id
         edge.updateInfo(cardi, tc, true);
         edge = RelationshipEdge.queryByID(edge.getID());
-        Assert.assertEquals(edge.getConnObj().getID(), tc.getID());
-        Assert.assertEquals(edge.getConnObjType(), BelongObjType.RELATIONSHIP);
+        assertEquals(edge.getConnObj().getID(), tc.getID());
+        assertEquals(edge.getConnObjType(), BelongObjType.RELATIONSHIP);
 
         // update belong obj id to entity id
         edge.updateInfo(cardi, newEntity, true);
         edge = RelationshipEdge.queryByID(edge.getID());
-        Assert.assertEquals(edge.getConnObj().getID(), newEntity.getID());
-        Assert.assertEquals(edge.getConnObjType(), BelongObjType.ENTITY);
+        assertEquals(edge.getConnObj().getID(), newEntity.getID());
+        assertEquals(edge.getConnObjType(), BelongObjType.ENTITY);
 
         // update relationshipID
         edge.migrateToAnotherRelationship(tc.getID());
         edge = RelationshipEdge.queryByID(edge.getID());
-        Assert.assertEquals(edge.getRelationshipID(), tc.getID());
+        assertEquals(edge.getRelationshipID(), tc.getID());
     }
 
     @Test
     public void queryRelationshipTest() {
         Relationship relationship = testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-        Assert.assertNotNull(relationship);
+        assertNotNull(relationship);
 
         Relationship relationship1 = Relationship.queryByID(relationship.getID());
-        Assert.assertNotNull(relationship1);
+        assertNotNull(relationship1);
         List<Relationship> results = Relationship.query(new RelationshipDO("teaches", testSchema.getID()));
-        Assert.assertEquals(results.size(), 1);
+        assertEquals(results.size(), 1);
     }
 }

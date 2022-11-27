@@ -2,11 +2,13 @@ package io.github.MigadaTang;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.dao.*;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.exception.ParseException;
+import io.github.MigadaTang.util.DatabaseUtil;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 import java.io.IOException;
@@ -18,7 +20,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
+/**
+ * The entrance class for ER diagram.
+ */
 public class ER {
     public static SqlSession sqlSession;
     public static AttributeMapper attributeMapper;
@@ -28,31 +34,57 @@ public class ER {
     public static SchemaMapper schemaMapper;
     public static LayoutInfoMapper layoutInfoMapper;
 
-    public static void initialize(boolean usePostgre) throws SQLException, IOException {
-        String XMLPath = "mybatis-config.xml";
-        if (usePostgre) {
-            XMLPath = "mybatis-config-postgre.xml";
+    /**
+     * This function initializes the database and all the related mappers required by this tool
+     *
+     * @param dbType       the type of the database
+     * @param hostname
+     * @param portNum
+     * @param databaseName
+     * @param username
+     * @param password
+     * @throws SQLException
+     * @throws ParseException
+     */
+    public static void initialize(RDBMSType dbType, String hostname, String portNum, String databaseName, String username, String password) throws SQLException, ParseException {
+        Properties properties = new Properties();
+        properties.setProperty("jdbc.driverClassName", DatabaseUtil.recognDriver(dbType));
+        properties.setProperty("jdbc.url", DatabaseUtil.generateDatabaseURL(dbType, hostname, portNum, databaseName));
+        properties.setProperty("jdbc.username", username);
+        properties.setProperty("jdbc.password", password);
+        InputStream is = null;
+        try {
+            is = Resources.getResourceAsStream("mybatis-config.xml");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        InputStream is = Resources.getResourceAsStream(XMLPath);
-        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
-        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(is);
-        sqlSession = sqlSessionFactory.openSession(true);
+        sqlSession = new SqlSessionFactoryBuilder().build(is, properties).openSession(true);
         attributeMapper = sqlSession.getMapper(AttributeMapper.class);
         entityMapper = sqlSession.getMapper(EntityMapper.class);
         relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
         relationshipEdgeMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
         schemaMapper = sqlSession.getMapper(SchemaMapper.class);
         layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
-        if (!usePostgre) {
+        if (dbType == RDBMSType.H2) {
             createTables();
         }
     }
 
-    private static void createTables() throws SQLException, IOException {
+    public static void initialize() throws SQLException, ParseException {
+        initialize(RDBMSType.H2, "mem", "", "test", "sa", "");
+    }
+
+    private static void createTables() throws SQLException {
         Connection conn = sqlSession.getConnection();
         Statement stmt = conn.createStatement();
-        String sql = new String(Resources.getResourceAsStream("mysql.sql").readAllBytes(), StandardCharsets.UTF_8);
-        stmt.execute(sql);
+        try (InputStream inputStream = Resources.getResourceAsStream("mysql.sql")) {
+            String sql = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            stmt.execute(sql);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new ERException(e);
+        }
     }
 
     public static Schema createSchema(String name, String creator) {

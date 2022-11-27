@@ -25,9 +25,10 @@ public class EntityDO {
         this.ID = ID;
     }
 
-    public EntityDO(Long ID, Integer aimPort) {
+    public EntityDO(Long ID, Integer aimPort, Long belongStrongEntityID) {
         this.ID = ID;
         this.aimPort = aimPort;
+        this.belongStrongEntityID = belongStrongEntityID;
     }
 
     public EntityDO(String name, Long schemaID, EntityType entityType) {

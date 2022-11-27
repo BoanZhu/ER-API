@@ -127,7 +127,11 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         if (aimPort != null) {
             this.aimPort = aimPort;
         }
-        ER.entityMapper.updateByID(new EntityDO(getID(), this.aimPort));
+        Long belongStrongEntityID = null;
+        if (this.belongStrongEntity != null) {
+            belongStrongEntityID = this.belongStrongEntity.getID();
+        }
+        ER.entityMapper.updateByID(new EntityDO(getID(), this.aimPort, belongStrongEntityID));
     }
 
     public static List<Entity> query(EntityDO entityDO) {

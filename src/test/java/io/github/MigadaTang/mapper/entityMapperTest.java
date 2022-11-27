@@ -2,20 +2,17 @@ package io.github.MigadaTang.mapper;
 
 import io.github.MigadaTang.ER;
 import io.github.MigadaTang.TestCommon;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.sql.SQLException;
 
 /**
  * @author wendi
  * @data 15/10/2022
  */
 public class entityMapperTest {
-    @Before
-    public void init() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
+    @BeforeClass
+    public static void init() throws Exception {
+        TestCommon.setUp();
     }
 
     @Test

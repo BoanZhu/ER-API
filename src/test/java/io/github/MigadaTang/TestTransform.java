@@ -4,20 +4,27 @@ import io.github.MigadaTang.common.*;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.BeforeClass;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
+
+
 public class TestTransform {
     Schema view;
 
-    @Test
+    @BeforeClass
+    public static void init() throws Exception {
+        TestCommon.setUp();
+    }
+
+    //    @Test
     public void testERModelToRSSucc() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity student = view.addEntity("student");
         Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
@@ -41,15 +48,14 @@ public class TestTransform {
         try {
             sql = transform.ERModelToSql(view.getID());
         } catch (ParseException e) {
-            Assert.fail();
+            fail();
         }
         System.out.println(sql);
     }
 
 
-    @Test
+    //    @Test
     public void testERModelToRSFail1() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity student = view.addEntity("student");
         Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
@@ -73,15 +79,14 @@ public class TestTransform {
         try {
             sql = transform.ERModelToSql(view.getID());
         } catch (ParseException e) {
-            Assert.assertTrue(true);
+            assertTrue(true);
             System.out.println(e.getMessage());
         }
     }
 
 
-    @Test
+    //    @Test
     public void testERModelToRSSucc2() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity branch = view.addEntity("branch");
         Attribute sortcode = branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
@@ -105,15 +110,14 @@ public class TestTransform {
         try {
             sql = transform.ERModelToSql(view.getID());
         } catch (ParseException e) {
-            Assert.assertTrue(true);
+            assertTrue(true);
             System.out.println(e.getMessage());
         }
     }
 
 
-    @Test
+    //    @Test
     public void testERModelToRSSuccWithNaryAndSubset() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransform1", "wd");
         Entity department = view.addEntity("department");
         department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
@@ -137,16 +141,15 @@ public class TestTransform {
         try {
             sql = transform.ERModelToSql(view.getID());
         } catch (ParseException e) {
-            Assert.fail();
+            fail();
             System.out.println(e.getMessage());
         }
         System.out.print(sql);
     }
 
 
-    @Test
+    //    @Test
     public void testERModelToRSSuccWithNaryAndWeakEntity() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
         view = ER.createSchema("testTransformWeakEntity", "wd");
         Entity department = view.addEntity("department");
         department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
@@ -173,16 +176,15 @@ public class TestTransform {
         try {
             sql = transform.ERModelToSql(view.getID());
         } catch (ParseException e) {
-            Assert.fail();
+            fail();
             System.out.println(e.getMessage());
         }
         System.out.print(sql);
     }
 
 
-    @Test
+    //    @Test
     public void testRSToERModel() throws IOException, SQLException {
-        ER.initialize(TestCommon.usePostgre);
         Transform transform = new Transform();
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "jdbc:postgresql://db.doc.ic.ac.uk:5432/wh722",
 //                "wh722", "4jC@A3528>0N6");
@@ -192,7 +194,7 @@ public class TestTransform {
             transform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wt22",
                     "wt22", "22V**66+C5JPu");
         } catch (ParseException | DBConnectionException e) {
-            Assert.fail();
+            fail();
         }
     }
 }

@@ -15,8 +15,6 @@ public class LayoutInfo {
     private BelongObjType belongObjType;
     private Double layoutX;
     private Double layoutY;
-    private Double height;
-    private Double width;
 
     protected LayoutInfo(Long ID, Long belongObjID, BelongObjType belongObjType, Double layoutX, Double layoutY) {
         this.ID = ID;
@@ -24,8 +22,6 @@ public class LayoutInfo {
         this.belongObjType = belongObjType;
         this.layoutX = layoutX;
         this.layoutY = layoutY;
-        this.height = 0.0;
-        this.width = 0.0;
         if (this.ID == 0) {
             this.insertDB();
         }
@@ -55,7 +51,7 @@ public class LayoutInfo {
 
     private void insertDB() {
         try {
-            LayoutInfoDO LayoutInfoDO = new LayoutInfoDO(0L, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY, this.height, this.width);
+            LayoutInfoDO LayoutInfoDO = new LayoutInfoDO(0L, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY);
             int ret = ER.layoutInfoMapper.insert(LayoutInfoDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -73,7 +69,7 @@ public class LayoutInfo {
         if (layoutX != null) {
             this.layoutY = layoutY;
         }
-        int ret = ER.layoutInfoMapper.updateByID(new LayoutInfoDO(this.ID, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY, this.height, this.width));
+        int ret = ER.layoutInfoMapper.updateByID(new LayoutInfoDO(this.ID, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY));
         if (ret == 0) {
             throw new ERException(String.format("cannot find LayoutInfo with ID: %d", this.ID));
         }
