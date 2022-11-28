@@ -296,7 +296,7 @@ public class ParserUtil {
     }
 
 
-    private static Queue<Relationship> generateRelationshipTopologySeq(List<Relationship> relationshipList) {
+    public static Queue<Relationship> generateRelationshipTopologySeq(List<Relationship> relationshipList) {
         // S is the relationship needs to parse first and R can be parsed when all of S it connected can be parsed
         Map<Long, List<Long>> RMapS = new HashMap<>();
         Map<Long, List<Long>> SMapR = new HashMap<>();
