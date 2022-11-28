@@ -184,6 +184,86 @@ public class TestTransform {
     }
 
 
+    @Test
+    public void testERModelToRSSuccWithNestedRelationship() {
+        view = ER.createSchema("testTransformNestedRelationship");
+        Entity project = view.addEntity("project");
+        project.addAttribute("pcode", DataType.INT, true, AttributeType.Mandatory);
+        Entity person = view.addEntity("person");
+        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        Entity department = view.addEntity("department");
+        department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
+
+        Relationship works_in = view.createEmptyRelationship("works in");
+        Relationship member = view.createEmptyRelationship("member");
+        works_in.linkObj(person, Cardinality.ZeroToMany);
+        works_in.linkObj(department, Cardinality.ZeroToMany);
+        member.linkObj(project, Cardinality.ZeroToMany);
+        member.linkObj(works_in, Cardinality.ZeroToMany);
+        member.addAttribute("role", DataType.TEXT, AttributeType.Mandatory);
+
+        Transform transform = new Transform();
+        String sql = "";
+        try {
+            sql = transform.ERModelToSql(view.getID());
+        } catch (ParseException e) {
+            fail();
+            System.out.println(e.getMessage());
+        }
+        System.out.print(sql);
+    }
+
+
+    @Test
+    public void testERModelToRSSuccWithNestedRelationship2() {
+        view = ER.createSchema("testTransformNestedRelationship2");
+        Entity project = view.addEntity("project");
+        project.addAttribute("pcode", DataType.INT, true, AttributeType.Mandatory);
+        Entity person = view.addEntity("person");
+        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        Entity department = view.addEntity("department");
+        department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
+
+        Relationship works_in = view.createEmptyRelationship("works in");
+        Relationship member = view.createEmptyRelationship("member");
+        works_in.linkObj(person, Cardinality.ZeroToMany);
+        works_in.linkObj(department, Cardinality.ZeroToMany);
+        member.linkObj(project, Cardinality.ZeroToMany);
+        member.linkObj(works_in, Cardinality.OneToOne);
+        member.addAttribute("role", DataType.TEXT, AttributeType.Mandatory);
+
+        Transform transform = new Transform();
+        String sql = "";
+        try {
+            sql = transform.ERModelToSql(view.getID());
+        } catch (ParseException e) {
+            fail();
+            System.out.println(e.getMessage());
+        }
+        System.out.print(sql);
+    }
+
+
+    @Test
+    public void testERModelToRSSuccWMultiValued() {
+        view = ER.createSchema("testTransformMultiValued");
+        Entity person = view.addEntity("person");
+        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        person.addAttribute("phone", DataType.TEXT, false, AttributeType.Multivalued);
+        person.addAttribute("car", DataType.TEXT, false, AttributeType.Both);
+
+        Transform transform = new Transform();
+        String sql = "";
+        try {
+            sql = transform.ERModelToSql(view.getID());
+        } catch (ParseException e) {
+            fail();
+            System.out.println(e.getMessage());
+        }
+        System.out.print(sql);
+    }
+
+
     //    @Test
     public void testRSToERModel() throws IOException, SQLException {
         Transform transform = new Transform();

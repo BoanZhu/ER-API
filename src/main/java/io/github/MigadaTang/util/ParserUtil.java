@@ -228,6 +228,7 @@ public class ParserUtil {
         List<Column> fkList = new ArrayList<>();
         List<Column> pkList = new ArrayList<>();
         columnList.add(column);
+        pkList.add(column);
         Long newTableId = RandomUtils.generateID();
         for (Column pk : table.getPrimaryKey()) {
             Column pkClone = pk.getForeignClone(newTableId, false, "");
@@ -320,7 +321,7 @@ public class ParserUtil {
                         SMapR.get(relationshipEdge.getConnObj().getID()).add(relationship.getID());
                     } else {
                         List<Long> RList = new ArrayList<>();
-                        RList.add(relationshipEdge.getConnObj().getID());
+                        RList.add(relationship.getID());
                         SMapR.put(relationshipEdge.getConnObj().getID(), RList);
                     }
                     numConnected++;
