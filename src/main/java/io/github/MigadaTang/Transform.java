@@ -39,7 +39,7 @@ public class Transform {
             List<Table> tableList = DatabaseUtil.getDatabseInfo(conn);
             DatabaseUtil.closeDBConnection(conn);
             Schema schema = ParserUtil.parseAttributeToRelationship(tableList);
-            schema = ER.querySchemaByID(schema.getID());
+            schema = Schema.queryByID(schema.getID());
             String renderJSONStatement = schema.toRenderJSON();
             Render.render(renderJSONStatement);
         } catch (ParseException parseException) {

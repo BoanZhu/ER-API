@@ -113,9 +113,10 @@ public class TestEntity {
         assertEquals(entity.getLayoutInfo().getLayoutX(), Double.valueOf(1.5));
         assertEquals(entity.getLayoutInfo().getLayoutY(), Double.valueOf(2.5));
 
-        teacher.updateAimPort(3);
-        entity = Entity.queryByID(teacher.getID());
-        assertEquals(entity.getAimPort(), Integer.valueOf(3));
+        Entity subsetEntity = testSchema.addEntity("subset entity", EntityType.SUBSET);
+        subsetEntity.updateAimPort(3);
+        subsetEntity = Entity.queryByID(subsetEntity.getID());
+        assertEquals(subsetEntity.getAimPort(), Integer.valueOf(3));
 
         // test duplicate entity exception
         assertThrows(ERException.class, () -> teacher.updateInfo("student", null, null));

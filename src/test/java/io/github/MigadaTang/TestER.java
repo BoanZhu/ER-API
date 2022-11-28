@@ -67,6 +67,8 @@ public class TestER {
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         assertNotNull(schema);
+
+        // TODO render test case
     }
 
     @Test
