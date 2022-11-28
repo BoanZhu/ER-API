@@ -80,7 +80,7 @@ public class RelationshipEdge {
      * @param isKey          whether this is a key relationship
      */
     public void updateInfo(Long relationshipID, Cardinality cardinality, ERConnectableObj connObj, Boolean isKey) throws ERException {
-        if (relationshipID == null) {
+        if (relationshipID != null) {
             this.relationshipID = relationshipID;
         }
         if (cardinality != null) {
