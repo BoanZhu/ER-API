@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * The different types of entities
+ */
 @AllArgsConstructor
 @Getter
 public enum EntityType {

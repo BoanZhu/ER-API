@@ -61,8 +61,6 @@ DROP TABLE IF EXISTS schema;
 CREATE TABLE schema (
                           id bigint NOT NULL AUTO_INCREMENT COMMENT 'uuid of the ER model',
                           name varchar(255) NOT NULL COMMENT 'name of the ER model',
-                          creator varchar(255) NULL DEFAULT NULL COMMENT 'name of the ER model',
-                          parent_id bigint NULL DEFAULT 0 COMMENT 'parent schema id',
                           is_delete tinyint NOT NULL DEFAULT 0 COMMENT '0-undeleted，1-delete，default 0',
                           gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
                           gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modified time',

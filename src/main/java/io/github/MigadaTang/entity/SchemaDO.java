@@ -11,17 +11,9 @@ import java.util.Date;
 @NoArgsConstructor
 public class SchemaDO {
     private Long ID;
-
     private String name;
-
-    private String creator;
-
-    private Long parentID;
-
     private Integer isDelete;
-
     private Date gmtCreate;
-
     private Date gmtModified;
 
     public SchemaDO(Long ID) {

@@ -6,7 +6,7 @@ import io.github.MigadaTang.entity.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjConv {
+class ObjConv {
 
     protected static LayoutInfo ConvFromDB(LayoutInfoDO layoutInfoDO) {
         return new LayoutInfo(layoutInfoDO.getID(), layoutInfoDO.getBelongObjID(), layoutInfoDO.getBelongObjType(), layoutInfoDO.getLayoutX(), layoutInfoDO.getLayoutY());
@@ -35,11 +35,11 @@ public class ObjConv {
         return ret;
     }
 
-    protected static Entity ConvFromDB(EntityDO entityDO, boolean cascade) {
+    protected static Entity ConvFromDB(EntityDO entityDO, boolean exhaustive) {
         List<Attribute> attributeList = Attribute.query(new AttributeDO(entityDO.getID(), BelongObjType.ENTITY, entityDO.getSchemaID(), null));
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(entityDO.getID(), BelongObjType.ENTITY);
         Entity strongEntity = null;
-        if (cascade) {
+        if (exhaustive) {
             if (entityDO.getBelongStrongEntityID() != null && entityDO.getBelongStrongEntityID() != 0) {
                 // only fetch one layer of the relying on entity,
                 // do not fetch the relying on entity of the relying on entity
@@ -49,20 +49,20 @@ public class ObjConv {
         return new Entity(entityDO.getID(), entityDO.getName(), entityDO.getSchemaID(), entityDO.getEntityType(), strongEntity, attributeList, entityDO.getAimPort(), layoutInfo, entityDO.getGmtCreate(), entityDO.getGmtModified());
     }
 
-    protected static List<Entity> ConvEntityListFormFromDB(List<EntityDO> doList, boolean cascade) {
+    protected static List<Entity> ConvEntityListFormFromDB(List<EntityDO> doList, boolean exhaustive) {
         List<Entity> ret = new ArrayList<>();
         for (EntityDO EntityDO : doList) {
-            ret.add(ConvFromDB(EntityDO, cascade));
+            ret.add(ConvFromDB(EntityDO, exhaustive));
         }
         return ret;
     }
 
 
-    protected static Relationship ConvFromDB(RelationshipDO relationshipDO, boolean cascade) {
+    protected static Relationship ConvFromDB(RelationshipDO relationshipDO, boolean exhaustive) {
         LayoutInfo layoutInfo = LayoutInfo.queryByObjIDAndObjType(relationshipDO.getID(), BelongObjType.RELATIONSHIP);
         List<RelationshipEdge> edgeList = null;
         List<Attribute> attributeList = null;
-        if (cascade) {
+        if (exhaustive) {
             edgeList = RelationshipEdge.query(new RelationshipEdgeDO(relationshipDO.getID(), null));
             attributeList = Attribute.query(new AttributeDO(relationshipDO.getID(), BelongObjType.RELATIONSHIP, null, null));
         }
@@ -70,10 +70,10 @@ public class ObjConv {
                 layoutInfo, relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
     }
 
-    protected static List<Relationship> ConvRelationshipListFromDB(List<RelationshipDO> doList, boolean cascade) {
+    protected static List<Relationship> ConvRelationshipListFromDB(List<RelationshipDO> doList, boolean exhaustive) {
         List<Relationship> ret = new ArrayList<>();
         for (RelationshipDO RelationshipDO : doList) {
-            ret.add(ConvFromDB(RelationshipDO, cascade));
+            ret.add(ConvFromDB(RelationshipDO, exhaustive));
         }
         return ret;
     }
@@ -98,16 +98,20 @@ public class ObjConv {
         return ret;
     }
 
-    protected static Schema ConvFromDB(SchemaDO schema) {
-        List<Entity> entityList = Entity.query(new EntityDO(null, schema.getID(), null));
-        List<Relationship> relationshipList = Relationship.query(new RelationshipDO(null, schema.getID()), true);
-        return new Schema(schema.getID(), schema.getName(), entityList, relationshipList, schema.getCreator(), schema.getGmtCreate(), schema.getGmtModified());
+    protected static Schema ConvFromDB(SchemaDO schema, boolean exhaustive) {
+        List<Entity> entityList = null;
+        List<Relationship> relationshipList = null;
+        if (exhaustive) {
+            entityList = Entity.query(new EntityDO(null, schema.getID(), null));
+            relationshipList = Relationship.query(new RelationshipDO(null, schema.getID()), true);
+        }
+        return new Schema(schema.getID(), schema.getName(), entityList, relationshipList, schema.getGmtCreate(), schema.getGmtModified());
     }
 
-    protected static List<Schema> ConvSchemaListFromDB(List<SchemaDO> doList) {
+    protected static List<Schema> ConvSchemaListFromDB(List<SchemaDO> doList, boolean exhaustive) {
         List<Schema> ret = new ArrayList<>();
         for (SchemaDO SchemaDO : doList) {
-            ret.add(ConvFromDB(SchemaDO));
+            ret.add(ConvFromDB(SchemaDO, exhaustive));
         }
         return ret;
     }

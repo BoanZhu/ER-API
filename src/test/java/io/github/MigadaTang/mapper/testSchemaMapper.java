@@ -22,7 +22,7 @@ public class testSchemaMapper {
 
     @Test
     public void testQueryAllSchemas() {
-        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
+        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", 0, new Date(), new Date());
         ER.schemaMapper.insert(schemaDO);
         List<SchemaDO> schemaDOList = ER.schemaMapper.selectAll();
         assertTrue(schemaDOList.size() > 0);
@@ -30,7 +30,7 @@ public class testSchemaMapper {
 
     @Test
     public void testQueryByID() {
-        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
+        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", 0, new Date(), new Date());
         ER.schemaMapper.insert(schemaDO);
         SchemaDO search = ER.schemaMapper.selectByID(schemaDO.getID());
         System.out.println(search);
@@ -38,20 +38,20 @@ public class testSchemaMapper {
 
     @Test
     public void testCreateSchema() {
-        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
+        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", 0, new Date(), new Date());
         assertEquals(ER.schemaMapper.insert(schemaDO), 1);
     }
 
     @Test
     public void testDeleteSchema() {
-        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", "creator3", Long.valueOf(1), 0, new Date(), new Date());
+        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3", 0, new Date(), new Date());
         ER.schemaMapper.insert(schemaDO);
         assertEquals(ER.schemaMapper.deleteByID(schemaDO.getID()), 1);
     }
 
     @Test
     public void testQuerySchema() {
-        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema1", null, null, 0, null, null);
+        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema1", 0, null, null);
         ER.schemaMapper.insert(schemaDO);
         List<SchemaDO> res = ER.schemaMapper.selectBySchema(schemaDO);
         System.out.println(res);
@@ -59,7 +59,7 @@ public class testSchemaMapper {
 
     @Test
     public void testUpdateSchema() {
-        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3update", "creator3update", Long.valueOf(1), 0, new Date(), new Date());
+        SchemaDO schemaDO = new SchemaDO(RandomUtils.generateID(), "schema3update", 0, new Date(), new Date());
         ER.schemaMapper.insert(schemaDO);
         assertEquals(ER.schemaMapper.updateByID(schemaDO), 1);
     }

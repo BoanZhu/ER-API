@@ -86,7 +86,6 @@
             and belong_obj_type = #{belongObjType.value,jdbcType=SMALLINT}
         </if>
         group by relationship_id
-        order by belong_obj_num desc
     </select>
 
     <insert id="insert" parameterType="io.github.MigadaTang.entity.RelationshipEdgeDO" useGeneratedKeys="true"

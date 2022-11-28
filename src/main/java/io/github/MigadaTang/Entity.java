@@ -13,15 +13,30 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The entity in ER schema
+ */
 @Getter
 public class Entity extends ERBaseObj implements ERConnectableObj {
+    /**
+     * The type of the entity
+     */
     private EntityType entityType;
+    /**
+     * The entity to which this entity belongs, only applicable to subsets
+     */
     private Entity belongStrongEntity;
+    /**
+     * The list of attributes this entity contains
+     */
     private List<Attribute> attributeList;
+    /**
+     * The port to which this entity points, only applicable to subsets
+     */
     private Integer aimPort;
 
     protected Entity(Long ID, String name, Long schemaID, EntityType entityType, Entity belongStrongEntity, List<Attribute> attributeList, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
-        super(ID, schemaID, name, layoutInfo, gmtCreate, gmtModified);
+        super(ID, schemaID, name, BelongObjType.ENTITY, layoutInfo, gmtCreate, gmtModified);
         this.entityType = entityType;
         this.belongStrongEntity = belongStrongEntity;
         this.attributeList = attributeList;
@@ -32,7 +47,15 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
     }
 
 
-    // addAttribute without the layout information
+    /**
+     * Add attribute onto the entity
+     *
+     * @param attributeName the name of the attribute
+     * @param dataType      the type of data this attribute contains
+     * @param isPrimary     whether this is a primary key
+     * @param attributeType the type of this attribute
+     * @return The created attribute
+     */
     public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary, AttributeType attributeType) {
         if (attributeName.equals("")) {
             throw new ERException("attributeName cannot be empty");
@@ -53,6 +76,11 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         return attribute;
     }
 
+    /**
+     * Remove the target attribute from both the list and the database
+     *
+     * @param attribute the target attribute
+     */
     public void deleteAttribute(Attribute attribute) {
         this.attributeList.remove(attribute);
         attribute.deleteDB();
@@ -75,6 +103,9 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         }
     }
 
+    /**
+     * Delete the current entity from the database and cascade delete all the related attributes
+     */
     protected void deleteDB() {
         for (Attribute attribute : attributeList) {
             attribute.deleteDB();
@@ -82,6 +113,13 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         ER.entityMapper.deleteByID(getID());
     }
 
+    /**
+     * Update certain attributes of this entity, set parameters as null if they are not expected to be updated
+     *
+     * @param name               The name of this entity
+     * @param entityType         The type of this entity
+     * @param belongStrongEntity The strong entity that this entity(must be a subset) belongs to
+     */
     public void updateInfo(String name, EntityType entityType, Entity belongStrongEntity) {
         if (name != null) {
             setName(name);
@@ -107,6 +145,9 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         ER.entityMapper.updateByID(new EntityDO(getID(), getName(), getSchemaID(), this.entityType, belongStrongEntityID, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
+    /**
+     * Remove the entity that this subset belongs to
+     */
     public void removeBelongStrongEntity() {
         if (this.entityType != EntityType.SUBSET) {
             return;
@@ -116,14 +157,15 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
     }
 
 
-    public void updateLayoutInfo(Double layoutX, Double layoutY) {
-        if (getLayoutInfo() == null) {
-            setLayoutInfo(new LayoutInfo(0L, getID(), BelongObjType.ENTITY, layoutX, layoutY));
+    /**
+     * Update the port of the strong entity that this subset belongs to
+     *
+     * @param aimPort The port of the strong entity
+     */
+    public void updateAimPort(Integer aimPort) {
+        if (entityType != EntityType.SUBSET) {
+            return;
         }
-        getLayoutInfo().update(layoutX, layoutY);
-    }
-
-    public void updateAimPort(Integer aimPort) throws ERException {
         if (aimPort != null) {
             this.aimPort = aimPort;
         }
@@ -134,21 +176,49 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         ER.entityMapper.updateByID(new EntityDO(getID(), this.aimPort, belongStrongEntityID));
     }
 
+    /**
+     * Query the list of entities that have the same data specified by entityDO exhaustively
+     *
+     * @param entityDO The values of some attributes of an entity
+     * @return A list of entities
+     */
     public static List<Entity> query(EntityDO entityDO) {
         return query(entityDO, true);
     }
 
-    public static List<Entity> query(EntityDO entityDO, boolean cascade) {
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param entityDO   The values of some attributes of an entity
+     * @param exhaustive Whether to fetch the related strong entity
+     * @return A list of entities
+     */
+    public static List<Entity> query(EntityDO entityDO, boolean exhaustive) {
         List<EntityDO> entityDOList = ER.entityMapper.selectByEntity(entityDO);
-        return ObjConv.ConvEntityListFormFromDB(entityDOList, cascade);
+        return ObjConv.ConvEntityListFormFromDB(entityDOList, exhaustive);
     }
 
-    public static Entity queryByID(Long ID) {
+    /**
+     * Find the entity that has this ID exhaustively
+     *
+     * @param ID ID The ID of the entity
+     * @return The found entity
+     * @throws ERException Throws an ERException if no entity is found
+     */
+    public static Entity queryByID(Long ID) throws ERException {
         return queryByID(ID, true);
     }
 
-    public static Entity queryByID(Long ID, boolean cascade) {
-        List<Entity> entityDOList = query(new EntityDO(ID), cascade);
+    /**
+     * Find the entity that has this ID
+     *
+     * @param ID         ID The ID of the entity
+     * @param exhaustive Whether to fetch the related strong entity
+     * @return The found entity
+     * @throws ERException Throws an ERException if no entity is found
+     */
+    public static Entity queryByID(Long ID, boolean exhaustive) throws ERException {
+        List<Entity> entityDOList = query(new EntityDO(ID), exhaustive);
         if (entityDOList.size() == 0) {
             throw new ERException(String.format("entity with ID: %d not found", ID));
         } else {

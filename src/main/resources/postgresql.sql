@@ -76,8 +76,6 @@ CREATE SEQUENCE schema_seq;
 CREATE TABLE schema (
                         id bigint NOT NULL DEFAULT NEXTVAL ('schema_seq') ,
                         name varchar(255) NOT NULL ,
-                        creator varchar(255) NULL DEFAULT NULL ,
-                        parent_id bigint NULL DEFAULT 0 ,
                         is_delete smallint NOT NULL DEFAULT 0 ,
                         gmt_create timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ,
                         gmt_modified timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ,
@@ -96,3 +94,17 @@ CREATE TABLE layout_info (
                              layout_y NUMERIC(8,3) NOT NULL ,
                              PRIMARY KEY (id)
 );
+
+CREATE OR REPLACE FUNCTION update_gmt_modified()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.gmt_modified = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_modified_time BEFORE UPDATE ON attribute FOR EACH ROW EXECUTE PROCEDURE  update_gmt_modified();
+CREATE TRIGGER update_modified_time BEFORE UPDATE ON entity FOR EACH ROW EXECUTE PROCEDURE  update_gmt_modified();
+CREATE TRIGGER update_modified_time BEFORE UPDATE ON relationship FOR EACH ROW EXECUTE PROCEDURE  update_gmt_modified();
+CREATE TRIGGER update_modified_time BEFORE UPDATE ON relationship_edge FOR EACH ROW EXECUTE PROCEDURE  update_gmt_modified();
+CREATE TRIGGER update_modified_time BEFORE UPDATE ON schema FOR EACH ROW EXECUTE PROCEDURE  update_gmt_modified();

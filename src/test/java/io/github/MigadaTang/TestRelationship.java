@@ -29,12 +29,12 @@ public class TestRelationship {
 
     @Before
     public void initializeSchema() throws Exception {
-        testSchema = ER.createSchema("testSchema", "wt22");
+        testSchema = ER.createSchema("testSchema");
         teacher = testSchema.addEntity("teacher");
         student = testSchema.addEntity("student");
         classroom = testSchema.addEntity("classroom");
 
-        secondSchema = ER.createSchema("secondSchema", "wt22");
+        secondSchema = ER.createSchema("secondSchema");
         assertNotNull(teacher);
         assertNotNull(student);
         assertNotNull(classroom);
@@ -66,8 +66,6 @@ public class TestRelationship {
 
         // check duplicate link entity
         assertThrows(ERException.class, () -> relationship.linkObj(classroom, Cardinality.ZeroToMany, false));
-        // check duplicate
-        assertThrows(ERException.class, () -> testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
     }
 
     @Test
@@ -106,26 +104,26 @@ public class TestRelationship {
         RelationshipEdge edge = relationship.getEdgeList().get(0);
         Cardinality cardi = Cardinality.OneToOne;
         Entity newEntity = testSchema.addEntity("new entity");
-        edge.updateInfo(cardi, newEntity, true);
+        edge.updateInfo(null, cardi, newEntity, true);
         edge = RelationshipEdge.queryByID(edge.getID());
         assertEquals(edge.getCardinality(), cardi);
         assertEquals(edge.getConnObj().getID(), newEntity.getID());
         assertEquals(edge.getIsKey(), Boolean.TRUE);
 
         // update belong obj id to relationship id
-        edge.updateInfo(cardi, tc, true);
+        edge.updateInfo(null, cardi, tc, true);
         edge = RelationshipEdge.queryByID(edge.getID());
         assertEquals(edge.getConnObj().getID(), tc.getID());
         assertEquals(edge.getConnObjType(), BelongObjType.RELATIONSHIP);
 
         // update belong obj id to entity id
-        edge.updateInfo(cardi, newEntity, true);
+        edge.updateInfo(null, cardi, newEntity, true);
         edge = RelationshipEdge.queryByID(edge.getID());
         assertEquals(edge.getConnObj().getID(), newEntity.getID());
         assertEquals(edge.getConnObjType(), BelongObjType.ENTITY);
 
         // update relationshipID
-        edge.migrateToAnotherRelationship(tc.getID());
+        edge.updateInfo(tc.getID(), null, null, null);
         edge = RelationshipEdge.queryByID(edge.getID());
         assertEquals(edge.getRelationshipID(), tc.getID());
     }

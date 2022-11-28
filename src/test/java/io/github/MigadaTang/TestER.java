@@ -1,6 +1,7 @@
 package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.*;
+import io.github.MigadaTang.exception.ERException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 public class TestER {
 
@@ -36,7 +38,7 @@ public class TestER {
 
     @Test
     public void createVanillaERSchema() throws IOException {
-        Schema example = ER.createSchema("vanilla-BranchAccountMovement", "");
+        Schema example = ER.createSchema("vanilla-BranchAccountMovement");
 
         Entity branch = example.addEntity("branch");
         branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
@@ -69,7 +71,7 @@ public class TestER {
 
     @Test
     public void createWeakEntitySchema() throws IOException {
-        Schema example = ER.createSchema("weakEntity-SwipeCardForPerson", "");
+        Schema example = ER.createSchema("weakEntity-SwipeCardForPerson");
 
         Entity person = example.addEntity("person");
         person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
@@ -92,7 +94,7 @@ public class TestER {
 
     @Test
     public void createNaryRelationshipSchema() throws IOException {
-        Schema example = ER.createSchema("naryRelationship-PersonManagerDepartment", "");
+        Schema example = ER.createSchema("naryRelationship-PersonManagerDepartment");
 
         Entity person = example.addEntity("person");
         Entity manager = example.addEntity("manager");
@@ -116,7 +118,7 @@ public class TestER {
 
     @Test
     public void createAttributeOnRelationshipSchema() throws IOException {
-        Schema example = ER.createSchema("attributeOnRelationship-PersonDepartment", "");
+        Schema example = ER.createSchema("attributeOnRelationship-PersonDepartment");
 
         Entity person = example.addEntity("person");
         Entity department = example.addEntity("department");
@@ -137,7 +139,7 @@ public class TestER {
 
     @Test
     public void createSubsetSchema() throws IOException {
-        Schema example = ER.createSchema("subset-ManagerPerson", "");
+        Schema example = ER.createSchema("subset-ManagerPerson");
 
         Entity person = example.addEntity("person");
         person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
@@ -159,7 +161,7 @@ public class TestER {
 
     @Test
     public void createNestedRelationship() throws IOException {
-        Schema example = ER.createSchema("nested-PersonDepartmentProject", "");
+        Schema example = ER.createSchema("nested-PersonDepartmentProject");
 
         Entity person = example.addEntity("person");
         person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
@@ -182,6 +184,30 @@ public class TestER {
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         assertNotNull(schema);
+    }
+
+    @Test
+    public void duplicatedRelationship() throws IOException {
+        Schema example = ER.createSchema("nested-PersonDepartmentProject");
+
+        Entity person = example.addEntity("person");
+        Entity department = example.addEntity("department");
+
+        Relationship worksIn = example.createRelationship("works in", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        Relationship worksIn2 = example.createRelationship("works in 2", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        assertThrows(ERException.class, () -> example.toJSON());
+
+        Schema example2 = ER.createSchema("nested-PersonDepartmentProject2");
+        Entity project = example2.addEntity("project");
+        Entity project2 = example2.addEntity("project2");
+
+        Relationship empty1 = example2.createEmptyRelationship("empty1");
+        Relationship empty2 = example2.createEmptyRelationship("empty2");
+        empty1.linkObj(project, Cardinality.ZeroToMany);
+        empty1.linkObj(project2, Cardinality.ZeroToMany);
+        empty2.linkObj(project, Cardinality.ZeroToMany);
+        empty2.linkObj(project2, Cardinality.ZeroToMany);
+        assertThrows(ERException.class, () -> example2.toJSON());
     }
 
 

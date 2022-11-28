@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
+/**
+ * Cardinality constraints in relationship
+ */
 @Getter
 @AllArgsConstructor
 public enum Cardinality {

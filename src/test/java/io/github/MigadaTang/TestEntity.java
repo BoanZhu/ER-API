@@ -22,7 +22,7 @@ public class TestEntity {
 
     @Before
     public void initializeSchema() {
-        testSchema = ER.createSchema("testSchema", "wt22");
+        testSchema = ER.createSchema("testSchema");
     }
 
     @Test

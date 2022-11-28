@@ -20,23 +20,36 @@ import org.apache.ibatis.exceptions.PersistenceException;
 
 import java.util.*;
 
+/**
+ * The ER schema to which entities, attributes and relationships can be added
+ */
 @Getter
 @JsonDeserialize(using = SchemaDeserializer.class)
 public class Schema {
+    /**
+     * The ID of this schema
+     */
     private Long ID;
+    /**
+     * The name of this schema
+     */
     private String name;
+    /**
+     * The list of entities in this schema
+     */
     private List<Entity> entityList;
+    /**
+     * The list of relationships in this schema
+     */
     private List<Relationship> relationshipList;
-    private String creator;
     private Date gmtCreate;
     private Date gmtModified;
 
-    protected Schema(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, String creator, Date gmtCreate, Date gmtModified) {
+    protected Schema(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.entityList = entityList;
         this.relationshipList = relationshipList;
-        this.creator = creator;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
@@ -44,16 +57,37 @@ public class Schema {
         }
     }
 
-    // addEntity add strong entity by default
+    //
+
+    /**
+     * Add strong entity by default
+     *
+     * @param entityName name of the entity
+     * @return the created entity
+     */
     public Entity addEntity(String entityName) {
         return addEntity(entityName, EntityType.STRONG, null);
     }
 
+    /**
+     * add entity by name and type
+     *
+     * @param entityName name of the entity
+     * @param entityType type of the entity
+     * @return created entity
+     */
     public Entity addEntity(String entityName, EntityType entityType) {
         return addEntity(entityName, entityType, null);
     }
 
-    public Entity addSubset(String entityName, Entity strongEntity) {
+    /**
+     * add a subset
+     *
+     * @param subsetName   the name of the subset
+     * @param strongEntity the entity of the strong entity to which this subset belongs
+     * @return the created entity
+     */
+    public Entity addSubset(String subsetName, Entity strongEntity) {
         // check if the specified strong entity that this subset relies on exists
         Entity entity;
         try {
@@ -64,9 +98,19 @@ public class Schema {
         if (!entity.getSchemaID().equals(this.ID)) {
             throw new ERException("entity does not belong to this schema");
         }
-        return addEntity(entityName, EntityType.SUBSET, strongEntity);
+        return addEntity(subsetName, EntityType.SUBSET, strongEntity);
     }
 
+    /**
+     * add a weak entity
+     *
+     * @param entityName              the name of the weak entity
+     * @param strongEntity            the strong entity to which this weak entity belongs
+     * @param relationshipName        the name of the relationship between the strong and weak entity
+     * @param weakEntityCardinality   the cardinality of the weak entity
+     * @param strongEntityCardinality the cardinality of the strong entity
+     * @return a pair of weak entity and relationship
+     */
     public ImmutablePair<Entity, Relationship> addWeakEntity(String entityName, Entity strongEntity, String relationshipName, Cardinality weakEntityCardinality, Cardinality strongEntityCardinality) {
         // check if the specified strong entity that this subset relies on exists
         Entity entity;
@@ -85,30 +129,22 @@ public class Schema {
         Relationship relationship = createRelationship(relationshipName, weakEntity, strongEntity, weakEntityCardinality, strongEntityCardinality);
         for (RelationshipEdge edge : relationship.getEdgeList()) {
             if (edge.getConnObj().getID().equals(weakEntity.getID())) {
-                edge.updateInfo(null, null, true);
+                edge.updateInfo(null, null, null, true);
             }
         }
         return new ImmutablePair<>(weakEntity, relationship);
     }
 
-//    protected Entity addIsolatedWeakEntity(String entityName, Entity strongEntity) {
-//        // check if the specified strong entity that this subset relies on exists
-//        Entity entity;
-//        try {
-//            entity = Entity.queryByID(strongEntity.getID());
-//        } catch (ERException ex) {
-//            throw new ERException("addIsolatedWeakEntity fail: the specified strong entity does not exist");
-//        }
-//        // check if the strong entity belongs to this schema
-//        if (!entity.getSchemaID().equals(this.ID)) {
-//            throw new ERException("entity does not belong to this schema");
-//        }
-//        // add weak entity
-//        return addEntity(entityName, EntityType.WEAK, strongEntity);
-//    }
+    //
 
-    // addEntity base method for addEntity, for internal use only,
-    // users should add entity through other public methods
+    /**
+     * base method for addEntity, for internal use only, users should add entity through other public methods
+     *
+     * @param entityName         the name of the entity
+     * @param entityType         the type of the entity
+     * @param belongStrongEntity the entity that a subset belongs to
+     * @return the created entity
+     */
     private Entity addEntity(String entityName, EntityType entityType, Entity belongStrongEntity) {
         if (entityName.equals("")) {
             throw new ERException("entityName cannot be empty");
@@ -122,6 +158,11 @@ public class Schema {
         return entity;
     }
 
+    /**
+     * Delete the target entity from both the list of entities and the database
+     *
+     * @param entity the target entity
+     */
     public void deleteEntity(Entity entity) {
         // firstly, delete all the edges connected to this entity
         List<RelationshipEdge> edgeList = RelationshipEdge.query(new RelationshipEdgeDO(null, entity));
@@ -140,10 +181,28 @@ public class Schema {
         this.entityList.remove(entity);
     }
 
+    /**
+     * create an empty relationship
+     *
+     * @param relationshipName the name of the relationship
+     * @return the created relationship
+     */
     public Relationship createEmptyRelationship(String relationshipName) {
-        return new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
+        Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
+        this.relationshipList.add(relationship);
+        return relationship;
     }
 
+    /**
+     * create a relationship connecting two connectable objects
+     *
+     * @param relationshipName  the name of the relationship
+     * @param firstObj          the first connectable object
+     * @param secondObj         the second connectable object
+     * @param firstCardinality  the cardinality of the first connectable object
+     * @param secondCardinality the cardinality of the second connectable object
+     * @return a created relationship
+     */
     public Relationship createRelationship(String relationshipName, ERConnectableObj firstObj, ERConnectableObj secondObj, Cardinality firstCardinality, Cardinality secondCardinality) {
         ArrayList<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
         connObjWithCardinalityList.add(new ConnObjWithCardinality(firstObj, firstCardinality));
@@ -151,6 +210,16 @@ public class Schema {
         return createNaryRelationship(relationshipName, connObjWithCardinalityList);
     }
 
+    /**
+     * create relationship connecting two entities
+     *
+     * @param relationshipName  the name of the relationship
+     * @param firstEntity       the first entity
+     * @param secondEntity      the second entity
+     * @param firstCardinality  the cardinality of the first entity
+     * @param secondCardinality the cardinality of the second entity
+     * @return a created relationship
+     */
     public Relationship createRelationship(String relationshipName, Entity firstEntity, Entity secondEntity, Cardinality firstCardinality, Cardinality secondCardinality) {
         ArrayList<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
         connObjWithCardinalityList.add(new ConnObjWithCardinality(firstEntity, firstCardinality));
@@ -159,6 +228,14 @@ public class Schema {
     }
 
     // createNaryRelationship
+
+    /**
+     * create relationship between multiple connectable objects
+     *
+     * @param relationshipName           the name of the relationship
+     * @param connObjWithCardinalityList a list of the connectable objects with their cardinalities
+     * @return a created relationship
+     */
     public Relationship createNaryRelationship(String relationshipName, List<ConnObjWithCardinality> connObjWithCardinalityList) {
         if (relationshipName.equals("")) {
             throw new ERException("relationshipName cannot be empty");
@@ -166,7 +243,7 @@ public class Schema {
         if (connObjWithCardinalityList.size() <= 1) {
             throw new ERException("must have more than 2 entities to create relationship");
         }
-        List<ERConnectableObj> connObjList = new ArrayList<>();
+//        List<ERConnectableObj> connObjList = new ArrayList<>();
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             if (eCard.getConnObj() instanceof Entity) {
                 ERConnectableObj entity = eCard.getConnObj();
@@ -185,11 +262,11 @@ public class Schema {
                     throw new ERException(String.format("relationship: %s does not belong to this schema", relationship.getName()));
                 }
             }
-            connObjList.add(eCard.getConnObj());
+//            connObjList.add(eCard.getConnObj());
         }
-        if (RelationshipEdge.checkEntitesInSameRelationship(connObjList)) {
-            throw new ERException("connObj have been in the same relationship");
-        }
+//        if (RelationshipEdge.checkEntitesInSameRelationship(connObjList)) {
+//            throw new ERException("connObj have been in the same relationship");
+//        }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, eCard.getConnObj(), eCard.getCardinality(), false, -1, -1, new Date(), new Date());
@@ -199,6 +276,11 @@ public class Schema {
         return relationship;
     }
 
+    /**
+     * Delete the target relationship from both the list of relationships and the database
+     *
+     * @param relationship the target relationship
+     */
     public void deleteRelationship(Relationship relationship) {
         this.relationshipList.remove(relationship);
         relationship.deleteDB();
@@ -206,7 +288,7 @@ public class Schema {
 
     private void insertDB() {
         try {
-            SchemaDO schemaDO = new SchemaDO(0L, this.name, this.creator, 0L, 0, this.gmtCreate, this.gmtModified);
+            SchemaDO schemaDO = new SchemaDO(0L, this.name, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.schemaMapper.insert(schemaDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -217,7 +299,11 @@ public class Schema {
         }
     }
 
-    // sanity check to check if this er schema can be rebuilt
+    /**
+     * Simply checks if this ER schema can be rebuilt from scratch
+     *
+     * @throws ERException throws ERException if the schema cannot be rebuilt
+     */
     public void sanityCheck() throws ERException {
         Map<Long, Integer> weakEntityKeyRelationshipCountMap = new HashMap<>();
         for (Entity entity : entityList) {
@@ -252,6 +338,14 @@ public class Schema {
             if (relationship.getEdgeList().size() < 2) {
                 throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
             }
+            // check if this is a duplicated relationship in which all the objects have already been connected
+            List<ERConnectableObj> belongObjList = new ArrayList<>();
+            for (RelationshipEdge edge : relationship.getEdgeList()) {
+                belongObjList.add(edge.getConnObj());
+            }
+            if (RelationshipEdge.checkInSameRelationship(relationship.getID(), belongObjList)) {
+                throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
+            }
             for (RelationshipEdge edge : relationship.getEdgeList()) {
                 if (edge.getIsKey()) {
                     // key relationship can only be used by weak entity
@@ -281,8 +375,12 @@ public class Schema {
         }
     }
 
-    // do an all round check for generating DDL
-    public void allRoundCheck() throws ERException {
+    /**
+     * Comprehensively check the validity before generating DDL
+     *
+     * @throws ERException throws ERException if DDL cannot be generated from this
+     */
+    public void comprehensiveCheck() throws ERException {
         Map<Long, Integer> weakEntityKeyRelationshipCountMap = new HashMap<>();
         for (Entity entity : entityList) {
             int primaryKeyNum = 0;
@@ -319,6 +417,14 @@ public class Schema {
             if (relationship.getEdgeList().size() < 2) {
                 throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
             }
+            // check if this is a duplicated relationship in which all the objects have already been connected
+            List<ERConnectableObj> belongObjList = new ArrayList<>();
+            for (RelationshipEdge edge : relationship.getEdgeList()) {
+                belongObjList.add(edge.getConnObj());
+            }
+            if (RelationshipEdge.checkInSameRelationship(relationship.getID(), belongObjList)) {
+                throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
+            }
             for (RelationshipEdge edge : relationship.getEdgeList()) {
                 if (edge.getIsKey()) {
                     // key relationship can only be used by weak entity
@@ -349,6 +455,11 @@ public class Schema {
     }
 
 
+    /**
+     * Transform the current ER schema to json string
+     *
+     * @return a json string
+     */
     public String toJSON() {
         sanityCheck();
         SimpleModule module = new SimpleModule();
@@ -370,7 +481,13 @@ public class Schema {
         return json;
     }
 
+    /**
+     * Transform the current ER schema to a json string that can be rendered by html
+     *
+     * @return a json string that can be rendered by html
+     */
     public String toRenderJSON() {
+        sanityCheck();
         SimpleModule module = new SimpleModule();
         module.addSerializer(Schema.class, new SchemaSerializer(true));
         module.addSerializer(Entity.class, new EntitySerializer(true));
@@ -390,15 +507,43 @@ public class Schema {
         return json;
     }
 
+
+    /**
+     * Returns all the schemas in the database exhaustively
+     *
+     * @return A list of schemas
+     */
     public static List<Schema> queryAll() {
-        return ObjConv.ConvSchemaListFromDB(ER.schemaMapper.selectAll());
+        return ObjConv.ConvSchemaListFromDB(ER.schemaMapper.selectAll(), true);
     }
 
-    public static List<Schema> queryBySchema(SchemaDO SchemaDO) {
-        List<SchemaDO> schemaDOList = ER.schemaMapper.selectBySchema(SchemaDO);
-        return ObjConv.ConvSchemaListFromDB(schemaDOList);
+    /**
+     * Returns all the schemas in the database
+     *
+     * @param exhaustive whether to fetch the entities and relationships in a schema
+     * @return A list of schemas
+     */
+    public static List<Schema> queryAll(boolean exhaustive) {
+        return ObjConv.ConvSchemaListFromDB(ER.schemaMapper.selectAll(), exhaustive);
     }
 
+    /**
+     * Query the list of schemas that have the same data specified by schemaDO exhaustively
+     *
+     * @param schemaDO the values of some attributes of a schema
+     * @return a list of schemas
+     */
+    public static List<Schema> queryBySchema(SchemaDO schemaDO) {
+        List<SchemaDO> schemaDOList = ER.schemaMapper.selectBySchema(schemaDO);
+        return ObjConv.ConvSchemaListFromDB(schemaDOList, true);
+    }
+
+    /**
+     * Query schema by ID exhaustively
+     *
+     * @param ID the ID of the schema
+     * @return the found schema
+     */
     public static Schema queryByID(Long ID) {
         List<Schema> schemaDOList = queryBySchema(new SchemaDO(ID));
         if (schemaDOList.size() == 0) {
@@ -408,6 +553,9 @@ public class Schema {
         }
     }
 
+    /**
+     * Delete the current schema from the database and cascade delete all the components in this schema
+     */
     protected void deleteDB() {
         // cascade delete the entities and relationships in this schema
         for (Entity entity : entityList) {
@@ -419,10 +567,15 @@ public class Schema {
         ER.schemaMapper.deleteByID(this.ID);
     }
 
+    /**
+     * Update the information of a schema
+     *
+     * @param name the new name of this relationship
+     */
     public void updateInfo(String name) {
         if (name != null) {
             this.name = name;
         }
-        ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
+        ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, 0, this.gmtCreate, new Date()));
     }
 }
