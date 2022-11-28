@@ -30,7 +30,7 @@ public class Column {
 
     private Long foreignKeyTable;
 
-    public void transformAttribute(Attribute attribute) {
+    public void transformAttribute(Attribute attribute, boolean nullable) {
         this.ID = attribute.getID();
         this.name = attribute.getName();
         this.dataType = attribute.getDataType().toString();
@@ -38,7 +38,7 @@ public class Column {
         this.isForeign = false;
         this.foreignKeyColumn = null;
         this.foreignKeyColumnName = null;
-//        this.nullable = attribute.getNullable();
+        this.nullable = nullable;
         this.foreignKeyTable = null;
     }
 

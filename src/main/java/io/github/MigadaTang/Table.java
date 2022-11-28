@@ -1,5 +1,6 @@
 package io.github.MigadaTang;
 
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.EntityType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,6 +27,8 @@ public class Table {
 
     private List<Column> primaryKey;
 
+    private List<Column> multiValuedColumn;
+
     private Map<Long, List<Column>> foreignKey;
 
     public void tranformEntity(Entity entity) {
@@ -40,8 +43,16 @@ public class Table {
         this.foreignKey = new HashMap<>();
         for (Attribute attribute : entity.getAttributeList()) {
             Column column = new Column();
-            column.transformAttribute(attribute);
-            this.columnList.add(column);
+            if (attribute.getAttributeType() == AttributeType.Optional) {
+                column.transformAttribute(attribute, true);
+                this.columnList.add(column);
+            } else if (attribute.getAttributeType() == AttributeType.Mandatory) {
+                column.transformAttribute(attribute, false);
+                this.columnList.add(column);
+            } else {
+                column.transformAttribute(attribute, false);
+                multiValuedColumn.add(column);
+            }
             if (column.isPrimary()) {
                 this.primaryKey.add(column);
             }
