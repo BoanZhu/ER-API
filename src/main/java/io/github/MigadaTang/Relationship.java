@@ -16,6 +16,9 @@ import java.util.Date;
 import java.util.List;
 
 
+/**
+ * The relationship in ER schema
+ */
 @Getter
 public class Relationship extends ERBaseObj implements ERConnectableObj {
     private List<Attribute> attributeList;

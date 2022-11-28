@@ -4,7 +4,7 @@ import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.exception.ERException;
-import lombok.Data;
+import lombok.Getter;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.ibatis.exceptions.PersistenceException;
 
@@ -13,7 +13,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Data
+/**
+ * The edge connecting relationships and entities
+ */
+@Getter
 public class RelationshipEdge {
     private Long ID;
     private Long relationshipID;

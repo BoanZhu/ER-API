@@ -25,7 +25,7 @@ public class TestTransform {
 
     //    @Test
     public void testERModelToRSSucc() throws IOException, SQLException {
-        view = ER.createSchema("testTransform1", "wd");
+        view = ER.createSchema("testTransform1");
         Entity student = view.addEntity("student");
         Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
         Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
@@ -56,7 +56,7 @@ public class TestTransform {
 
     //    @Test
     public void testERModelToRSFail1() throws IOException, SQLException {
-        view = ER.createSchema("testTransform1", "wd");
+        view = ER.createSchema("testTransform1");
         Entity student = view.addEntity("student");
         Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
         Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
@@ -87,7 +87,7 @@ public class TestTransform {
 
     //    @Test
     public void testERModelToRSSucc2() throws IOException, SQLException {
-        view = ER.createSchema("testTransform1", "wd");
+        view = ER.createSchema("testTransform1");
         Entity branch = view.addEntity("branch");
         Attribute sortcode = branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
         Attribute bname = branch.addAttribute("bname", DataType.VARCHAR, false, AttributeType.Mandatory);
@@ -118,7 +118,7 @@ public class TestTransform {
 
     //    @Test
     public void testERModelToRSSuccWithNaryAndSubset() throws IOException, SQLException {
-        view = ER.createSchema("testTransform1", "wd");
+        view = ER.createSchema("testTransform1");
         Entity department = view.addEntity("department");
         department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
 
@@ -150,7 +150,7 @@ public class TestTransform {
 
     //    @Test
     public void testERModelToRSSuccWithNaryAndWeakEntity() throws IOException, SQLException {
-        view = ER.createSchema("testTransformWeakEntity", "wd");
+        view = ER.createSchema("testTransformWeakEntity");
         Entity department = view.addEntity("department");
         department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
 

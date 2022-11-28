@@ -6,7 +6,7 @@ import io.github.MigadaTang.entity.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjConv {
+class ObjConv {
 
     protected static LayoutInfo ConvFromDB(LayoutInfoDO layoutInfoDO) {
         return new LayoutInfo(layoutInfoDO.getID(), layoutInfoDO.getBelongObjID(), layoutInfoDO.getBelongObjType(), layoutInfoDO.getLayoutX(), layoutInfoDO.getLayoutY());
@@ -101,7 +101,7 @@ public class ObjConv {
     protected static Schema ConvFromDB(SchemaDO schema) {
         List<Entity> entityList = Entity.query(new EntityDO(null, schema.getID(), null));
         List<Relationship> relationshipList = Relationship.query(new RelationshipDO(null, schema.getID()), true);
-        return new Schema(schema.getID(), schema.getName(), entityList, relationshipList, schema.getCreator(), schema.getGmtCreate(), schema.getGmtModified());
+        return new Schema(schema.getID(), schema.getName(), entityList, relationshipList, schema.getGmtCreate(), schema.getGmtModified());
     }
 
     protected static List<Schema> ConvSchemaListFromDB(List<SchemaDO> doList) {

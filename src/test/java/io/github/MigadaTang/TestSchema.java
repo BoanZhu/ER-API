@@ -20,7 +20,7 @@ public class TestSchema {
 
     @Test
     public void updateSchemaTest() {
-        Schema firstSchema = ER.createSchema("first schema", "tw");
+        Schema firstSchema = ER.createSchema("first schema");
         String newSchemaName = "new schema name";
         firstSchema.updateInfo(newSchemaName);
 
@@ -30,7 +30,7 @@ public class TestSchema {
 
     @Test
     public void deleteSchemaTest() {
-        Schema testDeleteSchema = ER.createSchema("first schema", "tw");
+        Schema testDeleteSchema = ER.createSchema("first schema");
         testDeleteSchema = Schema.queryByID(testDeleteSchema.getID());
         assertNotNull(testDeleteSchema);
 
@@ -42,7 +42,7 @@ public class TestSchema {
 
     @Test
     public void querySchemaTest() {
-        Schema firstSchema = ER.createSchema("first schema", "tw");
+        Schema firstSchema = ER.createSchema("first schema");
         List<Schema> schemas = Schema.queryAll();
         assertNotEquals(schemas.size(), 0);
     }

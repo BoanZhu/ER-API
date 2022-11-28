@@ -29,12 +29,12 @@ public class TestRelationship {
 
     @Before
     public void initializeSchema() throws Exception {
-        testSchema = ER.createSchema("testSchema", "wt22");
+        testSchema = ER.createSchema("testSchema");
         teacher = testSchema.addEntity("teacher");
         student = testSchema.addEntity("student");
         classroom = testSchema.addEntity("classroom");
 
-        secondSchema = ER.createSchema("secondSchema", "wt22");
+        secondSchema = ER.createSchema("secondSchema");
         assertNotNull(teacher);
         assertNotNull(student);
         assertNotNull(classroom);

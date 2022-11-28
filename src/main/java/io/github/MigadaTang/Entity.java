@@ -13,6 +13,9 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * the Entity in ER schema
+ */
 @Getter
 public class Entity extends ERBaseObj implements ERConnectableObj {
     private EntityType entityType;

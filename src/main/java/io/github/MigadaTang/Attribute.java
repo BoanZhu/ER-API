@@ -11,6 +11,9 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * the Attributes on entities and relationships
+ */
 @Getter
 public class Attribute extends ERBaseObj {
     private Long belongObjID;

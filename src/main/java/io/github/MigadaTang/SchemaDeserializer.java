@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SchemaDeserializer extends StdDeserializer<Schema> {
+class SchemaDeserializer extends StdDeserializer<Schema> {
 
     private Map<String, Entity> entityNameMap = new HashMap<>();
     private Map<String, Relationship> relationshipNameMap = new HashMap<>();
@@ -32,7 +32,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
 
         JsonNode schemaJSONNode = jp.getCodec().readTree(jp);
         String schemaName = schemaJSONNode.get("name").textValue();
-        Schema schema = ER.createSchema(schemaName, "");
+        Schema schema = ER.createSchema(schemaName);
 
         parseEntityList(schema, schemaJSONNode.get("entityList"));
         prepareEmptyRelationship(schema, schemaJSONNode.get("relationshipList"));

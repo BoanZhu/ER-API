@@ -2,14 +2,15 @@ package io.github.MigadaTang;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+/**
+ * Contains the attributes commonly needed by @see io.github.MigadaTang.Entity, @see io.github.MigadaTang.Relationship, @see io.github.MigadaTang.Attribute
+ */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class ERBaseObj {
+class ERBaseObj {
     private Long ID;
     private Long schemaID;
     private String name;

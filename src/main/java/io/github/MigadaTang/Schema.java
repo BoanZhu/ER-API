@@ -20,6 +20,9 @@ import org.apache.ibatis.exceptions.PersistenceException;
 
 import java.util.*;
 
+/**
+ * The ER schema to which different components can be added
+ */
 @Getter
 @JsonDeserialize(using = SchemaDeserializer.class)
 public class Schema {
@@ -27,16 +30,14 @@ public class Schema {
     private String name;
     private List<Entity> entityList;
     private List<Relationship> relationshipList;
-    private String creator;
     private Date gmtCreate;
     private Date gmtModified;
 
-    protected Schema(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, String creator, Date gmtCreate, Date gmtModified) {
+    protected Schema(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
         this.entityList = entityList;
         this.relationshipList = relationshipList;
-        this.creator = creator;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
         if (this.ID == 0) {
@@ -206,7 +207,7 @@ public class Schema {
 
     private void insertDB() {
         try {
-            SchemaDO schemaDO = new SchemaDO(0L, this.name, this.creator, 0L, 0, this.gmtCreate, this.gmtModified);
+            SchemaDO schemaDO = new SchemaDO(0L, this.name, 0, this.gmtCreate, this.gmtModified);
             int ret = ER.schemaMapper.insert(schemaDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
@@ -423,6 +424,6 @@ public class Schema {
         if (name != null) {
             this.name = name;
         }
-        ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, this.creator, 0L, 0, this.gmtCreate, new Date()));
+        ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, 0, this.gmtCreate, new Date()));
     }
 }

@@ -38,13 +38,13 @@ public class ER {
      * This function initializes the database and all the related mappers required by this tool
      *
      * @param dbType       the type of the database
-     * @param hostname
-     * @param portNum
-     * @param databaseName
-     * @param username
-     * @param password
-     * @throws SQLException
-     * @throws ParseException
+     * @param hostname     the hostname of the database
+     * @param portNum      the port of the database
+     * @param databaseName the name of the database
+     * @param username     username
+     * @param password     password
+     * @throws SQLException   exception that might happen during table creation
+     * @throws ParseException supported dbType
      */
     public static void initialize(RDBMSType dbType, String hostname, String portNum, String databaseName, String username, String password) throws SQLException, ParseException {
         Properties properties = new Properties();
@@ -70,6 +70,12 @@ public class ER {
         }
     }
 
+    /**
+     * The easiest way to initialize this tool. Use the h2 memory database by default
+     *
+     * @throws SQLException   SQLException
+     * @throws ParseException ParseException
+     */
     public static void initialize() throws SQLException, ParseException {
         initialize(RDBMSType.H2, "mem", "", "test", "sa", "");
     }
@@ -87,8 +93,14 @@ public class ER {
         }
     }
 
-    public static Schema createSchema(String name, String creator) {
-        return new Schema(0L, name, new ArrayList<>(), new ArrayList<>(), creator, new Date(), new Date());
+    /**
+     * create an empty schema to start on which entities and relationships can be created.
+     *
+     * @param name the name of the schema
+     * @return the created schema
+     */
+    public static Schema createSchema(String name) {
+        return new Schema(0L, name, new ArrayList<>(), new ArrayList<>(), new Date(), new Date());
     }
 
 

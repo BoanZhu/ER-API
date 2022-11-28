@@ -8,6 +8,9 @@ import org.apache.ibatis.exceptions.PersistenceException;
 
 import java.util.List;
 
+/**
+ * The layout information of a component on the ER diagram, each component has a layout attribute
+ */
 @Getter
 public class LayoutInfo {
     private Long ID;

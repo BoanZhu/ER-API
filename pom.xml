@@ -96,6 +96,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludePackageNames>
+                        io.github.MigadaTang.dao:io.github.MigadaTang.entity
+                    </excludePackageNames>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>

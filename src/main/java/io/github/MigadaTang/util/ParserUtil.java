@@ -1,9 +1,6 @@
 package io.github.MigadaTang.util;
 
 import io.github.MigadaTang.*;
-import io.github.MigadaTang.Column;
-import io.github.MigadaTang.Table;
-import io.github.MigadaTang.common.*;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.ConnObjWithCardinality;
 import io.github.MigadaTang.common.EntityType;
@@ -14,7 +11,7 @@ import java.util.*;
 public class ParserUtil {
 
     public static Schema parseAttributeToRelationship(List<Table> tableList) throws ParseException {
-        Schema schema = ER.createSchema("reverseEng", "unknow");
+        Schema schema = ER.createSchema("reverseEng");
 
         Map<Long, Entity> tableDTOEntityMap = new HashMap<>();
 

@@ -76,8 +76,6 @@ CREATE SEQUENCE schema_seq;
 CREATE TABLE schema (
                         id bigint NOT NULL DEFAULT NEXTVAL ('schema_seq') ,
                         name varchar(255) NOT NULL ,
-                        creator varchar(255) NULL DEFAULT NULL ,
-                        parent_id bigint NULL DEFAULT 0 ,
                         is_delete smallint NOT NULL DEFAULT 0 ,
                         gmt_create timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ,
                         gmt_modified timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ,

@@ -36,7 +36,7 @@ public class TestER {
 
     @Test
     public void createVanillaERSchema() throws IOException {
-        Schema example = ER.createSchema("vanilla-BranchAccountMovement", "");
+        Schema example = ER.createSchema("vanilla-BranchAccountMovement");
 
         Entity branch = example.addEntity("branch");
         branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
@@ -69,7 +69,7 @@ public class TestER {
 
     @Test
     public void createWeakEntitySchema() throws IOException {
-        Schema example = ER.createSchema("weakEntity-SwipeCardForPerson", "");
+        Schema example = ER.createSchema("weakEntity-SwipeCardForPerson");
 
         Entity person = example.addEntity("person");
         person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
@@ -92,7 +92,7 @@ public class TestER {
 
     @Test
     public void createNaryRelationshipSchema() throws IOException {
-        Schema example = ER.createSchema("naryRelationship-PersonManagerDepartment", "");
+        Schema example = ER.createSchema("naryRelationship-PersonManagerDepartment");
 
         Entity person = example.addEntity("person");
         Entity manager = example.addEntity("manager");
@@ -116,7 +116,7 @@ public class TestER {
 
     @Test
     public void createAttributeOnRelationshipSchema() throws IOException {
-        Schema example = ER.createSchema("attributeOnRelationship-PersonDepartment", "");
+        Schema example = ER.createSchema("attributeOnRelationship-PersonDepartment");
 
         Entity person = example.addEntity("person");
         Entity department = example.addEntity("department");
@@ -137,7 +137,7 @@ public class TestER {
 
     @Test
     public void createSubsetSchema() throws IOException {
-        Schema example = ER.createSchema("subset-ManagerPerson", "");
+        Schema example = ER.createSchema("subset-ManagerPerson");
 
         Entity person = example.addEntity("person");
         person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
@@ -159,7 +159,7 @@ public class TestER {
 
     @Test
     public void createNestedRelationship() throws IOException {
-        Schema example = ER.createSchema("nested-PersonDepartmentProject", "");
+        Schema example = ER.createSchema("nested-PersonDepartmentProject");
 
         Entity person = example.addEntity("person");
         person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);

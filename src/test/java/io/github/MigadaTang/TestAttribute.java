@@ -24,7 +24,7 @@ public class TestAttribute {
 
     @Before
     public void initializeSchema() {
-        testSchema = ER.createSchema("testSchema", "wt22");
+        testSchema = ER.createSchema("testSchema");
         teacher = testSchema.addEntity("teacher");
         student = testSchema.addEntity("student");
     }
