@@ -5,6 +5,7 @@ import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,8 +24,8 @@ public class TestTransform {
         TestCommon.setUp();
     }
 
-    //    @Test
-    public void testERModelToRSSucc() throws IOException, SQLException {
+    @Test
+    public void testERModelToRSSucc() {
         view = ER.createSchema("testTransform1");
         Entity student = view.addEntity("student");
         Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
@@ -54,8 +55,8 @@ public class TestTransform {
     }
 
 
-    //    @Test
-    public void testERModelToRSFail1() throws IOException, SQLException {
+    @Test
+    public void testERModelToRSFail1() {
         view = ER.createSchema("testTransform1");
         Entity student = view.addEntity("student");
         Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
@@ -85,8 +86,8 @@ public class TestTransform {
     }
 
 
-    //    @Test
-    public void testERModelToRSSucc2() throws IOException, SQLException {
+    @Test
+    public void testERModelToRSSucc2() {
         view = ER.createSchema("testTransform1");
         Entity branch = view.addEntity("branch");
         Attribute sortcode = branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
@@ -110,14 +111,14 @@ public class TestTransform {
         try {
             sql = transform.ERModelToSql(view.getID());
         } catch (ParseException e) {
-            assertTrue(true);
-            System.out.println(e.getMessage());
+            fail();
         }
+        System.out.println(sql);
     }
 
 
-    //    @Test
-    public void testERModelToRSSuccWithNaryAndSubset() throws IOException, SQLException {
+    @Test
+    public void testERModelToRSSuccWithNaryAndSubset() {
         view = ER.createSchema("testTransform1");
         Entity department = view.addEntity("department");
         department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
@@ -148,8 +149,8 @@ public class TestTransform {
     }
 
 
-    //    @Test
-    public void testERModelToRSSuccWithNaryAndWeakEntity() throws IOException, SQLException {
+    @Test
+    public void testERModelToRSSuccWithNaryAndWeakEntity() {
         view = ER.createSchema("testTransformWeakEntity");
         Entity department = view.addEntity("department");
         department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);

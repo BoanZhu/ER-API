@@ -1,5 +1,7 @@
-package io.github.MigadaTang;
+package io.github.MigadaTang.util;
 
+import io.github.MigadaTang.Attribute;
+import io.github.MigadaTang.Entity;
 import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.EntityType;
 import lombok.AllArgsConstructor;
@@ -31,11 +33,13 @@ public class Table {
 
     private Map<Long, List<Column>> foreignKey;
 
-    public void tranformEntity(Entity entity) {
+    protected void tranformEntity(Entity entity) {
         this.id = entity.getID();
         this.name = entity.getName();
         this.columnList = new ArrayList<>();
         this.primaryKey = new ArrayList<>();
+        this.multiValuedColumn = new ArrayList<>();
+        this.foreignKey = new HashMap<>();
         this.tableType = entity.getEntityType();
         if (entity.getBelongStrongEntity() != null) {
             this.belongStrongTableID = entity.getBelongStrongEntity().getID();

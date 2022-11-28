@@ -1,8 +1,6 @@
 package io.github.MigadaTang.util;
 
 import io.github.MigadaTang.*;
-import io.github.MigadaTang.Column;
-import io.github.MigadaTang.Table;
 import io.github.MigadaTang.common.*;
 import io.github.MigadaTang.exception.ParseException;
 
@@ -11,7 +9,7 @@ import java.util.*;
 public class ParserUtil {
 
     public static Schema parseAttributeToRelationship(List<Table> tableList) throws ParseException {
-        Schema schema = ER.createSchema("reverseEng", "unknow");
+        Schema schema = ER.createSchema("reverseEng");
 
         Map<Long, Entity> tableDTOEntityMap = new HashMap<>();
 
@@ -471,10 +469,11 @@ public class ParserUtil {
 
         StringBuilder tableName = new StringBuilder(reName.replace(' ', '_'));
         List<Column> columnList = new ArrayList<>();
+        List<Column> pkList = new ArrayList<>();
         Map<Long, List<Column>> foreignKey = new HashMap<>();
 
         Table newTable = new Table(RandomUtils.generateID(), tableName.toString(), EntityType.STRONG, null,
-                columnList, new ArrayList<>(), new ArrayList<>(), foreignKey);
+                columnList, pkList, new ArrayList<>(), foreignKey);
 
         for (Long tableId : tableIdList) {
             Table foreignTable = tableDTOMap.get(tableId);
@@ -482,10 +481,11 @@ public class ParserUtil {
 
             List<Column> fkColumns = new ArrayList<>();
             for (Column pk : foreignTable.getPrimaryKey()) {
-                Column cloneFk = pk.getForeignClone(newTable.getId(), false, foreignTable.getName());
+                Column cloneFk = pk.getForeignClone(newTable.getId(), true, foreignTable.getName());
                 cloneFk.setNullable(false);
                 fkColumns.add(cloneFk);
                 columnList.add(cloneFk);
+                pkList.add(cloneFk);
             }
 
             foreignKey.put(tableId, fkColumns);
