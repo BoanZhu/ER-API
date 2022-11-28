@@ -57,6 +57,11 @@ public class RelationshipEdge {
         }
     }
 
+    /**
+     * get the type of the connectable object
+     *
+     * @return returns the type of the target object
+     */
     public BelongObjType getConnObjType() {
         if (this.connObj instanceof Entity) {
             return BelongObjType.ENTITY;
@@ -66,27 +71,18 @@ public class RelationshipEdge {
         return BelongObjType.UNKNOWN;
     }
 
-    public void migrateToAnotherRelationship(Long relationshipID) {
+    /**
+     * Update the information of a relationship, set parameters as null if they are not expected to be updated
+     *
+     * @param relationshipID the new relationshipID
+     * @param cardinality    the new name of this relationship
+     * @param connObj        the new target object
+     * @param isKey          whether this is a key relationship
+     */
+    public void updateInfo(Long relationshipID, Cardinality cardinality, ERConnectableObj connObj, Boolean isKey) throws ERException {
         if (relationshipID == null) {
-            return;
+            this.relationshipID = relationshipID;
         }
-//        Relationship relationship = Relationship.queryByID(relationshipID);
-//        if (relationship == null) {
-//            throw new ERException(String.format("cannot find relationID: %d", relationshipID));
-//        }
-//        List<ERConnectableObj> belongObjList = new ArrayList<>();
-//        for (RelationshipEdge edge : relationship.getEdgeList()) {
-//            belongObjList.add(edge.getConnObj());
-//        }
-//        belongObjList.add(this.getConnObj());
-//        if (checkEntitesInSameRelationship(belongObjList)) {
-//            throw new ERException("entities have been in the same relationship");
-//        }
-        this.relationshipID = relationshipID;
-        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
-    }
-
-    public void updateInfo(Cardinality cardinality, ERConnectableObj connObj, Boolean isKey) throws ERException {
         if (cardinality != null) {
             this.cardinality = cardinality;
         }
@@ -109,8 +105,14 @@ public class RelationshipEdge {
         ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
-    // check if these entities have been in the same relationship
-    protected static boolean checkEntitesInSameRelationship(Long currentRelationshipID, List<ERConnectableObj> belongObjList) {
+    /**
+     * check if these connectable objects are in another relationship other than the current relationship
+     *
+     * @param currentRelationshipID the current relationship connecting these objects
+     * @param belongObjList         the list of object
+     * @return whether these connectable objects are in another relationship
+     */
+    protected static boolean checkInSameRelationship(Long currentRelationshipID, List<ERConnectableObj> belongObjList) {
         if (belongObjList.size() <= 1) {
             return false;
         }
@@ -150,7 +152,13 @@ public class RelationshipEdge {
         return false;
     }
 
-    public void updatePorts(Integer portAtRelationship, Integer portAtBelongObj) throws ERException {
+    /**
+     * Update both the port to which each ends of the relationship edge points
+     *
+     * @param portAtRelationship the port to which relationship end points
+     * @param portAtBelongObj    the port to which target object points
+     */
+    public void updatePorts(Integer portAtRelationship, Integer portAtBelongObj) {
         if (portAtRelationship != null) {
             this.portAtRelationship = portAtRelationship;
         }
@@ -160,10 +168,23 @@ public class RelationshipEdge {
         ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
+    /**
+     * Query the list of relationshipEdges that have the same data specified by entityDO
+     *
+     * @param relationshipEdgeDO The values of some attributes of a relationship edge
+     * @return a list of relationship edges
+     */
     public static List<RelationshipEdge> query(RelationshipEdgeDO relationshipEdgeDO) {
         return ObjConv.ConvRelationshipEdgeListFromDB(ER.relationshipEdgeMapper.selectByRelationshipEdge(relationshipEdgeDO));
     }
 
+    /**
+     * Find the relationshipEdge that has this ID
+     *
+     * @param ID the ID of the relationship edge
+     * @return the found relationship edge
+     * @throws ERException throws ERException if no relationship is found
+     */
     public static RelationshipEdge queryByID(Long ID) throws ERException {
         List<RelationshipEdge> edgeList = query(new RelationshipEdgeDO(ID));
         if (edgeList.size() == 0) {
@@ -173,6 +194,9 @@ public class RelationshipEdge {
         }
     }
 
+    /**
+     * Delete the current relationship edge from the database
+     */
     protected void deleteDB() {
         ER.relationshipEdgeMapper.deleteByID(this.ID);
     }

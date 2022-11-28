@@ -98,7 +98,7 @@
                 </executions>
                 <configuration>
                     <excludePackageNames>
-                        io.github.MigadaTang.dao:io.github.MigadaTang.entity
+                        io.github.MigadaTang.dao:io.github.MigadaTang.entity:io.github.MigadaTang.serializer
                     </excludePackageNames>
                 </configuration>
             </plugin>

@@ -20,12 +20,17 @@ import java.util.List;
  */
 @Getter
 public class Relationship extends ERBaseObj implements ERConnectableObj {
+    /**
+     * The list of attributes on this relationship
+     */
     private List<Attribute> attributeList;
+    /**
+     * The list of edges connecting this relationship and other relationship or entities
+     */
     private List<RelationshipEdge> edgeList;
 
-    // do not handle layout info during creation, use update to add layout info
     protected Relationship(Long ID, String name, Long schemaID, List<Attribute> attributeList, List<RelationshipEdge> edgeList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
-        super(ID, schemaID, name, layoutInfo, gmtCreate, gmtModified);
+        super(ID, schemaID, name, BelongObjType.RELATIONSHIP, layoutInfo, gmtCreate, gmtModified);
         this.attributeList = attributeList;
         this.edgeList = edgeList;
         if (getID() == 0) {
@@ -48,20 +53,48 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         }
     }
 
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param relationshipDO The values of some attributes of an entity
+     * @return a list of relationships
+     */
     public static List<Relationship> query(RelationshipDO relationshipDO) {
         return query(relationshipDO, true);
     }
 
-    public static List<Relationship> query(RelationshipDO relationshipDO, boolean cascade) {
-        return ObjConv.ConvRelationshipListFromDB(ER.relationshipMapper.selectByRelationship(relationshipDO), cascade);
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param relationshipDO The values of some attributes of a relationship
+     * @param exhaustive     Whether to fetch the related entities and relationships
+     * @return a list of relationships
+     */
+    public static List<Relationship> query(RelationshipDO relationshipDO, boolean exhaustive) {
+        return ObjConv.ConvRelationshipListFromDB(ER.relationshipMapper.selectByRelationship(relationshipDO), exhaustive);
     }
 
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param ID the ID of the relationship
+     * @return the corresponding relationship
+     * @throws ERException throws ERException if no relationship is found
+     */
     public static Relationship queryByID(Long ID) throws ERException {
         return queryByID(ID, true);
     }
 
-    public static Relationship queryByID(Long ID, boolean cascade) throws ERException {
-        List<Relationship> relationships = query(new RelationshipDO(ID), cascade);
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param ID         the ID of the relationship
+     * @param exhaustive Whether to fetch the related entities and relationships
+     * @return the corresponding relationship
+     * @throws ERException throws ERException if no relationship is found
+     */
+    public static Relationship queryByID(Long ID, boolean exhaustive) throws ERException {
+        List<Relationship> relationships = query(new RelationshipDO(ID), exhaustive);
         if (relationships.size() == 0) {
             throw new ERException(String.format("Relationship with ID: %d not found ", ID));
         } else {
@@ -69,6 +102,9 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         }
     }
 
+    /**
+     * Delete the current relationship from the database and cascade delete all the attributes and edges in this schema
+     */
     protected void deleteDB() {
         // delete the attributes of this relationship
         for (Attribute attribute : this.attributeList) {
@@ -84,11 +120,24 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         ER.relationshipMapper.deleteByID(getID());
     }
 
+    /**
+     * Delete the target edge from both the list of edges and the database
+     *
+     * @param edge the target edge
+     */
     public void deleteEdge(RelationshipEdge edge) {
         edge.deleteDB();
         this.getEdgeList().remove(edge);
     }
 
+    /**
+     * Add an attribute to the relationship
+     *
+     * @param attributeName the name of the attribute
+     * @param dataType      the type of data this attribute contains
+     * @param attributeType the type of this attribute
+     * @return the created attribute
+     */
     public Attribute addAttribute(String attributeName, DataType dataType, AttributeType attributeType) {
         if (attributeName.equals("")) {
             throw new ERException("attributeName cannot be empty");
@@ -102,15 +151,35 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         return attribute;
     }
 
+    /**
+     * Delete the target attribute from both the list of edges and the database
+     *
+     * @param attribute The target attribute
+     */
     public void deleteAttribute(Attribute attribute) {
         this.attributeList.remove(attribute);
         attribute.deleteDB();
     }
 
+    /**
+     * Link this relationship to other relationship or entities
+     *
+     * @param belongObj   the target object
+     * @param cardinality the cardinality of the target object
+     * @return the created edge connecting two objects
+     */
     public RelationshipEdge linkObj(ERConnectableObj belongObj, Cardinality cardinality) {
         return linkObj(belongObj, cardinality, false);
     }
 
+    /**
+     * Link this relationship to other relationship or entities
+     *
+     * @param belongObj   the target object
+     * @param cardinality the cardinality of the target object
+     * @param isKey       whether this a key relationship for a weak entity
+     * @return the created edge connecting two objects
+     */
     public RelationshipEdge linkObj(ERConnectableObj belongObj, Cardinality cardinality, Boolean isKey) {
         if (belongObj instanceof Entity) {
             if (Entity.queryByID(belongObj.getID()) == null) {
@@ -144,18 +213,15 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         return edge;
     }
 
+    /**
+     * Update the information of a relationship
+     *
+     * @param name the new name of this relationship
+     */
     public void updateInfo(String name) {
         if (name != null) {
             setName(name);
         }
         ER.relationshipMapper.updateByID(new RelationshipDO(getID(), getName(), getSchemaID(), 0, getGmtCreate(), new Date()));
     }
-
-    public void updateLayoutInfo(Double layoutX, Double layoutY) throws ERException {
-        if (getLayoutInfo() == null) {
-            setLayoutInfo(new LayoutInfo(0L, getID(), BelongObjType.RELATIONSHIP, layoutX, layoutY));
-        }
-        getLayoutInfo().update(layoutX, layoutY);
-    }
-
 }

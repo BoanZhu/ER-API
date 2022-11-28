@@ -1,5 +1,8 @@
 package io.github.MigadaTang.common;
 
+/**
+ * The different types of database
+ */
 public enum RDBMSType {
     MYSQL,
     ORACLE,

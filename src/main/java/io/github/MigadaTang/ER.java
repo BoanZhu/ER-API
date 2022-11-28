@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -104,18 +103,23 @@ public class ER {
     }
 
 
+    /**
+     * Delete the current schema from the database and cascade delete all the components in this schema
+     *
+     * @param schema The schema object expected to be deleted
+     */
     public static void deleteSchema(Schema schema) {
         schema.deleteDB();
     }
 
-    public static List<Schema> queryAllSchema() {
-        return Schema.queryAll();
-    }
 
-    public static Schema querySchemaByID(Long ID) {
-        return Schema.queryByID(ID);
-    }
-
+    /**
+     * Load the json string into a schema object
+     *
+     * @param json the json string
+     * @return The schema interpreted from the json string
+     * @throws ERException Load json fail
+     */
     public static Schema loadFromJSON(String json) throws ERException {
         try {
             return new ObjectMapper().readValue(json, Schema.class);

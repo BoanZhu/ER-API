@@ -7,10 +7,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * The number of values an attribute can have
+ * <p> 1-mandatory, 2-optional, 3-multi-valued, 4-both optional and multivalued </p>
+ */
 @AllArgsConstructor
 @Getter
 public enum AttributeType {
-    // 1-mandatory, 2-optional, 3-multi-valued, 4-both optional and multivalued
     UNKNOWN(0, "Unknown"),
     Mandatory(1, "Mandatory"),
     Optional(2, "Optional"),
