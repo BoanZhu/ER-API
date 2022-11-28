@@ -1,6 +1,7 @@
 package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.*;
+import io.github.MigadaTang.exception.ERException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 public class TestER {
 
@@ -182,6 +184,30 @@ public class TestER {
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         assertNotNull(schema);
+    }
+
+    @Test
+    public void duplicatedRelationship() throws IOException {
+        Schema example = ER.createSchema("nested-PersonDepartmentProject");
+
+        Entity person = example.addEntity("person");
+        Entity department = example.addEntity("department");
+
+        Relationship worksIn = example.createRelationship("works in", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        Relationship worksIn2 = example.createRelationship("works in 2", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+        assertThrows(ERException.class, () -> example.toJSON());
+
+        Schema example2 = ER.createSchema("nested-PersonDepartmentProject2");
+        Entity project = example2.addEntity("project");
+        Entity project2 = example2.addEntity("project2");
+
+        Relationship empty1 = example2.createEmptyRelationship("empty1");
+        Relationship empty2 = example2.createEmptyRelationship("empty2");
+        empty1.linkObj(project, Cardinality.ZeroToMany);
+        empty1.linkObj(project2, Cardinality.ZeroToMany);
+        empty2.linkObj(project, Cardinality.ZeroToMany);
+        empty2.linkObj(project2, Cardinality.ZeroToMany);
+        assertThrows(ERException.class, () -> example2.toJSON());
     }
 
 

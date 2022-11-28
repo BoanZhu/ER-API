@@ -11,7 +11,6 @@ import io.github.MigadaTang.exception.ERException;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -131,15 +130,15 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         if (relationshipEdges.size() != 0) {
             throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
         }
-        Relationship relationship = Relationship.queryByID(getID());
-        List<ERConnectableObj> belongObjList = new ArrayList<>();
-        for (RelationshipEdge edge : relationship.getEdgeList()) {
-            belongObjList.add(edge.getConnObj());
-        }
-        belongObjList.add(belongObj);
-        if (RelationshipEdge.checkEntitesInSameRelationship(belongObjList)) {
-            throw new ERException("entities have been in the same relationship");
-        }
+//        Relationship relationship = Relationship.queryByID(getID());
+//        List<ERConnectableObj> belongObjList = new ArrayList<>();
+//        for (RelationshipEdge edge : relationship.getEdgeList()) {
+//            belongObjList.add(edge.getConnObj());
+//        }
+//        belongObjList.add(belongObj);
+//        if (RelationshipEdge.checkEntitesInSameRelationship(belongObjList)) {
+//            throw new ERException("entities have been in the same relationship");
+//        }
         RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, isKey, -1, -1, new Date(), new Date());
         this.edgeList.add(edge);
         return edge;

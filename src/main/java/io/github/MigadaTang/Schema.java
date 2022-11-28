@@ -142,7 +142,9 @@ public class Schema {
     }
 
     public Relationship createEmptyRelationship(String relationshipName) {
-        return new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
+        Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
+        this.relationshipList.add(relationship);
+        return relationship;
     }
 
     public Relationship createRelationship(String relationshipName, ERConnectableObj firstObj, ERConnectableObj secondObj, Cardinality firstCardinality, Cardinality secondCardinality) {
@@ -167,7 +169,7 @@ public class Schema {
         if (connObjWithCardinalityList.size() <= 1) {
             throw new ERException("must have more than 2 entities to create relationship");
         }
-        List<ERConnectableObj> connObjList = new ArrayList<>();
+//        List<ERConnectableObj> connObjList = new ArrayList<>();
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             if (eCard.getConnObj() instanceof Entity) {
                 ERConnectableObj entity = eCard.getConnObj();
@@ -186,11 +188,11 @@ public class Schema {
                     throw new ERException(String.format("relationship: %s does not belong to this schema", relationship.getName()));
                 }
             }
-            connObjList.add(eCard.getConnObj());
+//            connObjList.add(eCard.getConnObj());
         }
-        if (RelationshipEdge.checkEntitesInSameRelationship(connObjList)) {
-            throw new ERException("connObj have been in the same relationship");
-        }
+//        if (RelationshipEdge.checkEntitesInSameRelationship(connObjList)) {
+//            throw new ERException("connObj have been in the same relationship");
+//        }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, eCard.getConnObj(), eCard.getCardinality(), false, -1, -1, new Date(), new Date());
@@ -218,7 +220,11 @@ public class Schema {
         }
     }
 
-    // sanity check to check if this er schema can be rebuilt
+    /**
+     * Simply checks if this ER schema can be rebuilt from scratch
+     *
+     * @throws ERException throws ERException if cannot be rebuilt
+     */
     public void sanityCheck() throws ERException {
         Map<Long, Integer> weakEntityKeyRelationshipCountMap = new HashMap<>();
         for (Entity entity : entityList) {
@@ -253,6 +259,14 @@ public class Schema {
             if (relationship.getEdgeList().size() < 2) {
                 throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
             }
+            // check if this is a duplicated relationship in which all the objects have already been connected
+            List<ERConnectableObj> belongObjList = new ArrayList<>();
+            for (RelationshipEdge edge : relationship.getEdgeList()) {
+                belongObjList.add(edge.getConnObj());
+            }
+            if (RelationshipEdge.checkEntitesInSameRelationship(relationship.getID(), belongObjList)) {
+                throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
+            }
             for (RelationshipEdge edge : relationship.getEdgeList()) {
                 if (edge.getIsKey()) {
                     // key relationship can only be used by weak entity
@@ -282,8 +296,12 @@ public class Schema {
         }
     }
 
-    // do an all round check for generating DDL
-    public void allRoundCheck() throws ERException {
+    /**
+     * Comprehensively check the validity before generating DDL
+     *
+     * @throws ERException throws ERException if DDL cannot be generated from this
+     */
+    public void comprehensiveCheck() throws ERException {
         Map<Long, Integer> weakEntityKeyRelationshipCountMap = new HashMap<>();
         for (Entity entity : entityList) {
             int primaryKeyNum = 0;
@@ -319,6 +337,14 @@ public class Schema {
             }
             if (relationship.getEdgeList().size() < 2) {
                 throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
+            }
+            // check if this is a duplicated relationship in which all the objects have already been connected
+            List<ERConnectableObj> belongObjList = new ArrayList<>();
+            for (RelationshipEdge edge : relationship.getEdgeList()) {
+                belongObjList.add(edge.getConnObj());
+            }
+            if (RelationshipEdge.checkEntitesInSameRelationship(relationship.getID(), belongObjList)) {
+                throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
             }
             for (RelationshipEdge edge : relationship.getEdgeList()) {
                 if (edge.getIsKey()) {
@@ -372,6 +398,7 @@ public class Schema {
     }
 
     public String toRenderJSON() {
+        sanityCheck();
         SimpleModule module = new SimpleModule();
         module.addSerializer(Schema.class, new SchemaSerializer(true));
         module.addSerializer(Entity.class, new EntitySerializer(true));

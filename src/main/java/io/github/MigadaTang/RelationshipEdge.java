@@ -8,10 +8,7 @@ import lombok.Getter;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The edge connecting relationships and entities
@@ -73,18 +70,18 @@ public class RelationshipEdge {
         if (relationshipID == null) {
             return;
         }
-        Relationship relationship = Relationship.queryByID(relationshipID);
-        if (relationship == null) {
-            throw new ERException(String.format("cannot find relationID: %d", relationshipID));
-        }
-        List<ERConnectableObj> belongObjList = new ArrayList<>();
-        for (RelationshipEdge edge : relationship.getEdgeList()) {
-            belongObjList.add(edge.getConnObj());
-        }
-        belongObjList.add(this.getConnObj());
-        if (checkEntitesInSameRelationship(belongObjList)) {
-            throw new ERException("entities have been in the same relationship");
-        }
+//        Relationship relationship = Relationship.queryByID(relationshipID);
+//        if (relationship == null) {
+//            throw new ERException(String.format("cannot find relationID: %d", relationshipID));
+//        }
+//        List<ERConnectableObj> belongObjList = new ArrayList<>();
+//        for (RelationshipEdge edge : relationship.getEdgeList()) {
+//            belongObjList.add(edge.getConnObj());
+//        }
+//        belongObjList.add(this.getConnObj());
+//        if (checkEntitesInSameRelationship(belongObjList)) {
+//            throw new ERException("entities have been in the same relationship");
+//        }
         this.relationshipID = relationshipID;
         ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
@@ -97,25 +94,29 @@ public class RelationshipEdge {
             this.isKey = isKey;
         }
         if (connObj != null) {
-            Relationship relationship = Relationship.queryByID(this.relationshipID);
-            List<ERConnectableObj> belongObjList = new ArrayList<>();
-            for (RelationshipEdge edge : relationship.getEdgeList()) {
-                belongObjList.add(edge.getConnObj());
-            }
-            belongObjList.add(connObj);
-            belongObjList.remove(this.getConnObj());
-            if (checkEntitesInSameRelationship(belongObjList)) {
-                throw new ERException("entities have been in the same relationship");
-            }
+//            Relationship relationship = Relationship.queryByID(this.relationshipID);
+//            List<ERConnectableObj> belongObjList = new ArrayList<>();
+//            for (RelationshipEdge edge : relationship.getEdgeList()) {
+//                belongObjList.add(edge.getConnObj());
+//            }
+//            belongObjList.add(connObj);
+//            belongObjList.remove(this.getConnObj());
+//            if (checkEntitesInSameRelationship(belongObjList)) {
+//                throw new ERException("entities have been in the same relationship");
+//            }
             this.connObj = connObj;
         }
         ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
     // check if these entities have been in the same relationship
-    protected static boolean checkEntitesInSameRelationship(List<ERConnectableObj> belongObjList) {
+    protected static boolean checkEntitesInSameRelationship(Long currentRelationshipID, List<ERConnectableObj> belongObjList) {
+        if (belongObjList.size() <= 1) {
+            return false;
+        }
         List<Long> entityIDs = new ArrayList<>();
         List<Long> relationshipIDs = new ArrayList<>();
+        Map<Long, Long> objCountMap = new HashMap<>();
         for (ERConnectableObj connObj : belongObjList) {
             if (connObj instanceof Entity) {
                 entityIDs.add(connObj.getID());
@@ -123,14 +124,11 @@ public class RelationshipEdge {
                 relationshipIDs.add(connObj.getID());
             }
         }
-        Long entityNum = 0L, relationshipNum = 0L;
         if (entityIDs.size() != 0) {
             List<CaseInsensitiveMap<String, Object>> numList = ER.relationshipEdgeMapper.groupCountEntityNum(entityIDs, BelongObjType.ENTITY);
             if (numList != null) {
                 for (Map<String, Object> objectMap : numList) {
-                    if (objectMap.get("belong_obj_num") != null) {
-                        entityNum = (Long) objectMap.get("belong_obj_num");
-                    }
+                    objCountMap.put((Long) objectMap.get("relationship_id"), (Long) objectMap.get("belong_obj_num"));
                 }
             }
         }
@@ -138,14 +136,16 @@ public class RelationshipEdge {
             List<CaseInsensitiveMap<String, Object>> numList = ER.relationshipEdgeMapper.groupCountEntityNum(relationshipIDs, BelongObjType.RELATIONSHIP);
             if (numList != null) {
                 for (Map<String, Object> objectMap : numList) {
-                    if (objectMap.get("belong_obj_num") != null) {
-                        relationshipNum = (Long) objectMap.get("belong_obj_num");
-                    }
+                    Long relationshipNum = (Long) objectMap.get("belong_obj_num");
+                    Long relationshipID = (Long) objectMap.get("relationship_id");
+                    objCountMap.put(relationshipID, objCountMap.getOrDefault(relationshipID, 0L) + relationshipNum);
                 }
             }
         }
-        if (entityNum + relationshipNum == entityIDs.size() + relationshipIDs.size()) {
-            return true;
+        for (Map.Entry<Long, Long> entry : objCountMap.entrySet()) {
+            if (!entry.getKey().equals(currentRelationshipID) && entry.getValue() == entityIDs.size() + relationshipIDs.size()) {
+                return true;
+            }
         }
         return false;
     }

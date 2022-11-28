@@ -66,8 +66,6 @@ public class TestRelationship {
 
         // check duplicate link entity
         assertThrows(ERException.class, () -> relationship.linkObj(classroom, Cardinality.ZeroToMany, false));
-        // check duplicate
-        assertThrows(ERException.class, () -> testSchema.createRelationship("teaches", teacher, student, Cardinality.ZeroToMany, Cardinality.ZeroToMany));
     }
 
     @Test
