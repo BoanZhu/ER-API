@@ -2,6 +2,7 @@ package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.*;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.exception.ParseException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.util.ArrayList;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
@@ -113,6 +115,9 @@ public class TestER {
         myWriter.write(jsonString);
         myWriter.close();
 
+        String renderJSON = example.toRenderJSON();
+        assertNotNull(renderJSON);
+
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         assertNotNull(schema);
@@ -195,6 +200,12 @@ public class TestER {
         Entity person = example.addEntity("person");
         Entity department = example.addEntity("department");
 
+        person.updateLayoutInfo(1.1, 2.2);
+        //layoutInfo test
+        String exampleJSON = example.toJSON();
+        assertNotNull(exampleJSON);
+
+
         Relationship worksIn = example.createRelationship("works in", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Relationship worksIn2 = example.createRelationship("works in 2", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         assertThrows(ERException.class, () -> example.toJSON());
@@ -218,5 +229,46 @@ public class TestER {
         String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/nested-PersonDepartmentProject.json"), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         assertNotNull(schema);
+    }
+
+    @Test
+    public void loadCheckTest() {
+        Schema example = ER.createSchema("loadcheck");
+
+        Entity person = example.addEntity("person");
+        Attribute att1 = person.addAttribute("att1", DataType.VARCHAR, true, AttributeType.Mandatory);
+        att1.updateAimPort(2);
+        att1.updateLayoutInfo(3.3, 4.4);
+        Entity department = example.addEntity("department");
+
+        person.updateLayoutInfo(1.1, 2.2);
+        //layoutInfo test
+        String exampleJSON = example.toJSON();
+        assertNotNull(exampleJSON);
+
+        Schema loadSchema = ER.loadFromJSON(exampleJSON);
+        for (Entity entity : loadSchema.getEntityList()) {
+            if (entity.getName().equals("person")) {
+                assertEquals(1.1, entity.getLayoutInfo().getLayoutX());
+                assertEquals(2.2, entity.getLayoutInfo().getLayoutY());
+                for (Attribute attribute : entity.getAttributeList()) {
+                    if (attribute.getName().equals("att1")) {
+                        assertEquals(3.3, att1.getLayoutInfo().getLayoutX());
+                        assertEquals(4.4, att1.getLayoutInfo().getLayoutY());
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void renderImageTest() throws IOException, ParseException {
+        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/nested-PersonDepartmentProject.json"), Charset.defaultCharset());
+        Schema schema = ER.loadFromJSON(jsonString);
+        assertNotNull(schema);
+
+        String renderJSON = schema.toRenderJSON();
+        assertNotNull(renderJSON);
+        Render.render(renderJSON);
     }
 }

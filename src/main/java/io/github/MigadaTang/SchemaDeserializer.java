@@ -88,29 +88,30 @@ class SchemaDeserializer extends StdDeserializer<Schema> {
         if (entity == null) {
             return;
         }
-        if (entityJSONNode.get("attributeList") != null) {
-            for (JsonNode attributeJSONNode : entityJSONNode.get("attributeList")) {
+        JsonNode aimPortNode = entityJSONNode.get("aimPort");
+        if (aimPortNode != null) {
+            entity.updateAimPort(aimPortNode.intValue());
+        }
+        JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
+        if (layoutInfoJSONNode != null) {
+            entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble());
+        }
+        JsonNode attributeList = entityJSONNode.get("attributeList");
+        if (attributeList != null) {
+            for (JsonNode attributeJSONNode : attributeList) {
                 String attributeName = attributeJSONNode.get("name").textValue();
                 DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
                 Boolean attributeIsPrimary = attributeJSONNode.get("isPrimary").booleanValue();
                 AttributeType attributeType = AttributeType.valueOf(attributeJSONNode.get("attributeType").textValue());
                 Attribute attribute = entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeType);
-                JsonNode aimPortNode = attributeJSONNode.get("aimPort");
-                if (aimPortNode != null) {
-                    attribute.updateAimPort(aimPortNode.intValue());
+                JsonNode attributeAimPortNode = attributeJSONNode.get("aimPort");
+                if (attributeAimPortNode != null) {
+                    attribute.updateAimPort(attributeAimPortNode.intValue());
                 }
-                JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
-                if (layoutInfoJSONNode != null) {
-                    attribute.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble());
+                JsonNode attributeLayoutInfoNode = attributeJSONNode.get("layoutInfo");
+                if (attributeLayoutInfoNode != null) {
+                    attribute.updateLayoutInfo(attributeLayoutInfoNode.get("layoutX").asDouble(), attributeLayoutInfoNode.get("layoutY").asDouble());
                 }
-            }
-            JsonNode aimPortNode = entityJSONNode.get("aimPort");
-            if (aimPortNode != null) {
-                entity.updateAimPort(aimPortNode.intValue());
-            }
-            JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
-            if (layoutInfoJSONNode != null) {
-                entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble());
             }
         }
         entityNameMap.put(entityName, entity);
@@ -133,6 +134,7 @@ class SchemaDeserializer extends StdDeserializer<Schema> {
         }
         for (JsonNode relationshipJSONNode : relationshipList) {
             String relationshipName = relationshipJSONNode.get("name").textValue();
+            Relationship relationship = relationshipNameMap.get(relationshipName);
             JsonNode edgeList = relationshipJSONNode.get("edgeList");
             if (edgeList == null || edgeList.size() == 0) {
                 throw new ERException(String.format("deserialize schema fail edgeList of relationship: %s cannot be empty", relationshipName));
@@ -143,16 +145,19 @@ class SchemaDeserializer extends StdDeserializer<Schema> {
                 JsonNode relationshipNode = edgeJsonNode.get("relationship");
                 Cardinality cardinality = Cardinality.getFromValue(edgeJsonNode.get("cardinality").textValue());
                 if (entityNode != null) {
-                    Entity entity = entityNameMap.get(entityNode.textValue());
-                    eCardList.add(new ConnObjWithCardinality(entity, cardinality));
+                    Entity target = entityNameMap.get(entityNode.textValue());
+                    eCardList.add(new ConnObjWithCardinality(target, cardinality));
                 } else if (relationshipNode != null) {
-                    Relationship relationship = relationshipNameMap.get(relationshipNode.textValue());
-                    eCardList.add(new ConnObjWithCardinality(relationship, cardinality));
+                    Relationship target = relationshipNameMap.get(relationshipNode.textValue());
+                    eCardList.add(new ConnObjWithCardinality(target, cardinality));
                 } else {
                     throw new ERException("missing entity or relationship in the edge");
                 }
             }
-            Relationship relationship = schema.createNaryRelationship(relationshipName, eCardList);
+
+            for (ConnObjWithCardinality eCard : eCardList) {
+                relationship.linkObj(eCard.getConnObj(), eCard.getCardinality());
+            }
 
             JsonNode attributeList = relationshipJSONNode.get("attributeList");
             if (attributeList != null) {

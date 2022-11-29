@@ -468,6 +468,7 @@ public class Schema {
         module.addSerializer(Relationship.class, new RelationshipSerializer(false));
         module.addSerializer(RelationshipEdge.class, new RelationshipEdgeSerializer(false));
         module.addSerializer(Attribute.class, new AttributeSerializer(false));
+        module.addSerializer(LayoutInfo.class, new LayoutInfoSerializer(false));
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(module);
@@ -494,6 +495,8 @@ public class Schema {
         module.addSerializer(Relationship.class, new RelationshipSerializer(true));
         module.addSerializer(RelationshipEdge.class, new RelationshipEdgeSerializer(true));
         module.addSerializer(Attribute.class, new AttributeSerializer(true));
+        module.addSerializer(LayoutInfo.class, new LayoutInfoSerializer(true));
+
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(module);

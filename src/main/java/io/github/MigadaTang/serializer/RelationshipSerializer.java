@@ -31,6 +31,8 @@ public class RelationshipSerializer extends JsonSerializer<Relationship> {
             jgen.writeObjectField("edgeList", relationship.getEdgeList());
             if (relationship.getLayoutInfo() != null) {
                 jgen.writeObjectField("layoutInfo", relationship.getLayoutInfo());
+            } else {
+                jgen.writeNullField("layoutInfo");
             }
         } else {
             jgen.writeStringField("name", relationship.getName());

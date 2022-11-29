@@ -3,9 +3,7 @@ package io.github.MigadaTang.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.github.MigadaTang.Entity;
-import io.github.MigadaTang.common.EntityType;
 
 import java.io.IOException;
 
@@ -29,16 +27,15 @@ public class EntitySerializer extends JsonSerializer<Entity> {
             jgen.writeNumberField("entityType", entity.getEntityType().getCode());
             jgen.writeObjectField("attributeList", entity.getAttributeList());
             jgen.writeNumberField("aimPort", entity.getAimPort());
-
             if (entity.getBelongStrongEntity() != null) {
                 jgen.writeStringField("belongStrongEntityID", entity.getBelongStrongEntity().getID().toString());
-            }
-            else {
+            } else {
                 jgen.writeNullField("belongStrongEntityID");
             }
-
             if (entity.getLayoutInfo() != null) {
                 jgen.writeObjectField("layoutInfo", entity.getLayoutInfo());
+            } else {
+                jgen.writeNullField("layoutInfo");
             }
         } else {
 
@@ -57,7 +54,6 @@ public class EntitySerializer extends JsonSerializer<Entity> {
                 jgen.writeObjectField("layoutInfo", entity.getLayoutInfo());
             }
         }
-
 
 
         jgen.writeEndObject();

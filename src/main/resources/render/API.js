@@ -9,8 +9,6 @@ function findRelationName(indexs){
     return Object.values(RELATION)[indexs];
 }
 
-const entityMap = new Map();
-
 const ENTITYTYPE=["","entity","weakEntity","subset","attribute"]
 
 const DATATYPE = {
@@ -26,6 +24,9 @@ const DATATYPE = {
     DOUBLE:9,
     DATETIME:10
 }
+let findDataType = (value, compare = (a, b) => a === b) => {
+    return Object.keys(DATATYPE).find(k => compare(DATATYPE[k], value))
+}
 
 function is_empty(item){
     return typeof item ==='undefined' || item === null;
@@ -33,11 +34,9 @@ function is_empty(item){
 
 const weakEntityNodeCategory = ENTITYTYPE[2]
 const entityNodeCategory = ENTITYTYPE[1]
-
 const subsetEntityNodeCategory = ENTITYTYPE[3]
 const relationNodeCategory = "relation"
 const ERLinkCategory = "entityLink";
-const EWLinkCategory = "weakLink";
 const relationNodeName = "test";
 
 
@@ -125,43 +124,33 @@ function defineModel(isInitial){
         });
 
     /*
-    All adornment
-    */
+     4 ports
+     */
 
-    function leftPort() {
+    function leftPort(){
         // L port
         return $(go.Panel, "Vertical", {row: 1, column: 0},
-            $(go.Shape, {
-                width: 3, height: 3, portId: 3, toSpot: go.Spot.Left, fromSpot: go.Spot.Left,
-                fromLinkable: true, toLinkable: true
-            }));
+                $(go.Shape, {width: 3, height: 3, portId: 3, toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                    fromLinkable: true,toLinkable: true
+                }));
     }
-
-    function rightPort() {
+    function rightPort(){
         // R port
         return $(go.Panel, "Vertical", {row: 1, column: 2},
-            $(go.Shape, {
-                width: 3, height: 3, portId: 4, toSpot: go.Spot.Right, fromSpot: go.Spot.Right,
-                fromLinkable: true, toLinkable: true
-            }));
+            $(go.Shape,  {width: 3, height: 3, portId: 4, toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                    fromLinkable: true,toLinkable: true}));
     }
-
-    function bottomPort() {
+    function bottomPort(){
         // B port
-        return $(go.Panel, "Horizontal", {row: 2, column: 1},
-            $(go.Shape, {
-                width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom, fromSpot: go.Spot.Bottom,
-                fromLinkable: true, toLinkable: true
-            }));
+        return $(go.Panel, "Horizontal", {row:2, column: 1},
+            $(go.Shape, {width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                    fromLinkable: true,toLinkable: true}));
     }
-
-    function topPort() {
+    function topPort(){
         // U port
-        return $(go.Panel, "Vertical", {row: 0, column: 1},
-            $(go.Shape, {
-                width: 3, height: 3, portId: 1, toSpot: go.Spot.Top, fromSpot: go.Spot.Top,
-                fromLinkable: true, toLinkable: true
-            }));
+        return $(go.Panel, "Vertical",{row: 0, column: 1},
+            $(go.Shape, {width: 3, height: 3, portId: 1, toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                    fromLinkable: true,toLinkable: true}));
     }
 
     /*
@@ -169,9 +158,11 @@ function defineModel(isInitial){
      */
 
     go.Shape.defineFigureGenerator("WeakEntity", function(shape, w, h) {
-        var geo = new go.Geometry();
-        var fig = new go.PathFigure(0.05*w,0.05*w, true);  // clockwise
+        let geo = new go.Geometry();
+        let fig = new go.PathFigure(0.05*w,0.05*w, true);  // clockwise
+
         geo.add(fig);
+
         if (w>h){
             fig.add(new go.PathSegment(go.PathSegment.Line, 0.05*w,h-0.05*w)); //下划线到h点
             fig.add(new go.PathSegment(go.PathSegment.Line, 0.95*w,h-0.05*w));//在0.h 画到 1.6w,h
@@ -212,7 +203,7 @@ function defineModel(isInitial){
                 shadowColor: colors.lightblue,
             },
             new go.Binding("location", "location").makeTwoWay(),
-            new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
+            new go.Binding("desiredSize", "visible", new go.Size(NaN, NaN)).ofObject("LIST"),
             // the body
             $(go.Panel, "Auto",
                 {
@@ -239,15 +230,16 @@ function defineModel(isInitial){
                     new go.Binding("text", "name").makeTwoWay()),
             ),
             //port
-            leftPort(), rightPort(), topPort(), bottomPort()
+            leftPort(),rightPort(),topPort(),bottomPort()
         );
+
 
     //relationNodeTemplate
     const relationTemplate =
         $(go.Node, "Table",
             {
                 locationObject: "BODY",
-                locationSpot: go.Spot.Center,
+                locationSpot:go.Spot.Center,
                 selectionObjectName: "BODY"
             },
             {
@@ -260,8 +252,8 @@ function defineModel(isInitial){
                 shadowColor: colors.lightblue,
             },
             new go.Binding("location", "location").makeTwoWay(),
-            new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
-            $(go.Panel, "Auto",
+            new go.Binding("desiredSize", "visible", new go.Size(NaN, NaN)).ofObject("LIST"),
+            $(go.Panel,"Auto",
                 {row: 1, column: 1, name: "BODY"},
                 $(go.Shape, "Diamond",
                     {
@@ -278,9 +270,9 @@ function defineModel(isInitial){
                     },
                     new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
                 $(go.Panel, "Table",
-                    {margin: 8, stretch: go.GraphObject.Fill},
-                    $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
-                    $(go.TextBlock, textStyle(),
+                    { margin: 8, stretch: go.GraphObject.Fill },
+                    $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
+                    $(go.TextBlock,textStyle(),
                         {
                             row: 0,
                             alignment: go.Spot.Center,
@@ -290,7 +282,7 @@ function defineModel(isInitial){
                         new go.Binding("text", "name").makeTwoWay()))
             ),
             //port
-            leftPort(), rightPort(), topPort(), bottomPort()
+            leftPort(),rightPort(),topPort(),bottomPort()
         );
 
     // weak entity template
@@ -298,7 +290,7 @@ function defineModel(isInitial){
         $(go.Node, "Table",  // the whole node panel
             {
                 locationObject: "BODY",
-                locationSpot: go.Spot.Center,
+                locationSpot:go.Spot.Center,
                 selectionObjectName: "BODY"
             },
             {
@@ -311,8 +303,8 @@ function defineModel(isInitial){
                 shadowColor: colors.lightblue,
             },
             new go.Binding("location", "location").makeTwoWay(),
-            new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
-            $(go.Panel, "Auto",
+            new go.Binding("desiredSize", "visible", new go.Size(NaN, NaN)).ofObject("LIST"),
+            $(go.Panel,"Auto",
                 {
                     row: 1, column: 1, name: "BODY",
                 },
@@ -337,7 +329,7 @@ function defineModel(isInitial){
                     new go.Binding("text", "name").makeTwoWay()),
             ), //end Auto Panel Body
             //port
-            leftPort(), rightPort(), topPort(), bottomPort()
+            leftPort(),rightPort(),topPort(),bottomPort()
         );
 
     // subset template
@@ -358,13 +350,13 @@ function defineModel(isInitial){
                 shadowColor: colors.lightgrey,
             },
             new go.Binding("location", "location").makeTwoWay(),
-            new go.Binding("desiredSize", "visible", v => new go.Size(NaN, NaN)).ofObject("LIST"),
+            new go.Binding("desiredSize", "visible", new go.Size(NaN, NaN)).ofObject("LIST"),
             // the table header
             $(go.Panel, "Auto",
                 {row: 1, column: 1, name: "BODY"},
                 $(go.Shape, "RoundedRectangle",
                     {
-                        fill: "#e8c446",
+                        fill:"#e8c446",
                         portId: "",
                         stroke: "#e8c446",
                         cursor: "pointer",
@@ -374,7 +366,7 @@ function defineModel(isInitial){
                         fromLinkableDuplicates: false, toLinkableDuplicates: false
                     },
                     new go.Binding("fromLinkable", "from").makeTwoWay(), new go.Binding("toLinkable", "to").makeTwoWay()),
-                $(go.TextBlock, textStyle(),
+                $(go.TextBlock,textStyle(),
                     {
                         row: 0, alignment: go.Spot.Center,
                         margin: new go.Margin(5, 24, 5, 2),  // leave room for Button
@@ -382,19 +374,18 @@ function defineModel(isInitial){
                         editable: true
                     },
                     new go.Binding("text", "name").makeTwoWay()),
-                $(go.RowColumnDefinition, {row: 0, sizing: go.RowColumnDefinition.None}),
+                $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
             ), // end Table Panel
             //port
             $(go.Panel, "Vertical", {row: 1, column: 1},
-                $(go.Shape, {
-                    width: 0, height: 0, portId: 5,
-                    fromLinkable: true, toLinkable: true,
-                    fill: "#e8c446", stroke: "#e8c446",
+                $(go.Shape, {width: 0, height: 0, portId: 5,
+                    fromLinkable: true,toLinkable: true,
+                    fill: "#e8c446",stroke: "#e8c446",
                 })),
         );
 
     // attribute template
-    var attributeTemplate = $(go.Node, "Table",
+    const attributeTemplate = $(go.Node, "Table",
         {
             locationObject: "MAINBODY",
             locationSpot: go.Spot.Center,
@@ -409,16 +400,29 @@ function defineModel(isInitial){
         },
         new go.Binding("location", "location").makeTwoWay(),
         // textbox
-        $(go.Panel, "Auto",
+        $(go.Panel, "Table",
             {row: 0, column: 1, name: "AttributeName"},
-            $(go.TextBlock, {
+            $(go.TextBlock,
+                {row: 0, column: 0},
+                {
                     font: "bold 12px monospace",
-                    margin: new go.Margin(0, 0, 0, 0),  // leave room for Button
+                    margin: new go.Margin(0, 0, 0, 0), // leave room for Button
+                    editable: true
                 },
                 new go.Binding("text", "name").makeTwoWay(),
-                new go.Binding("isUnderline", "underline")
-            )
+                new go.Binding("isUnderline", "underline"),
+            ),
+            $(go.TextBlock,
+                {row: 0, column: 1},
+                {
+                    font: "bold 12px monospace",
+                    editable: false,
+                },
+                new go.Binding("text", "icon").makeTwoWay(),
+            ),
         ),
+        new go.Binding("isOptional").makeTwoWay(),
+        new go.Binding("isMultiValue").makeTwoWay(),
         $(go.Panel, "Table",
             {row: 0, column: 0, name: "MAINBODY"},
             $(go.Panel, "Auto",
@@ -443,7 +447,8 @@ function defineModel(isInitial){
                     width: 3, height: 3, portId: 5,
                     fromLinkable: true, toLinkable: true,
                     fill: colors.lightblue, stroke: colors.lightblue,
-                })),
+                })
+            )
         )
     );
 
@@ -462,76 +467,20 @@ function defineModel(isInitial){
 
     APIDiagram.nodeTemplateMap = templateMap;
 
-    // relation
-    var weakLink = $(go.Link,  // the whole link panel
-        {
-            deletable: false,
-            selectionAdorned: true,
-            layerName: "Foreground",
-            reshapable: true,
-            routing: go.Link.AvoidsNodes,
-            corner: 5,
-            curve: go.Link.JumpOver,
-            relinkableFrom: true,
-            relinkableTo: true
-        },
-        $(go.Shape,  // the link shape
-            {stroke: "#303B45", strokeWidth: 2.5}),
-        $(go.Panel, "Auto",  // this whole Panel is a link label
-            $(go.Shape, "Diamond", {
-                fill: "yellow",
-                stroke: "gray",
-                width: 100,
-                height: 40
-            }),
-            $(go.TextBlock, textStyle(),
-                {
-                    margin: 3,
-                    textAlign: "center",
-                    segmentIndex: -2,
-                    segmentOffset: new go.Point(NaN, NaN),
-                    segmentOrientation: go.Link.OrientUpright,
-                    font: "bold 14px sans-serif",
-                    stroke: "#1967B3",
-                },
-                new go.Binding("text", "relation").makeTwoWay())
-        ),
-        $(go.TextBlock, textStyle(), // the "from" label
-            {
-                textAlign: "center",
-                font: "bold 14px sans-serif",
-                stroke: "#1967B3",
-                segmentIndex: 0,
-                segmentOffset: new go.Point(NaN, NaN),
-                segmentOrientation: go.Link.OrientUpright
-            },
-            new go.Binding("text", "fromText").makeTwoWay()),
-        $(go.TextBlock, textStyle(), // the "to" label
-            {
-                editable: false,
-                textAlign: "center",
-                font: "bold 14px sans-serif",
-                stroke: "#1967B3",
-                segmentIndex: -1,
-                segmentOffset: new go.Point(NaN, NaN),
-                segmentOrientation: go.Link.OrientUpright
-            },
-            new go.Binding("text", "toText").makeTwoWay())
-    );
-
-    var normalLink = $(go.Link,
+    const normalLink = $(go.Link,
         {
             selectionAdorned: true,
             layerName: "Foreground",
             // reshapable: true,
             // routing: go.Link.AvoidsNodes,
             // corner: 5,
-            // curve: go.Link.JumpOver,
+            curve: go.Link.JumpOver,
             relinkableFrom: true,
-            relinkableTo: true
+            relinkableTo: true,
+            deletable: false
         },
         $(go.Shape,  // the link shape
-            {stroke: colors.lightblue, strokeWidth: 2.5}),
+            {stroke: colors.lightblue, strokeWidth: 2.5 }),
         $(go.TextBlock, textStyle(), // the "from" label
             {
                 textAlign: "center",
@@ -557,12 +506,12 @@ function defineModel(isInitial){
             relinkableTo: true
         },
         $(go.Shape,  // the link shape
-            {stroke: "#e8c446", strokeWidth: 2.5}),
+            {stroke: "#e8c446", strokeWidth: 2.5 }),
         $(go.Shape,   // the arrowhead
-            {toArrow: "OpenTriangle", fill: null, stroke: "#e8c446", strokeWidth: 2.5}),
+            { toArrow: "OpenTriangle", fill: null, stroke:"#e8c446",strokeWidth:2.5}),
     );
 
-    var entityLink = $(go.Link,
+    const entityLink = $(go.Link,
         {
             selectionAdorned: true,
             layerName: "Foreground",
@@ -584,12 +533,12 @@ function defineModel(isInitial){
                 segmentOffset: new go.Point(NaN, NaN),
                 segmentOrientation: go.Link.OrientUpright
             },
-            new go.Binding("text", "fromText").makeTwoWay()),
+            new go.Binding("text", "fromText").makeTwoWay(),
+            new go.Binding("isUnderline", "underline")),
     );
 
 
-    var linkTemplateMap = new go.Map();
-    linkTemplateMap.add(EWLinkCategory, weakLink);
+    const linkTemplateMap = new go.Map();
     linkTemplateMap.add("normalLink", normalLink);
     linkTemplateMap.add("subsetLink", subsetLink);
     linkTemplateMap.add(ERLinkCategory, entityLink);
@@ -607,219 +556,192 @@ function defineModel(isInitial){
 }
 
 function getSchema(data){
-    let modelStr = "{ \"class\": \"GraphLinksModel\",\n" +
-        "  \"copiesArrays\": true,\n" +
-        "  \"copiesArrayObjects\": true,\n" +
-        "  \"nodeDataArray\": [],\n" +
-        "  \"linkDataArray\": []}";
+
     APIDiagram.model = new go.GraphLinksModel(
         { linkFromPortIdProperty: "fromPort",
             linkToPortIdProperty: "toPort",
             nodeDataArray: [],
             linkDataArray: []
         });
+
+    let subsetLinkMap = new Map(); //key is subset id, value is strong entity id
+
     const entityList = data.schema.entityList;
     const relationshipList = data.schema.relationshipList;
+
     if(!is_empty(entityList)) {
         for (let i = 0; i < entityList.length; i++) {
             // add entity node
-            let entityNode = entityList[i]
-            let entityData = {
-                key: entityNode.id, name: entityNode.name, category: ENTITYTYPE[entityNode.entityType],
+            let entityData = entityList[i]
+
+            let node = {
+                key: entityData.id, name: entityData.name, category: ENTITYTYPE[entityData.entityType],
                 from: true, to: true
             };
-            entityMap.set(entityData.key, entityData.category);
-            if (!is_empty(entityNode.layoutInfo)) {
-                entityData.location = {
+
+            if (!is_empty(entityData.layoutInfo)) {
+                node.location = {
                     "class": "go.Point",
-                    "x": entityNode.layoutInfo.layoutX,
-                    "y": entityNode.layoutInfo.layoutY
+                    "x": entityData.layoutInfo.layoutX,
+                    "y": entityData.layoutInfo.layoutY
                 };
             }
-            if (ENTITYTYPE[entityNode.entityType] !== "entity") {
-                entityData.parentId = entityNode.strongEntityID;
-            }
-            APIDiagram.model.addNodeData(entityData);
-
-            if(entityNode.entityType===3){
-                // subset
-                let linkData = {"from":entityNode.id,"to":entityNode.belongStrongEntityID,"category":"subsetLink","toPort":5};
-                if(entityNode.aimPort!==-1){
-                    linkData.fromPort = entityNode.aimPort;
-                }else{
-                    linkData.fromPort = 2;
+            if (node.category === subsetEntityNodeCategory) {
+                // add link
+                if (!is_empty(node.belongStrongEntityID)) {
+                    let aimPort = entityData.aimPort;
+                    if (aimPort === -1) {
+                        aimPort = 2;
+                    }
+                    subsetLinkMap.set(node.key, [entityData.belongStrongEntityID, aimPort]);
                 }
-                APIDiagram.model.addLinkData(linkData);
             }
 
-            let attributeList = entityNode.attributeList;
 
+            APIDiagram.model.addNodeData(node);
+
+            let attributeList = entityData.attributeList;
             if (!is_empty(attributeList)) {
                 for (let j = 0; j < attributeList.length; j++) {
-                    let attributeNode = attributeList[j];
-                    let attributeNodeData = {
-                        "name": attributeNode.name,
-                        "category": "Attribute",
-                        "dataType": attributeNode.dataType,
-                        "parentId": entityNode.id,
-                        "isPrimary": attributeNode.isPrimary,
-                        "key": attributeNode.id + "_" + attributeNode.name,
-                        "underline": attributeNode.isPrimary,
-                        "allowNotNull": attributeNode.nullable
-                    };
-
-                    if (!is_empty(attributeNode.layoutInfo)) {
-                        attributeNodeData.location = {
-                            "class": "go.Point",
-                            "x": attributeNode.layoutInfo.layoutX,
-                            "y": attributeNode.layoutInfo.layoutY
-                        };
+                    // step 1: get attribute Info
+                    let attributeData = attributeList[j];
+                    let attributeNode = extractAttributeInfo(attributeData, node);
+                    APIDiagram.model.addNodeData(attributeNode);
+                    //step 2: add normal link data and attribute data
+                    let normalLinkData = {
+                        "from": node.key, "to": attributeNode.key, "category": "normalLink",
+                        "fromPort": 4, "toPort": 5
                     }
-                    APIDiagram.model.addNodeData(attributeNodeData);
-                    // add link between node and attribute
-                    let linkData = {
-                        "from": entityData.key,
-                        "to": attributeNodeData.key,
-                        "category": "normalLink",
-                        "fromPort": 4,
-                        "toPort": 5
+                    //todo remove?
+                    if (attributeData.aimPort !== -1) {
+                        normalLinkData.fromPort = attributeData.aimPort;
                     }
-                    if (attributeNode.aimPort !== -1) {
-                        linkData.fromPort = attributeNode.aimPort;
+                    if (node.category === subsetEntityNodeCategory) {
+                        normalLinkData.fromPort = 5;
                     }
-                    APIDiagram.model.addLinkData(linkData);
+                    APIDiagram.model.addLinkData(normalLinkData);
                 }
-
             }
         }
     }
-        if(!is_empty(relationshipList)) {
-            for (let i = 0; i < relationshipList.length; i++) {
-                let relationNode = relationshipList[i];
-                let edgeList = relationNode.edgeList;
-                let firstType = entityMap.get(edgeList[0].entityID);
-                let secondType = entityMap.get(edgeList[1].entityID);
 
-                if ((firstType === "entity" && secondType === "entity") || firstType === "" && secondType === "") {
-                    var relationNodeData = {
-                        "key": "relation_" + relationNode.id, "name": relationNode.name,
-                        "category": "relation", "from": true, "to": true
-                    };
+    /*
+        add subset links
+     */
 
-                    if (!is_empty(relationNode.layoutInfo)) {
-                        relationNodeData.location = {
-                            "class": "go.Point",
-                            "x": relationNode.layoutInfo.layoutX,
-                            "y": relationNode.layoutInfo.layoutY
-                        };
+    for (let [key, value] of subsetLinkMap) {
+        let subsetLinkData = {"from":key,"to":parseInt(value[0]),"fromPort":5,"toPort":value[1], "category":"subsetLink"}
+        APIDiagram.model.addLinkData(subsetLinkData);
+    }
+
+
+    if(!is_empty(relationshipList)) {
+        for (let i = 0; i < relationshipList.length; i++) {
+            let relationData = relationshipList[i];
+            // step 1: add relationship nodes
+            let relationNode = {
+                "key": "relation_" + relationData.id, "name": relationData.name,
+                "category": "relation", "from": true, "to": true
+            };
+
+            if (!is_empty(relationData.layoutInfo)) {
+                relationNode.location = {
+                    "class": "go.Point",
+                    "x": relationData.layoutInfo.layoutX,
+                    "y": relationData.layoutInfo.layoutY
+                };
+            }
+            APIDiagram.model.addNodeData(relationNode);
+            // step 2: add relationship attributes
+            let attributeList = relationData.attributeList;
+            if (!is_empty(attributeList)) {
+                for (let j = 0; j < attributeList.length; j++) {
+                    const attributeData = attributeList[j];
+                    // step 2.1: get attribute Info
+                    let attributeNode = extractAttributeInfo(attributeData, relationNode)
+                    //step 2.2: add normal link data and attribute data
+                    APIDiagram.model.addNodeData(attributeNode);
+
+                    let normalLinkData = {
+                        "from": relationNode.key, "to": attributeNode.key, "category": "normalLink",
+                        "fromPort": 4, "toPort": 5
                     }
-                    APIDiagram.model.addNodeData(relationNodeData);
-                    // 2 or more links
-                    var j = 1;
-                    for (let k = 0; k < edgeList.length && typeof (edgeList) !== 'undefined'; k++) {
-                        let edge = edgeList[k];
-                        let edgeLinkData = {
-                            "from": edge.entityID,
-                            "to": relationNodeData.key,
-                            "fromText": findRelationName(edge.cardinality),
-                            "category": "entityLink"
-                        };
-                        if (edge.portAtEntity !== -1 && edge.portAtRelationship !== -1) {
-                            edgeLinkData.fromPort = edge.portAtEntity;
-                            edgeLinkData.toPort = edge.portAtRelationship;
-                        } else {
-                            edgeLinkData.fromPort = 4;
-                            edgeLinkData.toPort = j;
-                            j = (j + 1) % 4 + 1;
-                        }
-                        APIDiagram.model.addLinkData(edgeLinkData);
+                    if (attributeNode.aimPort !== -1) {
+                        normalLinkData.fromPort = attributeData.aimPort;
                     }
-
-                    const relationAttributeList = relationNode.attributeList;
-                    for (let k = 0; k < relationAttributeList.length; k++) {
-                        let relationAttributeNode = relationAttributeList[k];
-                        let rAttrNodeData = {
-                            "name": relationAttributeNode.name,
-                            "category": "relation_attribute",
-                            "dataType": relationAttributeNode.dataType,
-                            "parentId": relationNodeData.key,
-                            "allowNotNull": relationAttributeNode.nullable,
-                            "key": relationAttributeNode.id + "_" + relationAttributeNode.name,
-                            "isPrimary": false,
-                            "underline": false
-                        };
-
-                        if (!is_empty(relationAttributeNode.layoutInfo)) {
-                            rAttrNodeData.location = {
-                                "class": "go.Point",
-                                "x": relationAttributeNode.layoutInfo.layoutX,
-                                "y": relationAttributeNode.layoutInfo.layoutY
-                            };
-                        }
-                        // link
-                        let linkNodeData = {
-                            "from": relationNodeData.key,
-                            "to": rAttrNodeData.key,
-                            "category": "normalLink",
-                            "toPort": 5
-                        };
-                        if (relationAttributeNode.aimPort !== -1) {
-                            linkNodeData.fromPort = relationAttributeNode.aimPort;
-                        } else {
-                            linkNodeData.fromPort = 4;
-                        }
-                        APIDiagram.model.addNodeData(rAttrNodeData);
-                        APIDiagram.model.addLinkData(linkNodeData);
-
-                    }
-
-                }
-
-                // strong entity and weak entity
-                if (firstType === "weakEntity" || secondType === "weakEntity") {
-                    // add parentID to weak entity node
-                    var tmp = firstType === "weakEntity" ? 0 : 1;
-                    var weakEntityNode = APIDiagram.findNodeForKey(edgeList[tmp].entityID);
-                    // only preview, no need for primary key
-                    var linkData = {
-                        "from": edgeList[1 - tmp].entityID,
-                        "to": weakEntityNode.key,
-                        "toText": findRelationName(edgeList[tmp].cardinality),
-                        "fromText": findRelationName(edgeList[1 - tmp].cardinality),
-                        "relation": relationNode.name,
-                        "category": "weakLink",
-                        "key": relationNode.id,
-                        "edgeIDFirst": edgeList[1 - tmp].ID,
-                        "edgeIDSecond": edgeList[tmp].ID
-                    };
-                    if (edgeList[1 - tmp].portAtEntity !== -1 && edgeList[tmp].portAtEntity !== -1) {
-                        linkData.fromPort = edgeList[1 - tmp].portAtEntity;
-                        linkData.toPort = edgeList[tmp].portAtEntity;
-                    } else {
-                        linkData.fromPort = 1;
-                        linkData.toPort = 2;
-                    }
-                    APIDiagram.model.addLinkData(linkData);
-                }
-                // strong entity and subset
-                if (firstType === "subset" || secondType === "subset") {
-                    // add parentID to subset node
-                    var tmp = firstType === "subset" ? 0 : 1;
-                    var subsetNode = APIDiagram.findNodeForKey(edgeList[tmp].entityID);
-                    var subLinkData = {
-                        "from": edgeList[1 - tmp].entityID, "to": subsetNode.key,
-                        "category": "subsetLink", "toPort": 5
-                    };
-                    if (edgeList[1 - tmp].portAtEntity !== -1) {
-                        subLinkData.fromPort = edgeList[1 - tmp].portAtEntity;
-                    } else {
-                        subLinkData.fromPort = 1;
-                    }
-                    APIDiagram.model.addLinkData(subLinkData);
+                    APIDiagram.model.addLinkData(normalLinkData);
                 }
             }
         }
-    modelStr = APIDiagram.model.toJSON();
-    console.log(modelStr)
-    return modelStr
+    }
+
+    /*
+    create edges
+     */
+    if(!is_empty(relationshipList)) {
+        for (let i = 0; i < relationshipList.length; i++) {
+            const relationData = relationshipList[i]
+            const relationEdgeList = relationData.edgeList;
+            let counter = 1;
+            if(!is_empty(relationEdgeList)) {
+                for (let j = 0; j < relationEdgeList.length; j++) {
+                    let edgeData = relationEdgeList[j];
+                    let edgeLinkData = {"key":edgeData.id,"from":edgeData.belongObjID,"to":"relation_"+relationData.id,
+                        "fromText":findRelationName(edgeData.cardinality), "category":"entityLink"};
+                    // set the from key, catch when it from one relation node
+                    if (edgeData.belongObjType === 3){
+                        edgeLinkData.from = "relation_"+ edgeData.belongObjID;
+                    }
+                    // set the port
+                    if(edgeData.portAtBelongObj!==-1 && edgeData.portAtRelationship!==-1){
+                        edgeLinkData.fromPort=edgeData.portAtBelongObj;
+                        edgeLinkData.toPort=edgeData.portAtRelationship;
+                    }else{
+                        edgeLinkData.fromPort=2;
+                        edgeLinkData.toPort=counter+1;
+                        counter = (counter+1)%2;
+                    }
+                    APIDiagram.model.addLinkData(edgeLinkData);
+                }
+            }
+        }
+    }
+    let modelStr = APIDiagram.model.toJSON();
+    return modelStr;
+}
+
+function extractAttributeInfo(attributeData, parentNode){
+    // step 1: initial node data
+    let attributeNode = {"name":attributeData.name, "category":"Attribute",
+        "dataType":attributeData.dataType, "parentId":parentNode.key, "isPrimary":attributeData.isPrimary,
+        "key":attributeData.id+"_"+attributeData.name,"underline":attributeData.isPrimary,
+        "allowNotNull":attributeData.nullable, "icon": "", "isOptional" : false, "isMultiValue" : false};
+
+    // step2: set the layout information
+    if(!is_empty(attributeData.layoutInfo)){attributeNode.location={"class":"go.Point",
+        "x":attributeData.layoutInfo.layoutX, "y":attributeData.layoutInfo.layoutY};
+    }
+
+    // step3: set the attribute type
+    switch(attributeData.attributeType) {
+        case 4:
+            attributeNode.icon = "*";
+            attributeNode.isOptional = true;
+            attributeNode.isMultiValue = true;
+            break;
+        case 3:
+            attributeNode.icon = "+";
+            attributeNode.isOptional = false;
+            attributeNode.isMultiValue = true;
+            break;
+        case 2:
+            attributeNode.icon = "?";
+            attributeNode.isOptional = true;
+            attributeNode.isMultiValue = false;
+            break;
+        default:
+            break;
+    }
+
+    return attributeNode;
 }

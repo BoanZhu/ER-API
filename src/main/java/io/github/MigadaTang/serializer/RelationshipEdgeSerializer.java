@@ -28,6 +28,7 @@ public class RelationshipEdgeSerializer extends JsonSerializer<RelationshipEdge>
             jgen.writeNumberField("relationshipID", edge.getRelationshipID());
             jgen.writeNumberField("belongObjID", edge.getConnObj().getID());
             jgen.writeNumberField("belongObjType", getBelongObjType(edge.getConnObj()).getValue());
+            jgen.writeStringField("belongObjName", edge.getConnObj().getName());
             jgen.writeNumberField("cardinality", edge.getCardinality().getCode());
             jgen.writeNumberField("portAtRelationship", edge.getPortAtRelationship());
             jgen.writeNumberField("portAtBelongObj", edge.getPortAtBelongObj());

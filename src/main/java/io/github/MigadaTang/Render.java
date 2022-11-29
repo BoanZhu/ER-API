@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
 public class Render {
 
     private final static Pattern pattern = Pattern.compile("^(data:(.*?);base64,)");
-    private final static String FILENAME= "test.png";
+    private final static String htmlPath = "src/main/resources/show.html";
+    private final static String FILENAME = "test.png";
 
     public static void render(String jsonString) throws ParseException {
 
@@ -28,7 +29,7 @@ public class Render {
         webClient.getOptions().setDownloadImages(true);
         HtmlPage myPage = null;
         try {
-            myPage = webClient.getPage(new File("src/main/resources/show.html").toURI().toURL());
+            myPage = webClient.getPage(new File(htmlPath).toURI().toURL());
         } catch (IOException e) {
             throw new ParseException("Fail to read the file: show.html");
         }
@@ -38,7 +39,7 @@ public class Render {
         webClient.close();
 
         //decode the code into image
-        decode(baseImageCode,FILENAME);
+        decode(baseImageCode, FILENAME);
     }
 
     public static void writeFile(String jsonString) throws IOException {
@@ -53,7 +54,7 @@ public class Render {
         }
         StringBuilder jsonStr = new StringBuilder("");
         jsonStr.append("{\"schema\":").append(jsonString).append("}");
-        allContent.replace(allContent.indexOf("##"), allContent.indexOf("##")+2, jsonStr.toString());
+        allContent.replace(allContent.indexOf("##"), allContent.indexOf("##") + 2, jsonStr.toString());
         File writeFile = new File("src/main/resources/show.html");
         FileOutputStream fileOutputStream = new FileOutputStream(writeFile);
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "gb2312");
