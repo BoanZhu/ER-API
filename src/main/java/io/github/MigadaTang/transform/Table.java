@@ -1,9 +1,10 @@
-package io.github.MigadaTang.util;
+package io.github.MigadaTang.transform;
 
 import io.github.MigadaTang.Attribute;
 import io.github.MigadaTang.Entity;
 import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.EntityType;
+import io.github.MigadaTang.transform.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

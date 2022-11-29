@@ -6,7 +6,7 @@ import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.dao.*;
 import io.github.MigadaTang.exception.ERException;
 import io.github.MigadaTang.exception.ParseException;
-import io.github.MigadaTang.util.DatabaseUtil;
+import io.github.MigadaTang.transform.DatabaseUtil;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
