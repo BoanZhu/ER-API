@@ -1,5 +1,8 @@
-package io.github.MigadaTang;
+package io.github.MigadaTang.util;
 
+import io.github.MigadaTang.Attribute;
+import io.github.MigadaTang.Entity;
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.EntityType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,13 +29,17 @@ public class Table {
 
     private List<Column> primaryKey;
 
+    private List<Column> multiValuedColumn;
+
     private Map<Long, List<Column>> foreignKey;
 
-    public void tranformEntity(Entity entity) {
+    protected void tranformEntity(Entity entity) {
         this.id = entity.getID();
         this.name = entity.getName();
         this.columnList = new ArrayList<>();
         this.primaryKey = new ArrayList<>();
+        this.multiValuedColumn = new ArrayList<>();
+        this.foreignKey = new HashMap<>();
         this.tableType = entity.getEntityType();
         if (entity.getBelongStrongEntity() != null) {
             this.belongStrongTableID = entity.getBelongStrongEntity().getID();
@@ -40,8 +47,16 @@ public class Table {
         this.foreignKey = new HashMap<>();
         for (Attribute attribute : entity.getAttributeList()) {
             Column column = new Column();
-            column.transformAttribute(attribute);
-            this.columnList.add(column);
+            if (attribute.getAttributeType() == AttributeType.Optional) {
+                column.transformAttribute(attribute, true);
+                this.columnList.add(column);
+            } else if (attribute.getAttributeType() == AttributeType.Mandatory) {
+                column.transformAttribute(attribute, false);
+                this.columnList.add(column);
+            } else {
+                column.transformAttribute(attribute, false);
+                multiValuedColumn.add(column);
+            }
             if (column.isPrimary()) {
                 this.primaryKey.add(column);
             }

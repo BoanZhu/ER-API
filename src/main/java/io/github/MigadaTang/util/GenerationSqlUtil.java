@@ -1,8 +1,5 @@
 package io.github.MigadaTang.util;
 
-import io.github.MigadaTang.Column;
-import io.github.MigadaTang.Table;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

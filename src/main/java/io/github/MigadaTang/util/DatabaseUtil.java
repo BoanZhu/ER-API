@@ -1,7 +1,5 @@
 package io.github.MigadaTang.util;
 
-import io.github.MigadaTang.Column;
-import io.github.MigadaTang.Table;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;

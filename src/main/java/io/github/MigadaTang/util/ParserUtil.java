@@ -1,9 +1,7 @@
 package io.github.MigadaTang.util;
 
 import io.github.MigadaTang.*;
-import io.github.MigadaTang.common.Cardinality;
-import io.github.MigadaTang.common.ConnObjWithCardinality;
-import io.github.MigadaTang.common.EntityType;
+import io.github.MigadaTang.common.*;
 import io.github.MigadaTang.exception.ParseException;
 
 import java.util.*;
@@ -18,7 +16,7 @@ public class ParserUtil {
         // table and keys need to be processed specially
         List<Column> foreignKeyList = new ArrayList<>();
         List<Table> tableGenerateByRelationship = new ArrayList<>();
-        parseEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList);
+        parseTableToEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList);
 
 
         // parser foreign key, (1-N)
@@ -52,7 +50,7 @@ public class ParserUtil {
         return schema;
     }
 
-    private static void parseEntity(List<Table> tableList, Map<Long, Entity> tableDTOEntityMap,
+    private static void parseTableToEntity(List<Table> tableList, Map<Long, Entity> tableDTOEntityMap,
                                     List<Table> tableGenerateByRelationship, Schema schema,
                                     List<Column> foreignKeyList) throws ParseException {
         List<Table> possibleWeakEntitySet = new ArrayList<>();
@@ -159,26 +157,44 @@ public class ParserUtil {
 
         Map<Long, Table> tableDTOMap = new HashMap<>();
         List<Long> subsetMap = new ArrayList<>();
+
+        // parse all entities to table
+        parseEntityToTable(entityList, tableDTOMap, subsetMap);
+
+        // parse multi valued column
+        parseMultiValuedColumn(tableDTOMap);
+
+        // parse subset: add pk from strong entity to subset
+        parseSubSet(tableDTOMap, subsetMap);
+
+        // parse relation to new table or new attribute in existing table
+        parseRelationships(relationshipList, tableDTOMap);
+
+        return tableDTOMap;
+    }
+
+
+    private static void parseEntityToTable(List<Entity> entityList, Map<Long, Table> tableDTOMap, List<Long> subsetMap) {
         for (Entity entity : entityList) {
             Table table = new Table();
             table.tranformEntity(entity);
             tableDTOMap.put(table.getId(), table);
             if (table.getTableType() == EntityType.SUBSET) {
-                if (table.getBelongStrongTableID() == null) {
-                    throw new ParseException("Weak entity does not belong to any entity.");
-                }
                 subsetMap.add(table.getId());
             }
         }
+    }
 
+
+    private static void parseSubSet(Map<Long, Table> tableDTOMap, List<Long> subsetMap) {
         for (Long tableId : subsetMap) {
-            Table weakEntity = tableDTOMap.get(tableId);
-            Table strongEntity = tableDTOMap.get(weakEntity.getBelongStrongTableID());
+            Table subset = tableDTOMap.get(tableId);
+            Table strongEntity = tableDTOMap.get(subset.getBelongStrongTableID());
             List<Column> strongPk = strongEntity.getPrimaryKey();
 
-            List<Column> weakPk = weakEntity.getPrimaryKey();
-            List<Column> weakColumns = weakEntity.getColumnList();
-            Map<Long, List<Column>> weakFk = weakEntity.getForeignKey();
+            List<Column> weakPk = subset.getPrimaryKey();
+            List<Column> weakColumns = subset.getColumnList();
+            Map<Long, List<Column>> weakFk = subset.getForeignKey();
             List<Column> newFk = new ArrayList<>();
             for (Column column : strongPk) {
                 Column cloneC = column.getForeignClone(tableId, true, strongEntity.getName());
@@ -187,61 +203,206 @@ public class ParserUtil {
                 newFk.add(cloneC);
             }
             weakFk.put(strongEntity.getId(), newFk);
-            weakEntity.setColumnList(weakColumns);
-            weakEntity.setPrimaryKey(weakPk);
-            weakEntity.setForeignKey(weakFk);
+            subset.setColumnList(weakColumns);
+            subset.setPrimaryKey(weakPk);
+            subset.setForeignKey(weakFk);
         }
-
-        // parse relation to new table or new attribute in existing table
-        for (Relationship relationship : relationshipList) {
-            List<RelationshipEdge> relationshipEdges = relationship.getEdgeList();
-            List<Attribute> relationshipAttributeList = relationship.getAttributeList();
-
-            if (relationshipEdges.size() <= 1) {
-                continue;
-//                throw new ParseException("The relationship only reference to one table. Relationship ID: " + relationship.getID());
-            }
-
-            // weak entity
-            if (relationshipEdges.size() == 2) {
-                if (!tableDTOMap.containsKey(relationshipEdges.get(0).getSchemaID()) ||
-                        !tableDTOMap.containsKey(relationshipEdges.get(1).getSchemaID())) {
-                    throw new ParseException("The table which relationship reference to does not exist. Relationship ID: " + relationship.getID());
-                }
-                Table firstTable = tableDTOMap.get(relationshipEdges.get(0).getConnObj().getID());
-                Table secondTable = tableDTOMap.get(relationshipEdges.get(1).getConnObj().getID());
-                if (firstTable.getTableType() == EntityType.WEAK && firstTable.getBelongStrongTableID().equals(secondTable.getId())) {
-                    parseWeakEntity(firstTable, secondTable);
-                    continue;
-                } else if (secondTable.getTableType() == EntityType.WEAK && secondTable.getBelongStrongTableID().equals(firstTable.getId())) {
-                    parseWeakEntity(secondTable, firstTable);
-                    continue;
-                }
-            }
-
-            Map<Cardinality, List<Long>> cardinalityListMap = generateCardinalityMap(tableDTOMap, relationship);
-
-            if (cardinalityListMap.get(Cardinality.OneToOne).size() + cardinalityListMap.get(Cardinality.ZeroToOne).size() == 1) {
-                parseOneToMany(cardinalityListMap, tableDTOMap, relationshipAttributeList);
-            } else {
-                if (relationship.getEdgeList().size() == 2 &&
-                        (cardinalityListMap.get(Cardinality.OneToOne).size() + cardinalityListMap.get(Cardinality.ZeroToOne).size() == 2)) {
-                    parseTwoOneToOne(cardinalityListMap, tableDTOMap);
-                } else {
-                    List<Long> tableIdList = cardinalityListMap.get(Cardinality.OneToOne);
-                    tableIdList.addAll(cardinalityListMap.get(Cardinality.ZeroToOne));
-                    tableIdList.addAll(cardinalityListMap.get(Cardinality.ZeroToMany));
-                    tableIdList.addAll(cardinalityListMap.get(Cardinality.OneToMany));
-                    parseCardinalityWithNewTable(tableIdList, tableDTOMap, relationship.getName(), relationshipAttributeList);
-                }
-            }
-        }
-
-        return tableDTOMap;
     }
 
 
-    private static void parseTwoOneToOne(Map<Cardinality, List<Long>> cardinalityListMap, Map<Long, Table> tableDTOMap) {
+    private static void parseMultiValuedColumn(Map<Long, Table> tableDTOMap) {
+        for (Table table : tableDTOMap.values()) {
+            List<Column> multiValuedColumns = table.getMultiValuedColumn();
+            if (multiValuedColumns.size() == 0)
+                continue;
+
+            for (Column column : multiValuedColumns) {
+                parseMultiValuedColumn(tableDTOMap, table, column);
+            }
+        }
+    }
+
+
+    private static void parseMultiValuedColumn(Map<Long, Table> tableDTOMap, Table table, Column column) {
+        List<Column> columnList = new ArrayList<>();
+        List<Column> fkList = new ArrayList<>();
+        List<Column> pkList = new ArrayList<>();
+        columnList.add(column);
+        pkList.add(column);
+        Long newTableId = RandomUtils.generateID();
+        for (Column pk : table.getPrimaryKey()) {
+            Column pkClone = pk.getForeignClone(newTableId, false, "");
+            columnList.add(pkClone);
+            fkList.add(pkClone);
+            pkList.add(pkClone);
+        }
+        Map<Long, List<Column>> fk = new HashMap<>();
+        fk.put(table.getId(), fkList);
+        Table newT = new Table(newTableId, table.getName()+"_"+column.getName(), EntityType.STRONG,
+                null, columnList, pkList, new ArrayList<>(), fk);
+        tableDTOMap.put(newT.getId(), newT);
+    }
+
+
+    private static void parseRelationships(List<Relationship> relationshipList, Map<Long, Table> tableDTOMap) {
+        // mapping the relationship to existing or new table
+        Map<Long, Long> mapRelationshipToTable = new HashMap<>();
+        List<Relationship> normalRelationship = new ArrayList<>();
+
+        // parse weak entity and save all the relationships using id
+        for (Relationship relationship : relationshipList) {
+            List<RelationshipEdge> relationshipEdges = relationship.getEdgeList();
+            // parse weak entity
+            for (RelationshipEdge edge : relationshipEdges) {
+                if (edge.getIsKey()) {
+                    relationshipEdges.remove(edge);
+                    parseWeakEntity(edge, relationshipEdges, tableDTOMap);
+                    break;
+                }
+            }
+            normalRelationship.add(relationship);
+        }
+
+        Queue<Relationship> relationshipQueue = generateRelationshipTopologySeq(normalRelationship);
+
+        for (Relationship relationship : relationshipQueue) {
+            List<RelationshipEdge> edgeList = relationship.getEdgeList();
+            List<Attribute> attributeList = relationship.getAttributeList();
+            Map<Cardinality, List<Long>> cardinalityListMap = analyzeCardinality(edgeList, mapRelationshipToTable);
+            Table representTable;
+
+            if (edgeList.size() == 1) {
+                representTable = parseRelationshipWithSingleEntity(cardinalityListMap, tableDTOMap);
+            } else {
+                if (cardinalityListMap.get(Cardinality.OneToOne).size() + cardinalityListMap.get(Cardinality.ZeroToOne).size() == 1) {
+                    representTable = parseOneToMany(cardinalityListMap, tableDTOMap);
+                } else {
+                    if (edgeList.size() == 2 &&
+                            (cardinalityListMap.get(Cardinality.OneToOne).size() + cardinalityListMap.get(Cardinality.ZeroToOne).size() == 2)) {
+                        representTable = parseTwoOneToOne(cardinalityListMap, tableDTOMap);
+                    } else {
+                        List<Long> tableIdList = cardinalityListMap.get(Cardinality.OneToOne);
+                        tableIdList.addAll(cardinalityListMap.get(Cardinality.ZeroToOne));
+                        tableIdList.addAll(cardinalityListMap.get(Cardinality.ZeroToMany));
+                        tableIdList.addAll(cardinalityListMap.get(Cardinality.OneToMany));
+                        representTable = parseCardinalityWithNewTable(tableIdList, tableDTOMap, relationship.getName());
+                    }
+                }
+            }
+            parseRelationshipAttribtue(representTable, attributeList, tableDTOMap);
+
+            mapRelationshipToTable.put(relationship.getID(), representTable.getId());
+        }
+    }
+
+
+    public static Queue<Relationship> generateRelationshipTopologySeq(List<Relationship> relationshipList) {
+        // S is the relationship needs to parse first and R can be parsed when all of S it connected can be parsed
+        Map<Long, List<Long>> RMapS = new HashMap<>();
+        Map<Long, List<Long>> SMapR = new HashMap<>();
+        Map<Long, Relationship> relationshipMap = new HashMap<>();
+        Queue<Relationship> relationshipQueue = new LinkedList<>();
+        Queue<Relationship> parsableRelationship = new LinkedList<>();
+
+        for (Relationship relationship : relationshipList) {
+            relationshipMap.put(relationship.getID(), relationship);
+            int numConnected = 0;
+            for (RelationshipEdge relationshipEdge : relationship.getEdgeList()) {
+                if (relationshipEdge.getConnObjType() == BelongObjType.RELATIONSHIP) {
+                    if (RMapS.containsKey(relationship.getID())) {
+                        RMapS.get(relationship.getID()).add(relationshipEdge.getConnObj().getID());
+                    } else {
+                        List<Long> SList = new ArrayList<>();
+                        SList.add(relationshipEdge.getConnObj().getID());
+                        RMapS.put(relationship.getID(), SList);
+                    }
+
+                    if (SMapR.containsKey(relationshipEdge.getConnObj().getID())) {
+                        SMapR.get(relationshipEdge.getConnObj().getID()).add(relationship.getID());
+                    } else {
+                        List<Long> RList = new ArrayList<>();
+                        RList.add(relationship.getID());
+                        SMapR.put(relationshipEdge.getConnObj().getID(), RList);
+                    }
+                    numConnected++;
+                }
+            }
+
+            if (numConnected == 0) {
+                parsableRelationship.offer(relationship);
+            }
+        }
+
+        while (parsableRelationship.size() > 0) {
+            Relationship relationship = parsableRelationship.poll();
+            relationshipQueue.offer(relationship);
+
+            if (SMapR.containsKey(relationship.getID())) {
+                List<Long> allRConnectedToCurrS = SMapR.get(relationship.getID());
+                for (Long id : allRConnectedToCurrS) {
+                    if (RMapS.containsKey(id)) {
+                        RMapS.get(id).remove(relationship.getID());
+                        if (RMapS.get(id).size() == 0) {
+                            Relationship currR = relationshipMap.get(id);
+                            parsableRelationship.offer(currR);
+                            RMapS.remove(id);
+                        }
+                    }
+                }
+            }
+        }
+
+        return relationshipQueue;
+    }
+
+
+    private static void parseWeakEntity(RelationshipEdge keyEdge, List<RelationshipEdge> edges, Map<Long, Table> tableMap) {
+        Table weakEntity = tableMap.get(keyEdge.getConnObj().getID());
+        for (RelationshipEdge edge : edges) {
+            Table strongEntity = tableMap.get(edge.getConnObj().getID());
+            List<Column> fkList = new ArrayList<>();
+            for (Column strongPk : strongEntity.getPrimaryKey()) {
+                Column clonePk = strongPk.getForeignClone(weakEntity.getId(), true, strongEntity.getName());
+                fkList.add(clonePk);
+                weakEntity.getPrimaryKey().add(clonePk);
+                weakEntity.getColumnList().add(clonePk);
+            }
+            weakEntity.getForeignKey().put(strongEntity.getId(), fkList);
+        }
+    }
+
+
+    private static Map<Cardinality, List<Long>> analyzeCardinality(List<RelationshipEdge> relationshipEdges, Map<Long, Long> mapRelationshipToTable) {
+        Map<Cardinality, List<Long>> cardinalityListMap = new HashMap<>();
+        cardinalityListMap.put(Cardinality.OneToMany, new ArrayList<>());
+        cardinalityListMap.put(Cardinality.OneToOne, new ArrayList<>());
+        cardinalityListMap.put(Cardinality.ZeroToMany, new ArrayList<>());
+        cardinalityListMap.put(Cardinality.ZeroToOne, new ArrayList<>());
+
+        for (RelationshipEdge edge : relationshipEdges) {
+            Long tableId = edge.getConnObj().getID();
+            if (edge.getConnObjType().equals(BelongObjType.RELATIONSHIP)) {
+                tableId = mapRelationshipToTable.get(edge.getConnObj().getID());
+            }
+            cardinalityListMap.get(edge.getCardinality()).add(tableId);
+        }
+        return cardinalityListMap;
+    }
+
+
+    private static Table parseRelationshipWithSingleEntity(Map<Cardinality, List<Long>> cardinalityListMap, Map<Long, Table> tableDTOMap) {
+        Table table = null;
+        for (List<Long> ids : cardinalityListMap.values()) {
+            if (ids.size() > 0) {
+                table = tableDTOMap.get(ids.get(0));
+                break;
+            }
+        }
+        return table;
+    }
+
+
+    private static Table parseTwoOneToOne(Map<Cardinality, List<Long>> cardinalityListMap, Map<Long, Table> tableDTOMap) {
         Table importedTable;
         Table exportedTable;
         boolean canbeNull = false;
@@ -266,47 +427,11 @@ public class ParserUtil {
             fkList.add(fk);
         }
         importedTable.getForeignKey().put(exportedTable.getId(), fkList);
+        return importedTable;
     }
 
 
-    private static void parseWeakEntity(Table weakEntity, Table strongEntity) {
-        List<Column> weakColumns = weakEntity.getColumnList();
-        List<Column> weakPk = weakEntity.getPrimaryKey();
-        Map<Long, List<Column>> weakFk = weakEntity.getForeignKey();
-        List<Column> newFk = new ArrayList<>();
-
-        for (Column strongPkColumn : strongEntity.getPrimaryKey()) {
-            Column weakFkColumn = strongPkColumn.getForeignClone(weakEntity.getId(), true, strongEntity.getName());
-            weakPk.add(weakFkColumn);
-            newFk.add(weakFkColumn);
-            weakColumns.add(weakFkColumn);
-        }
-        weakFk.put(strongEntity.getId(), newFk);
-    }
-
-
-    private static Map<Cardinality, List<Long>> generateCardinalityMap(Map<Long, Table> tableDTOMap, Relationship relationship) throws ParseException {
-        Map<Cardinality, List<Long>> cardinalityListMap = new HashMap<>();
-        cardinalityListMap.put(Cardinality.OneToMany, new ArrayList<>());
-        cardinalityListMap.put(Cardinality.OneToOne, new ArrayList<>());
-        cardinalityListMap.put(Cardinality.ZeroToMany, new ArrayList<>());
-        cardinalityListMap.put(Cardinality.ZeroToOne, new ArrayList<>());
-
-        for (RelationshipEdge edge : relationship.getEdgeList()) {
-            Long tableID = edge.getConnObj().getID();
-            if (!tableDTOMap.containsKey(tableID)) {
-                throw new ParseException("The table relationship connected does not exist. Relationship ID: "
-                        + relationship.getID() + ", Table id: " + tableID);
-            }
-            List<Long> cardinalityTableList = cardinalityListMap.get(edge.getCardinality());
-            cardinalityTableList.add(tableID);
-            cardinalityListMap.put(edge.getCardinality(), cardinalityTableList);
-        }
-        return cardinalityListMap;
-    }
-
-
-    private static void parseOneToMany(Map<Cardinality, List<Long>> cardinalityListMap, Map<Long, Table> tableDTOMap, List<Attribute> attributeList) throws ParseException {
+    private static Table parseOneToMany(Map<Cardinality, List<Long>> cardinalityListMap, Map<Long, Table> tableDTOMap) {
         Long mainTableId;
         boolean canBeZero = false;
         if (cardinalityListMap.get(Cardinality.OneToOne).size() == 1) {
@@ -324,9 +449,6 @@ public class ParserUtil {
         foreignTableIdList.addAll(cardinalityListMap.get(Cardinality.ZeroToMany));
         for (Long foreignTableId : foreignTableIdList) {
             Table foreignTable = tableDTOMap.get(foreignTableId);
-            if (foreignTable.getPrimaryKey().size() == 0) {
-                throw new ParseException("Relationship fail to connect to the primary key of table : " + foreignTable.getName());
-            }
 
             List<Column> fkColumns = new ArrayList<>();
             for (Column pk : foreignTable.getPrimaryKey()) {
@@ -340,23 +462,19 @@ public class ParserUtil {
 
             mainTableForeignKey.put(foreignTableId, fkColumns);
         }
-
-        for (Attribute attribute : attributeList) {
-            Column column = new Column();
-            column.transformAttribute(attribute);
-            columnList.add(column);
-        }
+        return mainTable;
     }
 
 
-    private static void parseCardinalityWithNewTable(List<Long> tableIdList, Map<Long, Table> tableDTOMap, String reName, List<Attribute> attributeList) {
+    private static Table parseCardinalityWithNewTable(List<Long> tableIdList, Map<Long, Table> tableDTOMap, String reName) {
 
         StringBuilder tableName = new StringBuilder(reName.replace(' ', '_'));
         List<Column> columnList = new ArrayList<>();
+        List<Column> pkList = new ArrayList<>();
         Map<Long, List<Column>> foreignKey = new HashMap<>();
 
         Table newTable = new Table(RandomUtils.generateID(), tableName.toString(), EntityType.STRONG, null,
-                columnList, new ArrayList<>(), foreignKey);
+                columnList, pkList, new ArrayList<>(), foreignKey);
 
         for (Long tableId : tableIdList) {
             Table foreignTable = tableDTOMap.get(tableId);
@@ -364,27 +482,35 @@ public class ParserUtil {
 
             List<Column> fkColumns = new ArrayList<>();
             for (Column pk : foreignTable.getPrimaryKey()) {
-                Column cloneFk = pk.getForeignClone(newTable.getId(), false, foreignTable.getName());
-                if (tableIdList.size() == 2)
-                    cloneFk.setNullable(false);
-                else
-                    cloneFk.setNullable(true);
-                // TODO nullable?
+                Column cloneFk = pk.getForeignClone(newTable.getId(), true, foreignTable.getName());
+                cloneFk.setNullable(false);
                 fkColumns.add(cloneFk);
                 columnList.add(cloneFk);
+                pkList.add(cloneFk);
             }
 
             foreignKey.put(tableId, fkColumns);
         }
 
-
-        for (Attribute attribute : attributeList) {
-            Column column = new Column();
-            column.transformAttribute(attribute);
-            columnList.add(column);
-        }
-
         newTable.setName(tableName.toString());
         tableDTOMap.put(newTable.getId(), newTable);
+        return newTable;
+    }
+
+
+    private static void parseRelationshipAttribtue(Table table, List<Attribute> attributeList, Map<Long, Table> tableDTOMap) {
+        for (Attribute attribute : attributeList) {
+            Column column = new Column();
+            if (attribute.getAttributeType() == AttributeType.Optional) {
+                column.transformAttribute(attribute, true);
+                table.getColumnList().add(column);
+            } else if (attribute.getAttributeType() == AttributeType.Mandatory) {
+                column.transformAttribute(attribute, false);
+                table.getColumnList().add(column);
+            } else {
+                column.transformAttribute(attribute, false);
+                parseMultiValuedColumn(tableDTOMap, table, column);
+            }
+        }
     }
 }

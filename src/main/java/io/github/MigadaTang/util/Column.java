@@ -1,6 +1,6 @@
-package io.github.MigadaTang;
+package io.github.MigadaTang.util;
 
-import io.github.MigadaTang.util.RandomUtils;
+import io.github.MigadaTang.Attribute;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ public class Column {
 
     private Long foreignKeyTable;
 
-    public void transformAttribute(Attribute attribute) {
+    protected void transformAttribute(Attribute attribute, boolean nullable) {
         this.ID = attribute.getID();
         this.name = attribute.getName();
         this.dataType = attribute.getDataType().toString();
@@ -38,11 +38,11 @@ public class Column {
         this.isForeign = false;
         this.foreignKeyColumn = null;
         this.foreignKeyColumnName = null;
-//        this.nullable = attribute.getNullable();
+        this.nullable = nullable;
         this.foreignKeyTable = null;
     }
 
-    public String nullable() {
+    protected String nullable() {
         if (nullable) {
             return "NULL";
         } else {
@@ -50,7 +50,7 @@ public class Column {
         }
     }
 
-    public Column getForeignClone(Long tableID, boolean isPk, String foreignTableName) {
+    protected Column getForeignClone(Long tableID, boolean isPk, String foreignTableName) {
         Column clone = new Column(RandomUtils.generateID(), foreignTableName + "_" + this.name, this.dataType, isPk,
                 true, this.ID, this.name, tableID, false, null);
         return clone;

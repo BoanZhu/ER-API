@@ -6,6 +6,7 @@ import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.util.DatabaseUtil;
 import io.github.MigadaTang.util.GenerationSqlUtil;
 import io.github.MigadaTang.util.ParserUtil;
+import io.github.MigadaTang.util.Table;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
