@@ -9,9 +9,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 
 import static junit.framework.TestCase.assertEquals;
@@ -65,14 +62,6 @@ public class TestER {
         empty2.linkObj(project, Cardinality.ZeroToMany);
         empty2.linkObj(project2, Cardinality.ZeroToMany);
         assertThrows(ERException.class, () -> example2.toJSON());
-    }
-
-
-    @Test
-    public void loadFromJSONTest() throws IOException {
-        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/nested-PersonDepartmentProject.json"), Charset.defaultCharset());
-        Schema schema = ER.loadFromJSON(jsonString);
-        assertNotNull(schema);
     }
 
     @Test

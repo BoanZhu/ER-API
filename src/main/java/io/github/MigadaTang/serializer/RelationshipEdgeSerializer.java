@@ -29,6 +29,7 @@ public class RelationshipEdgeSerializer extends JsonSerializer<RelationshipEdge>
             jgen.writeNumberField("belongObjID", edge.getConnObj().getID());
             jgen.writeNumberField("belongObjType", getBelongObjType(edge.getConnObj()).getValue());
             jgen.writeStringField("belongObjName", edge.getConnObj().getName());
+            jgen.writeBooleanField("isKey", edge.getIsKey());
             jgen.writeNumberField("cardinality", edge.getCardinality().getCode());
             jgen.writeNumberField("portAtRelationship", edge.getPortAtRelationship());
             jgen.writeNumberField("portAtBelongObj", edge.getPortAtBelongObj());
@@ -39,6 +40,9 @@ public class RelationshipEdgeSerializer extends JsonSerializer<RelationshipEdge>
                 jgen.writeStringField("relationship", edge.getConnObj().getName());
             }
             jgen.writeStringField("cardinality", edge.getCardinality().getValue());
+            if (edge.getIsKey()) {
+                jgen.writeBooleanField("isKey", edge.getIsKey());
+            }
             if (edge.getPortAtRelationship() != -1) {
                 jgen.writeNumberField("portAtRelationship", edge.getPortAtRelationship());
             }

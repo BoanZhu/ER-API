@@ -1,14 +1,14 @@
 <!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/html"><head>    <meta charset="UTF-8">    <title>API image</title>    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="API.js"></script></head><body><div id="model"     style=" background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;"></div><div id="image"></div><div id="modelData" style="display:none">{"schema":{
-  "id" : 13,
+  "id" : 12,
   "name" : "nested-PersonDepartmentProject",
   "entityList" : [ {
-    "id" : 31,
+    "id" : 28,
     "name" : "person",
     "entityType" : 1,
     "attributeList" : [ {
-      "id" : 47,
+      "id" : 43,
       "name" : "salary number",
-      "belongObjID" : 31,
+      "belongObjID" : 28,
       "belongObjType" : 2,
       "dataType" : 2,
       "isPrimary" : true,
@@ -20,13 +20,13 @@
     "belongStrongEntityID" : null,
     "layoutInfo" : null
   }, {
-    "id" : 32,
+    "id" : 29,
     "name" : "department",
     "entityType" : 1,
     "attributeList" : [ {
-      "id" : 48,
+      "id" : 44,
       "name" : "dname",
-      "belongObjID" : 32,
+      "belongObjID" : 29,
       "belongObjType" : 2,
       "dataType" : 2,
       "isPrimary" : false,
@@ -38,13 +38,13 @@
     "belongStrongEntityID" : null,
     "layoutInfo" : null
   }, {
-    "id" : 33,
+    "id" : 30,
     "name" : "project",
     "entityType" : 1,
     "attributeList" : [ {
-      "id" : 49,
+      "id" : 45,
       "name" : "pcode",
-      "belongObjID" : 33,
+      "belongObjID" : 30,
       "belongObjType" : 2,
       "dataType" : 2,
       "isPrimary" : false,
@@ -57,36 +57,38 @@
     "layoutInfo" : null
   } ],
   "relationshipList" : [ {
-    "id" : 14,
+    "id" : 13,
     "name" : "works in",
     "attributeList" : [ ],
     "edgeList" : [ {
-      "id" : 29,
-      "relationshipID" : 14,
-      "belongObjID" : 31,
+      "id" : 27,
+      "relationshipID" : 13,
+      "belongObjID" : 28,
       "belongObjType" : 2,
       "belongObjName" : "person",
+      "isKey" : false,
       "cardinality" : 2,
       "portAtRelationship" : -1,
       "portAtBelongObj" : -1
     }, {
-      "id" : 30,
-      "relationshipID" : 14,
-      "belongObjID" : 32,
+      "id" : 28,
+      "relationshipID" : 13,
+      "belongObjID" : 29,
       "belongObjType" : 2,
       "belongObjName" : "department",
+      "isKey" : false,
       "cardinality" : 2,
       "portAtRelationship" : -1,
       "portAtBelongObj" : -1
     } ],
     "layoutInfo" : null
   }, {
-    "id" : 15,
+    "id" : 14,
     "name" : "member",
     "attributeList" : [ {
-      "id" : 50,
+      "id" : 46,
       "name" : "role",
-      "belongObjID" : 15,
+      "belongObjID" : 14,
       "belongObjType" : 3,
       "dataType" : 2,
       "isPrimary" : false,
@@ -95,20 +97,22 @@
       "layoutInfo" : null
     } ],
     "edgeList" : [ {
-      "id" : 31,
-      "relationshipID" : 15,
-      "belongObjID" : 14,
+      "id" : 29,
+      "relationshipID" : 14,
+      "belongObjID" : 13,
       "belongObjType" : 3,
       "belongObjName" : "works in",
+      "isKey" : false,
       "cardinality" : 2,
       "portAtRelationship" : -1,
       "portAtBelongObj" : -1
     }, {
-      "id" : 32,
-      "relationshipID" : 15,
-      "belongObjID" : 33,
+      "id" : 30,
+      "relationshipID" : 14,
+      "belongObjID" : 30,
       "belongObjType" : 2,
       "belongObjName" : "project",
+      "isKey" : false,
       "cardinality" : 2,
       "portAtRelationship" : -1,
       "portAtBelongObj" : -1

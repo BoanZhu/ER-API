@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import io.github.MigadaTang.common.*;
+import io.github.MigadaTang.common.AttributeType;
+import io.github.MigadaTang.common.Cardinality;
+import io.github.MigadaTang.common.DataType;
+import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.exception.ERException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -139,24 +141,24 @@ class SchemaDeserializer extends StdDeserializer<Schema> {
             if (edgeList == null || edgeList.size() == 0) {
                 throw new ERException(String.format("deserialize schema fail edgeList of relationship: %s cannot be empty", relationshipName));
             }
-            ArrayList<ConnObjWithCardinality> eCardList = new ArrayList<>();
             for (JsonNode edgeJsonNode : edgeList) {
                 JsonNode entityNode = edgeJsonNode.get("entity");
                 JsonNode relationshipNode = edgeJsonNode.get("relationship");
                 Cardinality cardinality = Cardinality.getFromValue(edgeJsonNode.get("cardinality").textValue());
+                JsonNode isKeyNode = edgeJsonNode.get("isKey");
+                boolean isKey = false;
+                if (isKeyNode != null) {
+                    isKey = isKeyNode.booleanValue();
+                }
+                ERConnectableObj target = null;
                 if (entityNode != null) {
-                    Entity target = entityNameMap.get(entityNode.textValue());
-                    eCardList.add(new ConnObjWithCardinality(target, cardinality));
+                    target = entityNameMap.get(entityNode.textValue());
                 } else if (relationshipNode != null) {
-                    Relationship target = relationshipNameMap.get(relationshipNode.textValue());
-                    eCardList.add(new ConnObjWithCardinality(target, cardinality));
+                    target = relationshipNameMap.get(relationshipNode.textValue());
                 } else {
                     throw new ERException("missing entity or relationship in the edge");
                 }
-            }
-
-            for (ConnObjWithCardinality eCard : eCardList) {
-                relationship.linkObj(eCard.getConnObj(), eCard.getCardinality());
+                relationship.linkObj(target, cardinality, isKey);
             }
 
             JsonNode attributeList = relationshipJSONNode.get("attributeList");
