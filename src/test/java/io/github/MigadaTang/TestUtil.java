@@ -1,7 +1,7 @@
 package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.Cardinality;
-import io.github.MigadaTang.util.ParserUtil;
+import io.github.MigadaTang.transform.ParserUtil;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

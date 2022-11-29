@@ -3,7 +3,7 @@ package io.github.MigadaTang.mapper;
 import io.github.MigadaTang.ER;
 import io.github.MigadaTang.TestCommon;
 import io.github.MigadaTang.entity.SchemaDO;
-import io.github.MigadaTang.util.RandomUtils;
+import io.github.MigadaTang.transform.RandomUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
