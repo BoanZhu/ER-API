@@ -1,0 +1,27 @@
+CREATE TABLE `branch` (
+    `sortcode` INT NOT NULL,
+    `bname` VARCHAR NOT NULL,
+    `cash` FLOAT NOT NULL,
+    CONSTRAINT branch_pk PRIMARY KEY (sortcode)
+)
+
+CREATE TABLE `account` (
+    `no` INT NOT NULL,
+    `type` VARCHAR NOT NULL,
+    `cname` VARCHAR NOT NULL,
+    `rate` FLOAT NULL,
+    `branch_sortcode` INT NOT NULL,
+    CONSTRAINT account_pk PRIMARY KEY (no),
+    CONSTRAINT account_fk1 FOREIGN KEY (branch_sortcode) REFERENCES branch(sortcode)
+)
+
+CREATE TABLE `movement` (
+    `mid` INT NOT NULL,
+    `tdate` DATETIME NOT NULL,
+    `amount` FLOAT NOT NULL,
+    `account_no` INT NOT NULL,
+    CONSTRAINT movement_pk PRIMARY KEY (mid),
+    CONSTRAINT movement_fk1 FOREIGN KEY (account_no) REFERENCES account(no)
+)
+
+

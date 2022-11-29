@@ -17,6 +17,9 @@ import io.github.MigadaTang.entity.SchemaDO;
 import io.github.MigadaTang.exception.ERException;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.serializer.*;
+import io.github.MigadaTang.transform.GenerationSqlUtil;
+import io.github.MigadaTang.transform.ParserUtil;
+import io.github.MigadaTang.transform.Table;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -649,5 +652,23 @@ public class Schema {
         } catch (IOException ioe) {
             System.out.println("Exception while reading the Image " + ioe);
         }
+    }
+
+
+    /**
+     * Transform er model to data definition language
+     *
+     * @return  -  Sql Statement of current schema
+     * @throws ParseException   Exception that fail to mapping entity, relationship and attribute to table and column
+     */
+    public String generateSqlStatement() throws ParseException {
+        Map<Long, Table> tableDTOList;
+        try {
+            tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
+        } catch (ParseException e) {
+            throw new ParseException(e.getMessage());
+        }
+        String sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
+        return sqlStatement;
     }
 }

@@ -1,5 +1,6 @@
-package io.github.MigadaTang;
+package io.github.MigadaTang.transform;
 
+import io.github.MigadaTang.Schema;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * Class for transforming between ER model and DDL
  */
-public class Transform {
+public class Reverse {
 
     /**
      * The function parse table in specify database to er model
@@ -31,28 +32,34 @@ public class Transform {
      * @throws ParseException           Exception that fail to mapping table and column to entity, relationship and attribute
      * @throws DBConnectionException    Exception that fail to read database information
      */
-    public void relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
+    public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
             , String userName, String password) throws ParseException, DBConnectionException {
+        Schema schema;
         try {
-            relationSchemasToERModel(databaseType, hostname, portNum, databaseName, userName, password, null);
+            schema = relationSchemasToERModel(databaseType, hostname, portNum, databaseName, userName, password, null);
         } catch (ParseException e) {
             throw new ParseException(e.getMessage());
         } catch (DBConnectionException e) {
             throw new DBConnectionException(e.getMessage());
         }
+
+        return schema;
     }
 
-    public void relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
+    public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
             , String userName, String password, String imageName) throws ParseException, DBConnectionException {
         String dbUrl = "";
+        Schema schema;
         try {
             dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
-            relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
+            schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
         } catch (ParseException e) {
             throw new ParseException(e.getMessage());
         } catch (DBConnectionException e) {
             throw new DBConnectionException(e.getMessage());
         }
+
+        return schema;
     }
 
     /**
@@ -65,9 +72,10 @@ public class Transform {
      * @throws DBConnectionException    Exception that fail to read database information
      * @throws ParseException           Exception that fail to mapping table and column to entity, relationship and attribute
      */
-    public void relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password, String imageName) throws DBConnectionException, ParseException {
+    public Schema relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password, String imageName) throws DBConnectionException, ParseException {
         Connection conn = null;
         String driver = "";
+        Schema schema;
 
         try {
             driver = DatabaseUtil.recognDriver(databaseType);
@@ -75,8 +83,7 @@ public class Transform {
             conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             List<Table> tableList = DatabaseUtil.getDatabseInfo(conn);
             DatabaseUtil.closeDBConnection(conn);
-            Schema schema = ParserUtil.parseAttributeToRelationship(tableList);
-            schema = Schema.queryByID(schema.getID());
+            schema = ParserUtil.parseAttributeToRelationship(tableList);
             schema.renderAsImage(imageName);
         } catch (ParseException parseException) {
             throw new ParseException(parseException.getMessage());
@@ -85,24 +92,8 @@ public class Transform {
         } catch (SQLException throwables) {
             throw new DBConnectionException("Fail to create db statement");
         }
+
+        return schema;
     }
 
-    /**
-     * Transform er model to data definition language
-     *
-     * @param schemaId The id of schema to generate DDL
-     * @return  -  Sql Statement
-     * @throws ParseException   Exception that fail to mapping entity, relationship and attribute to table and column
-     */
-    public String ERModelToSql(Long schemaId) throws ParseException {
-        Schema schema = Schema.queryByID(schemaId);
-        Map<Long, Table> tableDTOList;
-        try {
-            tableDTOList = ParserUtil.parseRelationshipsToAttribute(schema.getEntityList(), schema.getRelationshipList());
-        } catch (ParseException e) {
-            throw new ParseException(e.getMessage());
-        }
-        String sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
-        return sqlStatement;
-    }
 }

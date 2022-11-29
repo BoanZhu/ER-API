@@ -89,7 +89,7 @@ public class TestQuickStartExamples {
 
     @Test
     public void createNaryRelationshipSchema() throws IOException, ParseException {
-        Schema example = ER.createSchema("naryRelationship-PersonManagerDepartment");
+        Schema example = ER.createSchema("naryRelationshipWithSubset-PersonManagerDepartment");
 
         Entity person = example.addEntity("person");
         Entity manager = example.addEntity("manager");
