@@ -1,0 +1,33 @@
+CREATE TABLE `project` (
+    `pcode` INT NOT NULL,
+    CONSTRAINT project_pk PRIMARY KEY (pcode)
+)
+
+CREATE TABLE `person` (
+    `salary_number` INT NOT NULL,
+    CONSTRAINT person_pk PRIMARY KEY (salary_number)
+)
+
+CREATE TABLE `department` (
+    `dname` INT NOT NULL,
+    CONSTRAINT department_pk PRIMARY KEY (dname)
+)
+
+CREATE TABLE `member_project_works_in_person_department` (
+    `project_pcode` INT NOT NULL,
+    `works_in_person_department_person_salary_number` INT NOT NULL,
+    `works_in_person_department_department_dname` INT NOT NULL,
+    `role` TEXT NOT NULL,
+    CONSTRAINT member_project_works_in_person_department_pk PRIMARY KEY (project_pcode,works_in_person_department_person_salary_number,works_in_person_department_department_dname),
+    CONSTRAINT member_project_works_in_person_department_fk1 FOREIGN KEY (project_pcode) REFERENCES project(pcode),
+    CONSTRAINT member_project_works_in_person_department_fk2 FOREIGN KEY (works_in_person_department_person_salary_number,works_in_person_department_department_dname) REFERENCES works_in_person_department(person_salary_number,department_dname)
+)
+
+CREATE TABLE `works_in_person_department` (
+    `person_salary_number` INT NOT NULL,
+    `department_dname` INT NOT NULL,
+    CONSTRAINT works_in_person_department_pk PRIMARY KEY (person_salary_number,department_dname),
+    CONSTRAINT works_in_person_department_fk1 FOREIGN KEY (person_salary_number) REFERENCES person(salary_number),
+    CONSTRAINT works_in_person_department_fk2 FOREIGN KEY (department_dname) REFERENCES department(dname)
+)
+

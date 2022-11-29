@@ -1,0 +1,26 @@
+CREATE TABLE `department` (
+    `dname` INT NOT NULL,
+    CONSTRAINT department_pk PRIMARY KEY (dname)
+)
+
+CREATE TABLE `person` (
+    `salary_number` INT NOT NULL,
+    CONSTRAINT person_pk PRIMARY KEY (salary_number)
+)
+
+CREATE TABLE `manager` (
+    `person_salary_number` INT NOT NULL,
+    CONSTRAINT manager_pk PRIMARY KEY (person_salary_number),
+    CONSTRAINT manager_fk1 FOREIGN KEY (person_salary_number) REFERENCES person(salary_number)
+)
+
+CREATE TABLE `works_in_department_person_manager` (
+    `department_dname` INT NOT NULL,
+    `person_salary_number` INT NOT NULL,
+    `manager_person_salary_number` INT NOT NULL,
+    CONSTRAINT works_in_department_person_manager_pk PRIMARY KEY (department_dname,person_salary_number,manager_person_salary_number),
+    CONSTRAINT works_in_department_person_manager_fk1 FOREIGN KEY (department_dname) REFERENCES department(dname),
+    CONSTRAINT works_in_department_person_manager_fk2 FOREIGN KEY (person_salary_number) REFERENCES person(salary_number),
+    CONSTRAINT works_in_department_person_manager_fk3 FOREIGN KEY (manager_person_salary_number) REFERENCES manager(person_salary_number)
+)
+
