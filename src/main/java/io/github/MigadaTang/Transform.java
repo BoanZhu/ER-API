@@ -33,10 +33,21 @@ public class Transform {
      */
     public void relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
             , String userName, String password) throws ParseException, DBConnectionException {
+        try {
+            relationSchemasToERModel(databaseType, hostname, portNum, databaseName, userName, password, null);
+        } catch (ParseException e) {
+            throw new ParseException(e.getMessage());
+        } catch (DBConnectionException e) {
+            throw new DBConnectionException(e.getMessage());
+        }
+    }
+
+    public void relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
+            , String userName, String password, String imageName) throws ParseException, DBConnectionException {
         String dbUrl = "";
         try {
             dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
-            relationSchemasToERModel(databaseType, dbUrl, userName, password);
+            relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
         } catch (ParseException e) {
             throw new ParseException(e.getMessage());
         } catch (DBConnectionException e) {
@@ -54,7 +65,7 @@ public class Transform {
      * @throws DBConnectionException    Exception that fail to read database information
      * @throws ParseException           Exception that fail to mapping table and column to entity, relationship and attribute
      */
-    public void relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password) throws DBConnectionException, ParseException {
+    public void relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password, String imageName) throws DBConnectionException, ParseException {
         Connection conn = null;
         String driver = "";
 
@@ -66,7 +77,7 @@ public class Transform {
             DatabaseUtil.closeDBConnection(conn);
             Schema schema = ParserUtil.parseAttributeToRelationship(tableList);
             schema = Schema.queryByID(schema.getID());
-            schema.renderAsImage(null);
+            schema.renderAsImage(imageName);
         } catch (ParseException parseException) {
             throw new ParseException(parseException.getMessage());
         } catch (DBConnectionException dbConnectionException) {

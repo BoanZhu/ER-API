@@ -78,7 +78,6 @@ public class DatabaseUtil {
 
                 Map<Long, List<Column>> foreignKeyList = new HashMap<>();
                 while (foreignKeyRs.next()) {
-                    // TODO how to recognize multi column combine one fk
                     String name = foreignKeyRs.getString("FKCOLUMN_NAME");
                     List<Column> fks = new ArrayList<>();
                     Column fk = columnTrackInTable.get(name);

@@ -101,7 +101,10 @@ public class ParserUtil {
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-//                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
+                    if (column.isNullable())
+                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
+                    else
+                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
                 }
             }
 
@@ -125,7 +128,10 @@ public class ParserUtil {
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-//                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
+                    if (column.isNullable())
+                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
+                    else
+                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
                 }
             }
         }
@@ -146,7 +152,10 @@ public class ParserUtil {
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-//                    entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), column.isNullable());
+                    if (column.isNullable())
+                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
+                    else
+                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
                 }
             }
         }

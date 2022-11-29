@@ -264,7 +264,7 @@ public class TestTransform {
     }
 
 
-    //    @Test
+    @Test
     public void testRSToERModel() throws IOException, SQLException {
         Transform transform = new Transform();
 //        ResultState resultState = tranform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "jdbc:postgresql://db.doc.ic.ac.uk:5432/wh722",
@@ -273,7 +273,7 @@ public class TestTransform {
 //                "wh722", "4jC@A3528>0N6");
         try {
             transform.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wt22",
-                    "wt22", "22V**66+C5JPu");
+                    "wt22", "22V**66+C5JPu", "image");
         } catch (ParseException | DBConnectionException e) {
             fail();
         }
