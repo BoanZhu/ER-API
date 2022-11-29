@@ -137,10 +137,10 @@ public class Schema {
                 edge.updateInfo(null, null, null, true);
             }
         }
+        this.entityList.add(weakEntity);
+        this.relationshipList.add(relationship);
         return new ImmutablePair<>(weakEntity, relationship);
     }
-
-    //
 
     /**
      * base method for addEntity, for internal use only, users should add entity through other public methods

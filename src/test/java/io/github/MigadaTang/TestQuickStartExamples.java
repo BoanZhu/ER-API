@@ -27,18 +27,6 @@ public class TestQuickStartExamples {
         TestCommon.setUp();
     }
 
-
-    @Test
-    public void renderImageTest() throws IOException, ParseException {
-
-        String jsonString = Files.readString(Path.of("src/test/java/io/github/MigadaTang/jsonExamples/nested-PersonDepartmentProject.json"), Charset.defaultCharset());
-        Schema schema = ER.loadFromJSON(jsonString);
-        assertNotNull(schema);
-
-        String base64Code = schema.renderAsImage(outputImagePath + "PersonDepartmentProject");
-        assertNotNull(base64Code);
-    }
-
     @Test
     public void createVanillaERSchema() throws IOException, ParseException {
         Schema example = ER.createSchema("vanilla-BranchAccountMovement");

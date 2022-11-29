@@ -23,8 +23,31 @@
       "isPrimary" : false,
       "attributeType" : "Mandatory"
     } ]
+  }, {
+    "name" : "swipe card",
+    "entityType" : "WEAK",
+    "attributeList" : [ {
+      "name" : "issue",
+      "dataType" : "INT",
+      "isPrimary" : true,
+      "attributeType" : "Mandatory"
+    }, {
+      "name" : "date",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "attributeType" : "Mandatory"
+    } ]
   } ],
   "relationshipList" : [ {
+    "name" : "for",
+    "edgeList" : [ {
+      "entity" : "swipe card",
+      "cardinality" : "1:1"
+    }, {
+      "entity" : "person",
+      "cardinality" : "0:N"
+    } ]
+  }, {
     "name" : "for",
     "edgeList" : [ {
       "entity" : "swipe card",
