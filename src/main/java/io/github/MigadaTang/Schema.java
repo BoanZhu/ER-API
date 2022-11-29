@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.ConnObjWithCardinality;
@@ -13,11 +15,14 @@ import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.entity.SchemaDO;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.serializer.*;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.ibatis.exceptions.PersistenceException;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -580,5 +585,71 @@ public class Schema {
             this.name = name;
         }
         ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, 0, this.gmtCreate, new Date()));
+    }
+
+    private final static String templateHTMLPath = "src/main/resources/render/template.html";
+    private final static String renderHTMLPath = "src/main/resources/render/render.html";
+
+    public String renderAsImage(String fileName) throws ParseException {
+        try {
+            writeRenderHTML(toRenderJSON());
+        } catch (IOException e) {
+            throw new ParseException("Fail to write the json string to file: " + e.getMessage());
+        }
+        WebClient webClient = new WebClient();
+        webClient.getOptions().setJavaScriptEnabled(true);
+        webClient.getOptions().setDownloadImages(true);
+        HtmlPage myPage = null;
+        try {
+            myPage = webClient.getPage(new File(renderHTMLPath).toURI().toURL());
+        } catch (IOException e) {
+            throw new ParseException("Fail to read the file: show.html");
+        }
+        String baseImageCode = myPage.getElementById("image").asNormalizedText();
+        webClient.close();
+
+        if (fileName != null) {
+            decodeImageCodeToPNG(baseImageCode, fileName);
+        }
+        return baseImageCode;
+    }
+
+    public static void writeRenderHTML(String jsonString) throws IOException {
+
+        File f = new File(templateHTMLPath);
+        InputStreamReader isr1 = new InputStreamReader(new FileInputStream(f), "UTF-8");
+        BufferedReader br = new BufferedReader(isr1);
+        String s;
+        StringBuilder allContent = new StringBuilder();
+        while ((s = br.readLine()) != null) {
+            allContent.append(s);
+        }
+        allContent.replace(allContent.indexOf("##"), allContent.indexOf("##") + 2, "" + "{\"schema\":" + jsonString + "}");
+        File writeFile = new File(renderHTMLPath);
+        FileOutputStream fileOutputStream = new FileOutputStream(writeFile);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "gb2312");
+        outputStreamWriter.write(String.valueOf(allContent));
+
+        outputStreamWriter.close();
+        fileOutputStream.close();
+        br.close();
+        isr1.close();
+
+    }
+
+    private void decodeImageCodeToPNG(String baseImageCode, String filename) {
+        if (filename.equals("")) {
+            filename = this.name;
+        }
+        filename += ".png";
+        String base64Data = baseImageCode.split(",")[1];
+        try (FileOutputStream imageOutFile = new FileOutputStream(filename)) {
+            byte[] imageByteArray = Base64.getDecoder().decode(base64Data.getBytes(StandardCharsets.UTF_8));
+            imageOutFile.write(imageByteArray);
+        } catch (FileNotFoundException e) {
+            System.out.println("Image not found" + e);
+        } catch (IOException ioe) {
+            System.out.println("Exception while reading the Image " + ioe);
+        }
     }
 }

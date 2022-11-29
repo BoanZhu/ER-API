@@ -24,9 +24,6 @@ const DATATYPE = {
     DOUBLE:9,
     DATETIME:10
 }
-let findDataType = (value, compare = (a, b) => a === b) => {
-    return Object.keys(DATATYPE).find(k => compare(DATATYPE[k], value))
-}
 
 function is_empty(item){
     return typeof item ==='undefined' || item === null;

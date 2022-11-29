@@ -41,8 +41,7 @@ public class Transform {
             DatabaseUtil.closeDBConnection(conn);
             Schema schema = ParserUtil.parseAttributeToRelationship(tableList);
             schema = Schema.queryByID(schema.getID());
-            String renderJSONStatement = schema.toRenderJSON();
-            Render.render(renderJSONStatement);
+            schema.renderAsImage(null);
         } catch (ParseException parseException) {
             throw new ParseException(parseException.getMessage());
         } catch (DBConnectionException dbConnectionException) {

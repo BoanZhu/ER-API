@@ -1,170 +1,118 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
-<head><meta charset="UTF-8">
-    <title>API image</title>
-    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>
-    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
-    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
-    <script src="API.js"></script>
-
-</head>
-<body>
-    <div id="model" style=" background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
-</div>
-    <div id ="image"></div>
-    <div id = "modelData" style="display:none" >{
-        "schema": {
-        "name": "nested-Person_Department_Project",
-        "entityList": [
-        {
-        "name": "person",
-        "entityType": 1,
-        "attributeList": [
-        {
-        "belongObjID": 1829,
-        "belongObjType": 2,
-        "name": "salary number",
-        "dataType": 2,
-        "isPrimary": true,
-        "attributeType": 1,
-        "aimPort": -1,
-        "layoutInfo": null,
-        "id": 1883
-        }
-        ],
-        "aimPort": -1,
-        "belongStrongEntityID": null,
-        "layoutInfo": null,
-        "id": 1829
-        },
-        {
-        "name": "department",
-        "entityType": 1,
-        "attributeList": [
-        {
-        "belongObjID": 1830,
-        "belongObjType": 2,
-        "name": "dname",
-        "dataType": 2,
-        "isPrimary": false,
-        "attributeType": 1,
-        "aimPort": -1,
-        "layoutInfo": null,
-        "id": 1884
-        }
-        ],
-        "aimPort": -1,
-        "belongStrongEntityID": null,
-        "layoutInfo": null,
-        "id": 1830
-        },
-        {
-        "name": "project",
-        "entityType": 1,
-        "attributeList": [
-        {
-        "belongObjID": 1831,
-        "belongObjType": 2,
-        "name": "pcode",
-        "dataType": 2,
-        "isPrimary": false,
-        "attributeType": 1,
-        "aimPort": -1,
-        "layoutInfo": null,
-        "id": 1885
-        }
-        ],
-        "aimPort": -1,
-        "belongStrongEntityID": null,
-        "layoutInfo": null,
-        "id": 1831
-        }
-        ],
-        "relationshipList": [
-        {
-        "name": "works in",
-        "edgeList": [
-        {
-        "relationshipID": 615,
-        "belongObjID": 1829,
-        "belongObjType": 2,
-        "belongObjName": "person",
-        "cardinality": 2,
-        "portAtRelationship": -1,
-        "portAtBelongObj": -1,
-        "id": 1236
-        },
-        {
-        "relationshipID": 615,
-        "belongObjID": 1830,
-        "belongObjType": 2,
-        "belongObjName": "department",
-        "cardinality": 2,
-        "portAtRelationship": -1,
-        "portAtBelongObj": -1,
-        "id": 1237
-        }
-        ],
-        "attributeList": [],
-        "layoutInfo": null,
-        "id": 615
-        },
-        {
-        "name": "member",
-        "edgeList": [
-        {
-        "relationshipID": 616,
-        "belongObjID": 615,
-        "belongObjType": 3,
-        "belongObjName": "works in",
-        "cardinality": 2,
-        "portAtRelationship": -1,
-        "portAtBelongObj": -1,
-        "id": 1238
-        },
-        {
-        "relationshipID": 616,
-        "belongObjID": 1831,
-        "belongObjType": 2,
-        "belongObjName": "project",
-        "cardinality": 2,
-        "portAtRelationship": -1,
-        "portAtBelongObj": -1,
-        "id": 1239
-        }
-        ],
-        "attributeList": [
-        {
-        "belongObjID": 616,
-        "belongObjType": 3,
-        "name": "role",
-        "dataType": 2,
-        "isPrimary": false,
-        "attributeType": 1,
-        "aimPort": -1,
-        "layoutInfo": null,
-        "id": 1886
-        }
-        ],
-        "layoutInfo": null,
-        "id": 616
-        }
-        ],
-        "id": 755
-        }
-        }
-    </div>
-</body>
-<script id="code">
-    function load() {
-        const modelData = JSON.parse(document.getElementById("modelData").innerHTML);
-        showSchema(modelData);
-        exportPng();
-    }
-
-    function exportPng() {
-        document.getElementById("image").value = APIDiagram.makeImageData({ background: "white"});
-    }
-    window.addEventListener('DOMContentLoaded', load);
-</script>
-</html>
+<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/html"><head>    <meta charset="UTF-8">    <title>API image</title>    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="API.js"></script></head><body><div id="model"     style=" background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;"></div><div id="image"></div><div id="modelData" style="display:none">{"schema":{
+  "id" : 1,
+  "name" : "nested-PersonDepartmentProject",
+  "entityList" : [ {
+    "id" : 1,
+    "name" : "person",
+    "entityType" : 1,
+    "attributeList" : [ {
+      "id" : 1,
+      "name" : "salary number",
+      "belongObjID" : 1,
+      "belongObjType" : 2,
+      "dataType" : 2,
+      "isPrimary" : true,
+      "attributeType" : 1,
+      "aimPort" : -1,
+      "layoutInfo" : null
+    } ],
+    "aimPort" : -1,
+    "belongStrongEntityID" : null,
+    "layoutInfo" : null
+  }, {
+    "id" : 2,
+    "name" : "department",
+    "entityType" : 1,
+    "attributeList" : [ {
+      "id" : 2,
+      "name" : "dname",
+      "belongObjID" : 2,
+      "belongObjType" : 2,
+      "dataType" : 2,
+      "isPrimary" : false,
+      "attributeType" : 1,
+      "aimPort" : -1,
+      "layoutInfo" : null
+    } ],
+    "aimPort" : -1,
+    "belongStrongEntityID" : null,
+    "layoutInfo" : null
+  }, {
+    "id" : 3,
+    "name" : "project",
+    "entityType" : 1,
+    "attributeList" : [ {
+      "id" : 3,
+      "name" : "pcode",
+      "belongObjID" : 3,
+      "belongObjType" : 2,
+      "dataType" : 2,
+      "isPrimary" : false,
+      "attributeType" : 1,
+      "aimPort" : -1,
+      "layoutInfo" : null
+    } ],
+    "aimPort" : -1,
+    "belongStrongEntityID" : null,
+    "layoutInfo" : null
+  } ],
+  "relationshipList" : [ {
+    "id" : 1,
+    "name" : "works in",
+    "attributeList" : [ ],
+    "edgeList" : [ {
+      "id" : 1,
+      "relationshipID" : 1,
+      "belongObjID" : 1,
+      "belongObjType" : 2,
+      "belongObjName" : "person",
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtBelongObj" : -1
+    }, {
+      "id" : 2,
+      "relationshipID" : 1,
+      "belongObjID" : 2,
+      "belongObjType" : 2,
+      "belongObjName" : "department",
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtBelongObj" : -1
+    } ],
+    "layoutInfo" : null
+  }, {
+    "id" : 2,
+    "name" : "member",
+    "attributeList" : [ {
+      "id" : 4,
+      "name" : "role",
+      "belongObjID" : 2,
+      "belongObjType" : 3,
+      "dataType" : 2,
+      "isPrimary" : false,
+      "attributeType" : 1,
+      "aimPort" : -1,
+      "layoutInfo" : null
+    } ],
+    "edgeList" : [ {
+      "id" : 3,
+      "relationshipID" : 2,
+      "belongObjID" : 1,
+      "belongObjType" : 3,
+      "belongObjName" : "works in",
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtBelongObj" : -1
+    }, {
+      "id" : 4,
+      "relationshipID" : 2,
+      "belongObjID" : 3,
+      "belongObjType" : 2,
+      "belongObjName" : "project",
+      "cardinality" : 2,
+      "portAtRelationship" : -1,
+      "portAtBelongObj" : -1
+    } ],
+    "layoutInfo" : null
+  } ]
+}}</div></body><script id="code">    function load() {        const modelData = JSON.parse(document.getElementById("modelData").innerHTML);        showSchema(modelData);        exportPng();    }    function exportPng() {        const image = APIDiagram.makeImage({            scale:1,            background: "white"        });        document.getElementById("image").innerHTML = image.src;    }    window.addEventListener('DOMContentLoaded', load);</script></html>
