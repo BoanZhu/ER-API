@@ -6,7 +6,14 @@ Amazing ER
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.MigadaTang/amazing-er/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.github.MigadaTang/amazing-er)
 [![javadoc](https://javadoc.io/badge2/io.github.MigadaTang/amazing-er/javadoc.svg)](https://javadoc.io/doc/io.github.MigadaTang/amazing-er/)
 
-A library containing classes with which users could create their own ER schema and export to JSON or render as image.
+A library providing rich features around ER modelling. With this project, you could:
+
+1. create ER schema using Java
+2. Export ER schema to JSON format
+3. Render ER schema to png image
+4. Transform ER schema to Data Definition Language(DDL)
+5. Reverse engineer database into a single ER schema
+6. Embed this project into your own application
 
 # Dependency
 
@@ -20,7 +27,7 @@ A library containing classes with which users could create their own ER schema a
 
 # Quick Start
 
-## Create vanilla ER schema and diagram
+## Create vanilla ER schema, export to JSON, image and DDL.
 
 ```java
 import io.github.MigadaTang.ER;
@@ -33,26 +40,161 @@ import io.github.MigadaTang.common.DataType;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class Hello {
+public class Example {
     public static void main(String[] args) throws SQLException, IOException {
-        ER.initialize(false);
+        Schema example = ER.createSchema("Vanilla");
 
-        Schema firstView = ER.createSchema("first view", "tw");
+        Entity branch = example.addEntity("branch");
+        branch.addPrimaryKey("sortcode", DataType.INT);
+        branch.addAttribute("bname", DataType.VARCHAR, AttributeType.Mandatory);
+        branch.addAttribute("cash", DataType.DOUBLE, AttributeType.Mandatory);
 
-        Entity teacher = firstView.addEntity("teacher");
-        teacher.addAttribute("teacher_id", DataType.VARCHAR, 1, 0);
-        teacher.addAttribute("name", DataType.VARCHAR, 0, 0);
-        teacher.addAttribute("age", DataType.INT, 0, 0);
+        Entity account = example.addEntity("account");
+        account.addPrimaryKey("no", DataType.INT);
+        account.addAttribute("type", DataType.CHAR, AttributeType.Mandatory);
+        account.addAttribute("cname", DataType.VARCHAR, AttributeType.Mandatory);
+        account.addAttribute("rate", DataType.DOUBLE, AttributeType.Mandatory);
 
-        Entity student = firstView.addEntity("student");
-        student.addAttribute("student_id", DataType.VARCHAR, 1, 0);
-        student.addAttribute("name", DataType.VARCHAR, 0, 0);
-        student.addAttribute("grade", DataType.INT, 0, 0);
+        Entity movement = example.addEntity("movement");
+        movement.addPrimaryKey("mid", DataType.INT);
+        movement.addAttribute("amount", DataType.DOUBLE, AttributeType.Mandatory);
+        movement.addAttribute("tdate", DataType.DATETIME, AttributeType.Mandatory);
 
-        Relationship ts = firstView.createRelationship("teaches", teacher, student, Cardinality.OneToMany);
-        System.out.println(firstView.ToJSON());
+        Relationship holds = example.createRelationship("holds", account, branch, Cardinality.OneToOne, Cardinality.ZeroToMany);
+        Relationship has = example.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
+
+        // export the ER schema to a JSON file
+        String jsonString = example.toJSON();
+        FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
+        myWriter.write(jsonString);
+        myWriter.close();
+
+        jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
+        Schema schema = ER.loadFromJSON(jsonString);
+        assertNotNull(schema);
+
+        schema.renderAsImage(String.format(outputImagePath, example.getName()));
+
     }
 }
+```
+
+```json
+{
+  "name": "Vanilla",
+  "entityList": [
+    {
+      "name": "branch",
+      "entityType": "STRONG",
+      "attributeList": [
+        {
+          "name": "sortcode",
+          "dataType": "INT",
+          "isPrimary": true,
+          "attributeType": "Mandatory"
+        },
+        {
+          "name": "bname",
+          "dataType": "VARCHAR",
+          "isPrimary": false,
+          "attributeType": "Mandatory"
+        },
+        {
+          "name": "cash",
+          "dataType": "DOUBLE",
+          "isPrimary": false,
+          "attributeType": "Mandatory"
+        }
+      ]
+    },
+    {
+      "name": "account",
+      "entityType": "STRONG",
+      "attributeList": [
+        {
+          "name": "no",
+          "dataType": "INT",
+          "isPrimary": true,
+          "attributeType": "Mandatory"
+        },
+        {
+          "name": "type",
+          "dataType": "CHAR",
+          "isPrimary": false,
+          "attributeType": "Mandatory"
+        },
+        {
+          "name": "cname",
+          "dataType": "VARCHAR",
+          "isPrimary": false,
+          "attributeType": "Mandatory"
+        },
+        {
+          "name": "rate",
+          "dataType": "DOUBLE",
+          "isPrimary": false,
+          "attributeType": "Mandatory"
+        }
+      ]
+    },
+    {
+      "name": "movement",
+      "entityType": "STRONG",
+      "attributeList": [
+        {
+          "name": "mid",
+          "dataType": "INT",
+          "isPrimary": true,
+          "attributeType": "Mandatory"
+        },
+        {
+          "name": "amount",
+          "dataType": "DOUBLE",
+          "isPrimary": false,
+          "attributeType": "Mandatory"
+        },
+        {
+          "name": "tdate",
+          "dataType": "DATETIME",
+          "isPrimary": false,
+          "attributeType": "Mandatory"
+        }
+      ]
+    }
+  ],
+  "relationshipList": [
+    {
+      "name": "holds",
+      "edgeList": [
+        {
+          "entity": "account",
+          "cardinality": "1:1"
+        },
+        {
+          "entity": "branch",
+          "cardinality": "0:N"
+        }
+      ]
+    },
+    {
+      "name": "has",
+      "edgeList": [
+        {
+          "entity": "account",
+          "cardinality": "0:N"
+        },
+        {
+          "entity": "movement",
+          "cardinality": "1:1"
+        }
+      ]
+    }
+  ]
+}
+```
+
+```sql
+
 ```
 
 ## Create n-ary relationship
@@ -73,3 +215,5 @@ This code is under the [MIT Licence](https://choosealicense.com/licenses/mit/).
 # Additional Resources
 
 [GOJS ER Diagram Library](https://gojs.net/latest/samples/entityRelationship.html)
+
+[ER Modelling slides](https://www.doc.ic.ac.uk/~pjm/idb/lectures/idb-er-handout.pdf)

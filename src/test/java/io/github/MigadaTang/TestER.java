@@ -1,6 +1,5 @@
 package io.github.MigadaTang;
 
-import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.common.RDBMSType;
@@ -69,7 +68,7 @@ public class TestER {
         Schema example = ER.createSchema("loadcheck");
 
         Entity person = example.addEntity("person");
-        Attribute att1 = person.addAttribute("att1", DataType.VARCHAR, true, AttributeType.Mandatory);
+        Attribute att1 = person.addPrimaryKey("att1", DataType.VARCHAR);
         att1.updateAimPort(2);
         att1.updateLayoutInfo(3.3, 4.4);
         Entity department = example.addEntity("department");

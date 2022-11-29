@@ -1,10 +1,7 @@
 {
-  "name" : "naryRelationship-PersonManagerDepartment",
+  "name" : "Attributes on relationship",
   "entityList" : [ {
     "name" : "person",
-    "entityType" : "STRONG"
-  }, {
-    "name" : "manager",
     "entityType" : "STRONG"
   }, {
     "name" : "department",
@@ -12,11 +9,19 @@
   } ],
   "relationshipList" : [ {
     "name" : "works in",
+    "attributeList" : [ {
+      "name" : "start_date",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "attributeType" : "Mandatory"
+    }, {
+      "name" : "end_date",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "attributeType" : "Optional"
+    } ],
     "edgeList" : [ {
       "entity" : "person",
-      "cardinality" : "0:N"
-    }, {
-      "entity" : "manager",
       "cardinality" : "0:N"
     }, {
       "entity" : "department",

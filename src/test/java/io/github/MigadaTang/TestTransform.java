@@ -28,16 +28,16 @@ public class TestTransform {
     public void testERModelToRSSucc() {
         view = ER.createSchema("testTransform1");
         Entity student = view.addEntity("student");
-        Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
-        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
-        Attribute studentAge = student.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
+        Attribute studentId = student.addPrimaryKey("id", DataType.INT);
+        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, AttributeType.Mandatory);
+        Attribute studentAge = student.addAttribute("age", DataType.INT, AttributeType.Mandatory);
         Entity teacher = view.addEntity("teacher");
-        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
-        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
-        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
+        Attribute teacherId = teacher.addPrimaryKey("id", DataType.INT);
+        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, AttributeType.Mandatory);
+        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, AttributeType.Mandatory);
         Entity school = view.addEntity("school");
-        Attribute schoolId = school.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
-        Attribute schoolName = school.addAttribute("name", DataType.INT, false, AttributeType.Mandatory);
+        Attribute schoolId = school.addPrimaryKey("id", DataType.INT);
+        Attribute schoolName = school.addAttribute("name", DataType.INT, AttributeType.Mandatory);
 
         Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
         Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToOne, Cardinality.OneToMany);
@@ -59,16 +59,16 @@ public class TestTransform {
     public void testERModelToRSFail1() {
         view = ER.createSchema("testTransform1");
         Entity student = view.addEntity("student");
-        Attribute studentId = student.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
-        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
-        Attribute studentAge = student.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
+        Attribute studentId = student.addPrimaryKey("id", DataType.INT);
+        Attribute studentName = student.addAttribute("name", DataType.VARCHAR, AttributeType.Mandatory);
+        Attribute studentAge = student.addAttribute("age", DataType.INT, AttributeType.Mandatory);
         Entity teacher = view.addEntity("teacher");
-        Attribute teacherId = teacher.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
-        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
-        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
+        Attribute teacherId = teacher.addPrimaryKey("id", DataType.INT);
+        Attribute teacherName = teacher.addAttribute("name", DataType.VARCHAR, AttributeType.Mandatory);
+        Attribute teacherAge = teacher.addAttribute("age", DataType.INT, AttributeType.Mandatory);
         Entity school = view.addEntity("school");
-        Attribute schoolId = school.addAttribute("id", DataType.INT, false, AttributeType.Mandatory);
-        Attribute schoolName = school.addAttribute("name", DataType.INT, false, AttributeType.Mandatory);
+        Attribute schoolId = school.addAttribute("id", DataType.INT, AttributeType.Mandatory);
+        Attribute schoolName = school.addAttribute("name", DataType.INT, AttributeType.Mandatory);
 
         Relationship twisr = view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);
         Relationship ssisr = view.createRelationship("study_in", student, school, Cardinality.ZeroToOne, Cardinality.OneToMany);
@@ -90,18 +90,18 @@ public class TestTransform {
     public void testERModelToRSSucc2() {
         view = ER.createSchema("testTransform1");
         Entity branch = view.addEntity("branch");
-        Attribute sortcode = branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
-        Attribute bname = branch.addAttribute("bname", DataType.VARCHAR, false, AttributeType.Mandatory);
-        Attribute cash = branch.addAttribute("cash", DataType.FLOAT, false, AttributeType.Mandatory);
+        Attribute sortcode = branch.addPrimaryKey("sortcode", DataType.INT);
+        Attribute bname = branch.addAttribute("bname", DataType.VARCHAR, AttributeType.Mandatory);
+        Attribute cash = branch.addAttribute("cash", DataType.FLOAT, AttributeType.Mandatory);
         Entity account = view.addEntity("account");
-        Attribute no = account.addAttribute("no", DataType.INT, true, AttributeType.Mandatory);
-        Attribute type = account.addAttribute("type", DataType.VARCHAR, false, AttributeType.Mandatory);
-        Attribute cname = account.addAttribute("cname", DataType.VARCHAR, false, AttributeType.Mandatory);
-        Attribute rate = account.addAttribute("rate", DataType.FLOAT, false, AttributeType.Optional);
+        Attribute no = account.addPrimaryKey("no", DataType.INT);
+        Attribute type = account.addAttribute("type", DataType.VARCHAR, AttributeType.Mandatory);
+        Attribute cname = account.addAttribute("cname", DataType.VARCHAR, AttributeType.Mandatory);
+        Attribute rate = account.addAttribute("rate", DataType.FLOAT, AttributeType.Optional);
         Entity movement = view.addEntity("movement");
-        Attribute mid = movement.addAttribute("mid", DataType.INT, true, AttributeType.Mandatory);
-        Attribute tdate = movement.addAttribute("tdate", DataType.DATETIME, false, AttributeType.Mandatory);
-        Attribute amount = movement.addAttribute("amount", DataType.FLOAT, false, AttributeType.Mandatory);
+        Attribute mid = movement.addPrimaryKey("mid", DataType.INT);
+        Attribute tdate = movement.addAttribute("tdate", DataType.DATETIME, AttributeType.Mandatory);
+        Attribute amount = movement.addAttribute("amount", DataType.FLOAT, AttributeType.Mandatory);
 
         Relationship bhar = view.createRelationship("holds", branch, account, Cardinality.ZeroToMany, Cardinality.OneToOne);
         Relationship ahmr = view.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
@@ -121,10 +121,10 @@ public class TestTransform {
     public void testERModelToRSSuccWithNaryAndSubset() {
         view = ER.createSchema("testTransform1");
         Entity department = view.addEntity("department");
-        department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
+        department.addPrimaryKey("dname", DataType.INT);
 
         Entity person = view.addEntity("person");
-        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        person.addPrimaryKey("salary_number", DataType.INT);
 
         Entity manager = view.addSubset("manager", person);
 
@@ -153,15 +153,15 @@ public class TestTransform {
     public void testERModelToRSSuccWithNaryAndWeakEntity() {
         view = ER.createSchema("testTransformWeakEntity");
         Entity department = view.addEntity("department");
-        department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
+        department.addPrimaryKey("dname", DataType.INT);
 
         Entity person = view.addEntity("person");
-        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        person.addPrimaryKey("salary_number", DataType.INT);
 
         ImmutablePair<Entity, Relationship> managerRelPair = view.addWeakEntity("manager", person
                 , "is a ", Cardinality.OneToOne, Cardinality.OneToMany);
         Entity manager = managerRelPair.left;
-        manager.addAttribute("name", DataType.VARCHAR, true, AttributeType.Mandatory);
+        manager.addPrimaryKey("name", DataType.VARCHAR);
 
         List<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
         ConnObjWithCardinality entity1 = new ConnObjWithCardinality(department, Cardinality.ZeroToMany);
@@ -188,11 +188,11 @@ public class TestTransform {
     public void testERModelToRSSuccWithNestedRelationship() {
         view = ER.createSchema("testTransformNestedRelationship");
         Entity project = view.addEntity("project");
-        project.addAttribute("pcode", DataType.INT, true, AttributeType.Mandatory);
+        project.addPrimaryKey("pcode", DataType.INT);
         Entity person = view.addEntity("person");
-        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        person.addPrimaryKey("salary_number", DataType.INT);
         Entity department = view.addEntity("department");
-        department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
+        department.addPrimaryKey("dname", DataType.INT);
 
         Relationship works_in = view.createEmptyRelationship("works in");
         Relationship member = view.createEmptyRelationship("member");
@@ -218,11 +218,11 @@ public class TestTransform {
     public void testERModelToRSSuccWithNestedRelationship2() {
         view = ER.createSchema("testTransformNestedRelationship2");
         Entity project = view.addEntity("project");
-        project.addAttribute("pcode", DataType.INT, true, AttributeType.Mandatory);
+        project.addPrimaryKey("pcode", DataType.INT);
         Entity person = view.addEntity("person");
-        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        person.addPrimaryKey("salary_number", DataType.INT);
         Entity department = view.addEntity("department");
-        department.addAttribute("dname", DataType.INT, true, AttributeType.Mandatory);
+        department.addPrimaryKey("dname", DataType.INT);
 
         Relationship works_in = view.createEmptyRelationship("works in");
         Relationship member = view.createEmptyRelationship("member");
@@ -248,9 +248,9 @@ public class TestTransform {
     public void testERModelToRSSuccWMultiValued() {
         view = ER.createSchema("testTransformMultiValued");
         Entity person = view.addEntity("person");
-        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
-        person.addAttribute("phone", DataType.TEXT, false, AttributeType.Multivalued);
-        person.addAttribute("car", DataType.TEXT, false, AttributeType.Both);
+        person.addPrimaryKey("salary_number", DataType.INT);
+        person.addAttribute("phone", DataType.TEXT, AttributeType.Multivalued);
+        person.addAttribute("car", DataType.TEXT, AttributeType.Both);
 
         Transform transform = new Transform();
         String sql = "";

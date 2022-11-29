@@ -490,7 +490,7 @@ public class Schema {
      *
      * @return a json string that can be rendered by html
      */
-    public String toRenderJSON() {
+    String toRenderJSON() {
         sanityCheck();
         SimpleModule module = new SimpleModule();
         module.addSerializer(Schema.class, new SchemaSerializer(true));
@@ -612,7 +612,7 @@ public class Schema {
         return baseImageCode;
     }
 
-    public static void writeRenderHTML(String jsonString) throws IOException {
+    public void writeRenderHTML(String jsonString) throws IOException {
 
         File f = new File(templateHTMLPath);
         InputStreamReader isr1 = new InputStreamReader(new FileInputStream(f), "UTF-8");

@@ -1,32 +1,34 @@
 <!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/html"><head>    <meta charset="UTF-8">    <title>API image</title>    <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>    <script src="API.js"></script></head><body><div id="model"     style=" background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;"></div><div id="image"></div><div id="modelData" style="display:none">{"schema":{
-  "id" : 12,
-  "name" : "nested-PersonDepartmentProject",
+  "id" : 2,
+  "name" : "Subset",
   "entityList" : [ {
-    "id" : 28,
+    "id" : 3,
     "name" : "person",
     "entityType" : 1,
     "attributeList" : [ {
-      "id" : 43,
+      "id" : 5,
       "name" : "salary number",
-      "belongObjID" : 28,
+      "belongObjID" : 3,
       "belongObjType" : 2,
       "dataType" : 2,
       "isPrimary" : true,
       "attributeType" : 1,
       "aimPort" : -1,
       "layoutInfo" : null
-    } ],
-    "aimPort" : -1,
-    "belongStrongEntityID" : null,
-    "layoutInfo" : null
-  }, {
-    "id" : 29,
-    "name" : "department",
-    "entityType" : 1,
-    "attributeList" : [ {
-      "id" : 44,
-      "name" : "dname",
-      "belongObjID" : 29,
+    }, {
+      "id" : 6,
+      "name" : "bonus",
+      "belongObjID" : 3,
+      "belongObjType" : 2,
+      "dataType" : 2,
+      "isPrimary" : false,
+      "attributeType" : 2,
+      "aimPort" : -1,
+      "layoutInfo" : null
+    }, {
+      "id" : 7,
+      "name" : "name",
+      "belongObjID" : 3,
       "belongObjType" : 2,
       "dataType" : 2,
       "isPrimary" : false,
@@ -38,13 +40,13 @@
     "belongStrongEntityID" : null,
     "layoutInfo" : null
   }, {
-    "id" : 30,
-    "name" : "project",
-    "entityType" : 1,
+    "id" : 4,
+    "name" : "manager",
+    "entityType" : 3,
     "attributeList" : [ {
-      "id" : 45,
-      "name" : "pcode",
-      "belongObjID" : 30,
+      "id" : 8,
+      "name" : "mobile number",
+      "belongObjID" : 4,
       "belongObjType" : 2,
       "dataType" : 2,
       "isPrimary" : false,
@@ -53,70 +55,8 @@
       "layoutInfo" : null
     } ],
     "aimPort" : -1,
-    "belongStrongEntityID" : null,
+    "belongStrongEntityID" : "3",
     "layoutInfo" : null
   } ],
-  "relationshipList" : [ {
-    "id" : 13,
-    "name" : "works in",
-    "attributeList" : [ ],
-    "edgeList" : [ {
-      "id" : 27,
-      "relationshipID" : 13,
-      "belongObjID" : 28,
-      "belongObjType" : 2,
-      "belongObjName" : "person",
-      "isKey" : false,
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtBelongObj" : -1
-    }, {
-      "id" : 28,
-      "relationshipID" : 13,
-      "belongObjID" : 29,
-      "belongObjType" : 2,
-      "belongObjName" : "department",
-      "isKey" : false,
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtBelongObj" : -1
-    } ],
-    "layoutInfo" : null
-  }, {
-    "id" : 14,
-    "name" : "member",
-    "attributeList" : [ {
-      "id" : 46,
-      "name" : "role",
-      "belongObjID" : 14,
-      "belongObjType" : 3,
-      "dataType" : 2,
-      "isPrimary" : false,
-      "attributeType" : 1,
-      "aimPort" : -1,
-      "layoutInfo" : null
-    } ],
-    "edgeList" : [ {
-      "id" : 29,
-      "relationshipID" : 14,
-      "belongObjID" : 13,
-      "belongObjType" : 3,
-      "belongObjName" : "works in",
-      "isKey" : false,
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtBelongObj" : -1
-    }, {
-      "id" : 30,
-      "relationshipID" : 14,
-      "belongObjID" : 30,
-      "belongObjType" : 2,
-      "belongObjName" : "project",
-      "isKey" : false,
-      "cardinality" : 2,
-      "portAtRelationship" : -1,
-      "portAtBelongObj" : -1
-    } ],
-    "layoutInfo" : null
-  } ]
+  "relationshipList" : [ ]
 }}</div></body><script id="code">    function load() {        const modelData = JSON.parse(document.getElementById("modelData").innerHTML);        showSchema(modelData);        exportPng();    }    function exportPng() {        const image = APIDiagram.makeImage({            scale:1,            background: "white"        });        document.getElementById("image").innerHTML = image.src;    }    window.addEventListener('DOMContentLoaded', load);</script></html>

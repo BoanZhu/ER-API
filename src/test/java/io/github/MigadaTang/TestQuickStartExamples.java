@@ -29,51 +29,55 @@ public class TestQuickStartExamples {
 
     @Test
     public void createVanillaERSchema() throws IOException, ParseException {
-        Schema example = ER.createSchema("vanilla-BranchAccountMovement");
+        Schema example = ER.createSchema("Vanilla");
 
         Entity branch = example.addEntity("branch");
-        branch.addAttribute("sortcode", DataType.INT, true, AttributeType.Mandatory);
-        branch.addAttribute("bname", DataType.VARCHAR, false, AttributeType.Mandatory);
-        branch.addAttribute("cash", DataType.DOUBLE, false, AttributeType.Mandatory);
+        branch.addPrimaryKey("sortcode", DataType.INT);
+        branch.addAttribute("bname", DataType.VARCHAR, AttributeType.Mandatory);
+        branch.addAttribute("cash", DataType.DOUBLE, AttributeType.Mandatory);
 
         Entity account = example.addEntity("account");
-        account.addAttribute("no", DataType.INT, true, AttributeType.Mandatory);
-        account.addAttribute("type", DataType.CHAR, false, AttributeType.Mandatory);
-        account.addAttribute("cname", DataType.VARCHAR, false, AttributeType.Mandatory);
-        account.addAttribute("rate", DataType.DOUBLE, false, AttributeType.Mandatory);
+        account.addPrimaryKey("no", DataType.INT);
+        account.addAttribute("type", DataType.CHAR, AttributeType.Mandatory);
+        account.addAttribute("cname", DataType.VARCHAR, AttributeType.Mandatory);
+        account.addAttribute("rate", DataType.DOUBLE, AttributeType.Mandatory);
 
         Entity movement = example.addEntity("movement");
-        movement.addAttribute("mid", DataType.INT, true, AttributeType.Mandatory);
-        movement.addAttribute("amount", DataType.DOUBLE, false, AttributeType.Mandatory);
-        movement.addAttribute("tdate", DataType.DATETIME, false, AttributeType.Mandatory);
+        movement.addPrimaryKey("mid", DataType.INT);
+        movement.addAttribute("amount", DataType.DOUBLE, AttributeType.Mandatory);
+        movement.addAttribute("tdate", DataType.DATETIME, AttributeType.Mandatory);
 
         Relationship holds = example.createRelationship("holds", account, branch, Cardinality.OneToOne, Cardinality.ZeroToMany);
         Relationship has = example.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
-
+        // export the ER schema to a JSON file
         String jsonString = example.toJSON();
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
         myWriter.write(jsonString);
         myWriter.close();
 
+        // save your ER schema as image
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         assertNotNull(schema);
 
         schema.renderAsImage(String.format(outputImagePath, example.getName()));
+
+        // transform your er schema to DDL
+        
     }
 
     @Test
     public void createWeakEntitySchema() throws IOException, ParseException {
-        Schema example = ER.createSchema("weakEntity-SwipeCardForPerson");
+        Schema example = ER.createSchema("Weak entity");
 
         Entity person = example.addEntity("person");
-        person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
+        person.addPrimaryKey("salary number", DataType.VARCHAR);
 
         ImmutablePair<Entity, Relationship> pair = example.addWeakEntity("swipe card", person, "for", Cardinality.OneToOne, Cardinality.ZeroToMany);
         Entity swipeCard = pair.left;
         Relationship relationship = pair.right;
-        swipeCard.addAttribute("issue", DataType.INT, true, AttributeType.Mandatory);
-        swipeCard.addAttribute("date", DataType.VARCHAR, false, AttributeType.Mandatory);
+        swipeCard.addPrimaryKey("issue", DataType.INT);
+        swipeCard.addAttribute("date", DataType.VARCHAR, AttributeType.Mandatory);
 
         String jsonString = example.toJSON();
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
@@ -89,7 +93,7 @@ public class TestQuickStartExamples {
 
     @Test
     public void createNaryRelationshipSchema() throws IOException, ParseException {
-        Schema example = ER.createSchema("naryRelationship-PersonManagerDepartment");
+        Schema example = ER.createSchema("N-ary Relationship");
 
         Entity person = example.addEntity("person");
         Entity manager = example.addEntity("manager");
@@ -118,7 +122,7 @@ public class TestQuickStartExamples {
 
     @Test
     public void createAttributeOnRelationshipSchema() throws IOException, ParseException {
-        Schema example = ER.createSchema("attributeOnRelationship-PersonDepartment");
+        Schema example = ER.createSchema("Attributes on relationship");
 
         Entity person = example.addEntity("person");
         Entity department = example.addEntity("department");
@@ -141,15 +145,15 @@ public class TestQuickStartExamples {
 
     @Test
     public void createSubsetSchema() throws IOException, ParseException {
-        Schema example = ER.createSchema("subset-ManagerPerson");
+        Schema example = ER.createSchema("Subset");
 
         Entity person = example.addEntity("person");
-        person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
-        person.addAttribute("bonus", DataType.VARCHAR, false, AttributeType.Optional);
-        person.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
+        person.addPrimaryKey("salary number", DataType.VARCHAR);
+        person.addAttribute("bonus", DataType.VARCHAR, AttributeType.Optional);
+        person.addAttribute("name", DataType.VARCHAR, AttributeType.Mandatory);
 
         Entity manager = example.addSubset("manager", person);
-        manager.addAttribute("mobile number", DataType.VARCHAR, false, AttributeType.Mandatory);
+        manager.addAttribute("mobile number", DataType.VARCHAR, AttributeType.Mandatory);
 
         String jsonString = example.toJSON();
         FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
@@ -165,16 +169,16 @@ public class TestQuickStartExamples {
 
     @Test
     public void createNestedRelationship() throws IOException, ParseException {
-        Schema example = ER.createSchema("nested-PersonDepartmentProject");
+        Schema example = ER.createSchema("Nested relationship");
 
         Entity person = example.addEntity("person");
-        person.addAttribute("salary number", DataType.VARCHAR, true, AttributeType.Mandatory);
+        person.addPrimaryKey("salary number", DataType.VARCHAR);
 
         Entity department = example.addEntity("department");
-        department.addAttribute("dname", DataType.VARCHAR, false, AttributeType.Mandatory);
+        department.addAttribute("dname", DataType.VARCHAR, AttributeType.Mandatory);
 
         Entity project = example.addEntity("project");
-        project.addAttribute("pcode", DataType.VARCHAR, false, AttributeType.Mandatory);
+        project.addAttribute("pcode", DataType.VARCHAR, AttributeType.Mandatory);
 
         Relationship worksIn = example.createRelationship("works in", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Relationship member = example.createRelationship("member", worksIn, project, Cardinality.ZeroToMany, Cardinality.ZeroToMany);

@@ -104,8 +104,10 @@ public class Attribute extends ERBaseObj {
         }
         if (isPrimary != null && isPrimary) {
             List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, getSchemaID(), null));
-            if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(getID())) {
-                throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
+            for (Attribute attribute : attributeList) {
+                if (!attribute.getID().equals(getID()) && attribute.getIsPrimary()) {
+                    throw new ERException(String.format("attribute that is primary key already exists, name: %s", attribute.getName()));
+                }
             }
         }
         if (this.isPrimary && this.attributeType != AttributeType.Mandatory) {

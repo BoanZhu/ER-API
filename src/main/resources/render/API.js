@@ -545,8 +545,8 @@ function defineModel(isInitial){
 
     APIDiagram.model = new go.GraphLinksModel(
         {
-            copiesArrays: true,
-            copiesArrayObjects: true,
+            linkFromPortIdProperty: "fromPort",
+            linkToPortIdProperty: "toPort",
             nodeDataArray: [],
             linkDataArray: []
         });
@@ -585,7 +585,7 @@ function getSchema(data){
             }
             if (node.category === subsetEntityNodeCategory) {
                 // add link
-                if (!is_empty(node.belongStrongEntityID)) {
+                if (!is_empty(entityData.belongStrongEntityID)) {
                     let aimPort = entityData.aimPort;
                     if (aimPort === -1) {
                         aimPort = 2;
@@ -628,6 +628,9 @@ function getSchema(data){
 
     for (let [key, value] of subsetLinkMap) {
         let subsetLinkData = {"from":key,"to":parseInt(value[0]),"fromPort":5,"toPort":value[1], "category":"subsetLink"}
+        if (parseInt(value[1]) === -1) {
+            subsetLinkData.toPort = 2;
+        }
         APIDiagram.model.addLinkData(subsetLinkData);
     }
 
