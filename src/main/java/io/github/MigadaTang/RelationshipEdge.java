@@ -146,7 +146,11 @@ public class RelationshipEdge {
         }
         for (Map.Entry<Long, Long> entry : objCountMap.entrySet()) {
             if (!entry.getKey().equals(currentRelationshipID) && entry.getValue() == entityIDs.size() + relationshipIDs.size()) {
-                return true;
+                Relationship relationship = Relationship.queryByID(entry.getKey());
+                // make sure these two relationship have exactly the same entities
+                if (relationship.getEdgeList().size() == entityIDs.size() + relationshipIDs.size()) {
+                    return true;
+                }
             }
         }
         return false;

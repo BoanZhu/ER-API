@@ -158,7 +158,17 @@ class SchemaDeserializer extends StdDeserializer<Schema> {
                 } else {
                     throw new ERException("missing entity or relationship in the edge");
                 }
-                relationship.linkObj(target, cardinality, isKey);
+                RelationshipEdge edge = relationship.linkObj(target, cardinality, isKey);
+                int portAtRelationship = -1, portAtBelongObj = -1;
+                JsonNode portAtRelationshipNode = edgeJsonNode.get("portAtRelationship");
+                if (portAtRelationshipNode != null) {
+                    portAtRelationship = portAtRelationshipNode.intValue();
+                }
+                JsonNode portAtBelongObjNode = edgeJsonNode.get("portAtBelongObj");
+                if (portAtBelongObjNode != null) {
+                    portAtBelongObj = portAtBelongObjNode.intValue();
+                }
+                edge.updatePorts(portAtRelationship, portAtBelongObj);
             }
 
             JsonNode attributeList = relationshipJSONNode.get("attributeList");

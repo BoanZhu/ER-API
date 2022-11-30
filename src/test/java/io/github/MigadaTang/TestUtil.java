@@ -1,14 +1,16 @@
 package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.Cardinality;
+import io.github.MigadaTang.exception.ERException;
 import io.github.MigadaTang.transform.ParserUtil;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+
+import static org.junit.Assert.assertThrows;
 
 public class TestUtil {
     Schema view;
@@ -83,9 +85,7 @@ public class TestUtil {
         relationshipList.add(r3);
         relationshipList.add(r4);
 
-        Queue<Relationship> relationshipQueue = ParserUtil.generateRelationshipTopologySeq(relationshipList);
-        System.out.println(relationshipQueue);
-        Assert.assertEquals(0, relationshipQueue.size());
+        assertThrows(ERException.class, () -> ParserUtil.generateRelationshipTopologySeq(relationshipList));
     }
 
     @Test
@@ -107,8 +107,6 @@ public class TestUtil {
         relationshipList.add(r3);
         relationshipList.add(r4);
 
-        Queue<Relationship> relationshipQueue = ParserUtil.generateRelationshipTopologySeq(relationshipList);
-        System.out.println(relationshipQueue);
-        Assert.assertNotEquals(4, relationshipQueue.size());
+        assertThrows(ERException.class, () -> ParserUtil.generateRelationshipTopologySeq(relationshipList));
     }
 }

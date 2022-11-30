@@ -6,10 +6,10 @@
 
     <groupId>io.github.MigadaTang</groupId>
     <artifactId>amazing-er</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>amazing-er</name>
-    <description>A library containing classes with which users could create their own ER schema and export to JSON
-        or image format.
+    <description>A library providing rich features around ER modelling, such as creating ER schema, exporting to JSON
+        , saving as image and exporting to DDL.
     </description>
     <url>https://github.com/MigadaTang/AmazingER</url>
 
@@ -83,6 +83,12 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>com/gargoylesoftware/*</exclude>
+                        <exclude>io/github/MigadaTang/exception/*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

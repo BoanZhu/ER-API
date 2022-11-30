@@ -2,6 +2,7 @@ package io.github.MigadaTang.transform;
 
 import io.github.MigadaTang.*;
 import io.github.MigadaTang.common.*;
+import io.github.MigadaTang.exception.ERException;
 import io.github.MigadaTang.exception.ParseException;
 
 import java.util.*;
@@ -51,8 +52,8 @@ public class ParserUtil {
     }
 
     private static void parseTableToEntity(List<Table> tableList, Map<Long, Entity> tableDTOEntityMap,
-                                    List<Table> tableGenerateByRelationship, Schema schema,
-                                    List<Column> foreignKeyList) throws ParseException {
+                                           List<Table> tableGenerateByRelationship, Schema schema,
+                                           List<Column> foreignKeyList) throws ParseException {
         List<Table> possibleWeakEntitySet = new ArrayList<>();
         List<Table> possibleSubsetSet = new ArrayList<>();
 
@@ -247,7 +248,7 @@ public class ParserUtil {
         }
         Map<Long, List<Column>> fk = new HashMap<>();
         fk.put(table.getId(), fkList);
-        Table newT = new Table(newTableId, table.getName()+"_"+column.getName(), EntityType.STRONG,
+        Table newT = new Table(newTableId, table.getName() + "_" + column.getName(), EntityType.STRONG,
                 null, columnList, pkList, new ArrayList<>(), fk);
         tableDTOMap.put(newT.getId(), newT);
     }
@@ -359,6 +360,10 @@ public class ParserUtil {
                     }
                 }
             }
+        }
+
+        if (relationshipQueue.size() != relationshipList.size()) {
+            throw new ERException("Please remove the relationship cycles in the schema");
         }
 
         return relationshipQueue;

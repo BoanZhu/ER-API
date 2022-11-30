@@ -65,7 +65,7 @@ public class TestGenerateDDL {
         teacher.addAttribute("name", DataType.VARCHAR, false, AttributeType.Mandatory);
         teacher.addAttribute("age", DataType.INT, false, AttributeType.Mandatory);
         Entity school = view.addEntity("school");
-        school.addAttribute("id", DataType.INT, false, AttributeType.Mandatory);
+        school.addAttribute("id", DataType.INT, true, AttributeType.Mandatory);
         school.addAttribute("name", DataType.INT, false, AttributeType.Mandatory);
 
         view.createRelationship("work_in", teacher, school, Cardinality.OneToOne, Cardinality.OneToMany);

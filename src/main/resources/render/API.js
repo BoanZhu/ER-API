@@ -127,27 +127,27 @@ function defineModel(isInitial){
     function leftPort(){
         // L port
         return $(go.Panel, "Vertical", {row: 1, column: 0},
-            $(go.Shape, {width: 3, height: 3, portId: 3, toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
-                fromLinkable: true,toLinkable: true
-            }));
+                $(go.Shape, {width: 3, height: 3, portId: 3, toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                    fromLinkable: true,toLinkable: true
+                }));
     }
     function rightPort(){
         // R port
         return $(go.Panel, "Vertical", {row: 1, column: 2},
             $(go.Shape,  {width: 3, height: 3, portId: 4, toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
-                fromLinkable: true,toLinkable: true}));
+                    fromLinkable: true,toLinkable: true}));
     }
     function bottomPort(){
         // B port
         return $(go.Panel, "Horizontal", {row:2, column: 1},
             $(go.Shape, {width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
-                fromLinkable: true,toLinkable: true}));
+                    fromLinkable: true,toLinkable: true}));
     }
     function topPort(){
         // U port
         return $(go.Panel, "Vertical",{row: 0, column: 1},
             $(go.Shape, {width: 3, height: 3, portId: 1, toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
-                fromLinkable: true,toLinkable: true}));
+                    fromLinkable: true,toLinkable: true}));
     }
 
     /*
@@ -585,7 +585,7 @@ function getSchema(data){
             }
             if (node.category === subsetEntityNodeCategory) {
                 // add link
-                if (!is_empty(node.belongStrongEntityID)) {
+                if (!is_empty(entityData.belongStrongEntityID)) {
                     let aimPort = entityData.aimPort;
                     if (aimPort === -1) {
                         aimPort = 2;
@@ -628,8 +628,8 @@ function getSchema(data){
 
     for (let [key, value] of subsetLinkMap) {
         let subsetLinkData = {"from":key,"to":parseInt(value[0]),"fromPort":5,"toPort":value[1], "category":"subsetLink"}
-        if (value[1] === -1) {
-            subsetLinkData.toPort = 2
+        if (parseInt(value[1]) === -1) {
+            subsetLinkData.toPort = 2;
         }
         APIDiagram.model.addLinkData(subsetLinkData);
     }

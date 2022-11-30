@@ -36,7 +36,7 @@ public class TestAttribute {
 
         String attributeName = "teacher_id";
         DataType dataType = DataType.VARCHAR;
-        Attribute a1 = teacher.addAttribute(attributeName, dataType, true, AttributeType.Mandatory);
+        Attribute a1 = teacher.addPrimaryKey(attributeName, dataType);
         assertNotNull(a1);
 
         Attribute attribute = Attribute.queryByID(a1.getID());
@@ -59,14 +59,14 @@ public class TestAttribute {
         assertEquals(attribute.getLayoutInfo().getLayoutX(), Double.valueOf(1.2));
         assertEquals(attribute.getLayoutInfo().getLayoutY(), Double.valueOf(1.3));
 
-        Attribute a2 = teacher.addAttribute("phone", dataType, false, AttributeType.Optional);
+        Attribute a2 = teacher.addAttribute("phone", dataType, AttributeType.Optional);
         assertEquals(a2.getAttributeType(), AttributeType.Optional);
         a2.updateInfo(null, null, null, AttributeType.Both);
         attribute = Attribute.queryByID(a2.getID());
         assertEquals(attribute.getAttributeType(), AttributeType.Both);
 
         // duplicate name exception test
-        assertThrows(ERException.class, () -> teacher.addAttribute(attributeName, DataType.INT, false, AttributeType.Mandatory));
+        assertThrows(ERException.class, () -> teacher.addAttribute(attributeName, DataType.INT, AttributeType.Mandatory));
     }
 
     @Test
@@ -103,16 +103,20 @@ public class TestAttribute {
 
     @Test
     public void updateTest() {
-        Attribute a1 = teacher.addAttribute("teacher_id", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute a1 = teacher.addAttribute("teacher_id", DataType.VARCHAR, AttributeType.Mandatory);
 
         String newName = "new_teacher_id";
         DataType newDataType = DataType.BIGINT;
-        a1.updateInfo(newName, newDataType, false, AttributeType.Both);
+        a1.updateInfo(newName, newDataType, true, AttributeType.Mandatory);
         Attribute attribute = Attribute.queryByID(a1.getID());
         assertEquals(attribute.getName(), newName);
         assertEquals(attribute.getDataType(), newDataType);
-        assertEquals(attribute.getIsPrimary(), false);
-        assertEquals(attribute.getAttributeType(), AttributeType.Both);
+        assertEquals(attribute.getIsPrimary(), true);
+        assertEquals(attribute.getAttributeType(), AttributeType.Mandatory);
+
+        // update the original primary key, nothing wrong
+        a1.updateInfo(newName, newDataType, true, AttributeType.Mandatory);
+
 
         // check update aimPort success
         a1.updateAimPort(1);
@@ -126,21 +130,23 @@ public class TestAttribute {
         assertEquals(attribute.getLayoutInfo().getLayoutX(), Double.valueOf(1.2));
         assertEquals(attribute.getLayoutInfo().getLayoutY(), Double.valueOf(1.3));
 
+        assertThrows(ERException.class, () -> teacher.addPrimaryKey("primary key check", DataType.VARCHAR));
+
         // check update to duplicate name exception
-        Attribute backup = teacher.addAttribute("backup", DataType.VARCHAR, false, AttributeType.Mandatory);
+        Attribute backup = teacher.addAttribute("backup", DataType.VARCHAR, AttributeType.Mandatory);
         assertThrows(ERException.class, () -> a1.updateInfo("backup", null, null, null));
     }
 
     @Test
     public void selectByIDTest() {
-        Attribute a1 = teacher.addAttribute("teacher_id", DataType.VARCHAR, true, AttributeType.Mandatory);
+        Attribute a1 = teacher.addPrimaryKey("teacher_id", DataType.VARCHAR);
         Attribute attribute = Attribute.queryByID(a1.getID());
         assertNotNull(attribute);
     }
 
     @Test
     public void deleteByIDTest() {
-        Attribute a1 = teacher.addAttribute("teacher_id", DataType.VARCHAR, true, AttributeType.Mandatory);
+        Attribute a1 = teacher.addPrimaryKey("teacher_id", DataType.VARCHAR);
 
         // delete
         teacher.deleteAttribute(a1);

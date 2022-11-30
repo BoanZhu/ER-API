@@ -397,10 +397,11 @@ public class Schema {
             }
             switch (entity.getEntityType()) {
                 case STRONG:
-                case WEAK:
                     if (primaryKeyNum != 1) {
                         throw new ERException(String.format("strong entity (%s) must have exactly one primary key", entity.getName()));
                     }
+                    break;
+                case WEAK:
                     break;
                 case SUBSET:
                     if (primaryKeyNum != 0) {
@@ -431,8 +432,10 @@ public class Schema {
             if (RelationshipEdge.checkInSameRelationship(relationship.getID(), belongObjList)) {
                 throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
             }
+            int keyRelationshipEdgeCount = 0;
             for (RelationshipEdge edge : relationship.getEdgeList()) {
                 if (edge.getIsKey()) {
+                    keyRelationshipEdgeCount++;
                     // key relationship can only be used by weak entity
                     boolean isWeakEntity = false;
                     if (edge.getConnObjType() == BelongObjType.ENTITY) {
@@ -448,7 +451,28 @@ public class Schema {
                     }
                 }
             }
+            if (keyRelationshipEdgeCount >= 2) {
+                throw new ERException(String.format("relationship %s cannot have more than one key relationship edges", relationship.getName()));
+            }
+            if (keyRelationshipEdgeCount == 1) {
+                for (RelationshipEdge edge : relationship.getEdgeList()) {
+                    if (edge.getIsKey()) {
+                        continue;
+                    }
+                    if (edge.getConnObjType() == BelongObjType.ENTITY) {
+                        Entity entity = Entity.queryByID(edge.getConnObj().getID());
+                        if (entity.getEntityType() != EntityType.STRONG) {
+                            throw new ERException(String.format("relationship %s with key relationship edge can only connect to strong entities", relationship.getName()));
+                        }
+                    } else {
+                        throw new ERException(String.format("relationship %s with key relationship edge can only connect to strong entities", relationship.getName()));
+                    }
+                }
+            }
         }
+
+        // check if there are cycles in the schema
+        ParserUtil.generateRelationshipTopologySeq(relationshipList);
 
         for (Entity entity : entityList) {
             if (entity.getEntityType() == EntityType.WEAK) {
@@ -493,7 +517,7 @@ public class Schema {
      *
      * @return a json string that can be rendered by html
      */
-    public String toRenderJSON() {
+    String toRenderJSON() {
         sanityCheck();
         SimpleModule module = new SimpleModule();
         module.addSerializer(Schema.class, new SchemaSerializer(true));
@@ -604,9 +628,9 @@ public class Schema {
         try {
             myPage = webClient.getPage(new File(renderHTMLPath).toURI().toURL());
         } catch (IOException e) {
-            throw new ParseException("Fail to read the file: show.html");
+            throw new ParseException("Fail to read the file: " + renderHTMLPath);
         }
-        String baseImageCode = myPage.getElementById("image").asNormalizedText();
+        String baseImageCode = myPage.getElementById("image").getTextContent();
         webClient.close();
 
         if (fileName != null) {
@@ -615,7 +639,7 @@ public class Schema {
         return baseImageCode;
     }
 
-    public static void writeRenderHTML(String jsonString) throws IOException {
+    public void writeRenderHTML(String jsonString) throws IOException {
 
         File f = new File(templateHTMLPath);
         InputStreamReader isr1 = new InputStreamReader(new FileInputStream(f), "UTF-8");
@@ -658,10 +682,10 @@ public class Schema {
     /**
      * Transform er model to data definition language
      *
-     * @return  -  Sql Statement of current schema
-     * @throws ParseException   Exception that fail to mapping entity, relationship and attribute to table and column
+     * @return -  Sql Statement of current schema
+     * @throws ParseException Exception that fail to mapping entity, relationship and attribute to table and column
      */
-    public String generateSqlStatement() throws ParseException {
+    public String generateSqlStatement() throws ERException, ParseException {
         comprehensiveCheck();
         Map<Long, Table> tableDTOList;
         try {

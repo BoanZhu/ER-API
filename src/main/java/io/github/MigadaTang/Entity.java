@@ -46,6 +46,29 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         }
     }
 
+    /**
+     * Add an attribute that is primary key
+     *
+     * @param attributeName the name of the attribute
+     * @param dataType      the type of data this attribute contains
+     * @return the created attribute
+     */
+    public Attribute addPrimaryKey(String attributeName, DataType dataType) {
+        return addAttribute(attributeName, dataType, true, AttributeType.Mandatory);
+    }
+
+    /**
+     * Add an attribute that is not primary key
+     *
+     * @param attributeName the name of the attribute
+     * @param dataType      the type of data this attribute contains
+     * @param attributeType the type of this attribute
+     * @return the created attribute
+     */
+    public Attribute addAttribute(String attributeName, DataType dataType, AttributeType attributeType) {
+        return addAttribute(attributeName, dataType, false, attributeType);
+    }
+
 
     /**
      * Add attribute onto the entity
@@ -54,7 +77,7 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
      * @param dataType      the type of data this attribute contains
      * @param isPrimary     whether this is a primary key
      * @param attributeType the type of this attribute
-     * @return The created attribute
+     * @return the created attribute
      */
     public Attribute addAttribute(String attributeName, DataType dataType, Boolean isPrimary, AttributeType attributeType) {
         if (attributeName.equals("")) {
