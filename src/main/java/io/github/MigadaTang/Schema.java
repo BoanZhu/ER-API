@@ -450,6 +450,9 @@ public class Schema {
             }
         }
 
+        // check if there are cycles in the schema
+        ParserUtil.generateRelationshipTopologySeq(relationshipList);
+
         for (Entity entity : entityList) {
             if (entity.getEntityType() == EntityType.WEAK) {
                 Integer keyRelationshipCount = weakEntityKeyRelationshipCountMap.getOrDefault(entity.getID(), 0);
@@ -658,10 +661,11 @@ public class Schema {
     /**
      * Transform er model to data definition language
      *
-     * @return  -  Sql Statement of current schema
-     * @throws ParseException   Exception that fail to mapping entity, relationship and attribute to table and column
+     * @return -  Sql Statement of current schema
+     * @throws ParseException Exception that fail to mapping entity, relationship and attribute to table and column
      */
-    public String generateSqlStatement() throws ParseException {
+    public String generateSqlStatement() throws ERException, ParseException {
+        comprehensiveCheck();
         Map<Long, Table> tableDTOList;
         try {
             tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());

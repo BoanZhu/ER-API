@@ -64,6 +64,40 @@ public class TestER {
     }
 
     @Test
+    public void CyclicRelationshipCheckTest() {
+        Schema example = ER.createSchema("cyclic relationship");
+
+        Entity e1 = example.addEntity("E1");
+        Entity e2 = example.addEntity("E2");
+        Entity e3 = example.addEntity("E3");
+        Entity e4 = example.addEntity("E4");
+        Entity e5 = example.addEntity("E5");
+
+        e1.addPrimaryKey("e1", DataType.VARCHAR);
+        e2.addPrimaryKey("e2", DataType.VARCHAR);
+        e3.addPrimaryKey("e3", DataType.VARCHAR);
+        e4.addPrimaryKey("e4", DataType.VARCHAR);
+        e5.addPrimaryKey("e5", DataType.VARCHAR);
+
+        Relationship r1 = example.createEmptyRelationship("R1");
+        r1.linkObj(e1, Cardinality.OneToOne);
+        Relationship r2 = example.createEmptyRelationship("R2");
+        r2.linkObj(e2, Cardinality.OneToOne);
+        Relationship r3 = example.createEmptyRelationship("R3");
+        r3.linkObj(e3, Cardinality.OneToOne);
+        Relationship r4 = example.createEmptyRelationship("R4");
+        r4.linkObj(e4, Cardinality.OneToOne);
+        r4.linkObj(e5, Cardinality.OneToOne);
+
+        r1.linkObj(r2, Cardinality.OneToOne);
+        r2.linkObj(r3, Cardinality.OneToOne);
+        r3.linkObj(r1, Cardinality.OneToOne);
+        r3.linkObj(r4, Cardinality.OneToOne);
+
+        assertThrows(ERException.class, () -> example.comprehensiveCheck());
+    }
+
+    @Test
     public void loadCheckTest() {
         Schema example = ER.createSchema("loadcheck");
 

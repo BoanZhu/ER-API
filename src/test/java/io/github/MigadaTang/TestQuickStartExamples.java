@@ -55,15 +55,12 @@ public class TestQuickStartExamples {
         myWriter.write(jsonString);
         myWriter.close();
 
-        // save your ER schema as image
         jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
         Schema schema = ER.loadFromJSON(jsonString);
         assertNotNull(schema);
 
+        // save your ER schema as image
         schema.renderAsImage(String.format(outputImagePath, example.getName()));
-
-        // transform your er schema to DDL
-        
     }
 
     @Test

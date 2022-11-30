@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class Example {
-    public static void main(String[] args) throws SQLException, IOException {
+    public static void main(String[] args) {
         Schema example = ER.createSchema("Vanilla");
 
         Entity branch = example.addEntity("branch");
@@ -63,21 +63,19 @@ public class Example {
         Relationship holds = example.createRelationship("holds", account, branch, Cardinality.OneToOne, Cardinality.ZeroToMany);
         Relationship has = example.createRelationship("has", account, movement, Cardinality.ZeroToMany, Cardinality.OneToOne);
 
-        // export the ER schema to a JSON file
+        // export the ER schema to a JSON format
         String jsonString = example.toJSON();
-        FileWriter myWriter = new FileWriter(String.format(outputFormat, example.getName()));
-        myWriter.write(jsonString);
-        myWriter.close();
 
-        jsonString = Files.readString(Path.of(String.format(outputFormat, example.getName())), Charset.defaultCharset());
-        Schema schema = ER.loadFromJSON(jsonString);
-        assertNotNull(schema);
-
+        // save your ER schema as image
         schema.renderAsImage(String.format(outputImagePath, example.getName()));
 
+        // transform your ER schema to DDL
+        String DDL = schema.generateSqlStatement();
     }
 }
 ```
+
+**ER schema to JSON**
 
 ```json
 {
@@ -193,13 +191,78 @@ public class Example {
 }
 ```
 
-```sql
+**ER schema to Image**
 
+![Vanilla](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/-/blob/master/src/test/java/io/github/MigadaTang/renderImageExamples/Vanilla.png)
+
+**ER schema to Data Definition Language(DDL)**
+
+```sql
+CREATE TABLE `branch` (
+    `sortcode` INT NOT NULL,
+    `bname` VARCHAR NOT NULL,
+    `cash` DOUBLE NOT NULL,
+    CONSTRAINT branch_pk PRIMARY KEY (sortcode)
+)
+
+CREATE TABLE `account` (
+    `no` INT NOT NULL,
+    `type` CHAR NOT NULL,
+    `cname` VARCHAR NOT NULL,
+    `rate` DOUBLE NOT NULL,
+    `branch_sortcode` INT NOT NULL,
+    CONSTRAINT account_pk PRIMARY KEY (no),
+    CONSTRAINT account_fk1 FOREIGN KEY (branch_sortcode) REFERENCES branch(sortcode)
+)
+
+CREATE TABLE `movement` (
+    `mid` INT NOT NULL,
+    `amount` DOUBLE NOT NULL,
+    `tdate` DATETIME NOT NULL,
+    `account_no` INT NOT NULL,
+    CONSTRAINT movement_pk PRIMARY KEY (mid),
+    CONSTRAINT movement_fk1 FOREIGN KEY (account_no) REFERENCES account(no)
+)
 ```
 
 ## Create n-ary relationship
 
-## Create nested relationship
+```java
+public class Example {
+    public static void main(String[] args) {
+        Schema example = ER.createSchema("N-ary Relationship");
+
+        Entity person = example.addEntity("person");
+        Entity manager = example.addEntity("manager");
+        Entity department = example.addEntity("department");
+
+        ArrayList<ConnObjWithCardinality> eCardList = new ArrayList<>();
+        eCardList.add(new ConnObjWithCardinality(person, Cardinality.ZeroToMany));
+        eCardList.add(new ConnObjWithCardinality(manager, Cardinality.ZeroToMany));
+        eCardList.add(new ConnObjWithCardinality(department, Cardinality.ZeroToMany));
+        Relationship worksIn = example.createNaryRelationship("works in", eCardList);
+    }
+}
+```
+
+## Create subset
+
+```java
+public class Example {
+    public static void main(String[] args) {
+        Schema example = ER.createSchema("Subset");
+
+        Entity person = example.addEntity("person");
+        person.addPrimaryKey("salary number", DataType.VARCHAR);
+        person.addAttribute("bonus", DataType.VARCHAR, AttributeType.Optional);
+        person.addAttribute("name", DataType.VARCHAR, AttributeType.Mandatory);
+
+        Entity manager = example.addSubset("manager", person);
+        manager.addAttribute("mobile number", DataType.VARCHAR, AttributeType.Mandatory);
+    }
+}
+
+```
 
 # Documentation
 

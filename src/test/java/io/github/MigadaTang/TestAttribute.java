@@ -107,14 +107,15 @@ public class TestAttribute {
 
         String newName = "new_teacher_id";
         DataType newDataType = DataType.BIGINT;
-        a1.updateInfo(newName, newDataType, true, AttributeType.Both);
+        a1.updateInfo(newName, newDataType, true, AttributeType.Mandatory);
         Attribute attribute = Attribute.queryByID(a1.getID());
         assertEquals(attribute.getName(), newName);
         assertEquals(attribute.getDataType(), newDataType);
         assertEquals(attribute.getIsPrimary(), true);
-        assertEquals(attribute.getAttributeType(), AttributeType.Both);
+        assertEquals(attribute.getAttributeType(), AttributeType.Mandatory);
+
         // update the original primary key, nothing wrong
-        a1.updateInfo(newName, newDataType, true, AttributeType.Both);
+        a1.updateInfo(newName, newDataType, true, AttributeType.Mandatory);
 
 
         // check update aimPort success
