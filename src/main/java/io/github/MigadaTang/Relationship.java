@@ -1,6 +1,6 @@
 package io.github.MigadaTang;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
@@ -8,63 +8,93 @@ import io.github.MigadaTang.entity.AttributeDO;
 import io.github.MigadaTang.entity.RelationshipDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.exception.ERException;
-import io.github.MigadaTang.serializer.RelationshipSerializer;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static io.github.MigadaTang.RelationshipEdge.checkEntitesInSameRelationship;
 
+/**
+ * The relationship in ER schema
+ */
 @Getter
-public class Relationship {
-    private Long ID;
-    private String name;
-    private Long schemaID;
+public class Relationship extends ERBaseObj implements ERConnectableObj {
+    /**
+     * The list of attributes on this relationship
+     */
     private List<Attribute> attributeList;
+    /**
+     * The list of edges connecting this relationship and other relationship or entities
+     */
     private List<RelationshipEdge> edgeList;
-    private LayoutInfo layoutInfo;
-    private Date gmtCreate;
-    private Date gmtModified;
 
-    // do not handle layout info during creation, use update to add layout info
     protected Relationship(Long ID, String name, Long schemaID, List<Attribute> attributeList, List<RelationshipEdge> edgeList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
-        this.ID = ID;
-        this.name = name;
-        this.schemaID = schemaID;
+        super(ID, schemaID, name, BelongObjType.RELATIONSHIP, layoutInfo, gmtCreate, gmtModified);
         this.attributeList = attributeList;
         this.edgeList = edgeList;
-        this.layoutInfo = layoutInfo;
-        this.gmtCreate = gmtCreate;
-        this.gmtModified = gmtModified;
-        if (this.ID == 0) {
-            insertDB();
+        if (getID() == 0) {
+            setID(insertDB());
         }
     }
 
 
-    private void insertDB() {
+    private Long insertDB() {
         try {
             // insert relationship
-            RelationshipDO relationshipDO = new RelationshipDO(0L, this.name, this.schemaID, 0, this.gmtCreate, this.gmtModified);
+            RelationshipDO relationshipDO = new RelationshipDO(0L, getName(), getSchemaID(), 0, getGmtCreate(), getGmtModified());
             int ret = ER.relationshipMapper.insert(relationshipDO);
             if (ret == 0) {
                 throw new ERException("relationship insertDB fail");
             }
-            this.ID = relationshipDO.getID();
+            return relationshipDO.getID();
         } catch (PersistenceException e) {
             throw new ERException("relationship insertDB fail", e);
         }
     }
 
-    public static List<Relationship> query(RelationshipDO RelationshipDO) {
-        return Trans.TransRelationshipListFromDB(ER.relationshipMapper.selectByRelationship(RelationshipDO));
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param relationshipDO The values of some attributes of an entity
+     * @return a list of relationships
+     */
+    public static List<Relationship> query(RelationshipDO relationshipDO) {
+        return query(relationshipDO, true);
     }
 
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param relationshipDO The values of some attributes of a relationship
+     * @param exhaustive     Whether to fetch the related entities and relationships
+     * @return a list of relationships
+     */
+    public static List<Relationship> query(RelationshipDO relationshipDO, boolean exhaustive) {
+        return ObjConv.ConvRelationshipListFromDB(ER.relationshipMapper.selectByRelationship(relationshipDO), exhaustive);
+    }
+
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param ID the ID of the relationship
+     * @return the corresponding relationship
+     * @throws ERException throws ERException if no relationship is found
+     */
     public static Relationship queryByID(Long ID) throws ERException {
-        List<Relationship> relationships = query(new RelationshipDO(ID));
+        return queryByID(ID, true);
+    }
+
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param ID         the ID of the relationship
+     * @param exhaustive Whether to fetch the related entities and relationships
+     * @return the corresponding relationship
+     * @throws ERException throws ERException if no relationship is found
+     */
+    public static Relationship queryByID(Long ID, boolean exhaustive) throws ERException {
+        List<Relationship> relationships = query(new RelationshipDO(ID), exhaustive);
         if (relationships.size() == 0) {
             throw new ERException(String.format("Relationship with ID: %d not found ", ID));
         } else {
@@ -72,6 +102,9 @@ public class Relationship {
         }
     }
 
+    /**
+     * Delete the current relationship from the database and cascade delete all the attributes and edges in this schema
+     */
     protected void deleteDB() {
         // delete the attributes of this relationship
         for (Attribute attribute : this.attributeList) {
@@ -84,69 +117,111 @@ public class Relationship {
         }
 
         // delete relationship
-        ER.relationshipMapper.deleteByID(this.ID);
+        ER.relationshipMapper.deleteByID(getID());
     }
 
+    /**
+     * Delete the target edge from both the list of edges and the database
+     *
+     * @param edge the target edge
+     */
     public void deleteEdge(RelationshipEdge edge) {
         edge.deleteDB();
         this.getEdgeList().remove(edge);
     }
 
-    public Attribute addAttribute(String attributeName, DataType dataType, Boolean nullable) {
+    /**
+     * Add an attribute to the relationship
+     *
+     * @param attributeName the name of the attribute
+     * @param dataType      the type of data this attribute contains
+     * @param attributeType the type of this attribute
+     * @return the created attribute
+     */
+    public Attribute addAttribute(String attributeName, DataType dataType, AttributeType attributeType) {
         if (attributeName.equals("")) {
             throw new ERException("attributeName cannot be empty");
         }
-        List<Attribute> attributeList = Attribute.query(new AttributeDO(this.ID, BelongObjType.RELATIONSHIP, this.schemaID, attributeName));
+        List<Attribute> attributeList = Attribute.query(new AttributeDO(getID(), BelongObjType.RELATIONSHIP, getSchemaID(), attributeName));
         if (attributeList.size() != 0) {
-            throw new ERException(String.format("attribute with name: %s already exists", this.name));
+            throw new ERException(String.format("attribute with name: %s already exists", getName()));
         }
-        Attribute attribute = new Attribute(0L, this.ID, BelongObjType.RELATIONSHIP, this.schemaID, attributeName, dataType, false, nullable, -1, null, new Date(), new Date());
+        Attribute attribute = new Attribute(0L, getID(), BelongObjType.RELATIONSHIP, getSchemaID(), attributeName, dataType, false, attributeType, -1, null, new Date(), new Date());
         this.attributeList.add(attribute);
         return attribute;
     }
 
+    /**
+     * Delete the target attribute from both the list of edges and the database
+     *
+     * @param attribute The target attribute
+     */
     public void deleteAttribute(Attribute attribute) {
         this.attributeList.remove(attribute);
         attribute.deleteDB();
     }
 
-    public RelationshipEdge linkEntity(Entity entity, Cardinality cardinality) {
-        if (Entity.queryByID(entity.getID()) == null) {
-            throw new ERException(String.format("entity with ID: %d not found", entity.getID()));
+    /**
+     * Link this relationship to other relationship or entities
+     *
+     * @param belongObj   the target object
+     * @param cardinality the cardinality of the target object
+     * @return the created edge connecting two objects
+     */
+    public RelationshipEdge linkObj(ERConnectableObj belongObj, Cardinality cardinality) {
+        return linkObj(belongObj, cardinality, false);
+    }
+
+    /**
+     * Link this relationship to other relationship or entities
+     *
+     * @param belongObj   the target object
+     * @param cardinality the cardinality of the target object
+     * @param isKey       whether this a key relationship for a weak entity
+     * @return the created edge connecting two objects
+     */
+    public RelationshipEdge linkObj(ERConnectableObj belongObj, Cardinality cardinality, Boolean isKey) {
+        if (belongObj instanceof Entity) {
+            if (Entity.queryByID(belongObj.getID()) == null) {
+                throw new ERException(String.format("entity with ID: %d not found", belongObj.getID()));
+            }
+        } else if (belongObj instanceof Relationship) {
+            if (Relationship.queryByID(belongObj.getID()) == null) {
+                throw new ERException(String.format("relationship with ID: %d not found", belongObj.getID()));
+            }
+        } else {
+            throw new ERException("unsupported belong obj");
         }
-        if (!entity.getSchemaID().equals(this.schemaID)) {
-            throw new ERException(String.format("entity: %s does not belong to this schema", entity.getName()));
+        if (!belongObj.getSchemaID().equals(getSchemaID())) {
+            throw new ERException(String.format("entity: %s does not belong to this schema", belongObj.getName()));
         }
-        List<RelationshipEdge> relationshipEdges = RelationshipEdge.query(new RelationshipEdgeDO(this.ID, entity.getID()));
+        List<RelationshipEdge> relationshipEdges = RelationshipEdge.query(new RelationshipEdgeDO(getID(), belongObj));
         if (relationshipEdges.size() != 0) {
             throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
         }
-        Relationship relationship = Relationship.queryByID(this.ID);
-        List<Long> entityIDs = new ArrayList<>();
-        for (RelationshipEdge edge : relationship.getEdgeList()) {
-            entityIDs.add(edge.getEntity().getID());
-        }
-        entityIDs.add(entity.getID());
-        if (checkEntitesInSameRelationship(entityIDs)) {
-            throw new ERException("entities have been in the same relationship");
-        }
-        RelationshipEdge edge = new RelationshipEdge(0L, this.ID, this.schemaID, entity, cardinality, -1, -1, new Date(), new Date());
+//        Relationship relationship = Relationship.queryByID(getID());
+//        List<ERConnectableObj> belongObjList = new ArrayList<>();
+//        for (RelationshipEdge edge : relationship.getEdgeList()) {
+//            belongObjList.add(edge.getConnObj());
+//        }
+//        belongObjList.add(belongObj);
+//        if (RelationshipEdge.checkEntitesInSameRelationship(belongObjList)) {
+//            throw new ERException("entities have been in the same relationship");
+//        }
+        RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, isKey, -1, -1, new Date(), new Date());
         this.edgeList.add(edge);
         return edge;
     }
 
+    /**
+     * Update the information of a relationship
+     *
+     * @param name the new name of this relationship
+     */
     public void updateInfo(String name) {
         if (name != null) {
-            this.name = name;
+            setName(name);
         }
-        ER.relationshipMapper.updateByID(new RelationshipDO(this.ID, this.name, this.schemaID, 0, this.gmtCreate, new Date()));
+        ER.relationshipMapper.updateByID(new RelationshipDO(getID(), getName(), getSchemaID(), 0, getGmtCreate(), new Date()));
     }
-
-    public void updateLayoutInfo(Double layoutX, Double layoutY) throws ERException {
-        if (this.layoutInfo == null) {
-            this.layoutInfo = new LayoutInfo(0L, this.ID, BelongObjType.RELATIONSHIP, layoutX, layoutY);
-        }
-        this.layoutInfo.update(layoutX, layoutY);
-    }
-
 }

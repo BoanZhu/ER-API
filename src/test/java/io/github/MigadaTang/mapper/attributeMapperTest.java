@@ -1,8 +1,7 @@
 package io.github.MigadaTang.mapper;
 
-import io.github.MigadaTang.ER;
 import io.github.MigadaTang.TestCommon;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Date;
@@ -13,9 +12,9 @@ import java.util.Date;
  * @data 18/10/2022
  */
 public class attributeMapperTest {
-    @Before
-    public void init() throws Exception {
-        ER.initialize(TestCommon.usePostgre);
+    @BeforeClass
+    public static void init() throws Exception {
+        TestCommon.setUp();
     }
 
     @Test

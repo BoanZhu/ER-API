@@ -4,20 +4,20 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.common.EntityType;
-import io.github.MigadaTang.common.EntityWithCardinality;
 import io.github.MigadaTang.exception.ERException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SchemaDeserializer extends StdDeserializer<Schema> {
+class SchemaDeserializer extends StdDeserializer<Schema> {
 
     private Map<String, Entity> entityNameMap = new HashMap<>();
+    private Map<String, Relationship> relationshipNameMap = new HashMap<>();
 
 
     public SchemaDeserializer() {
@@ -34,9 +34,10 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
 
         JsonNode schemaJSONNode = jp.getCodec().readTree(jp);
         String schemaName = schemaJSONNode.get("name").textValue();
-        Schema schema = ER.createSchema(schemaName, "");
+        Schema schema = ER.createSchema(schemaName);
 
         parseEntityList(schema, schemaJSONNode.get("entityList"));
+        prepareEmptyRelationship(schema, schemaJSONNode.get("relationshipList"));
         parseRelationshipList(schema, schemaJSONNode.get("relationshipList"));
 
         return schema;
@@ -73,7 +74,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
                         break;
                     }
                     case WEAK: {
-                        entity = schema.addIsolatedWeakEntity(entityName, entityNameMap.get(strongEntityName));
+                        entity = schema.addEntity(entityName, EntityType.WEAK);
                         break;
                     }
                     case SUBSET: {
@@ -89,32 +90,44 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
         if (entity == null) {
             return;
         }
-        if (entityJSONNode.get("attributeList") != null) {
-            for (JsonNode attributeJSONNode : entityJSONNode.get("attributeList")) {
+        JsonNode aimPortNode = entityJSONNode.get("aimPort");
+        if (aimPortNode != null) {
+            entity.updateAimPort(aimPortNode.intValue());
+        }
+        JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
+        if (layoutInfoJSONNode != null) {
+            entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble());
+        }
+        JsonNode attributeList = entityJSONNode.get("attributeList");
+        if (attributeList != null) {
+            for (JsonNode attributeJSONNode : attributeList) {
                 String attributeName = attributeJSONNode.get("name").textValue();
-                DataType attributeDataType = DataType.getFromValue(attributeJSONNode.get("dataType").textValue());
+                DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
                 Boolean attributeIsPrimary = attributeJSONNode.get("isPrimary").booleanValue();
-                Boolean attributeNullable = attributeJSONNode.get("nullable").booleanValue();
-                Attribute attribute = entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeNullable);
-                JsonNode aimPortNode = attributeJSONNode.get("aimPort");
-                if (aimPortNode != null) {
-                    attribute.updateAimPort(aimPortNode.intValue());
+                AttributeType attributeType = AttributeType.valueOf(attributeJSONNode.get("attributeType").textValue());
+                Attribute attribute = entity.addAttribute(attributeName, attributeDataType, attributeIsPrimary, attributeType);
+                JsonNode attributeAimPortNode = attributeJSONNode.get("aimPort");
+                if (attributeAimPortNode != null) {
+                    attribute.updateAimPort(attributeAimPortNode.intValue());
                 }
-                JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
-                if (layoutInfoJSONNode != null) {
-                    attribute.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble());
+                JsonNode attributeLayoutInfoNode = attributeJSONNode.get("layoutInfo");
+                if (attributeLayoutInfoNode != null) {
+                    attribute.updateLayoutInfo(attributeLayoutInfoNode.get("layoutX").asDouble(), attributeLayoutInfoNode.get("layoutY").asDouble());
                 }
-            }
-            JsonNode aimPortNode = entityJSONNode.get("aimPort");
-            if (aimPortNode != null) {
-                entity.updateAimPort(aimPortNode.intValue());
-            }
-            JsonNode layoutInfoJSONNode = entityJSONNode.get("layoutInfo");
-            if (layoutInfoJSONNode != null) {
-                entity.updateLayoutInfo(layoutInfoJSONNode.get("layoutX").asDouble(), layoutInfoJSONNode.get("layoutY").asDouble());
             }
         }
         entityNameMap.put(entityName, entity);
+    }
+
+    private void prepareEmptyRelationship(Schema schema, JsonNode relationshipList) {
+        if (relationshipList == null) {
+            return;
+        }
+        for (JsonNode relationshipJSONNode : relationshipList) {
+            String relationshipName = relationshipJSONNode.get("name").textValue();
+            Relationship relationship = schema.createEmptyRelationship(relationshipName);
+            relationshipNameMap.put(relationshipName, relationship);
+        }
     }
 
     private void parseRelationshipList(Schema schema, JsonNode relationshipList) {
@@ -123,26 +136,48 @@ public class SchemaDeserializer extends StdDeserializer<Schema> {
         }
         for (JsonNode relationshipJSONNode : relationshipList) {
             String relationshipName = relationshipJSONNode.get("name").textValue();
+            Relationship relationship = relationshipNameMap.get(relationshipName);
             JsonNode edgeList = relationshipJSONNode.get("edgeList");
             if (edgeList == null || edgeList.size() == 0) {
                 throw new ERException(String.format("deserialize schema fail edgeList of relationship: %s cannot be empty", relationshipName));
             }
-            ArrayList<EntityWithCardinality> eCardList = new ArrayList<>();
             for (JsonNode edgeJsonNode : edgeList) {
-                String entityName = edgeJsonNode.get("entity").textValue();
+                JsonNode entityNode = edgeJsonNode.get("entity");
+                JsonNode relationshipNode = edgeJsonNode.get("relationship");
                 Cardinality cardinality = Cardinality.getFromValue(edgeJsonNode.get("cardinality").textValue());
-                Entity entity = entityNameMap.get(entityName);
-                eCardList.add(new EntityWithCardinality(entity, cardinality));
+                JsonNode isKeyNode = edgeJsonNode.get("isKey");
+                boolean isKey = false;
+                if (isKeyNode != null) {
+                    isKey = isKeyNode.booleanValue();
+                }
+                ERConnectableObj target = null;
+                if (entityNode != null) {
+                    target = entityNameMap.get(entityNode.textValue());
+                } else if (relationshipNode != null) {
+                    target = relationshipNameMap.get(relationshipNode.textValue());
+                } else {
+                    throw new ERException("missing entity or relationship in the edge");
+                }
+                RelationshipEdge edge = relationship.linkObj(target, cardinality, isKey);
+                int portAtRelationship = -1, portAtBelongObj = -1;
+                JsonNode portAtRelationshipNode = edgeJsonNode.get("portAtRelationship");
+                if (portAtRelationshipNode != null) {
+                    portAtRelationship = portAtRelationshipNode.intValue();
+                }
+                JsonNode portAtBelongObjNode = edgeJsonNode.get("portAtBelongObj");
+                if (portAtBelongObjNode != null) {
+                    portAtBelongObj = portAtBelongObjNode.intValue();
+                }
+                edge.updatePorts(portAtRelationship, portAtBelongObj);
             }
-            Relationship relationship = schema.createNaryRelationship(relationshipName, eCardList);
 
             JsonNode attributeList = relationshipJSONNode.get("attributeList");
             if (attributeList != null) {
                 for (JsonNode attributeJSONNode : attributeList) {
                     String attributeName = attributeJSONNode.get("name").textValue();
                     DataType attributeDataType = DataType.valueOf(attributeJSONNode.get("dataType").textValue());
-                    Boolean attributeNullable = attributeJSONNode.get("nullable").booleanValue();
-                    Attribute attribute = relationship.addAttribute(attributeName, attributeDataType, attributeNullable);
+                    AttributeType attributeType = AttributeType.valueOf(attributeJSONNode.get("attributeType").textValue());
+                    Attribute attribute = relationship.addAttribute(attributeName, attributeDataType, attributeType);
                     JsonNode aimPortNode = attributeJSONNode.get("aimPort");
                     if (aimPortNode != null) {
                         attribute.updateAimPort(aimPortNode.intValue());

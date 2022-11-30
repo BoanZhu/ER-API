@@ -119,9 +119,7 @@
             <if test="entityType != null">
                 entity_type = #{entityType.code,jdbcType=SMALLINT},
             </if>
-            <if test="belongStrongEntityID != null">
-                belong_strong_entity_id = #{belongStrongEntityID,jdbcType=BIGINT},
-            </if>
+            belong_strong_entity_id = #{belongStrongEntityID,jdbcType=BIGINT},
         </set>
         where id = #{ID,jdbcType=BIGINT} and is_delete = 0
     </update>

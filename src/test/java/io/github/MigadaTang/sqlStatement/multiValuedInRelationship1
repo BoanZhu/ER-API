@@ -1,0 +1,21 @@
+CREATE TABLE `person` (
+    `salary_number` INT NOT NULL,
+    `department_dname` TEXT NOT NULL,
+    `start_date` DATETIME NOT NULL,
+    `end_date` DATETIME NULL,
+    CONSTRAINT person_pk PRIMARY KEY (salary_number),
+    CONSTRAINT person_fk1 FOREIGN KEY (department_dname) REFERENCES department(dname)
+)
+
+CREATE TABLE `department` (
+    `dname` TEXT NOT NULL,
+    CONSTRAINT department_pk PRIMARY KEY (dname)
+)
+
+CREATE TABLE `person_position` (
+    `position` TEXT NOT NULL,
+    `salary_number` INT NOT NULL,
+    CONSTRAINT person_position_pk PRIMARY KEY (position,salary_number),
+    CONSTRAINT person_position_fk1 FOREIGN KEY (salary_number) REFERENCES person(salary_number)
+)
+

@@ -1,0 +1,56 @@
+{
+  "name" : "Nested relationship",
+  "entityList" : [ {
+    "name" : "person",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "salary number",
+      "dataType" : "VARCHAR",
+      "isPrimary" : true,
+      "attributeType" : "Mandatory"
+    } ]
+  }, {
+    "name" : "department",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "dname",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "attributeType" : "Mandatory"
+    } ]
+  }, {
+    "name" : "project",
+    "entityType" : "STRONG",
+    "attributeList" : [ {
+      "name" : "pcode",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "attributeType" : "Mandatory"
+    } ]
+  } ],
+  "relationshipList" : [ {
+    "name" : "works in",
+    "edgeList" : [ {
+      "entity" : "person",
+      "cardinality" : "0:N"
+    }, {
+      "entity" : "department",
+      "cardinality" : "0:N"
+    } ]
+  }, {
+    "name" : "member",
+    "attributeList" : [ {
+      "name" : "role",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "attributeType" : "Mandatory"
+    } ],
+    "edgeList" : [ {
+      "relationship" : "works in",
+      "cardinality" : "0:N"
+    }, {
+      "entity" : "project",
+      "cardinality" : "0:N"
+    } ]
+  } ]
+}

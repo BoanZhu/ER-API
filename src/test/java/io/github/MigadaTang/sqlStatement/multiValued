@@ -1,0 +1,20 @@
+CREATE TABLE `person` (
+    `salary_number` INT NOT NULL,
+    CONSTRAINT person_pk PRIMARY KEY (salary_number)
+)
+
+CREATE TABLE `person_phone` (
+    `phone` TEXT NOT NULL,
+    `salary_number` INT NOT NULL,
+    CONSTRAINT person_phone_pk PRIMARY KEY (phone,salary_number),
+    CONSTRAINT person_phone_fk1 FOREIGN KEY (salary_number) REFERENCES person(salary_number)
+)
+
+CREATE TABLE `person_car` (
+    `car` TEXT NOT NULL,
+    `salary_number` INT NOT NULL,
+    CONSTRAINT person_car_pk PRIMARY KEY (car,salary_number),
+    CONSTRAINT person_car_fk1 FOREIGN KEY (salary_number) REFERENCES person(salary_number)
+)
+
+

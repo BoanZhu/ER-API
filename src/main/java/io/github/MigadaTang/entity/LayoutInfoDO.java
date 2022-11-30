@@ -21,10 +21,6 @@ public class LayoutInfoDO {
 
     private Double layoutY;
 
-    private Double height;
-
-    private Double width;
-
     public LayoutInfoDO(Long id) {
         this.ID = id;
     }

@@ -3,7 +3,6 @@ package io.github.MigadaTang.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.github.MigadaTang.Attribute;
 
 import java.io.IOException;
@@ -22,24 +21,33 @@ public class AttributeSerializer extends JsonSerializer<Attribute> {
 
         jgen.writeStartObject();
 
-
         if (isRenderFormat) {
             jgen.writeNumberField("id", attribute.getID());
-        }
-        jgen.writeStringField("name", attribute.getName());
-
-        if (isRenderFormat) {
+            jgen.writeStringField("name", attribute.getName());
+            jgen.writeNumberField("belongObjID", attribute.getBelongObjID());
+            jgen.writeNumberField("belongObjType", attribute.getBelongObjType().getValue());
             jgen.writeNumberField("dataType", attribute.getDataType().ordinal());
+            jgen.writeBooleanField("isPrimary", attribute.getIsPrimary());
+            jgen.writeNumberField("attributeType", attribute.getAttributeType().getCode());
+            jgen.writeNumberField("aimPort", attribute.getAimPort());
+            if (attribute.getLayoutInfo() != null) {
+                jgen.writeObjectField("layoutInfo", attribute.getLayoutInfo());
+            } else {
+                jgen.writeNullField("layoutInfo");
+            }
         } else {
-            jgen.writeStringField("dataType", attribute.getDataType().getValue());
+            jgen.writeStringField("name", attribute.getName());
+            jgen.writeStringField("dataType", attribute.getDataType().toString());
+            jgen.writeBooleanField("isPrimary", attribute.getIsPrimary());
+            jgen.writeStringField("attributeType", attribute.getAttributeType().toString());
+            if (attribute.getAimPort() != -1) {
+                jgen.writeNumberField("aimPort", attribute.getAimPort());
+            }
+            if (attribute.getLayoutInfo() != null) {
+                jgen.writeObjectField("layoutInfo", attribute.getLayoutInfo());
+            }
         }
-        jgen.writeBooleanField("isPrimary", attribute.getIsPrimary());
-        jgen.writeBooleanField("nullable", attribute.getNullable());
 
-        jgen.writeNumberField("aimPort", attribute.getAimPort());
-        if (attribute.getLayoutInfo() != null) {
-            jgen.writeObjectField("layoutInfo", attribute.getLayoutInfo());
-        }
 
         jgen.writeEndObject();
     }

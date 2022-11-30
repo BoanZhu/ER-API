@@ -1,0 +1,31 @@
+{
+  "name" : "Attributes on relationship",
+  "entityList" : [ {
+    "name" : "person",
+    "entityType" : "STRONG"
+  }, {
+    "name" : "department",
+    "entityType" : "STRONG"
+  } ],
+  "relationshipList" : [ {
+    "name" : "works in",
+    "attributeList" : [ {
+      "name" : "start_date",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "attributeType" : "Mandatory"
+    }, {
+      "name" : "end_date",
+      "dataType" : "VARCHAR",
+      "isPrimary" : false,
+      "attributeType" : "Optional"
+    } ],
+    "edgeList" : [ {
+      "entity" : "person",
+      "cardinality" : "0:N"
+    }, {
+      "entity" : "department",
+      "cardinality" : "0:N"
+    } ]
+  } ]
+}

@@ -3,7 +3,6 @@ package io.github.MigadaTang.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.github.MigadaTang.Attribute;
 import io.github.MigadaTang.Relationship;
 import io.github.MigadaTang.RelationshipEdge;
@@ -27,20 +26,27 @@ public class RelationshipSerializer extends JsonSerializer<Relationship> {
 
         if (isRenderFormat) {
             jgen.writeNumberField("id", relationship.getID());
-        }
-
-
-        jgen.writeStringField("name", relationship.getName());
-        List<Attribute> attributeList = relationship.getAttributeList();
-        if (isRenderFormat || (attributeList != null && attributeList.size() != 0)) {
-            jgen.writeObjectField("attributeList", attributeList);
-        }
-        List<RelationshipEdge> edgeList = relationship.getEdgeList();
-        if (isRenderFormat || (edgeList != null && edgeList.size() != 0)) {
-            jgen.writeObjectField("edgeList", edgeList);
-        }
-        if (relationship.getLayoutInfo() != null) {
-            jgen.writeObjectField("layoutInfo", relationship.getLayoutInfo());
+            jgen.writeStringField("name", relationship.getName());
+            jgen.writeObjectField("attributeList", relationship.getAttributeList());
+            jgen.writeObjectField("edgeList", relationship.getEdgeList());
+            if (relationship.getLayoutInfo() != null) {
+                jgen.writeObjectField("layoutInfo", relationship.getLayoutInfo());
+            } else {
+                jgen.writeNullField("layoutInfo");
+            }
+        } else {
+            jgen.writeStringField("name", relationship.getName());
+            List<Attribute> attributeList = relationship.getAttributeList();
+            if (attributeList != null && attributeList.size() != 0) {
+                jgen.writeObjectField("attributeList", attributeList);
+            }
+            List<RelationshipEdge> edgeList = relationship.getEdgeList();
+            if (edgeList != null && edgeList.size() != 0) {
+                jgen.writeObjectField("edgeList", edgeList);
+            }
+            if (relationship.getLayoutInfo() != null) {
+                jgen.writeObjectField("layoutInfo", relationship.getLayoutInfo());
+            }
         }
 
         jgen.writeEndObject();

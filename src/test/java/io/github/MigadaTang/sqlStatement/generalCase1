@@ -1,0 +1,31 @@
+CREATE TABLE `teach_by_student_teacher` (
+    `student_id` INT NOT NULL,
+    `teacher_id` INT NOT NULL,
+    CONSTRAINT teach_by_student_teacher_pk PRIMARY KEY (student_id,teacher_id),
+    CONSTRAINT teach_by_student_teacher_fk1 FOREIGN KEY (student_id) REFERENCES student(id),
+    CONSTRAINT teach_by_student_teacher_fk2 FOREIGN KEY (teacher_id) REFERENCES teacher(id)
+)
+
+CREATE TABLE `student` (
+    `id` INT NOT NULL,
+    `name` VARCHAR NOT NULL,
+    `age` INT NOT NULL,
+    `school_id` INT NULL,
+    CONSTRAINT student_pk PRIMARY KEY (id),
+    CONSTRAINT student_fk1 FOREIGN KEY (school_id) REFERENCES school(id)
+)
+
+CREATE TABLE `teacher` (
+    `id` INT NOT NULL,
+    `name` VARCHAR NOT NULL,
+    `age` INT NOT NULL,
+    `school_id` INT NOT NULL,
+    CONSTRAINT teacher_pk PRIMARY KEY (id),
+    CONSTRAINT teacher_fk1 FOREIGN KEY (school_id) REFERENCES school(id)
+)
+
+CREATE TABLE `school` (
+    `id` INT NOT NULL,
+    `name` INT NOT NULL,
+    CONSTRAINT school_pk PRIMARY KEY (id)
+)

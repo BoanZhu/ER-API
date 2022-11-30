@@ -1,72 +1,91 @@
 package io.github.MigadaTang;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.entity.AttributeDO;
 import io.github.MigadaTang.exception.ERException;
-import io.github.MigadaTang.serializer.AttributeSerializer;
 import lombok.Getter;
 import org.apache.ibatis.exceptions.PersistenceException;
 
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The attributes on entities and relationships
+ */
 @Getter
-public class Attribute {
-    private Long ID;
+public class Attribute extends ERBaseObj {
+    /**
+     * The ID of the object to which this attribute belongs
+     */
     private Long belongObjID;
+    /**
+     * The type of the object to which this attribute belongs
+     */
     private BelongObjType belongObjType;
-    private Long schemaID;
-    private String name;
+    /**
+     * The type of data this attribute contains
+     */
     private DataType dataType;
+    /**
+     * Whether this attribute is a primary key, there can only be one primary key in an entity
+     */
     private Boolean isPrimary;
-    private Boolean nullable;
+    /**
+     * The number of values this attribute contains
+     */
+    private AttributeType attributeType;
+    /**
+     * The port of an entity to which this attribute points
+     */
     private Integer aimPort;
-    private LayoutInfo layoutInfo;
-    private Date gmtCreate;
-    private Date gmtModified;
 
     protected Attribute(Long ID, Long belongObjID, BelongObjType belongObjType, Long schemaID, String name, DataType dataType,
-                        Boolean isPrimary, Boolean nullable, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
-        this.ID = ID;
+                        Boolean isPrimary, AttributeType attributeType, Integer aimPort, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+        super(ID, schemaID, name, BelongObjType.ATTRIBUTE, layoutInfo, gmtCreate, gmtModified);
         this.belongObjID = belongObjID;
         this.belongObjType = belongObjType;
-        this.schemaID = schemaID;
-        this.name = name;
         this.dataType = dataType;
         this.isPrimary = isPrimary;
-        this.nullable = nullable;
+        this.attributeType = attributeType;
         this.aimPort = aimPort;
-        this.layoutInfo = layoutInfo;
-        this.gmtCreate = gmtCreate;
-        this.gmtModified = gmtModified;
-        if (this.ID == 0) {
-            this.insertDB();
+        if (getID() == 0) {
+            setID(insertDB());
         }
     }
 
-    private void insertDB() throws PersistenceException {
+    private Long insertDB() throws PersistenceException {
         try {
-            AttributeDO aDo = new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, this.gmtModified);
+            AttributeDO aDo = new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), getGmtModified());
             int ret = ER.attributeMapper.insert(aDo);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
-            this.ID = aDo.getID();
+            return aDo.getID();
         } catch (PersistenceException e) {
             throw new ERException("insertDB fail", e);
         }
     }
 
+    /**
+     * Delete the current attribute from the database
+     */
     protected void deleteDB() {
-        ER.attributeMapper.deleteByID(this.ID);
+        ER.attributeMapper.deleteByID(getID());
     }
 
-    public void updateInfo(String name, DataType dataType, Boolean isPrimary, Boolean nullable) throws ERException {
+    /**
+     * Update certain attributes of this entity, set parameters as null if they are not expected to be updated
+     *
+     * @param name          The name of this entity
+     * @param dataType      The type of data this attribute contains
+     * @param attributeType The number of values this attribute contains
+     * @param isPrimary     Whether this attribute is a primary key
+     */
+    public void updateInfo(String name, DataType dataType, Boolean isPrimary, AttributeType attributeType) throws ERException {
         if (name != null) {
-            this.name = name;
+            setName(name);
         }
         if (dataType != null) {
             this.dataType = dataType;
@@ -74,47 +93,61 @@ public class Attribute {
         if (isPrimary != null) {
             this.isPrimary = isPrimary;
         }
-        if (nullable != null) {
-            this.nullable = nullable;
+        if (attributeType != null) {
+            this.attributeType = attributeType;
         }
         if (name != null) {
-            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, this.schemaID, name));
-            if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(this.ID)) {
-                throw new ERException(String.format("attribute with name: %s already exists", this.name));
+            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, getSchemaID(), name));
+            if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(getID())) {
+                throw new ERException(String.format("attribute with name: %s already exists", getName()));
             }
         }
         if (isPrimary != null && isPrimary) {
-            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, this.schemaID, null));
-            if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(this.ID)) {
-                throw new ERException(String.format("attribute that is primary key already exists, name: %s", attributeList.get(0).getName()));
+            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, getSchemaID(), null));
+            for (Attribute attribute : attributeList) {
+                if (!attribute.getID().equals(getID()) && attribute.getIsPrimary()) {
+                    throw new ERException(String.format("attribute that is primary key already exists, name: %s", attribute.getName()));
+                }
             }
         }
-        if (this.nullable && this.isPrimary) {
-            throw new ERException("primary attribute cannot be null");
+        if (this.isPrimary && this.attributeType != AttributeType.Mandatory) {
+            throw new ERException("primary attribute must be mandatory");
         }
-        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, new Date()));
+        ER.attributeMapper.updateByID(new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
-    public void updateLayoutInfo(Double layoutX, Double layoutY) throws ERException {
-        if (this.layoutInfo == null) {
-            this.layoutInfo = new LayoutInfo(0L, this.ID, BelongObjType.ATTRIBUTE, layoutX, layoutY);
-        }
-        this.layoutInfo.update(layoutX, layoutY);
-    }
 
+    /**
+     * Update the port to which this attribute points to
+     *
+     * @param aimPort The port of the entity
+     */
     public void updateAimPort(Integer aimPort) throws ERException {
         if (aimPort != null) {
             this.aimPort = aimPort;
         }
-        ER.attributeMapper.updateByID(new AttributeDO(this.ID, this.belongObjID, this.belongObjType, this.schemaID, this.name, this.dataType, this.isPrimary, this.nullable, this.aimPort, 0, this.gmtCreate, new Date()));
+        ER.attributeMapper.updateByID(new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
+    /**
+     * Query the list of entities that have the same data specified by entityDO
+     *
+     * @param attributeDO values of some attributes of an attribute
+     * @return A list of attributes
+     */
     public static List<Attribute> query(AttributeDO attributeDO) {
-        return Trans.TransAttributeListFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
+        return ObjConv.ConvAttributeListFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
     }
 
+    /**
+     * Find the attribute that has this ID
+     *
+     * @param ID The ID of the attribute
+     * @return The found attribute
+     * @throws ERException throws an ERException if no attribute is found
+     */
     public static Attribute queryByID(Long ID) throws ERException {
-        List<Attribute> attributeList = Trans.TransAttributeListFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
+        List<Attribute> attributeList = ObjConv.ConvAttributeListFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
         if (attributeList.size() == 0) {
             throw new ERException(String.format("Attribute with ID: %d not found ", ID));
         } else {

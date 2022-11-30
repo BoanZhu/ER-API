@@ -3,6 +3,9 @@ package io.github.MigadaTang.common;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * The type of the object that the current object belongs to
+ */
 @AllArgsConstructor
 @Getter
 public enum BelongObjType {
