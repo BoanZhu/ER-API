@@ -51,7 +51,13 @@ public class Column {
     }
 
     protected Column getForeignClone(Long tableID, boolean isPk, String foreignTableName) {
-        Column clone = new Column(RandomUtils.generateID(), foreignTableName + "_" + this.name, this.dataType, isPk,
+        String name = "";
+        if (foreignTableName.equals("")) {
+            name = this.name;
+        } else {
+            name = foreignTableName + "_" + this.name;
+        }
+        Column clone = new Column(RandomUtils.generateID(), name, this.dataType, isPk,
                 true, this.ID, this.name, tableID, false, null);
         return clone;
     }

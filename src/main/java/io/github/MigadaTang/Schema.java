@@ -662,6 +662,7 @@ public class Schema {
      * @throws ParseException   Exception that fail to mapping entity, relationship and attribute to table and column
      */
     public String generateSqlStatement() throws ParseException {
+        comprehensiveCheck();
         Map<Long, Table> tableDTOList;
         try {
             tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());

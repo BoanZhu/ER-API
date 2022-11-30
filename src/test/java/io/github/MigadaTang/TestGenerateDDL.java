@@ -74,7 +74,7 @@ public class TestGenerateDDL {
 
         try {
             view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (Exception e) {
             assertTrue(true);
             System.out.println(e.getMessage());
         }
@@ -252,4 +252,56 @@ public class TestGenerateDDL {
         System.out.print(sql);
     }
 
+
+    @Test
+    public void testERModelToRSSuccWMultiValuedOnRelationship() {
+        view = ER.createSchema("testTransformMultiValued");
+        Entity person = view.addEntity("person");
+        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        Entity department = view.addEntity("department");
+        department.addAttribute("dname", DataType.TEXT, true, AttributeType.Mandatory);
+
+        Relationship worksin = view.createEmptyRelationship("works in");
+        worksin.linkObj(person, Cardinality.OneToOne);
+        worksin.linkObj(department, Cardinality.ZeroToMany);
+
+        worksin.addAttribute("start_date", DataType.DATETIME, AttributeType.Mandatory);
+        worksin.addAttribute("end_date", DataType.DATETIME, AttributeType.Optional);
+        worksin.addAttribute("position", DataType.TEXT, AttributeType.Both);
+
+        String sql = "";
+        try {
+            sql = view.generateSqlStatement();
+        } catch (ParseException e) {
+            fail();
+            System.out.println(e.getMessage());
+        }
+        System.out.print(sql);
+    }
+
+    @Test
+    public void testERModelToRSSuccWMultiValuedOnRelationship2() {
+        view = ER.createSchema("testTransformMultiValued");
+        Entity person = view.addEntity("person");
+        person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
+        Entity department = view.addEntity("department");
+        department.addAttribute("dname", DataType.TEXT, true, AttributeType.Mandatory);
+
+        Relationship worksin = view.createEmptyRelationship("works in");
+        worksin.linkObj(person, Cardinality.ZeroToMany);
+        worksin.linkObj(department, Cardinality.ZeroToMany);
+
+        worksin.addAttribute("start_date", DataType.DATETIME, AttributeType.Mandatory);
+        worksin.addAttribute("end_date", DataType.DATETIME, AttributeType.Optional);
+        worksin.addAttribute("position", DataType.TEXT, AttributeType.Both);
+
+        String sql = "";
+        try {
+            sql = view.generateSqlStatement();
+        } catch (ParseException e) {
+            fail();
+            System.out.println(e.getMessage());
+        }
+        System.out.print(sql);
+    }
 }
