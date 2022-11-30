@@ -283,7 +283,6 @@ in [Javadoc](https://www.javadoc.io/doc/io.github.MigadaTang/amazing-er/latest/i
 | Attributes on relationships | :white_check_mark:            |
 | Nested relationships        | :white_check_mark:            |
 | Multi-valued Attributes       | :white_check_mark:            |
-| N-ary relationship          | :white_check_mark:         |
 
 # License
 
