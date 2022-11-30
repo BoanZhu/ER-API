@@ -1,7 +1,7 @@
 Amazing ER
 ------
 
-[![pipeline status](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/badges/master/pipeline.svg)](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/commits/master)
+[![pipeline status](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/badges/master/pipeline.svg)](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/-/pipelines)
 [![Coverage Status](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/badges/master/coverage.svg)](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.MigadaTang/amazing-er/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/io.github.MigadaTang/amazing-er)
 [![javadoc](https://javadoc.io/badge2/io.github.MigadaTang/amazing-er/javadoc.svg)](https://javadoc.io/doc/io.github.MigadaTang/amazing-er/)
@@ -264,6 +264,11 @@ public class Example {
 
 ```
 
+## More examples
+
+see [TestQuickStartExamples](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/-/blob/master/src/test/java/io/github/MigadaTang/TestQuickStartExamples.java)
+and [TestGenerateDDL](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/-/blob/master/src/test/java/io/github/MigadaTang/TestGenerateDDL.java)
+
 # Documentation
 
 More information about the classes and methods of this library can be found
@@ -277,6 +282,6 @@ This code is under the [MIT Licence](https://choosealicense.com/licenses/mit/).
 
 # Additional Resources
 
-[GOJS ER Diagram Library](https://gojs.net/latest/samples/entityRelationship.html)
-
 [ER Modelling slides](https://www.doc.ic.ac.uk/~pjm/idb/lectures/idb-er-handout.pdf)
+
+[GOJS ER Diagram Library](https://gojs.net/latest/samples/entityRelationship.html)

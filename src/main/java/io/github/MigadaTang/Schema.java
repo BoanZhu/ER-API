@@ -397,10 +397,11 @@ public class Schema {
             }
             switch (entity.getEntityType()) {
                 case STRONG:
-                case WEAK:
                     if (primaryKeyNum != 1) {
                         throw new ERException(String.format("strong entity (%s) must have exactly one primary key", entity.getName()));
                     }
+                    break;
+                case WEAK:
                     break;
                 case SUBSET:
                     if (primaryKeyNum != 0) {
@@ -431,8 +432,10 @@ public class Schema {
             if (RelationshipEdge.checkInSameRelationship(relationship.getID(), belongObjList)) {
                 throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
             }
+            int keyRelationshipEdgeCount = 0;
             for (RelationshipEdge edge : relationship.getEdgeList()) {
                 if (edge.getIsKey()) {
+                    keyRelationshipEdgeCount++;
                     // key relationship can only be used by weak entity
                     boolean isWeakEntity = false;
                     if (edge.getConnObjType() == BelongObjType.ENTITY) {
@@ -445,6 +448,24 @@ public class Schema {
                     }
                     if (!isWeakEntity) {
                         throw new ERException(String.format("key relationship can only be used by weak entity, while (%s) is not", edge.getConnObj().getName()));
+                    }
+                }
+            }
+            if (keyRelationshipEdgeCount >= 2) {
+                throw new ERException(String.format("relationship %s cannot have more than one key relationship edges", relationship.getName()));
+            }
+            if (keyRelationshipEdgeCount == 1) {
+                for (RelationshipEdge edge : relationship.getEdgeList()) {
+                    if (edge.getIsKey()) {
+                        continue;
+                    }
+                    if (edge.getConnObjType() == BelongObjType.ENTITY) {
+                        Entity entity = Entity.queryByID(edge.getConnObj().getID());
+                        if (entity.getEntityType() != EntityType.STRONG) {
+                            throw new ERException(String.format("relationship %s with key relationship edge can only connect to strong entities", relationship.getName()));
+                        }
+                    } else {
+                        throw new ERException(String.format("relationship %s with key relationship edge can only connect to strong entities", relationship.getName()));
                     }
                 }
             }
@@ -607,9 +628,9 @@ public class Schema {
         try {
             myPage = webClient.getPage(new File(renderHTMLPath).toURI().toURL());
         } catch (IOException e) {
-            throw new ParseException("Fail to read the file: show.html");
+            throw new ParseException("Fail to read the file: " + renderHTMLPath);
         }
-        String baseImageCode = myPage.getElementById("image").asNormalizedText();
+        String baseImageCode = myPage.getElementById("image").getTextContent();
         webClient.close();
 
         if (fileName != null) {
