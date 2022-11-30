@@ -276,6 +276,15 @@ in [Javadoc](https://www.javadoc.io/doc/io.github.MigadaTang/amazing-er/latest/i
 
 # ER Schema Extensions Supported
 
+| ER Extensions               | Supported           |
+|-----------------------------|---------------------|
+| Weak entities               | :white_check_mark:  |
+| N-ary relationships         | :white_check_mark:           |
+| Attributes on relationships | :white_check_mark:            |
+| Nested relationships        | :white_check_mark:            |
+| Multi-valued Attributes       | :white_check_mark:            |
+| N-ary relationship          | :white_check_mark:         |
+
 # License
 
 This code is under the [MIT Licence](https://choosealicense.com/licenses/mit/).
