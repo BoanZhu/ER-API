@@ -342,7 +342,7 @@ public class Schema {
                 }
             }
             if (relationship.getEdgeList().size() < 2) {
-                throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
+                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
             }
             // check if this is a duplicated relationship in which all the objects have already been connected
             List<ERConnectableObj> belongObjList = new ArrayList<>();
@@ -425,7 +425,7 @@ public class Schema {
                 }
             }
             if (relationship.getEdgeList().size() < 2) {
-                throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
+                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
             }
             // check if this is a duplicated relationship in which all the objects have already been connected
             List<ERConnectableObj> belongObjList = new ArrayList<>();
