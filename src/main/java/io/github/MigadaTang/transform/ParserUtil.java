@@ -221,19 +221,25 @@ public class ParserUtil {
 
 
     private static void parseMultiValuedColumn(Map<Long, Table> tableDTOMap) {
+        List<Table> newts = new ArrayList<>();
         for (Table table : tableDTOMap.values()) {
             List<Column> multiValuedColumns = table.getMultiValuedColumn();
             if (multiValuedColumns.size() == 0)
                 continue;
 
             for (Column column : multiValuedColumns) {
-                parseMultiValuedColumn(tableDTOMap, table, column);
+                Table newT = parseMultiValuedColumn(tableDTOMap, table, column);
+                newts.add(newT);
             }
+        }
+
+        for (Table newt : newts) {
+            tableDTOMap.put(newt.getId(), newt);
         }
     }
 
 
-    private static void parseMultiValuedColumn(Map<Long, Table> tableDTOMap, Table table, Column column) {
+    private static Table parseMultiValuedColumn(Map<Long, Table> tableDTOMap, Table table, Column column) {
         List<Column> columnList = new ArrayList<>();
         List<Column> fkList = new ArrayList<>();
         List<Column> pkList = new ArrayList<>();
@@ -250,7 +256,7 @@ public class ParserUtil {
         fk.put(table.getId(), fkList);
         Table newT = new Table(newTableId, table.getName() + "_" + column.getName(), EntityType.STRONG,
                 null, columnList, pkList, new ArrayList<>(), fk);
-        tableDTOMap.put(newT.getId(), newT);
+        return newT;
     }
 
 
@@ -523,7 +529,8 @@ public class ParserUtil {
                 table.getColumnList().add(column);
             } else {
                 column.transformAttribute(attribute, false);
-                parseMultiValuedColumn(tableDTOMap, table, column);
+                Table newT = parseMultiValuedColumn(tableDTOMap, table, column);
+                tableDTOMap.put(newT.getId(), newT);
             }
         }
     }

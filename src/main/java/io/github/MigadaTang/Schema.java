@@ -342,7 +342,7 @@ public class Schema {
                 }
             }
             if (relationship.getEdgeList().size() < 2) {
-                throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
+                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
             }
             // check if this is a duplicated relationship in which all the objects have already been connected
             List<ERConnectableObj> belongObjList = new ArrayList<>();
@@ -366,6 +366,9 @@ public class Schema {
                     }
                     if (!isWeakEntity) {
                         throw new ERException(String.format("key relationship can only be used by weak entity, while (%s) is not", edge.getConnObj().getName()));
+                    }
+                    if (edge.getCardinality() != Cardinality.OneToOne) {
+                        throw new ERException(String.format("key relationship of (%s) must have 1:1 cardinality", edge.getConnObj().getName()));
                     }
                 }
             }
@@ -422,7 +425,7 @@ public class Schema {
                 }
             }
             if (relationship.getEdgeList().size() < 2) {
-                throw new ERException(String.format("relationship (%s) must have more then one edges", relationship.getName()));
+                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
             }
             // check if this is a duplicated relationship in which all the objects have already been connected
             List<ERConnectableObj> belongObjList = new ArrayList<>();
@@ -448,6 +451,9 @@ public class Schema {
                     }
                     if (!isWeakEntity) {
                         throw new ERException(String.format("key relationship can only be used by weak entity, while (%s) is not", edge.getConnObj().getName()));
+                    }
+                    if (edge.getCardinality() != Cardinality.OneToOne) {
+                        throw new ERException(String.format("key relationship of (%s) must have 1:1 cardinality", edge.getConnObj().getName()));
                     }
                 }
             }
@@ -612,8 +618,8 @@ public class Schema {
         ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, 0, this.gmtCreate, new Date()));
     }
 
-    private final static String templateHTMLPath = "src/main/resources/render/template.html";
-    private final static String renderHTMLPath = "src/main/resources/render/render.html";
+    private final static String templateHTMLPath = "render/template.html";
+    private final static String renderHTMLPath = "render.html";
 
     public String renderAsImage(String fileName) throws ParseException {
         try {
@@ -640,26 +646,16 @@ public class Schema {
     }
 
     public void writeRenderHTML(String jsonString) throws IOException {
-
-        File f = new File(templateHTMLPath);
-        InputStreamReader isr1 = new InputStreamReader(new FileInputStream(f), "UTF-8");
-        BufferedReader br = new BufferedReader(isr1);
-        String s;
-        StringBuilder allContent = new StringBuilder();
-        while ((s = br.readLine()) != null) {
-            allContent.append(s);
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(templateHTMLPath);
+        if (inputStream == null) {
+            throw new ERException("templateHTML not found");
         }
-        allContent.replace(allContent.indexOf("##"), allContent.indexOf("##") + 2, "" + "{\"schema\":" + jsonString + "}");
+        String allContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        allContent = allContent.replace("##", "" + "{\"schema\":" + jsonString + "}");
         File writeFile = new File(renderHTMLPath);
-        FileOutputStream fileOutputStream = new FileOutputStream(writeFile);
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "gb2312");
-        outputStreamWriter.write(String.valueOf(allContent));
-
-        outputStreamWriter.close();
-        fileOutputStream.close();
-        br.close();
-        isr1.close();
-
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(writeFile))) {
+            writer.append(allContent);
+        }
     }
 
     private void decodeImageCodeToPNG(String baseImageCode, String filename) {

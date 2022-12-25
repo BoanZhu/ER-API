@@ -6,7 +6,7 @@
 
     <groupId>io.github.MigadaTang</groupId>
     <artifactId>amazing-er</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>amazing-er</name>
     <description>A library providing rich features around ER modelling, such as creating ER schema, exporting to JSON
         , saving as image and exporting to DDL.

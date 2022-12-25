@@ -21,7 +21,7 @@ A library providing rich features around ER modelling. With this project, you co
 <dependency>
     <groupId>io.github.MigadaTang</groupId>
     <artifactId>amazing-er</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -42,6 +42,11 @@ import java.sql.SQLException;
 
 public class Example {
     public static void main(String[] args) {
+        // initialize the in-memory database to store ER schema
+        ER.initialize();
+        // you could also specify your own database
+//        ER.initialize(RDBMSType.POSTGRESQL, "hostname", "port", "database", "user", "password");
+
         Schema example = ER.createSchema("Vanilla");
 
         Entity branch = example.addEntity("branch");
@@ -67,10 +72,10 @@ public class Example {
         String jsonString = example.toJSON();
 
         // save your ER schema as image
-        schema.renderAsImage(String.format(outputImagePath, example.getName()));
+        example.renderAsImage(String.format(outputImagePath, example.getName()));
 
         // transform your ER schema to DDL
-        String DDL = schema.generateSqlStatement();
+        String DDL = example.generateSqlStatement();
     }
 }
 ```
@@ -193,7 +198,7 @@ public class Example {
 
 **ER schema to Image**
 
-![Vanilla](https://gitlab.doc.ic.ac.uk/g226002120/AmazingProject/-/blob/master/src/test/java/io/github/MigadaTang/renderImageExamples/Vanilla.png)
+![Vanilla](https://i.postimg.cc/zGPHCxq3/Vanilla.png)
 
 **ER schema to Data Definition Language(DDL)**
 
