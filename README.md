@@ -21,7 +21,7 @@ A library providing rich features around ER modelling. With this project, you co
 <dependency>
     <groupId>io.github.MigadaTang</groupId>
     <artifactId>amazing-er</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
