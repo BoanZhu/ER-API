@@ -175,14 +175,6 @@ public class Schema {
         for (RelationshipEdge edge : edgeList) {
             edge.deleteDB();
         }
-//        // secondly, delete all the subsets of this strong entity
-//        if (entity.getEntityType() == EntityType.STRONG) {
-//            List<Entity> entityList = Entity.query(new EntityDO(null, null, null, null, entity.getID(), null, null, null, null));
-//            for (Entity subEntity : entityList) {
-//                deleteEntity(subEntity);
-//            }
-//        }
-
         entity.deleteDB();
         this.entityList.remove(entity);
     }
@@ -249,7 +241,6 @@ public class Schema {
         if (connObjWithCardinalityList.size() <= 1) {
             throw new ERException("must have more than 2 entities to create relationship");
         }
-//        List<ERConnectableObj> connObjList = new ArrayList<>();
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             if (eCard.getConnObj() instanceof Entity) {
                 ERConnectableObj entity = eCard.getConnObj();
@@ -268,11 +259,7 @@ public class Schema {
                     throw new ERException(String.format("relationship: %s does not belong to this schema", relationship.getName()));
                 }
             }
-//            connObjList.add(eCard.getConnObj());
         }
-//        if (RelationshipEdge.checkEntitesInSameRelationship(connObjList)) {
-//            throw new ERException("connObj have been in the same relationship");
-//        }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, eCard.getConnObj(), eCard.getCardinality(), false, -1, -1, new Date(), new Date());

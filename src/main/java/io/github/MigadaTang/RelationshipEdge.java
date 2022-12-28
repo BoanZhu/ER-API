@@ -90,16 +90,9 @@ public class RelationshipEdge {
             this.isKey = isKey;
         }
         if (connObj != null) {
-//            Relationship relationship = Relationship.queryByID(this.relationshipID);
-//            List<ERConnectableObj> belongObjList = new ArrayList<>();
-//            for (RelationshipEdge edge : relationship.getEdgeList()) {
-//                belongObjList.add(edge.getConnObj());
-//            }
-//            belongObjList.add(connObj);
-//            belongObjList.remove(this.getConnObj());
-//            if (checkEntitesInSameRelationship(belongObjList)) {
-//                throw new ERException("entities have been in the same relationship");
-//            }
+            if (connObj.getID().equals(this.relationshipID) && connObj instanceof Relationship) {
+                throw new ERException("cannot connect relationship to itself");
+            }
             this.connObj = connObj;
         }
         ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
