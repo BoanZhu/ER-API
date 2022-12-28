@@ -387,10 +387,6 @@ public class Schema {
             }
             switch (entity.getEntityType()) {
                 case STRONG:
-                    if (primaryKeyNum != 1) {
-                        throw new ERException(String.format("strong entity (%s) must have exactly one primary key", entity.getName()));
-                    }
-                    break;
                 case WEAK:
                     break;
                 case SUBSET:
@@ -402,7 +398,7 @@ public class Schema {
                     }
                     break;
                 default:
-                    throw new ERException(String.format("unknown entity type of entity (%s)"));
+                    throw new ERException(String.format("unknown entity type of entity (%s)", entity.getName()));
             }
         }
         for (Relationship relationship : relationshipList) {

@@ -29,7 +29,7 @@ public class Attribute extends ERBaseObj {
      */
     private DataType dataType;
     /**
-     * Whether this attribute is a primary key, there can only be one primary key in an entity
+     * Whether this attribute is a primary key, multiple primary keys form a composite primary key
      */
     private Boolean isPrimary;
     /**
@@ -100,14 +100,6 @@ public class Attribute extends ERBaseObj {
             List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, getSchemaID(), name));
             if (attributeList.size() != 0 && !attributeList.get(0).getID().equals(getID())) {
                 throw new ERException(String.format("attribute with name: %s already exists", getName()));
-            }
-        }
-        if (isPrimary != null && isPrimary) {
-            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, getSchemaID(), null));
-            for (Attribute attribute : attributeList) {
-                if (!attribute.getID().equals(getID()) && attribute.getIsPrimary()) {
-                    throw new ERException(String.format("attribute that is primary key already exists, name: %s", attribute.getName()));
-                }
             }
         }
         if (this.isPrimary && this.attributeType != AttributeType.Mandatory) {

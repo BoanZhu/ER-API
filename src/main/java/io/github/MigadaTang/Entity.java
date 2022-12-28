@@ -90,10 +90,6 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         if (attributeList.size() != 0) {
             throw new ERException(String.format("attribute with name: %s already exists", getName()));
         }
-        attributeList = Attribute.query(new AttributeDO(null, getID(), BelongObjType.ENTITY, getSchemaID(), null, null, true, null, null, null, null, null));
-        if (isPrimary && attributeList.size() != 0) {
-            throw new ERException(String.format("primary key already exists, name: %s", attributeList.get(0).getName()));
-        }
         Attribute attribute = new Attribute(0L, getID(), BelongObjType.ENTITY, getSchemaID(), attributeName, dataType, isPrimary, attributeType, -1, null, new Date(), new Date());
         this.attributeList.add(attribute);
         return attribute;
