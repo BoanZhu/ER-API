@@ -239,7 +239,7 @@ public class Schema {
             throw new ERException("relationshipName cannot be empty");
         }
         if (connObjWithCardinalityList.size() <= 1) {
-            throw new ERException("must have more than 2 entities to create relationship");
+            throw new ERException("must have at least 2 components to create relationship");
         }
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             if (eCard.getConnObj() instanceof Entity) {
