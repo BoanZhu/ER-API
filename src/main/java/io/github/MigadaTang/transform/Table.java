@@ -36,7 +36,7 @@ public class Table {
 
     protected void tranformEntity(Entity entity) {
         this.id = entity.getID();
-        this.name = entity.getName();
+        this.name = entity.getName().trim().replaceAll(" ", "_");
         this.columnList = new ArrayList<>();
         this.primaryKey = new ArrayList<>();
         this.multiValuedColumn = new ArrayList<>();

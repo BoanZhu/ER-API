@@ -21,7 +21,7 @@ public class GenerationSqlUtil {
                 else
                     columnNames.add(column.getName());
 
-                sqlStatement.append("    `").append(column.getName()).append("` ")
+                sqlStatement.append("    ").append(column.getName()).append(" ")
                         .append(column.getDataType().toUpperCase())
                         .append(" ").append(column.nullable()).append(",\n");
             }
