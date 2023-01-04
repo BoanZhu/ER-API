@@ -2,6 +2,7 @@ package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
+import io.github.MigadaTang.dao.RelationshipEdgeDAO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.exception.ERException;
 import lombok.Getter;
@@ -47,7 +48,7 @@ public class RelationshipEdge {
         try {
             RelationshipEdgeDO edgeDO = new RelationshipEdgeDO(0L, this.relationshipID, this.schemaID,
                     this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, new Date(), new Date());
-            int ret = ER.relationshipEdgeMapper.insert(edgeDO);
+            int ret = RelationshipEdgeDAO.insert(edgeDO);
             if (ret == 0) {
                 throw new ERException("relationshipEdge insert db fail");
             }
@@ -95,7 +96,7 @@ public class RelationshipEdge {
             }
             this.connObj = connObj;
         }
-        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
+        RelationshipEdgeDAO.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
     /**
@@ -120,7 +121,7 @@ public class RelationshipEdge {
             }
         }
         if (entityIDs.size() != 0) {
-            List<CaseInsensitiveMap<String, Object>> numList = ER.relationshipEdgeMapper.groupCountEntityNum(entityIDs, BelongObjType.ENTITY);
+            List<CaseInsensitiveMap<String, Object>> numList = RelationshipEdgeDAO.groupCountEntityNum(entityIDs, BelongObjType.ENTITY);
             if (numList != null) {
                 for (Map<String, Object> objectMap : numList) {
                     objCountMap.put((Long) objectMap.get("relationship_id"), (Long) objectMap.get("belong_obj_num"));
@@ -128,7 +129,7 @@ public class RelationshipEdge {
             }
         }
         if (relationshipIDs.size() != 0) {
-            List<CaseInsensitiveMap<String, Object>> numList = ER.relationshipEdgeMapper.groupCountEntityNum(relationshipIDs, BelongObjType.RELATIONSHIP);
+            List<CaseInsensitiveMap<String, Object>> numList = RelationshipEdgeDAO.groupCountEntityNum(relationshipIDs, BelongObjType.RELATIONSHIP);
             if (numList != null) {
                 for (Map<String, Object> objectMap : numList) {
                     Long relationshipNum = (Long) objectMap.get("belong_obj_num");
@@ -162,7 +163,7 @@ public class RelationshipEdge {
         if (portAtBelongObj != null) {
             this.portAtBelongObj = portAtBelongObj;
         }
-        ER.relationshipEdgeMapper.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
+        RelationshipEdgeDAO.updateByID(new RelationshipEdgeDO(this.ID, this.relationshipID, this.schemaID, this.connObj.getID(), this.getConnObjType(), this.cardinality, this.isKey, this.portAtRelationship, this.portAtBelongObj, 0, this.gmtCreate, new Date()));
     }
 
     /**
@@ -172,7 +173,7 @@ public class RelationshipEdge {
      * @return a list of relationship edges
      */
     public static List<RelationshipEdge> query(RelationshipEdgeDO relationshipEdgeDO) {
-        return ObjConv.ConvRelationshipEdgeListFromDB(ER.relationshipEdgeMapper.selectByRelationshipEdge(relationshipEdgeDO));
+        return ObjConv.ConvRelationshipEdgeListFromDB(RelationshipEdgeDAO.selectByRelationshipEdge(relationshipEdgeDO));
     }
 
     /**
@@ -195,6 +196,6 @@ public class RelationshipEdge {
      * Delete the current relationship edge from the database
      */
     protected void deleteDB() {
-        ER.relationshipEdgeMapper.deleteByID(this.ID);
+        RelationshipEdgeDAO.deleteByID(this.ID);
     }
 }

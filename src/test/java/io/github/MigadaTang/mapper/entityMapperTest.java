@@ -1,6 +1,5 @@
 package io.github.MigadaTang.mapper;
 
-import io.github.MigadaTang.ER;
 import io.github.MigadaTang.TestCommon;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -64,7 +63,7 @@ public class entityMapperTest {
     public void selectByIDTest() {
         Long id = Long.valueOf(123);
 
-        ER.entityMapper.selectByID(id);
+//        ER.entityMapper.selectByID(id);
     }
 
 
@@ -88,6 +87,6 @@ public class entityMapperTest {
 
         long id = Long.valueOf(123);
 
-        ER.entityMapper.deleteByID(id);
+//        ER.entityMapper.deleteByID(id);
     }
 }

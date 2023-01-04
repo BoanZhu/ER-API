@@ -3,12 +3,11 @@ package io.github.MigadaTang;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.MigadaTang.common.RDBMSType;
-import io.github.MigadaTang.dao.*;
 import io.github.MigadaTang.exception.ERException;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.transform.DatabaseUtil;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 import java.io.IOException;
@@ -25,13 +24,7 @@ import java.util.Properties;
  * The entrance class for ER diagram.
  */
 public class ER {
-    public static SqlSession sqlSession;
-    public static AttributeMapper attributeMapper;
-    public static EntityMapper entityMapper;
-    public static RelationshipMapper relationshipMapper;
-    public static RelationshipEdgeMapper relationshipEdgeMapper;
-    public static SchemaMapper schemaMapper;
-    public static LayoutInfoMapper layoutInfoMapper;
+    public static SqlSessionFactory sqlSessionFactory;
 
     /**
      * This function initializes the database and all the related mappers required by this tool
@@ -51,19 +44,13 @@ public class ER {
         properties.setProperty("jdbc.url", DatabaseUtil.generateDatabaseURL(dbType, hostname, portNum, databaseName));
         properties.setProperty("jdbc.username", username);
         properties.setProperty("jdbc.password", password);
-        InputStream is = null;
+        InputStream mybatisConfig = null;
         try {
-            is = Resources.getResourceAsStream("mybatis-config.xml");
+            mybatisConfig = Resources.getResourceAsStream("mybatis-config.xml");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        sqlSession = new SqlSessionFactoryBuilder().build(is, properties).openSession(true);
-        attributeMapper = sqlSession.getMapper(AttributeMapper.class);
-        entityMapper = sqlSession.getMapper(EntityMapper.class);
-        relationshipMapper = sqlSession.getMapper(RelationshipMapper.class);
-        relationshipEdgeMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
-        schemaMapper = sqlSession.getMapper(SchemaMapper.class);
-        layoutInfoMapper = sqlSession.getMapper(LayoutInfoMapper.class);
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(mybatisConfig, properties);
         if (dbType == RDBMSType.H2) {
             createTables();
         }
@@ -80,7 +67,7 @@ public class ER {
     }
 
     private static void createTables() throws SQLException {
-        Connection conn = sqlSession.getConnection();
+        Connection conn = sqlSessionFactory.openSession().getConnection();
         Statement stmt = conn.createStatement();
         try (InputStream inputStream = Resources.getResourceAsStream("mysql.sql")) {
             String sql = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);

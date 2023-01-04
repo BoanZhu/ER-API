@@ -4,6 +4,7 @@ import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.common.EntityType;
+import io.github.MigadaTang.dao.EntityDAO;
 import io.github.MigadaTang.entity.AttributeDO;
 import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.exception.ERException;
@@ -112,7 +113,7 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
                 belongStrongEntityID = this.belongStrongEntity.getID();
             }
             EntityDO entityDO = new EntityDO(0L, getName(), getSchemaID(), this.entityType, belongStrongEntityID, this.aimPort, 0, getGmtCreate(), getGmtModified());
-            int ret = ER.entityMapper.insert(entityDO);
+            int ret = EntityDAO.insert(entityDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
@@ -129,7 +130,7 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         for (Attribute attribute : attributeList) {
             attribute.deleteDB();
         }
-        ER.entityMapper.deleteByID(getID());
+        EntityDAO.deleteByID(getID());
     }
 
     /**
@@ -161,7 +162,7 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         if (this.belongStrongEntity != null) {
             belongStrongEntityID = this.belongStrongEntity.getID();
         }
-        ER.entityMapper.updateByID(new EntityDO(getID(), getName(), getSchemaID(), this.entityType, belongStrongEntityID, this.aimPort, 0, getGmtCreate(), new Date()));
+        EntityDAO.updateByID(new EntityDO(getID(), getName(), getSchemaID(), this.entityType, belongStrongEntityID, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
     /**
@@ -172,7 +173,7 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
             return;
         }
         this.belongStrongEntity = null;
-        ER.entityMapper.updateByID(new EntityDO(getID(), getName(), getSchemaID(), this.entityType, null, this.aimPort, 0, getGmtCreate(), new Date()));
+        EntityDAO.updateByID(new EntityDO(getID(), getName(), getSchemaID(), this.entityType, null, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
 
@@ -192,7 +193,7 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
         if (this.belongStrongEntity != null) {
             belongStrongEntityID = this.belongStrongEntity.getID();
         }
-        ER.entityMapper.updateByID(new EntityDO(getID(), this.aimPort, belongStrongEntityID));
+        EntityDAO.updateByID(new EntityDO(getID(), this.aimPort, belongStrongEntityID));
     }
 
     /**
@@ -213,7 +214,7 @@ public class Entity extends ERBaseObj implements ERConnectableObj {
      * @return A list of entities
      */
     public static List<Entity> query(EntityDO entityDO, boolean exhaustive) {
-        List<EntityDO> entityDOList = ER.entityMapper.selectByEntity(entityDO);
+        List<EntityDO> entityDOList = EntityDAO.selectByEntity(entityDO);
         return ObjConv.ConvEntityListFormFromDB(entityDOList, exhaustive);
     }
 

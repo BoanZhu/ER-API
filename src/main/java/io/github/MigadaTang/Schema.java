@@ -11,6 +11,7 @@ import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.ConnObjWithCardinality;
 import io.github.MigadaTang.common.EntityType;
+import io.github.MigadaTang.dao.SchemaDAO;
 import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.entity.SchemaDO;
@@ -176,6 +177,10 @@ public class Schema {
             edge.deleteDB();
         }
         entity.deleteDB();
+        List<Entity> entities = Entity.query(new EntityDO(null, null, entity.getID()), false);
+        for (Entity subset : entities) {
+            subset.removeBelongStrongEntity();
+        }
         this.entityList.remove(entity);
     }
 
@@ -282,7 +287,7 @@ public class Schema {
     private void insertDB() {
         try {
             SchemaDO schemaDO = new SchemaDO(0L, this.name, 0, this.gmtCreate, this.gmtModified);
-            int ret = ER.schemaMapper.insert(schemaDO);
+            int ret = SchemaDAO.insert(schemaDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
@@ -536,7 +541,7 @@ public class Schema {
      * @return A list of schemas
      */
     public static List<Schema> queryAll() {
-        return ObjConv.ConvSchemaListFromDB(ER.schemaMapper.selectAll(), true);
+        return ObjConv.ConvSchemaListFromDB(SchemaDAO.selectAll(), true);
     }
 
     /**
@@ -546,7 +551,7 @@ public class Schema {
      * @return A list of schemas
      */
     public static List<Schema> queryAll(boolean exhaustive) {
-        return ObjConv.ConvSchemaListFromDB(ER.schemaMapper.selectAll(), exhaustive);
+        return ObjConv.ConvSchemaListFromDB(SchemaDAO.selectAll(), exhaustive);
     }
 
     /**
@@ -556,7 +561,7 @@ public class Schema {
      * @return a list of schemas
      */
     public static List<Schema> queryBySchema(SchemaDO schemaDO) {
-        List<SchemaDO> schemaDOList = ER.schemaMapper.selectBySchema(schemaDO);
+        List<SchemaDO> schemaDOList = SchemaDAO.selectBySchema(schemaDO);
         return ObjConv.ConvSchemaListFromDB(schemaDOList, true);
     }
 
@@ -586,7 +591,7 @@ public class Schema {
         for (Relationship relationship : relationshipList) {
             relationship.deleteDB();
         }
-        ER.schemaMapper.deleteByID(this.ID);
+        SchemaDAO.deleteByID(this.ID);
     }
 
     /**
@@ -598,7 +603,7 @@ public class Schema {
         if (name != null) {
             this.name = name;
         }
-        ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, 0, this.gmtCreate, new Date()));
+        SchemaDAO.updateByID(new SchemaDO(this.ID, this.name, 0, this.gmtCreate, new Date()));
     }
 
     private final static String templateHTMLPath = "render/template.html";
