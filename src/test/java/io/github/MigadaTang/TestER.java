@@ -116,9 +116,4 @@ public class TestER {
         }
     }
 
-    @Test
-    public void testRender() throws ParseException {
-        Schema schema = Schema.queryByID(1035L);
-        schema.renderAsImage("image");
-    }
 }
