@@ -4,14 +4,12 @@
     <title>API image</title>
     <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>
     <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
-    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
-    <!--    <script src="../js/API.js"></script>-->
 
 </head>
 <body>
 <div id="model" style="width:50%;background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
 </div>
-<div id ="image" style="width:50%;position:absolute;left: 50%;"></div>
+<div id ="image" style="width:50%;position:absolute;left: 50%;">123</div>
 <div id = "modelData" style="display:none" >##</div>
 </body>
 <script id="code">
@@ -40,9 +38,9 @@
         let image = APIDiagram.makeImage({ background: "white"});
         let modelStr;
         let replicaRelationSet = new Set();
-        for (let it = APIDiagram.nodes; it.next(); ) {
+        for (let it = APIDiagram.nodes; it.next();) {
             let node = it.value;  // n is now a Node or a Group
-            if (node.data.category === "Attribute") {
+            if (node.data.category === ("Attribute" ||"relation_attribute")) {
                 node.findLinksConnected().each(function (link) {
                     let belongObj = APIDiagram.findNodeForKey(link.data.from)
                     let fromPort = getNearestPort(belongObj, node);
@@ -54,8 +52,10 @@
                 node.findLinksConnected().each(function (link) {
                     if (link.data.category === "subsetLink") {
                         let belongObj = APIDiagram.findNodeForKey(link.data.to)
-                        let fromPort = getNearestPort(belongObj, node);
-                        link.fromPort = fromPort;//TODO:update backend aimport
+                        let fromPort = getNearestPort(node,belongObj);
+                        let toPort = getNearestPort(belongObj, node);
+                        link.data.fromPort = fromPort;
+                        link.data.toPort = toPort;
                         modelStr = APIDiagram.model.toJson();
                     }
                 });
@@ -65,20 +65,21 @@
                         APIDiagram.findNodeForKey(link.data.from):APIDiagram.findNodeForKey(link.data.to);
                     if (link.data.category === "entityLink"&&
                         !replicaRelationSet.has(entity.data.key)&&!replicaRelationSet.has(node.data.key)) {
-                        let entity = APIDiagram.findNodeForKey(link.data.to);
+                        let entity = APIDiagram.findNodeForKey(link.data.from);
                         let fromPort = getNearestPort(entity, node);
                         let toPort = getNearestPort(node, entity);
-                        link.fromPort = fromPort;//TODO:update backend edge ports
+                        link.data.fromPort = fromPort;
                         link.data.toPort = toPort;
                         modelStr = APIDiagram.model.toJson();
-                        replicaRelationSet.add(node.data.key)
                     }
                 });
+                replicaRelationSet.add(node.data.key);
             }
         }
         APIDiagram.model = go.Model.fromJson(modelStr);
         image = APIDiagram.makeImage({ background: "white"});
         document.getElementById("image").innerHTML = image.src;
+        console.log(modelStr);
         console.log(image.src);
     }
     window.addEventListener('DOMContentLoaded', load);
@@ -235,6 +236,29 @@
                     fromLinkable: true,toLinkable: true}));
         }
 
+        function makePort(name, align, spot, output, input) {
+            var horizontal = align.equals(go.Spot.Top) || align.equals(go.Spot.Bottom);
+            return $(go.Shape,
+                {
+                    fill: "transparent",
+                    strokeWidth: 0,
+                    width: horizontal ? NaN : 8,
+                    height: !horizontal ? NaN : 8,
+                    alignment: align,
+                    stretch: (horizontal ? go.GraphObject.Horizontal : go.GraphObject.Vertical),
+                    portId: name,
+                    fromSpot: spot,
+                    fromLinkable: output,
+                    toSpot: spot,
+                    toLinkable: input,
+                    cursor: "pointer",
+                    mouseEnter: (e, port) => {
+                        if (!e.diagram.isReadOnly) port.fill = "rgba(0,56,117,0.5)";
+                    },
+                    mouseLeave: (e, port) => port.fill = "transparent"
+                });
+        }
+
         /*
             All Node(Entity+Attribute) templates
          */
@@ -312,7 +336,7 @@
                         new go.Binding("text", "name").makeTwoWay()),
                 ),
                 //port
-                leftPort(),rightPort(),topPort(),bottomPort()
+                leftPort(), rightPort(), topPort(), bottomPort()
             );
 
 
@@ -364,7 +388,7 @@
                             new go.Binding("text", "name").makeTwoWay()))
                 ),
                 //port
-                leftPort(),rightPort(),topPort(),bottomPort()
+                leftPort(), rightPort(), topPort(), bottomPort()
             );
 
         // weak entity template
@@ -411,7 +435,7 @@
                         new go.Binding("text", "name").makeTwoWay()),
                 ), //end Auto Panel Body
                 //port
-                leftPort(),rightPort(),topPort(),bottomPort()
+                leftPort(), rightPort(), topPort(), bottomPort()
             );
 
         // subset template
@@ -458,12 +482,12 @@
                         new go.Binding("text", "name").makeTwoWay()),
                     $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
                 ), // end Table Panel
-                //port
                 $(go.Panel, "Vertical", {row: 1, column: 1},
                     $(go.Shape, {width: 0, height: 0, portId: 5,
                         fromLinkable: true,toLinkable: true,
                         fill: "#e8c446",stroke: "#e8c446",
-                    })),
+                    }))
+
             );
 
         // attribute template
@@ -489,7 +513,7 @@
                     {
                         font: "bold 12px monospace",
                         margin: new go.Margin(0, 0, 0, 0), // leave room for Button
-                        editable: true
+                        editable: false
                     },
                     new go.Binding("text", "name").makeTwoWay(),
                     new go.Binding("isUnderline", "underline"),
@@ -524,11 +548,17 @@
                     ),
                 ),
                 //port
-                $(go.Panel, "Vertical", {row: 1, column: 1},
-                    $(go.Shape, {
-                        width: 3, height: 3, portId: 5,
+                $(go.Panel, "Vertical",
+                    {row: 1, column: 1},
+                    $(go.Shape, "Circle",{
+                        width: 0, height: 0, portId: 5,
                         fromLinkable: true, toLinkable: true,
                         fill: colors.lightblue, stroke: colors.lightblue,
+                        cursor: "pointer",
+                        mouseEnter: (e, port) => {
+                            if (!e.diagram.isReadOnly) port.fill = "rgba(0,89,124,0.5)";
+                        },
+                        mouseLeave: (e, port) => port.fill = "transparent",
                     })
                 )
             )
@@ -776,9 +806,6 @@
                             edgeLinkData.fromPort=edgeData.portAtBelongObj;
                             edgeLinkData.toPort=edgeData.portAtRelationship;
                         }else{
-                            // edgeLinkData.fromPort=2;
-                            // edgeLinkData.toPort=counter+1;
-                            // counter = (counter+1)%2;
                         }
                         APIDiagram.model.addLinkData(edgeLinkData);
                     }
