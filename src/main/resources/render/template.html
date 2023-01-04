@@ -38,47 +38,41 @@
         let image = APIDiagram.makeImage({ background: "white"});
         let modelStr;
         let replicaRelationSet = new Set();
-        // for (let it = APIDiagram.nodes; it.next();) {
-        //     let node = it.value;  // n is now a Node or a Group
-        //     if (node.data.category === ("Attribute" ||"relation_attribute")) {
-        //         node.findLinksConnected().each(function (link) {
-        //             let belongObj = APIDiagram.findNodeForKey(link.data.from)
-        //             let fromPort = getNearestPort(belongObj, node);
-        //             link.data.fromPort = fromPort;
-        //             APIDiagram.model.setFromPortIdForLinkData(link.data, fromPort);
-        //             modelStr = APIDiagram.model.toJson();
-        //             console.log(modelStr)
-        //         });
-        //     } else if (node.category === "subset") {
-        //         node.findLinksConnected().each(function (link) {
-        //             if (link.data.category === "subsetLink") {
-        //                 let belongObj = APIDiagram.findNodeForKey(link.data.to)
-        //                 let fromPort = getNearestPort(node,belongObj);
-        //                 let toPort = getNearestPort(belongObj, node);
-        //                 link.data.fromPort = fromPort;
-        //                 link.data.toPort = toPort;
-        //                 modelStr = APIDiagram.model.toJson();
-        //             }
-        //         });
-        //     }else if (node.category === "relation") {
-        //         node.findLinksConnected().each(function (link) {
-        //             let entity = APIDiagram.findNodeForKey(link.data.to).data.key===node.data.key?
-        //                 APIDiagram.findNodeForKey(link.data.from):APIDiagram.findNodeForKey(link.data.to);
-        //             if (link.data.category === "entityLink"&&
-        //                 !replicaRelationSet.has(entity.data.key)&&!replicaRelationSet.has(node.data.key)) {
-        //                 let entity = APIDiagram.findNodeForKey(link.data.from);
-        //                 let fromPort = getNearestPort(entity, node);
-        //                 let toPort = getNearestPort(node, entity);
-        //                 link.data.fromPort = fromPort;
-        //                 link.data.toPort = toPort;
-        //                 modelStr = APIDiagram.model.toJson();
-        //             }
-        //         });
-        //         replicaRelationSet.add(node.data.key);
-        //     }
-        // }
-        // APIDiagram.model = go.Model.fromJson(modelStr);
-        // image = APIDiagram.makeImage({ background: "white"});
+        for (let it = APIDiagram.nodes; it.next();) {
+            let node = it.value;  // n is now a Node or a Group
+            if (node.data.category === ("Attribute" ||"relation_attribute")) {
+                node.findLinksConnected().each(function (link) {
+                    let belongObj = APIDiagram.findNodeForKey(link.data.from)
+                    let fromPort = getNearestPort(belongObj, node);
+                    APIDiagram.model.setFromPortIdForLinkData(link.data, fromPort);
+                });
+            } else if (node.category === "subset") {
+                node.findLinksConnected().each(function (link) {
+                    if (link.data.category === "subsetLink") {
+                        let belongObj = APIDiagram.findNodeForKey(link.data.to)
+                        let fromPort = getNearestPort(node,belongObj);
+                        let toPort = getNearestPort(belongObj, node);
+                        APIDiagram.model.setFromPortIdForLinkData(link.data, fromPort);
+                        APIDiagram.model.setToPortIdForLinkData(link.data, toPort);
+                    }
+                });
+            }else if (node.category === "relation") {
+                node.findLinksConnected().each(function (link) {
+                    let entity = APIDiagram.findNodeForKey(link.data.to).data.key===node.data.key?
+                        APIDiagram.findNodeForKey(link.data.from):APIDiagram.findNodeForKey(link.data.to);
+                    if (link.data.category === "entityLink"&&
+                        !replicaRelationSet.has(entity.data.key)&&!replicaRelationSet.has(node.data.key)) {
+                        let entity = APIDiagram.findNodeForKey(link.data.from);
+                        let fromPort = getNearestPort(entity, node);
+                        let toPort = getNearestPort(node, entity);
+                        APIDiagram.model.setFromPortIdForLinkData(link.data, fromPort);
+                        APIDiagram.model.setToPortIdForLinkData(link.data, toPort);
+                    }
+                });
+                replicaRelationSet.add(node.data.key);
+            }
+        }
+        image = APIDiagram.makeImage({ background: "white"});
         document.getElementById("image").innerHTML = image.src;
         console.log(APIDiagram.model.toJson());
         console.log(image.src);
