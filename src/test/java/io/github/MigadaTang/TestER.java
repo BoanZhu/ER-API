@@ -3,6 +3,7 @@ package io.github.MigadaTang;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.exception.ParseException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -113,5 +114,11 @@ public class TestER {
                 }
             }
         }
+    }
+
+    @Test
+    public void testRender() throws ParseException {
+        Schema schema = Schema.queryByID(1035L);
+        schema.renderAsImage("image");
     }
 }
