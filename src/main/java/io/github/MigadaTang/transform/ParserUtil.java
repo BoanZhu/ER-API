@@ -17,7 +17,8 @@ public class ParserUtil {
         // table and keys need to be processed specially
         List<Column> foreignKeyList = new ArrayList<>();
         List<Table> tableGenerateByRelationship = new ArrayList<>();
-        parseTableToEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList);
+        List<Table> possibleMultiValuedSet = new ArrayList<>();
+        parseTableToEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList, possibleMultiValuedSet);
 
 
         // parser foreign key, (1-N)
@@ -35,17 +36,43 @@ public class ParserUtil {
         }
 
         // parser table generate by relationship
+        Map<Long, Relationship> tableDTORelationshipMap = new HashMap<>();
         for (Table table : tableGenerateByRelationship) {
             List<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
             Set<Long> foreignTableList = new HashSet<>();
+            Relationship relationship = schema.createEmptyRelationship("unknow");
             for (Column column : table.getColumnList()) {
                 if (!foreignTableList.contains(column.getForeignKeyTable())) {
                     foreignTableList.add(column.getForeignKeyTable());
-                    ConnObjWithCardinality connObjWithCardinality = new ConnObjWithCardinality(tableDTOEntityMap.get(column.getForeignKeyTable()), Cardinality.ZeroToMany);
-                    connObjWithCardinalityList.add(connObjWithCardinality);
+                    relationship.linkObj(tableDTOEntityMap.get(column.getForeignKeyTable()), Cardinality.ZeroToMany);
+                } else {
+                    if (column.isNullable())
+                        relationship.addAttribute(column.getName(), DataType.TEXT, AttributeType.Optional);
+                    else
+                        relationship.addAttribute(column.getName(), DataType.TEXT, AttributeType.Mandatory);
                 }
             }
-            schema.createNaryRelationship("unknow", connObjWithCardinalityList);
+            tableDTORelationshipMap.put(table.getId(), relationship);
+        }
+
+        for (Table multiValued : possibleMultiValuedSet) {
+            ERConnectableObj mainObj;
+            Column multiValuedColumn = null;
+            for (Column column : multiValued.getColumnList()) {
+                if (!column.isForeign()) {
+                    multiValuedColumn = column;
+                }
+            }
+            if (multiValuedColumn == null) {
+                continue;
+            }
+            if (tableDTOEntityMap.containsKey(multiValued.getBelongStrongTableID())) {
+                Entity entity = tableDTOEntityMap.get(multiValued.getBelongStrongTableID());
+                entity.addAttribute(multiValuedColumn.getName(), DataType.TEXT, AttributeType.Both);
+            } else if (tableDTORelationshipMap.containsKey(multiValued.getBelongStrongTableID())) {
+                Relationship relationship = tableDTORelationshipMap.get(multiValued.getBelongStrongTableID());
+                relationship.addAttribute(multiValuedColumn.getName(), DataType.TEXT, AttributeType.Both);
+            }
         }
 
         return schema;
@@ -53,7 +80,7 @@ public class ParserUtil {
 
     private static void parseTableToEntity(List<Table> tableList, Map<Long, Entity> tableDTOEntityMap,
                                            List<Table> tableGenerateByRelationship, Schema schema,
-                                           List<Column> foreignKeyList) throws ParseException {
+                                           List<Column> foreignKeyList, List<Table> possibleMultiValuedSet) throws ParseException {
         List<Table> possibleWeakEntitySet = new ArrayList<>();
         List<Table> possibleSubsetSet = new ArrayList<>();
 
@@ -63,7 +90,9 @@ public class ParserUtil {
 
             int pkIsFk = 0;
             int fkNum = 0;
+            int pkColNum = 0;
             Set<Long> fkTables = new HashSet<>();
+            Set<Long> pkFkTable = new HashSet<>();
             Long fkTableId = null;
             for (Column column : strongEntity.getColumnList()) {
                 if (column.isForeign()) {
@@ -72,22 +101,30 @@ public class ParserUtil {
                     if (column.isPrimary()) {
                         pkIsFk++;
                         fkTableId = column.getForeignKeyTable();
+                        pkFkTable.add(column.getForeignKeyTable());
                     }
+                }
+                if (column.isPrimary()) {
+                    pkColNum++;
                 }
             }
 
-            if (pkIsFk == strongEntity.getPrimaryKey().size() && fkTables.size() == 1 && pkIsFk > 0) {
+            if (pkColNum == columnList.size() && pkFkTable.size() == 1 && pkIsFk == columnList.size()-1) {
+                possibleMultiValuedSet.add(strongEntity);
+                strongEntity.setBelongStrongTableID(fkTableId);
+                continue;
+            }
+            if (pkIsFk == strongEntity.getPrimaryKey().size() && pkFkTable.size() == 1 && pkIsFk > 0) {
                 strongEntity.setBelongStrongTableID(fkTableId);
                 possibleSubsetSet.add(strongEntity);
                 continue;
             }
-            if (pkIsFk > 0 && fkTables.size() == 1) {
+            if (pkIsFk > 0 && pkFkTable.size() == 1) {
                 possibleWeakEntitySet.add(strongEntity);
                 strongEntity.setBelongStrongTableID(fkTableId);
                 continue;
             }
-
-            if (fkNum == strongEntity.getColumnList().size() && fkTables.size() > 1) {
+            if (fkNum == pkIsFk && pkFkTable.size() > 1) {
                 tableGenerateByRelationship.add(strongEntity);
                 continue;
             }

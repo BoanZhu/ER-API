@@ -13,7 +13,7 @@ public class GenerationSqlUtil {
         StringBuilder sqlStatement = new StringBuilder("");
 
         for (Table table : tableDTOList.values()) {
-            sqlStatement.append("CREATE TABLE `").append(table.getName()).append("` (\n");
+            sqlStatement.append("CREATE TABLE ").append(table.getName()).append(" (\n");
             List<Column> columnList = table.getColumnList();
             StringBuilder constraintStatement = new StringBuilder("");
             Set<String> columnNames = new HashSet<>();
@@ -67,7 +67,7 @@ public class GenerationSqlUtil {
                 }
             }
 
-            sqlStatement.append(constraintStatement).append(")\n\n");
+            sqlStatement.append(constraintStatement).append(");\n\n");
             sqlStatement.deleteCharAt(sqlStatement.lastIndexOf(","));
 
         }
