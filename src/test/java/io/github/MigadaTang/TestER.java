@@ -9,8 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertThrows;
 
 public class TestER {
@@ -113,6 +112,19 @@ public class TestER {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    public void emptyEntityGenerateDDLErrorTest() {
+        Schema example = ER.createSchema("loadcheck");
+
+        Entity person = example.addEntity("person");
+        try {
+            example.generateSqlStatement();
+        } catch (ParseException e) {
+            assertTrue(true);
+            System.out.println(e.getMessage());
         }
     }
 
