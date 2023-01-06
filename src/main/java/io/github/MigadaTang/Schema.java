@@ -672,11 +672,7 @@ public class Schema {
     public String generateSqlStatement() throws ERException, ParseException {
         comprehensiveCheck();
         Map<Long, Table> tableDTOList;
-        try {
-            tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
-        } catch (ParseException e) {
-            throw new ParseException(e.getMessage());
-        }
+        tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
         String sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
         return sqlStatement;
     }
