@@ -130,7 +130,8 @@ public class TestAttribute {
         assertEquals(attribute.getLayoutInfo().getLayoutX(), Double.valueOf(1.2));
         assertEquals(attribute.getLayoutInfo().getLayoutY(), Double.valueOf(1.3));
 
-        assertThrows(ERException.class, () -> teacher.addPrimaryKey("primary key check", DataType.VARCHAR));
+        Attribute secondPrimaryKey = teacher.addPrimaryKey("primary key check", DataType.VARCHAR);
+        assertNotNull(secondPrimaryKey);
 
         // check update to duplicate name exception
         Attribute backup = teacher.addAttribute("backup", DataType.VARCHAR, AttributeType.Mandatory);

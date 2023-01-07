@@ -4,6 +4,7 @@ import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
+import io.github.MigadaTang.dao.RelationshipDAO;
 import io.github.MigadaTang.entity.AttributeDO;
 import io.github.MigadaTang.entity.RelationshipDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
@@ -41,9 +42,8 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
 
     private Long insertDB() {
         try {
-            // insert relationship
             RelationshipDO relationshipDO = new RelationshipDO(0L, getName(), getSchemaID(), 0, getGmtCreate(), getGmtModified());
-            int ret = ER.relationshipMapper.insert(relationshipDO);
+            int ret = RelationshipDAO.insert(relationshipDO);
             if (ret == 0) {
                 throw new ERException("relationship insertDB fail");
             }
@@ -71,7 +71,7 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
      * @return a list of relationships
      */
     public static List<Relationship> query(RelationshipDO relationshipDO, boolean exhaustive) {
-        return ObjConv.ConvRelationshipListFromDB(ER.relationshipMapper.selectByRelationship(relationshipDO), exhaustive);
+        return ObjConv.ConvRelationshipListFromDB(RelationshipDAO.selectByRelationship(relationshipDO), exhaustive);
     }
 
     /**
@@ -117,7 +117,7 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         }
 
         // delete relationship
-        ER.relationshipMapper.deleteByID(getID());
+        RelationshipDAO.deleteByID(getID());
     }
 
     /**
@@ -199,15 +199,6 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         if (relationshipEdges.size() != 0) {
             throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
         }
-//        Relationship relationship = Relationship.queryByID(getID());
-//        List<ERConnectableObj> belongObjList = new ArrayList<>();
-//        for (RelationshipEdge edge : relationship.getEdgeList()) {
-//            belongObjList.add(edge.getConnObj());
-//        }
-//        belongObjList.add(belongObj);
-//        if (RelationshipEdge.checkEntitesInSameRelationship(belongObjList)) {
-//            throw new ERException("entities have been in the same relationship");
-//        }
         RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, isKey, -1, -1, new Date(), new Date());
         this.edgeList.add(edge);
         return edge;
@@ -222,6 +213,6 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         if (name != null) {
             setName(name);
         }
-        ER.relationshipMapper.updateByID(new RelationshipDO(getID(), getName(), getSchemaID(), 0, getGmtCreate(), new Date()));
+        RelationshipDAO.updateByID(new RelationshipDO(getID(), getName(), getSchemaID(), 0, getGmtCreate(), new Date()));
     }
 }

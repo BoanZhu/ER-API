@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="UTF-8">
+<head><meta charset="UTF-8">
     <title>API image</title>
     <script src="https://unpkg.com/gojs@2.2.16/release/go.js"></script>
     <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
-    <script src="https://unpkg.com/gojs@2.2.16/extensions/Figures.js"></script>
-    <!--    <script src="../js/API.js"></script>-->
 
 </head>
 <body>
-<div id="model"
-     style="width:50%;background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
+<div id="model" style="width:50%;background-color: whitesmoke; border: 1px solid black; height: 800px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto; font: bold 9pt Helvetica, Arial, sans-serif;">
 </div>
-<div id="image" style="width:50%;position:absolute;left: 50%;">123</div>
-<div id="modelData" style="display:none">##</div>
+<div id ="image" style="width:50%;position:absolute;left: 50%;">123</div>
+<div id = "modelData" style="display:none" >##</div>
 </body>
 <script id="code">
+    function getNearestPort(belongObj,node){
+        let fromPortId;
+        if (node.data.location.y <= belongObj.data.location.y - (1 / 2) * belongObj.actualBounds.height &&
+            node.data.location.x <= belongObj.data.location.x + (1 / 2) * belongObj.actualBounds.width &&
+            node.data.location.x >= belongObj.data.location.x - (1 / 2) * belongObj.actualBounds.width) {
+            fromPortId = 1;
+        } else if (node.data.location.x > belongObj.data.location.x + (1 / 2) * belongObj.actualBounds.width) {
+            fromPortId = 4;
+        } else if (node.data.location.x < belongObj.data.location.x - (1 / 2) * belongObj.actualBounds.width) {
+            fromPortId = 3;
+        } else {
+            fromPortId = 2;
+        }
+        return fromPortId;
+    }
     function load() {
         const modelData = JSON.parse(document.getElementById("modelData").innerHTML);
         showSchema(modelData);
@@ -24,14 +35,49 @@
     }
 
     function exportPng() {
-        const image = APIDiagram.makeImage({ background: "white"});
+        let image = APIDiagram.makeImage({ background: "white"});
+        let modelStr;
+        let replicaRelationSet = new Set();
+        for (let it = APIDiagram.nodes; it.next();) {
+            let node = it.value;  // n is now a Node or a Group
+            if (node.data.category === ("Attribute" ||"relation_attribute")) {
+                node.findLinksConnected().each(function (link) {
+                    let belongObj = APIDiagram.findNodeForKey(link.data.from)
+                    let fromPort = getNearestPort(belongObj, node);
+                    APIDiagram.model.setFromPortIdForLinkData(link.data, fromPort);
+                });
+            } else if (node.category === "subset") {
+                node.findLinksConnected().each(function (link) {
+                    if (link.data.category === "subsetLink") {
+                        let belongObj = APIDiagram.findNodeForKey(link.data.to)
+                        let fromPort = getNearestPort(node,belongObj);
+                        let toPort = getNearestPort(belongObj, node);
+                        APIDiagram.model.setFromPortIdForLinkData(link.data, fromPort);
+                        APIDiagram.model.setToPortIdForLinkData(link.data, toPort);
+                    }
+                });
+            }else if (node.category === "relation") {
+                node.findLinksConnected().each(function (link) {
+                    let entity = APIDiagram.findNodeForKey(link.data.to).data.key===node.data.key?
+                        APIDiagram.findNodeForKey(link.data.from):APIDiagram.findNodeForKey(link.data.to);
+                    if (link.data.category === "entityLink"&&
+                        !replicaRelationSet.has(entity.data.key)&&!replicaRelationSet.has(node.data.key)) {
+                        let entity = APIDiagram.findNodeForKey(link.data.from);
+                        let fromPort = getNearestPort(entity, node);
+                        let toPort = getNearestPort(node, entity);
+                        APIDiagram.model.setFromPortIdForLinkData(link.data, fromPort);
+                        APIDiagram.model.setToPortIdForLinkData(link.data, toPort);
+                    }
+                });
+                replicaRelationSet.add(node.data.key);
+            }
+        }
+        image = APIDiagram.makeImage({ background: "white"});
         document.getElementById("image").innerHTML = image.src;
+        console.log(APIDiagram.model.toJson());
+        console.log(image.src);
     }
     window.addEventListener('DOMContentLoaded', load);
-
-
-
-
 </script>
 <script id="api">
     const RELATION = {
@@ -162,27 +208,50 @@
         function leftPort(){
             // L port
             return $(go.Panel, "Vertical", {row: 1, column: 0},
-                $(go.Shape, {width: 3, height: 3, portId: 3, toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
+                $(go.Shape, {width: 0, height: 0, portId: 3, toSpot: go.Spot.Left,fromSpot:go.Spot.Left,
                     fromLinkable: true,toLinkable: true
                 }));
         }
         function rightPort(){
             // R port
             return $(go.Panel, "Vertical", {row: 1, column: 2},
-                $(go.Shape,  {width: 3, height: 3, portId: 4, toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
+                $(go.Shape,  {width: 0, height: 0, portId: 4, toSpot: go.Spot.Right,fromSpot:go.Spot.Right,
                     fromLinkable: true,toLinkable: true}));
         }
         function bottomPort(){
             // B port
             return $(go.Panel, "Horizontal", {row:2, column: 1},
-                $(go.Shape, {width: 3, height: 3, portId: 2, toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
+                $(go.Shape, {width: 0, height: 0, portId: 2, toSpot: go.Spot.Bottom,fromSpot:go.Spot.Bottom,
                     fromLinkable: true,toLinkable: true}));
         }
         function topPort(){
             // U port
             return $(go.Panel, "Vertical",{row: 0, column: 1},
-                $(go.Shape, {width: 3, height: 3, portId: 1, toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
+                $(go.Shape, {width: 0, height: 0, portId: 1, toSpot: go.Spot.Top,fromSpot:go.Spot.Top,
                     fromLinkable: true,toLinkable: true}));
+        }
+
+        function makePort(name, align, spot, output, input) {
+            var horizontal = align.equals(go.Spot.Top) || align.equals(go.Spot.Bottom);
+            return $(go.Shape,
+                {
+                    fill: "transparent",
+                    strokeWidth: 0,
+                    width: horizontal ? NaN : 8,
+                    height: !horizontal ? NaN : 8,
+                    alignment: align,
+                    stretch: (horizontal ? go.GraphObject.Horizontal : go.GraphObject.Vertical),
+                    portId: name,
+                    fromSpot: spot,
+                    fromLinkable: output,
+                    toSpot: spot,
+                    toLinkable: input,
+                    cursor: "pointer",
+                    mouseEnter: (e, port) => {
+                        if (!e.diagram.isReadOnly) port.fill = "rgba(0,56,117,0.5)";
+                    },
+                    mouseLeave: (e, port) => port.fill = "transparent"
+                });
         }
 
         /*
@@ -262,7 +331,7 @@
                         new go.Binding("text", "name").makeTwoWay()),
                 ),
                 //port
-                leftPort(),rightPort(),topPort(),bottomPort()
+                leftPort(), rightPort(), topPort(), bottomPort()
             );
 
 
@@ -314,7 +383,7 @@
                             new go.Binding("text", "name").makeTwoWay()))
                 ),
                 //port
-                leftPort(),rightPort(),topPort(),bottomPort()
+                leftPort(), rightPort(), topPort(), bottomPort()
             );
 
         // weak entity template
@@ -361,7 +430,7 @@
                         new go.Binding("text", "name").makeTwoWay()),
                 ), //end Auto Panel Body
                 //port
-                leftPort(),rightPort(),topPort(),bottomPort()
+                leftPort(), rightPort(), topPort(), bottomPort()
             );
 
         // subset template
@@ -408,12 +477,12 @@
                         new go.Binding("text", "name").makeTwoWay()),
                     $(go.RowColumnDefinition, { row: 0, sizing: go.RowColumnDefinition.None }),
                 ), // end Table Panel
-                //port
                 $(go.Panel, "Vertical", {row: 1, column: 1},
                     $(go.Shape, {width: 0, height: 0, portId: 5,
                         fromLinkable: true,toLinkable: true,
                         fill: "#e8c446",stroke: "#e8c446",
-                    })),
+                    }))
+
             );
 
         // attribute template
@@ -439,7 +508,7 @@
                     {
                         font: "bold 12px monospace",
                         margin: new go.Margin(0, 0, 0, 0), // leave room for Button
-                        editable: true
+                        editable: false
                     },
                     new go.Binding("text", "name").makeTwoWay(),
                     new go.Binding("isUnderline", "underline"),
@@ -474,11 +543,17 @@
                     ),
                 ),
                 //port
-                $(go.Panel, "Vertical", {row: 1, column: 1},
-                    $(go.Shape, {
-                        width: 3, height: 3, portId: 5,
+                $(go.Panel, "Vertical",
+                    {row: 1, column: 1},
+                    $(go.Shape, "Circle",{
+                        width: 0, height: 0, portId: 5,
                         fromLinkable: true, toLinkable: true,
                         fill: colors.lightblue, stroke: colors.lightblue,
+                        cursor: "pointer",
+                        mouseEnter: (e, port) => {
+                            if (!e.diagram.isReadOnly) port.fill = "rgba(0,89,124,0.5)";
+                        },
+                        mouseLeave: (e, port) => port.fill = "transparent",
                     })
                 )
             )
@@ -641,8 +716,7 @@
                         APIDiagram.model.addNodeData(attributeNode);
                         //step 2: add normal link data and attribute data
                         let normalLinkData = {
-                            "from": node.key, "to": attributeNode.key, "category": "normalLink",
-                            "fromPort": 4, "toPort": 5
+                            "from": node.key, "to": attributeNode.key, "category": "normalLink", "toPort": 5
                         }
                         if (attributeData.aimPort !== -1) {
                             normalLinkData.fromPort = attributeData.aimPort;
@@ -694,8 +768,7 @@
                         APIDiagram.model.addNodeData(attributeNode);
 
                         let normalLinkData = {
-                            "from": relationNode.key, "to": attributeNode.key, "category": "normalLink",
-                            "fromPort": 4, "toPort": 5
+                            "from": relationNode.key, "to": attributeNode.key, "category": "normalLink", "toPort": 5
                         }
                         if (attributeNode.aimPort !== -1) {
                             normalLinkData.fromPort = attributeData.aimPort;
@@ -728,15 +801,13 @@
                             edgeLinkData.fromPort=edgeData.portAtBelongObj;
                             edgeLinkData.toPort=edgeData.portAtRelationship;
                         }else{
-                            edgeLinkData.fromPort=2;
-                            edgeLinkData.toPort=counter+1;
-                            counter = (counter+1)%2;
                         }
                         APIDiagram.model.addLinkData(edgeLinkData);
                     }
                 }
             }
         }
+
         let modelStr = APIDiagram.model.toJSON();
         return modelStr;
     }
@@ -776,9 +847,5 @@
 
         return attributeNode;
     }
-
-
-
-
 </script>
 </html>

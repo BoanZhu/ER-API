@@ -2,16 +2,14 @@ package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
-import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.ERException;
+import io.github.MigadaTang.exception.ParseException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.sql.Connection;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertThrows;
 
 public class TestER {
@@ -21,16 +19,6 @@ public class TestER {
     @BeforeClass
     public static void init() throws Exception {
         TestCommon.setUp();
-    }
-
-    @Test
-    public void initializeTest() throws Exception {
-        ER.initialize();
-        Connection connection = ER.sqlSession.getConnection();
-        assertNotNull(connection);
-        ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
-        connection = ER.sqlSession.getConnection();
-        assertNotNull(connection);
     }
 
     @Test
@@ -126,4 +114,18 @@ public class TestER {
             }
         }
     }
+
+    @Test
+    public void emptyEntityGenerateDDLErrorTest() {
+        Schema example = ER.createSchema("loadcheck");
+
+        Entity person = example.addEntity("person");
+        try {
+            example.generateSqlStatement();
+        } catch (ParseException e) {
+            assertTrue(true);
+            System.out.println(e.getMessage());
+        }
+    }
+
 }

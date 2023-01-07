@@ -1,6 +1,7 @@
 package io.github.MigadaTang;
 
 import io.github.MigadaTang.common.BelongObjType;
+import io.github.MigadaTang.dao.LayoutInfoDAO;
 import io.github.MigadaTang.entity.LayoutInfoDO;
 import io.github.MigadaTang.exception.ERException;
 import lombok.Getter;
@@ -55,7 +56,7 @@ public class LayoutInfo {
      * @return A list of layoutInfo
      */
     public static List<LayoutInfo> query(LayoutInfoDO layoutInfoDO) {
-        List<LayoutInfoDO> LayoutInfoDOList = ER.layoutInfoMapper.selectByLayoutInfo(layoutInfoDO);
+        List<LayoutInfoDO> LayoutInfoDOList = LayoutInfoDAO.selectByLayoutInfo(layoutInfoDO);
         return ObjConv.ConvLayoutInfoListFormDB(LayoutInfoDOList);
     }
 
@@ -92,7 +93,7 @@ public class LayoutInfo {
     private void insertDB() {
         try {
             LayoutInfoDO LayoutInfoDO = new LayoutInfoDO(0L, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY);
-            int ret = ER.layoutInfoMapper.insert(LayoutInfoDO);
+            int ret = LayoutInfoDAO.insert(LayoutInfoDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
@@ -116,7 +117,7 @@ public class LayoutInfo {
         if (layoutX != null) {
             this.layoutY = layoutY;
         }
-        int ret = ER.layoutInfoMapper.updateByID(new LayoutInfoDO(this.ID, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY));
+        int ret = LayoutInfoDAO.updateByID(new LayoutInfoDO(this.ID, this.belongObjID, this.belongObjType, this.layoutX, this.layoutY));
         if (ret == 0) {
             throw new ERException(String.format("cannot find LayoutInfo with ID: %d", this.ID));
         }

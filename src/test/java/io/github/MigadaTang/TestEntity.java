@@ -76,6 +76,11 @@ public class TestEntity {
 
         assertThrows(ERException.class, () -> Entity.queryByID(pair.left.getID()));
         assertThrows(ERException.class, () -> RelationshipEdge.queryByID(pair.right.getEdgeList().get(0).getID()));
+
+        Entity deleteParent = testSchema.addSubset("delete parent", teacher);
+        testSchema.deleteEntity(teacher);
+        Entity belongStrongEntity = Entity.queryByID(deleteParent.getID()).getBelongStrongEntity();
+        assertNull(belongStrongEntity);
     }
 
     @Test

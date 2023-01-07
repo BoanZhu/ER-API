@@ -3,6 +3,7 @@ package io.github.MigadaTang;
 import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.DataType;
+import io.github.MigadaTang.dao.AttributeDAO;
 import io.github.MigadaTang.entity.AttributeDO;
 import io.github.MigadaTang.exception.ERException;
 import lombok.Getter;
@@ -29,7 +30,7 @@ public class Attribute extends ERBaseObj {
      */
     private DataType dataType;
     /**
-     * Whether this attribute is a primary key, there can only be one primary key in an entity
+     * Whether this attribute is a primary key, multiple primary keys form a composite primary key
      */
     private Boolean isPrimary;
     /**
@@ -58,7 +59,7 @@ public class Attribute extends ERBaseObj {
     private Long insertDB() throws PersistenceException {
         try {
             AttributeDO aDo = new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), getGmtModified());
-            int ret = ER.attributeMapper.insert(aDo);
+            int ret = AttributeDAO.insert(aDo);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
@@ -72,7 +73,7 @@ public class Attribute extends ERBaseObj {
      * Delete the current attribute from the database
      */
     protected void deleteDB() {
-        ER.attributeMapper.deleteByID(getID());
+        AttributeDAO.deleteByID(getID());
     }
 
     /**
@@ -102,18 +103,10 @@ public class Attribute extends ERBaseObj {
                 throw new ERException(String.format("attribute with name: %s already exists", getName()));
             }
         }
-        if (isPrimary != null && isPrimary) {
-            List<Attribute> attributeList = Attribute.query(new AttributeDO(this.belongObjID, this.belongObjType, getSchemaID(), null));
-            for (Attribute attribute : attributeList) {
-                if (!attribute.getID().equals(getID()) && attribute.getIsPrimary()) {
-                    throw new ERException(String.format("attribute that is primary key already exists, name: %s", attribute.getName()));
-                }
-            }
-        }
         if (this.isPrimary && this.attributeType != AttributeType.Mandatory) {
             throw new ERException("primary attribute must be mandatory");
         }
-        ER.attributeMapper.updateByID(new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), new Date()));
+        AttributeDAO.updateByID(new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
 
@@ -126,7 +119,7 @@ public class Attribute extends ERBaseObj {
         if (aimPort != null) {
             this.aimPort = aimPort;
         }
-        ER.attributeMapper.updateByID(new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), new Date()));
+        AttributeDAO.updateByID(new AttributeDO(getID(), this.belongObjID, this.belongObjType, getSchemaID(), getName(), this.dataType, this.isPrimary, this.attributeType, this.aimPort, 0, getGmtCreate(), new Date()));
     }
 
     /**
@@ -136,7 +129,7 @@ public class Attribute extends ERBaseObj {
      * @return A list of attributes
      */
     public static List<Attribute> query(AttributeDO attributeDO) {
-        return ObjConv.ConvAttributeListFromDB(ER.attributeMapper.selectByAttribute(attributeDO));
+        return ObjConv.ConvAttributeListFromDB(AttributeDAO.selectByAttribute(attributeDO));
     }
 
     /**
@@ -147,7 +140,7 @@ public class Attribute extends ERBaseObj {
      * @throws ERException throws an ERException if no attribute is found
      */
     public static Attribute queryByID(Long ID) throws ERException {
-        List<Attribute> attributeList = ObjConv.ConvAttributeListFromDB(ER.attributeMapper.selectByAttribute(new AttributeDO(ID)));
+        List<Attribute> attributeList = ObjConv.ConvAttributeListFromDB(AttributeDAO.selectByAttribute(new AttributeDO(ID)));
         if (attributeList.size() == 0) {
             throw new ERException(String.format("Attribute with ID: %d not found ", ID));
         } else {

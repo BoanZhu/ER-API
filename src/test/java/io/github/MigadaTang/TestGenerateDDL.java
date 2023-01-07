@@ -284,7 +284,7 @@ public class TestGenerateDDL {
         view = ER.createSchema("testTransformMultiValued");
         Entity person = view.addEntity("person");
         person.addAttribute("salary_number", DataType.INT, true, AttributeType.Mandatory);
-        Entity department = view.addEntity("department");
+        Entity department = view.addEntity("big department ");
         department.addAttribute("dname", DataType.TEXT, true, AttributeType.Mandatory);
 
         Relationship worksin = view.createEmptyRelationship("works in");

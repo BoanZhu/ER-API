@@ -11,6 +11,7 @@ import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.ConnObjWithCardinality;
 import io.github.MigadaTang.common.EntityType;
+import io.github.MigadaTang.dao.SchemaDAO;
 import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.entity.SchemaDO;
@@ -175,15 +176,11 @@ public class Schema {
         for (RelationshipEdge edge : edgeList) {
             edge.deleteDB();
         }
-//        // secondly, delete all the subsets of this strong entity
-//        if (entity.getEntityType() == EntityType.STRONG) {
-//            List<Entity> entityList = Entity.query(new EntityDO(null, null, null, null, entity.getID(), null, null, null, null));
-//            for (Entity subEntity : entityList) {
-//                deleteEntity(subEntity);
-//            }
-//        }
-
         entity.deleteDB();
+        List<Entity> entities = Entity.query(new EntityDO(null, null, entity.getID()), false);
+        for (Entity subset : entities) {
+            subset.removeBelongStrongEntity();
+        }
         this.entityList.remove(entity);
     }
 
@@ -247,9 +244,8 @@ public class Schema {
             throw new ERException("relationshipName cannot be empty");
         }
         if (connObjWithCardinalityList.size() <= 1) {
-            throw new ERException("must have more than 2 entities to create relationship");
+            throw new ERException("must have at least 2 components to create relationship");
         }
-//        List<ERConnectableObj> connObjList = new ArrayList<>();
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             if (eCard.getConnObj() instanceof Entity) {
                 ERConnectableObj entity = eCard.getConnObj();
@@ -268,11 +264,7 @@ public class Schema {
                     throw new ERException(String.format("relationship: %s does not belong to this schema", relationship.getName()));
                 }
             }
-//            connObjList.add(eCard.getConnObj());
         }
-//        if (RelationshipEdge.checkEntitesInSameRelationship(connObjList)) {
-//            throw new ERException("connObj have been in the same relationship");
-//        }
         Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, eCard.getConnObj(), eCard.getCardinality(), false, -1, -1, new Date(), new Date());
@@ -295,7 +287,7 @@ public class Schema {
     private void insertDB() {
         try {
             SchemaDO schemaDO = new SchemaDO(0L, this.name, 0, this.gmtCreate, this.gmtModified);
-            int ret = ER.schemaMapper.insert(schemaDO);
+            int ret = SchemaDAO.insert(schemaDO);
             if (ret == 0) {
                 throw new ERException("insertDB fail");
             }
@@ -400,10 +392,6 @@ public class Schema {
             }
             switch (entity.getEntityType()) {
                 case STRONG:
-                    if (primaryKeyNum != 1) {
-                        throw new ERException(String.format("strong entity (%s) must have exactly one primary key", entity.getName()));
-                    }
-                    break;
                 case WEAK:
                     break;
                 case SUBSET:
@@ -415,7 +403,7 @@ public class Schema {
                     }
                     break;
                 default:
-                    throw new ERException(String.format("unknown entity type of entity (%s)"));
+                    throw new ERException(String.format("unknown entity type of entity (%s)", entity.getName()));
             }
         }
         for (Relationship relationship : relationshipList) {
@@ -553,7 +541,7 @@ public class Schema {
      * @return A list of schemas
      */
     public static List<Schema> queryAll() {
-        return ObjConv.ConvSchemaListFromDB(ER.schemaMapper.selectAll(), true);
+        return ObjConv.ConvSchemaListFromDB(SchemaDAO.selectAll(), true);
     }
 
     /**
@@ -563,7 +551,7 @@ public class Schema {
      * @return A list of schemas
      */
     public static List<Schema> queryAll(boolean exhaustive) {
-        return ObjConv.ConvSchemaListFromDB(ER.schemaMapper.selectAll(), exhaustive);
+        return ObjConv.ConvSchemaListFromDB(SchemaDAO.selectAll(), exhaustive);
     }
 
     /**
@@ -573,7 +561,7 @@ public class Schema {
      * @return a list of schemas
      */
     public static List<Schema> queryBySchema(SchemaDO schemaDO) {
-        List<SchemaDO> schemaDOList = ER.schemaMapper.selectBySchema(schemaDO);
+        List<SchemaDO> schemaDOList = SchemaDAO.selectBySchema(schemaDO);
         return ObjConv.ConvSchemaListFromDB(schemaDOList, true);
     }
 
@@ -603,7 +591,7 @@ public class Schema {
         for (Relationship relationship : relationshipList) {
             relationship.deleteDB();
         }
-        ER.schemaMapper.deleteByID(this.ID);
+        SchemaDAO.deleteByID(this.ID);
     }
 
     /**
@@ -615,7 +603,7 @@ public class Schema {
         if (name != null) {
             this.name = name;
         }
-        ER.schemaMapper.updateByID(new SchemaDO(this.ID, this.name, 0, this.gmtCreate, new Date()));
+        SchemaDAO.updateByID(new SchemaDO(this.ID, this.name, 0, this.gmtCreate, new Date()));
     }
 
     private final static String templateHTMLPath = "render/template.html";
@@ -684,11 +672,7 @@ public class Schema {
     public String generateSqlStatement() throws ERException, ParseException {
         comprehensiveCheck();
         Map<Long, Table> tableDTOList;
-        try {
-            tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
-        } catch (ParseException e) {
-            throw new ParseException(e.getMessage());
-        }
+        tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
         String sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
         return sqlStatement;
     }

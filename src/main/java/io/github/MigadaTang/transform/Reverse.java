@@ -65,6 +65,23 @@ public class Reverse {
      * @param dbUrl        the url of the database
      * @param userName     the username to log in database
      * @param password     the password to log in database
+     * @return the created schema
+     * @throws DBConnectionException Exception that fail to read database information
+     * @throws ParseException        Exception that fail to mapping table and column to entity, relationship and attribute
+     */
+    public Schema relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password) throws DBConnectionException, ParseException {
+        Schema schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, null);
+
+        return schema;
+    }
+
+    /**
+     * The function parse table in specify database to er model
+     *
+     * @param databaseType the type of the database
+     * @param dbUrl        the url of the database
+     * @param userName     the username to log in database
+     * @param password     the password to log in database
      * @param imageName    the name of the image saved
      * @return the created schema
      * @throws DBConnectionException Exception that fail to read database information

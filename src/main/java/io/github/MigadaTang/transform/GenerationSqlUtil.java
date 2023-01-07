@@ -1,5 +1,7 @@
 package io.github.MigadaTang.transform;
 
+import io.github.MigadaTang.exception.ParseException;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -7,21 +9,26 @@ import java.util.Set;
 
 public class GenerationSqlUtil {
 
-    public static String toSqlStatement(Map<Long, Table> tableDTOList) {
+    public static String toSqlStatement(Map<Long, Table> tableDTOList) throws ParseException {
         StringBuilder sqlStatement = new StringBuilder("");
 
         for (Table table : tableDTOList.values()) {
-            sqlStatement.append("CREATE TABLE `").append(table.getName()).append("` (\n");
+            sqlStatement.append("CREATE TABLE ").append(table.getName()).append(" (\n");
             List<Column> columnList = table.getColumnList();
             StringBuilder constraintStatement = new StringBuilder("");
             Set<String> columnNames = new HashSet<>();
+
+            if (columnList.size() == 0) {
+                throw new ParseException("Table `" + table.getName() + "` should contain at least one column");
+            }
+
             for (Column column : columnList) {
                 if (columnNames.contains(column.getName()))
                     column.setName(column.getName() + "1");
                 else
                     columnNames.add(column.getName());
 
-                sqlStatement.append("    `").append(column.getName()).append("` ")
+                sqlStatement.append("    ").append(column.getName()).append(" ")
                         .append(column.getDataType().toUpperCase())
                         .append(" ").append(column.nullable()).append(",\n");
             }
@@ -60,7 +67,7 @@ public class GenerationSqlUtil {
                 }
             }
 
-            sqlStatement.append(constraintStatement).append(")\n\n");
+            sqlStatement.append(constraintStatement).append(");\n\n");
             sqlStatement.deleteCharAt(sqlStatement.lastIndexOf(","));
 
         }
