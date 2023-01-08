@@ -2,8 +2,7 @@ package io.github.MigadaTang.transform;
 
 import io.github.MigadaTang.Schema;
 import io.github.MigadaTang.common.RDBMSType;
-import io.github.MigadaTang.exception.DBConnectionException;
-import io.github.MigadaTang.exception.ParseException;
+import io.github.MigadaTang.exception.ERException;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -25,34 +24,29 @@ public class Reverse {
      * @param userName     the username to log in database
      * @param password     the password to log in database
      * @return the created schema
-     * @throws ParseException        Exception that fail to mapping table and column to entity, relationship and attribute
-     * @throws DBConnectionException Exception that fail to read database information
+     * @throws ERException        Exception that fail to analysis database info
      */
     public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
-            , String userName, String password) throws ParseException, DBConnectionException {
+            , String userName, String password) {
         Schema schema;
         try {
             schema = relationSchemasToERModel(databaseType, hostname, portNum, databaseName, userName, password, null);
-        } catch (ParseException e) {
-            throw new ParseException(e.getMessage());
-        } catch (DBConnectionException e) {
-            throw new DBConnectionException(e.getMessage());
+        } catch (ERException e) {
+            throw new ERException(e.getMessage());
         }
 
         return schema;
     }
 
     public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
-            , String userName, String password, String imageName) throws ParseException, DBConnectionException {
+            , String userName, String password, String imageName) {
         String dbUrl = "";
         Schema schema;
         try {
             dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
             schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
-        } catch (ParseException e) {
-            throw new ParseException(e.getMessage());
-        } catch (DBConnectionException e) {
-            throw new DBConnectionException(e.getMessage());
+        } catch (ERException e) {
+            throw new ERException(e.getMessage());
         }
 
         return schema;
@@ -66,10 +60,9 @@ public class Reverse {
      * @param userName     the username to log in database
      * @param password     the password to log in database
      * @return the created schema
-     * @throws DBConnectionException Exception that fail to read database information
-     * @throws ParseException        Exception that fail to mapping table and column to entity, relationship and attribute
+     * @throws ERException Exception that fail to read database information
      */
-    public Schema relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password) throws DBConnectionException, ParseException {
+    public Schema relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password) throws ERException {
         Schema schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, null);
 
         return schema;
@@ -84,10 +77,9 @@ public class Reverse {
      * @param password     the password to log in database
      * @param imageName    the name of the image saved
      * @return the created schema
-     * @throws DBConnectionException Exception that fail to read database information
-     * @throws ParseException        Exception that fail to mapping table and column to entity, relationship and attribute
+     * @throws ERException Exception that fail to read database information
      */
-    public Schema relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password, String imageName) throws DBConnectionException, ParseException {
+    public Schema relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password, String imageName) throws ERException{
         Connection conn = null;
         String driver = "";
         Schema schema;
@@ -100,14 +92,9 @@ public class Reverse {
             DatabaseUtil.closeDBConnection(conn);
             schema = ParserUtil.parseAttributeToRelationship(tableList);
             schema.renderAsImage(imageName);
-        } catch (ParseException parseException) {
-            throw new ParseException(parseException.getMessage());
-        } catch (DBConnectionException dbConnectionException) {
-            throw new DBConnectionException(dbConnectionException.getMessage());
-        } catch (SQLException throwables) {
-            throw new DBConnectionException("Fail to create db statement");
+        } catch (ERException | SQLException erException) {
+            throw new ERException(erException.getMessage());
         }
-
         return schema;
     }
 

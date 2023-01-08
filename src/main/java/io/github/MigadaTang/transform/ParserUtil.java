@@ -3,13 +3,12 @@ package io.github.MigadaTang.transform;
 import io.github.MigadaTang.*;
 import io.github.MigadaTang.common.*;
 import io.github.MigadaTang.exception.ERException;
-import io.github.MigadaTang.exception.ParseException;
 
 import java.util.*;
 
 public class ParserUtil {
 
-    public static Schema parseAttributeToRelationship(List<Table> tableList) throws ParseException {
+    public static Schema parseAttributeToRelationship(List<Table> tableList) {
         Schema schema = ER.createSchema("reverseEng");
 
         Map<Long, Entity> tableDTOEntityMap = new HashMap<>();
@@ -80,7 +79,7 @@ public class ParserUtil {
 
     private static void parseTableToEntity(List<Table> tableList, Map<Long, Entity> tableDTOEntityMap,
                                            List<Table> tableGenerateByRelationship, Schema schema,
-                                           List<Column> foreignKeyList, List<Table> possibleMultiValuedSet) throws ParseException {
+                                           List<Column> foreignKeyList, List<Table> possibleMultiValuedSet) {
         List<Table> possibleWeakEntitySet = new ArrayList<>();
         List<Table> possibleSubsetSet = new ArrayList<>();
 
@@ -151,7 +150,7 @@ public class ParserUtil {
 
         for (Table weakEntity : possibleWeakEntitySet) {
             if (!tableDTOEntityMap.containsKey(weakEntity.getBelongStrongTableID()))
-                throw new ParseException("Api only support weak entity relies on strong entity for current version");
+                throw new ERException("Api only support weak entity relies on strong entity for current version");
 
             Entity entity = schema.addWeakEntity(weakEntity.getName(), tableDTOEntityMap.get(weakEntity.getBelongStrongTableID()),
                     "unknow", Cardinality.OneToOne, Cardinality.ZeroToMany).getLeft();
@@ -176,7 +175,7 @@ public class ParserUtil {
 
         for (Table subset : possibleSubsetSet) {
             if (!tableDTOEntityMap.containsKey(subset.getBelongStrongTableID()))
-                throw new ParseException("Api only support subset relies on strong entity for current version");
+                throw new ERException("Api only support subset relies on strong entity for current version");
 
             Entity entity = schema.addSubset(subset.getName(), tableDTOEntityMap.get(subset.getBelongStrongTableID()));
             tableDTOEntityMap.put(subset.getId(), entity);
@@ -200,7 +199,7 @@ public class ParserUtil {
     }
 
 
-    public static Map<Long, Table> parseRelationshipsToAttribute(List<Entity> entityList, List<Relationship> relationshipList) throws ParseException {
+    public static Map<Long, Table> parseRelationshipsToAttribute(List<Entity> entityList, List<Relationship> relationshipList) {
 
         Map<Long, Table> tableDTOMap = new HashMap<>();
         List<Long> subsetMap = new ArrayList<>();
@@ -297,7 +296,7 @@ public class ParserUtil {
     }
 
 
-    private static void parseRelationships(List<Relationship> relationshipList, Map<Long, Table> tableDTOMap) {
+    private static void parseRelationships(List<Relationship> relationshipList, Map<Long, Table> tableDTOMap) throws ERException {
         // mapping the relationship to existing or new table
         Map<Long, Long> mapRelationshipToTable = new HashMap<>();
         List<Relationship> normalRelationship = new ArrayList<>();
@@ -349,7 +348,7 @@ public class ParserUtil {
     }
 
 
-    public static Queue<Relationship> generateRelationshipTopologySeq(List<Relationship> relationshipList) {
+    public static Queue<Relationship> generateRelationshipTopologySeq(List<Relationship> relationshipList) throws ERException {
         // S is the relationship needs to parse first and R can be parsed when all of S it connected can be parsed
         Map<Long, List<Long>> RMapS = new HashMap<>();
         Map<Long, List<Long>> SMapR = new HashMap<>();

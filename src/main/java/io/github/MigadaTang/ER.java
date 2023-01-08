@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.ERException;
-import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.transform.DatabaseUtil;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -36,9 +35,8 @@ public class ER {
      * @param username     username
      * @param password     password
      * @throws SQLException   exception that might happen during table creation
-     * @throws ParseException supported dbType
      */
-    public static void initialize(RDBMSType dbType, String hostname, String portNum, String databaseName, String username, String password) throws SQLException, ParseException {
+    public static void initialize(RDBMSType dbType, String hostname, String portNum, String databaseName, String username, String password) throws SQLException {
         Properties properties = new Properties();
         properties.setProperty("jdbc.driverClassName", DatabaseUtil.recognDriver(dbType));
         properties.setProperty("jdbc.url", DatabaseUtil.generateDatabaseURL(dbType, hostname, portNum, databaseName));
@@ -60,9 +58,8 @@ public class ER {
      * The easiest way to initialize this tool. Use the h2 memory database by default
      *
      * @throws SQLException   SQLException
-     * @throws ParseException ParseException
      */
-    public static void initialize() throws SQLException, ParseException {
+    public static void initialize() throws SQLException {
         initialize(RDBMSType.H2, "mem", "", "test", "sa", "");
     }
 

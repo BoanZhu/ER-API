@@ -1,8 +1,7 @@
 package io.github.MigadaTang.transform;
 
 import io.github.MigadaTang.common.RDBMSType;
-import io.github.MigadaTang.exception.DBConnectionException;
-import io.github.MigadaTang.exception.ParseException;
+import io.github.MigadaTang.exception.ERException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DatabaseUtil {
-    public static List<Table> getDatabseInfo(Connection conn) throws DBConnectionException {
+    public static List<Table> getDatabseInfo(Connection conn) {
         List<Table> tableList = new ArrayList<>();
         Map<String, Map<String, Column>> columnTracker = new HashMap<>();
         Map<String, Table> tableTracker = new HashMap<>();
@@ -95,40 +94,40 @@ public class DatabaseUtil {
             }
 
         } catch (SQLException e) {
-            throw new DBConnectionException("Fail to read the tables or columns info from database.");
+            throw new ERException("Fail to read the tables or columns info from database.");
         }
 
         return tableList;
     }
 
 
-    public static void closeDBConnection(Connection connection) throws DBConnectionException {
+    public static void closeDBConnection(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException throwables) {
-                throw new DBConnectionException("Fail to close the database connection");
+                throw new ERException("Fail to close the database connection");
             }
         }
     }
 
 
-    public static Connection acquireDBConnection(String driver, String dbUrl, String userName, String password) throws DBConnectionException {
+    public static Connection acquireDBConnection(String driver, String dbUrl, String userName, String password) {
         Connection conn = null;
         try {
             Class.forName(driver);
             conn = DriverManager.getConnection(dbUrl, userName, password);
         } catch (ClassNotFoundException e) {
-            throw new DBConnectionException("Driver not found: " + driver);
+            throw new ERException("Driver not found: " + driver);
         } catch (SQLException e) {
-            throw new DBConnectionException("Fail to connect the database. Database Url: " + dbUrl + " User name"
+            throw new ERException("Fail to connect the database. Database Url: " + dbUrl + " User name"
                     + userName + " Password: " + password);
         }
         return conn;
     }
 
 
-    public static String generateDatabaseURL(RDBMSType databaseType, String hostname, String portNum, String databaseName) throws ParseException {
+    public static String generateDatabaseURL(RDBMSType databaseType, String hostname, String portNum, String databaseName) {
         if (databaseType == RDBMSType.MYSQL) {
             return "jdbc:mysql://" + hostname + ":" + portNum + "/" + databaseName;
         } else if (databaseType == RDBMSType.ORACLE) {
@@ -142,10 +141,10 @@ public class DatabaseUtil {
         } else if (databaseType == RDBMSType.SQLSERVER) {
             return "jdbc:sqlserver://" + hostname + ":" + portNum + ";DatabaseName=" + databaseName;
         }
-        throw new ParseException("Cannot recognise current RDBMS type: " + databaseType.toString());
+        throw new ERException("Cannot recognise current RDBMS type: " + databaseType.toString());
     }
 
-    public static String recognDriver(RDBMSType databaseType) throws ParseException {
+    public static String recognDriver(RDBMSType databaseType) {
         if (databaseType == RDBMSType.MYSQL) {
             return "com.mysql.jdbc.Driver";
         } else if (databaseType == RDBMSType.ORACLE) {
@@ -159,6 +158,6 @@ public class DatabaseUtil {
         } else if (databaseType == RDBMSType.SQLSERVER) {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         }
-        throw new ParseException("Cannot recognise current RDBMS type: " + databaseType.toString());
+        throw new ERException("Cannot recognise current RDBMS type: " + databaseType.toString());
     }
 }

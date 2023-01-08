@@ -3,7 +3,6 @@ package io.github.MigadaTang;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.exception.ERException;
-import io.github.MigadaTang.exception.ParseException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -122,7 +121,7 @@ public class TestER {
         Entity person = example.addEntity("person");
         try {
             example.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             assertTrue(true);
             System.out.println(e.getMessage());
         }

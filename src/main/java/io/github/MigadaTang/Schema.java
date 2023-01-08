@@ -16,7 +16,6 @@ import io.github.MigadaTang.entity.EntityDO;
 import io.github.MigadaTang.entity.RelationshipEdgeDO;
 import io.github.MigadaTang.entity.SchemaDO;
 import io.github.MigadaTang.exception.ERException;
-import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.serializer.*;
 import io.github.MigadaTang.transform.GenerationSqlUtil;
 import io.github.MigadaTang.transform.ParserUtil;
@@ -609,11 +608,11 @@ public class Schema {
     private final static String templateHTMLPath = "render/template.html";
     private final static String renderHTMLPath = "render.html";
 
-    public String renderAsImage(String fileName) throws ParseException {
+    public String renderAsImage(String fileName) throws ERException {
         try {
             writeRenderHTML(toRenderJSON());
         } catch (IOException e) {
-            throw new ParseException("Fail to write the json string to file: " + e.getMessage());
+            throw new ERException("Fail to write the json string to file: " + e.getMessage());
         }
         WebClient webClient = new WebClient();
         webClient.getOptions().setJavaScriptEnabled(true);
@@ -622,7 +621,7 @@ public class Schema {
         try {
             myPage = webClient.getPage(new File(renderHTMLPath).toURI().toURL());
         } catch (IOException e) {
-            throw new ParseException("Fail to read the file: " + renderHTMLPath);
+            throw new ERException("Fail to read the file: " + renderHTMLPath);
         }
         String baseImageCode = myPage.getElementById("image").getTextContent();
         webClient.close();
@@ -667,9 +666,8 @@ public class Schema {
      * Transform er model to data definition language
      *
      * @return -  Sql Statement of current schema
-     * @throws ParseException Exception that fail to mapping entity, relationship and attribute to table and column
      */
-    public String generateSqlStatement() throws ERException, ParseException {
+    public String generateSqlStatement() throws ERException {
         comprehensiveCheck();
         Map<Long, Table> tableDTOList;
         tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());

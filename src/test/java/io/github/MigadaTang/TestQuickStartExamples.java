@@ -4,7 +4,6 @@ import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.ConnObjWithCardinality;
 import io.github.MigadaTang.common.DataType;
-import io.github.MigadaTang.exception.ParseException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class TestQuickStartExamples {
     }
 
     @Test
-    public void createVanillaERSchema() throws IOException, ParseException {
+    public void createVanillaERSchema() throws IOException {
         Schema example = ER.createSchema("Vanilla");
 
         Entity branch = example.addEntity("branch");
@@ -64,7 +63,7 @@ public class TestQuickStartExamples {
     }
 
     @Test
-    public void createWeakEntitySchema() throws IOException, ParseException {
+    public void createWeakEntitySchema() throws IOException {
         Schema example = ER.createSchema("Weak entity");
 
         Entity person = example.addEntity("person");
@@ -89,7 +88,7 @@ public class TestQuickStartExamples {
     }
 
     @Test
-    public void createNaryRelationshipSchema() throws IOException, ParseException {
+    public void createNaryRelationshipSchema() throws IOException {
         Schema example = ER.createSchema("N-ary Relationship");
 
         Entity person = example.addEntity("person");
@@ -118,7 +117,7 @@ public class TestQuickStartExamples {
     }
 
     @Test
-    public void createAttributeOnRelationshipSchema() throws IOException, ParseException {
+    public void createAttributeOnRelationshipSchema() throws IOException {
         Schema example = ER.createSchema("Attributes on relationship");
 
         Entity person = example.addEntity("person");
@@ -141,7 +140,7 @@ public class TestQuickStartExamples {
     }
 
     @Test
-    public void createSubsetSchema() throws IOException, ParseException {
+    public void createSubsetSchema() throws IOException {
         Schema example = ER.createSchema("Subset");
 
         Entity person = example.addEntity("person");
@@ -165,7 +164,7 @@ public class TestQuickStartExamples {
     }
 
     @Test
-    public void createNestedRelationship() throws IOException, ParseException {
+    public void createNestedRelationship() throws IOException {
         Schema example = ER.createSchema("Nested relationship");
 
         Entity person = example.addEntity("person");

@@ -4,7 +4,7 @@ import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.ConnObjWithCardinality;
 import io.github.MigadaTang.common.DataType;
-import io.github.MigadaTang.exception.ParseException;
+import io.github.MigadaTang.exception.ERException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
         }
         System.out.println(sql);
@@ -74,7 +74,7 @@ public class TestGenerateDDL {
 
         try {
             view.generateSqlStatement();
-        } catch (Exception e) {
+        } catch (ERException e) {
             assertTrue(true);
             System.out.println(e.getMessage());
         }
@@ -104,7 +104,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
         }
         System.out.println(sql);
@@ -134,7 +134,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
             System.out.println(e.getMessage());
         }
@@ -168,7 +168,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
             System.out.println(e.getMessage());
         }
@@ -197,7 +197,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
             System.out.println(e.getMessage());
         }
@@ -226,7 +226,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
             System.out.println(e.getMessage());
         }
@@ -245,7 +245,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
             System.out.println(e.getMessage());
         }
@@ -272,7 +272,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
             System.out.println(e.getMessage());
         }
@@ -298,7 +298,7 @@ public class TestGenerateDDL {
         String sql = "";
         try {
             sql = view.generateSqlStatement();
-        } catch (ParseException e) {
+        } catch (ERException e) {
             fail();
             System.out.println(e.getMessage());
         }
