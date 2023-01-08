@@ -391,6 +391,10 @@ public class Schema {
             }
             switch (entity.getEntityType()) {
                 case STRONG:
+                    if (primaryKeyNum == 0) {
+                        throw new ERException(String.format("strong entity (%s) must have a primary key", entity.getName()));
+                    }
+                    break;
                 case WEAK:
                     break;
                 case SUBSET:
