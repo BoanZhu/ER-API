@@ -32,7 +32,7 @@ public class Column {
 
     protected void transformAttribute(Attribute attribute, boolean nullable) {
         this.ID = attribute.getID();
-        this.name = attribute.getName();
+        this.name = attribute.getName().trim().replaceAll(" ", "_");
         this.dataType = attribute.getDataType().toString();
         this.isPrimary = attribute.getIsPrimary();
         this.isForeign = false;
