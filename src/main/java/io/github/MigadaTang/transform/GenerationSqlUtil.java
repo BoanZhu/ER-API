@@ -2,6 +2,8 @@ package io.github.MigadaTang.transform;
 
 import io.github.MigadaTang.exception.ParseException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +14,28 @@ public class GenerationSqlUtil {
     public static String toSqlStatement(Map<Long, Table> tableDTOList) throws ParseException {
         StringBuilder sqlStatement = new StringBuilder("");
 
+        Map<Long, List<Long>> tableMap = new HashMap<>();
+        List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
+
+        // One improvement here we need to create the sql statements for foreign key tables first,
+        // otherwise the sql statements may not be executed successfully.
+        // E.g. In the case of one-many relationships, the relationship table will be the first table
         for (Table table : tableDTOList.values()) {
+            if (table.getForeignKey().size() == 0) {
+                tableMap.put(table.getId(), new ArrayList<Long>());
+            } else {
+                for (Long id: table.getForeignKey().keySet()) {
+                    List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
+                    previousIds.add(id);
+                    tableMap.put(table.getId(), previousIds);
+                }
+            }
+        }
+
+        tableGenerationOrders(tablesSqlGenerationOrders, tableMap, tableDTOList);
+
+//        for (Table table : tableDTOList.values()) {
+        for (Table table : tablesSqlGenerationOrders) {
             sqlStatement.append("CREATE TABLE ").append(table.getName()).append(" (\n");
             List<Column> columnList = table.getColumnList();
             StringBuilder constraintStatement = new StringBuilder("");
@@ -28,9 +51,13 @@ public class GenerationSqlUtil {
                 else
                     columnNames.add(column.getName());
 
+                // One improvement here, we need to transform all the spaces into underlines, or the sql statements may not
+                // bt executed successfully.
+                String nameTransformed = column.getName().replaceAll(" ", "_");
+
                 sqlStatement.append("    ").append(column.getName()).append(" ")
-                        .append(column.getDataType().toUpperCase())
-                        .append(" ").append(column.nullable()).append(",\n");
+                    .append(column.getDataType().toUpperCase())
+                    .append(" ").append(column.nullable()).append(",\n");
             }
 
             if (table.getPrimaryKey().size() > 0) {
@@ -60,9 +87,9 @@ public class GenerationSqlUtil {
                     relatedName.deleteCharAt(relatedName.lastIndexOf(","));
 
                     constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_fk").append(fkIndex)
-                            .append(" FOREIGN KEY (").append(fkName).append(")")
-                            .append(" REFERENCES ").append(tableDTOList.get(referTableId).getName())
-                            .append("(").append(relatedName).append(")").append(",\n");
+                        .append(" FOREIGN KEY (").append(fkName).append(")")
+                        .append(" REFERENCES ").append(tableDTOList.get(referTableId).getName())
+                        .append("(").append(relatedName).append(")").append(",\n");
                     fkIndex++;
                 }
             }
@@ -73,6 +100,30 @@ public class GenerationSqlUtil {
         }
 
         return sqlStatement.toString();
+    }
+
+    public static void tableGenerationOrders(List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap, Map<Long, Table> tableDTOList) {
+        for (Long id: tableMap.keySet()) {
+            List<Long> relyIds = tableMap.get(id);
+            Table table = tableDTOList.get(id);
+            if (!tablesSqlGenerationOrders.contains(table)) {
+                if (relyIds.size() == 0) {
+                    tablesSqlGenerationOrders.add(tableDTOList.get(id));
+                } else {
+                    recursive(table, relyIds, tableDTOList, tablesSqlGenerationOrders, tableMap);
+                }
+            }
+        }
+    }
+
+    public static void recursive(Table table, List<Long> relyIds, Map<Long, Table> tableDTOList, List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap) {
+        for (Long relyId: relyIds) {
+            Table relyTable = tableDTOList.get(relyId);
+            if (!tablesSqlGenerationOrders.contains(relyTable)) {
+                recursive(relyTable, tableMap.get(relyId), tableDTOList, tablesSqlGenerationOrders, tableMap);
+            }
+        }
+        tablesSqlGenerationOrders.add(table);
     }
 
 }
