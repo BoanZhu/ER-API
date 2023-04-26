@@ -3,9 +3,11 @@ package io.github.MigadaTang;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.MigadaTang.common.RDBMSType;
+import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ERException;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.transform.DatabaseUtil;
+import java.sql.PreparedStatement;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -113,5 +115,48 @@ public class ER {
         } catch (JsonProcessingException e) {
             throw new ERException(String.format("loadFromJSON fail, error: %s", e.getMessage()));
         }
+    }
+
+    public static boolean connectToDatabaseAndExecuteSql(String dbType, String hostname, String portNum, String databaseName, String username, String password, String ddl)
+        throws ParseException, DBConnectionException {
+
+        RDBMSType databaseType;
+        dbType = dbType.toLowerCase();
+        if (dbType.equals("mysql")) {
+            databaseType = RDBMSType.MYSQL;
+        } else if (dbType.equals("oracle")) {
+            databaseType = RDBMSType.ORACLE;
+        } else if (dbType.equals("db2")) {
+            databaseType = RDBMSType.DB2;
+        } else if (dbType.equals("h2")) {
+            databaseType = RDBMSType.H2;
+        } else if (dbType.equals("postgresql")) {
+            databaseType = RDBMSType.POSTGRESQL;
+        } else if (dbType.equals("sqlserver")) {
+            databaseType = RDBMSType.SQLSERVER;
+        } else {
+            throw new ParseException("Cannot recognise current RDBMS type: " + dbType);
+        }
+
+        String dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
+        String driver = DatabaseUtil.recognDriver(databaseType);
+
+        Connection connection = null;
+        try {
+            connection = DatabaseUtil.acquireDBConnection(driver, dbUrl, username, password);
+            try (PreparedStatement ps = connection.prepareStatement(ddl)) {
+                int result = ps.executeUpdate();
+                System.out.println("Result: " + result);
+            } catch (SQLException e) {
+                throw new DBConnectionException("Fail to execute the sql query: " + e);
+            }
+        } finally {
+            if (connection != null) {
+                DatabaseUtil.closeDBConnection(connection);
+            }
+        }
+
+        // if no exception happened, means the sql statements are executed successfully!
+        return true;
     }
 }
