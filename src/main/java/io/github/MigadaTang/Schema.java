@@ -111,6 +111,27 @@ public class Schema {
     }
 
     /**
+     * add a generalisation
+     *
+     * @param generalisationName   the name of the generalisation(subset)
+     * @param strongEntity the entity of the strong entity to which this generalisation belongs
+     * @return the created entity
+     */
+    public Entity addGeneralisation(String generalisationName, Entity strongEntity) {
+        // check if the specified strong entity that this generalisation relies on exists
+        Entity entity;
+        try {
+            entity = Entity.queryByID(strongEntity.getID());
+        } catch (ERException ex) {
+            throw new ERException("addGeneralisation fail: the specified strong entity does not exist");
+        }
+        if (!entity.getSchemaID().equals(this.ID)) {
+            throw new ERException("entity does not belong to this schema");
+        }
+        return addEntity(generalisationName, EntityType.GENERALISATION, strongEntity);
+    }
+
+    /**
      * add a weak entity
      *
      * @param entityName              the name of the weak entity

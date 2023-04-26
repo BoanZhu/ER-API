@@ -17,7 +17,8 @@ public enum EntityType {
     UNKNOWN(0, "UNKNOWN"),
     STRONG(1, "STRONG"),
     WEAK(2, "WEAK"),
-    SUBSET(3, "SUBSET");
+    SUBSET(3, "SUBSET"),
+    GENERALISATION(4, "GENERALISATION");
 
     private final Integer code;
     private final String value;
