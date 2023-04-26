@@ -334,7 +334,14 @@ public class Schema {
             }
             switch (entity.getEntityType()) {
                 case WEAK:
+                    if (primaryKeyNum != 0) {
+                        throw new ERException(String.format("weak entity (%s) cannot have primary key", entity.getName()));
+                    }
+                    break;
                 case STRONG:
+                    if (primaryKeyNum < 1) {
+                        throw new ERException(String.format("strong entity (%s) must have at least one primary key", entity.getName()));
+                    }
                     break;
                 case SUBSET:
                     if (primaryKeyNum != 0) {
@@ -412,8 +419,15 @@ public class Schema {
                 }
             }
             switch (entity.getEntityType()) {
-                case STRONG:
                 case WEAK:
+                    if (primaryKeyNum != 0) {
+                        throw new ERException(String.format("weak entity (%s) cannot have primary key", entity.getName()));
+                    }
+                    break;
+                case STRONG:
+                    if (primaryKeyNum < 1) {
+                        throw new ERException(String.format("strong entity (%s) must have at least one primary key", entity.getName()));
+                    }
                     break;
                 case SUBSET:
                     if (primaryKeyNum != 0) {
