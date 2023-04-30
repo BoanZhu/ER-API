@@ -1,12 +1,27 @@
 package io.github.MigadaTang;
 
+import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
+import io.github.MigadaTang.transform.Reverse;
+import java.sql.SQLException;
 
 public class Test {
 
-  public static void main(String[] args) throws DBConnectionException, ParseException {
+  public static void main(String[] args) throws DBConnectionException, ParseException, SQLException {
     System.out.println("Try to test database connection!");
+    ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
+    testReverseEngineer();
+    System.out.println("Test finished!");
+  }
+
+  public static void testReverseEngineer() throws DBConnectionException, ParseException {
+    Reverse reverse = new Reverse();
+    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "", "54321");
+    System.out.println("schema: " + schema);
+  }
+
+  public static void testDatabaseConnection() throws DBConnectionException, ParseException {
     String ddl1 = "CREATE TABLE Managers (\n"
         + "    Name TEXT NOT NULL,\n"
         + "    Dog_name TEXT NULL,\n"
@@ -28,7 +43,6 @@ public class Test {
         + ");";
     String ddl2 = "CREATE TABLE Person (    salary_number VARCHAR NOT NULL,    CONSTRAINT Person_pk PRIMARY KEY (salary_number))";
     ER.connectToDatabaseAndExecuteSql("postgresql", "localhost", "5433", "boanzhu", "boanzhu", "", ddl1);
-    System.out.println("Test finished!");
   }
 
 }

@@ -546,7 +546,7 @@ public class Schema {
      *
      * @return a json string that can be rendered by html
      */
-    String toRenderJSON() {
+    public String toRenderJSON() {
         sanityCheck();
         SimpleModule module = new SimpleModule();
         module.addSerializer(Schema.class, new SchemaSerializer(true));
