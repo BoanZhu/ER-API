@@ -339,10 +339,10 @@ public class Schema {
                     }
                     break;
                 case STRONG:
-                    if (primaryKeyNum < 1) {
-                        throw new ERException(String.format("strong entity (%s) must have at least one primary key", entity.getName()));
-                    }
-                    break;
+//                    if (primaryKeyNum < 1) {
+//                        throw new ERException(String.format("strong entity (%s) must have at least one primary key", entity.getName()));
+//                    }
+//                    break;
                 case SUBSET:
                     if (primaryKeyNum != 0) {
                         throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
@@ -425,9 +425,9 @@ public class Schema {
                     }
                     break;
                 case STRONG:
-                    if (primaryKeyNum < 1) {
-                        throw new ERException(String.format("strong entity (%s) must have at least one primary key", entity.getName()));
-                    }
+//                    if (primaryKeyNum < 1) {
+//                        throw new ERException(String.format("strong entity (%s) must have at least one primary key", entity.getName()));
+//                    }
                     break;
                 case SUBSET:
                     if (primaryKeyNum != 0) {
