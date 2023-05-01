@@ -17,8 +17,15 @@ public class Test {
 
   public static void testReverseEngineer() throws DBConnectionException, ParseException {
     Reverse reverse = new Reverse();
-    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "", "54321");
-    System.out.println("schema: " + schema);
+//    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "", "54321");
+    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "");
+    for (Entity entity: schema.getEntityList()) {
+      System.out.println("Entity: " + entity);
+    }
+    for (Relationship relationship: schema.getRelationshipList()) {
+      System.out.println("Relationship: " + relationship);
+    }
+    System.out.println("schema: " + schema.getName() + ", ID: " + schema.getID());
   }
 
   public static void testDatabaseConnection() throws DBConnectionException, ParseException {

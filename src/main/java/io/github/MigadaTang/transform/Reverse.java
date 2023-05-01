@@ -97,6 +97,9 @@ public class Reverse {
             conn = DatabaseUtil.acquireDBConnection(driver, dbUrl, userName, password);
             conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             List<Table> tableList = DatabaseUtil.getDatabseInfo(conn);
+            for (Table table: tableList) {
+                System.out.println("Table: "+ table);
+            }
             DatabaseUtil.closeDBConnection(conn);
             schema = ParserUtil.parseAttributeToRelationship(tableList);
             schema.renderAsImage(imageName);

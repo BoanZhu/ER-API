@@ -19,7 +19,7 @@ public class DatabaseUtil {
             DatabaseMetaData meta = conn.getMetaData();
 
             String catalog = null;
-            String schemaPattern = null;// meta.getUserName();
+            String schemaPattern = null; // meta.getUserName();
             String tableNamePattern = null;
             String[] types = {"TABLE"};
             ResultSet tableRs = meta.getTables(catalog, schemaPattern, tableNamePattern, types);

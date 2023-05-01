@@ -26,6 +26,8 @@ public class ParserUtil {
             Entity curEntity = tableDTOEntityMap.get(foreignKey.getBelongTo());
             Entity pointToEntity = tableDTOEntityMap.get(foreignKey.getForeignKeyTable());
 
+            // The relationshipName can't be "unknow", the name of the relationship name can get by extract
+            // the name of the table. No idea when will this case happen...
             if (foreignKey.isNullable()) {
                 schema.createRelationship("unknow", curEntity, pointToEntity, Cardinality.ZeroToOne,
                         Cardinality.OneToMany);
@@ -40,9 +42,14 @@ public class ParserUtil {
         for (Table table : tableGenerateByRelationship) {
             List<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
             Set<Long> foreignTableList = new HashSet<>();
-            Relationship relationship = schema.createEmptyRelationship("unknow");
+
+            // The name of the relationship should be extracted from the name of the table
+            System.out.println("TableName by relationship: " + table.getName());
+            String relationshipName = table.getName().split("_")[0]; // extract the name of the relationship
+//            Relationship relationship = schema.createEmptyRelationship("unknow");
+            Relationship relationship = schema.createEmptyRelationship(relationshipName);
             for (Column column : table.getColumnList()) {
-                if (!foreignTableList.contains(column.getForeignKeyTable())) {
+                if (column.getForeignKeyTable() != null && !foreignTableList.contains(column.getForeignKeyTable())) {
                     foreignTableList.add(column.getForeignKeyTable());
                     relationship.linkObj(tableDTOEntityMap.get(column.getForeignKeyTable()), Cardinality.ZeroToMany);
                 } else {
@@ -160,6 +167,7 @@ public class ParserUtil {
             Set<Long> foreignTableList = new HashSet<>();
             for (Column column : columnList) {
                 if (column.isForeign()) {
+                    // When will this situation happen?
                     if (!foreignTableList.contains(column.getForeignKeyTable()) &&
                             !column.getForeignKeyTable().equals(weakEntity.getBelongStrongTableID())) {
                         foreignKeyList.add(column);
@@ -184,6 +192,8 @@ public class ParserUtil {
             Set<Long> foreignTableList = new HashSet<>();
             for (Column column : columnList) {
                 if (column.isForeign()) {
+                    // This will never happen? Because the foreign key of the subset must belong to
+                    // its relying strong entity?
                     if (!foreignTableList.contains(column.getForeignKeyTable()) &&
                             !column.getForeignKeyTable().equals(subset.getBelongStrongTableID())) {
                         foreignKeyList.add(column);
