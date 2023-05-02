@@ -11,8 +11,16 @@ public class Test {
   public static void main(String[] args) throws DBConnectionException, ParseException, SQLException {
     System.out.println("Try to test database connection!");
     ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
-    testReverseEngineer();
+//    testReverseEngineer();
+    testSqlGeneration();
     System.out.println("Test finished!");
+  }
+
+  public static void testSqlGeneration() throws ParseException {
+    Schema schema = Schema.queryByID(new Long(1244));
+//    System.out.println("test schema: " + schema);
+    String JSON = schema.generateSqlStatement();
+//    System.out.println("JSON: " + JSON);
   }
 
   public static void testReverseEngineer() throws DBConnectionException, ParseException {
