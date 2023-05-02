@@ -20,6 +20,7 @@ public class ParserUtil {
         List<Table> possibleMultiValuedSet = new ArrayList<>();
         parseTableToEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList, possibleMultiValuedSet);
 
+//        System.out.println("foreignKeyList: " + foreignKeyList);
 
         // parser foreign key, (1-N)
         for (Column foreignKey : foreignKeyList) {
@@ -29,9 +30,11 @@ public class ParserUtil {
             // The relationshipName can't be "unknow", the name of the relationship name can get by extract
             // the name of the table. No idea when will this case happen...
             if (foreignKey.isNullable()) {
+//                System.out.println("12345");
                 schema.createRelationship("unknow", curEntity, pointToEntity, Cardinality.ZeroToOne,
                         Cardinality.OneToMany);
             } else {
+//                System.out.println("678910");
                 schema.createRelationship("unknow", curEntity, pointToEntity, Cardinality.OneToOne,
                         Cardinality.OneToMany);
             }
@@ -82,6 +85,13 @@ public class ParserUtil {
             }
         }
 
+//        System.out.println("11111: " + schema.getEntityList());
+//        for (Entity entity: schema.getEntityList()) {
+//            System.out.println("entity: " + entity);
+//        }
+//        for (Relationship relationship: schema.getRelationshipList()) {
+//            System.out.println("relationship: " + relationship);
+//        }
         return schema;
     }
 
@@ -94,6 +104,8 @@ public class ParserUtil {
         // parse strong entity
         for (Table strongEntity : tableList) {
             List<Column> columnList = strongEntity.getColumnList();
+
+            System.out.println("Table: " + strongEntity.getName());
 
             int pkIsFk = 0;
             int fkNum = 0;
@@ -121,6 +133,11 @@ public class ParserUtil {
                 strongEntity.setBelongStrongTableID(fkTableId);
                 continue;
             }
+
+//            System.out.println("pkColNum: " + pkColNum);
+//            System.out.println("pkIsFk: " + pkIsFk);
+//            System.out.println("pkFkTable.size() " + pkFkTable.size());
+
 //            if (pkIsFk == strongEntity.getPrimaryKey().size() && pkFkTable.size() == 1 && pkIsFk > 0) {
             if (pkColNum > pkIsFk && pkFkTable.size() == 1 && pkIsFk > 0) {
                 // may still have problem here, here we assume that subset must have its own primary key.
@@ -144,6 +161,7 @@ public class ParserUtil {
             for (Column column : columnList) {
                 if (column.isForeign()) {
                     if (!foreignTableList.contains(column.getForeignKeyTable())) {
+//                        System.out.println("column: " + column.getName());
                         foreignKeyList.add(column);
                         foreignTableList.add(column.getForeignKeyTable());
                     }
@@ -157,6 +175,8 @@ public class ParserUtil {
 
             tableDTOEntityMap.put(strongEntity.getId(), entity);
         }
+//        System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
+//        System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
 
         for (Table weakEntity : possibleWeakEntitySet) {
             if (!tableDTOEntityMap.containsKey(weakEntity.getBelongStrongTableID()))

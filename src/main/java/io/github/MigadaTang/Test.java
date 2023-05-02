@@ -19,13 +19,15 @@ public class Test {
     Reverse reverse = new Reverse();
 //    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "", "54321");
     Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "");
-    for (Entity entity: schema.getEntityList()) {
-      System.out.println("Entity: " + entity);
-    }
-    for (Relationship relationship: schema.getRelationshipList()) {
-      System.out.println("Relationship: " + relationship);
-    }
-    System.out.println("schema: " + schema.getName() + ", ID: " + schema.getID());
+//    for (Entity entity: schema.getEntityList()) {
+//      System.out.println("Entity: " + entity.getEntityType());
+//    }
+//    for (Relationship relationship: schema.getRelationshipList()) {
+//      System.out.println("Relationship: " + relationship);
+//    }
+//    System.out.println("schema: " + schema.getName() + ", ID: " + schema.getID());
+    String JSON = schema.toRenderJSON();
+//    System.out.println("JSON: " + JSON);
   }
 
   public static void testDatabaseConnection() throws DBConnectionException, ParseException {
