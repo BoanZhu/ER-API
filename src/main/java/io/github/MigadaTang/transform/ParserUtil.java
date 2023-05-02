@@ -121,7 +121,9 @@ public class ParserUtil {
                 strongEntity.setBelongStrongTableID(fkTableId);
                 continue;
             }
-            if (pkIsFk == strongEntity.getPrimaryKey().size() && pkFkTable.size() == 1 && pkIsFk > 0) {
+//            if (pkIsFk == strongEntity.getPrimaryKey().size() && pkFkTable.size() == 1 && pkIsFk > 0) {
+            if (pkColNum > pkIsFk && pkFkTable.size() == 1 && pkIsFk > 0) {
+                // may still have problem here, here we assume that subset must have its own primary key.
                 strongEntity.setBelongStrongTableID(fkTableId);
                 possibleSubsetSet.add(strongEntity);
                 continue;
