@@ -107,25 +107,7 @@ public class GenerationSqlUtil {
             sqlStatement.append("\n");
             sqlStatement.append("|");
 
-//            for (Table table: tablesSqlGenerationOrders) {
-//                System.out.println("table111: " + table.getColumnList());
-//                for (Column column: table.getColumnList()) {
-//                    System.out.println(column);
-//                }
-//            }
             List<Table> subsetTablesFirstCase = generateSubsetTablesFirstCase(tablesSqlGenerationOrders);
-//            for (Table table: tablesSqlGenerationOrders) {
-//                System.out.println("table222: " + table.getColumnList());
-//                for (Column column: table.getColumnList()) {
-//                    System.out.println(column);
-//                }
-//            }
-//            for (Table table: subsetTablesFirstCase) {
-//                System.out.println("table333: " + table.getColumnList());
-//                for (Column column: table.getColumnList()) {
-//                    System.out.println(column);
-//                }
-//            }
 
             for (Table table : subsetTablesFirstCase) {
                 sqlStatement.append("CREATE TABLE ").append(table.getName()).append(" (\n");
@@ -194,25 +176,7 @@ public class GenerationSqlUtil {
             sqlStatement.append("\n");
             sqlStatement.append("|");
 
-//            for (Table table: tablesSqlGenerationOrders) {
-//                System.out.println("table444: " + table.getColumnList());
-//                for (Column column: table.getColumnList()) {
-//                    System.out.println(column);
-//                }
-//            }
             List<Table> subsetTablesSecondCase = generateSubsetTablesSecondCase(tablesSqlGenerationOrders);
-//            for (Table table: tablesSqlGenerationOrders) {
-//                System.out.println("table555: " + table.getColumnList());
-//                for (Column column: table.getColumnList()) {
-//                    System.out.println(column);
-//                }
-//            }
-//            for (Table table: subsetTablesSecondCase) {
-//                System.out.println("table666: " + table.getColumnList());
-//                for (Column column: table.getColumnList()) {
-//                    System.out.println(column);
-//                }
-//            }
 
             for (Table table : subsetTablesSecondCase) {
                 sqlStatement.append("CREATE TABLE ").append(table.getName()).append(" (\n");
@@ -282,6 +246,10 @@ public class GenerationSqlUtil {
         return sqlStatement.toString();
     }
 
+    // We need to create the sql statements for foreign key tables first, otherwise the sql
+    // statements may not be executed successfully.
+    // E.g. In the case of one-many relationships, the relationship table will be the first table
+    // This is wrong since we need the two entities created before it.
     public static void tableGenerationOrders(List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap, Map<Long, Table> tableDTOList) {
         for (Long id: tableMap.keySet()) {
             List<Long> relyIds = tableMap.get(id);
@@ -296,6 +264,7 @@ public class GenerationSqlUtil {
         }
     }
 
+    // Helper function for "tableGenerationOrders".
     public static void recursive(Table table, List<Long> relyIds, Map<Long, Table> tableDTOList, List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap) {
         for (Long relyId: relyIds) {
             Table relyTable = tableDTOList.get(relyId);
@@ -306,6 +275,7 @@ public class GenerationSqlUtil {
         tablesSqlGenerationOrders.add(table);
     }
 
+    // Helper function for generating two kinds of subset ddl.
     public static boolean checkContainsSubset(List<Table> tables) {
         for (Table table: tables) {
             if (table.getBelongStrongTableID() != null) {
@@ -315,6 +285,7 @@ public class GenerationSqlUtil {
         return false;
     }
 
+    // There are two ways of generating subset ddl statements, the first way is to push up the subset.
     public static List<Table> generateSubsetTablesFirstCase(List<Table> tables) {
         List<Table> result = new ArrayList<>();
         for (Table currTable: tables) {
@@ -363,6 +334,7 @@ public class GenerationSqlUtil {
         return result;
     }
 
+    // There are two ways of generating subset ddl statements, the second way is to push down the strong entity.
     public static List<Table> generateSubsetTablesSecondCase(List<Table> tables) {
         List<Table> result = new ArrayList<>();
         for (Table currTable: tables) {
