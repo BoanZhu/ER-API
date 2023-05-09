@@ -157,6 +157,8 @@ public class ParserUtil {
 
             Entity entity = schema.addEntity(strongEntity.getName());
 
+            strongEntity.setEntityID(entity.getID()); ///
+
             Set<Long> foreignTableList = new HashSet<>();
             for (Column column : columnList) {
                 if (column.isForeign()) {
@@ -184,6 +186,9 @@ public class ParserUtil {
 
             Entity entity = schema.addWeakEntity(weakEntity.getName(), tableDTOEntityMap.get(weakEntity.getBelongStrongTableID()),
                     "unknow", Cardinality.OneToOne, Cardinality.ZeroToMany).getLeft();
+
+            weakEntity.setEntityID(entity.getID()); ///
+
             tableDTOEntityMap.put(weakEntity.getId(), entity);
             List<Column> columnList = weakEntity.getColumnList();
             Set<Long> foreignTableList = new HashSet<>();
@@ -209,6 +214,9 @@ public class ParserUtil {
                 throw new ParseException("Api only support subset relies on strong entity for current version");
 
             Entity entity = schema.addSubset(subset.getName(), tableDTOEntityMap.get(subset.getBelongStrongTableID()));
+
+            subset.setEntityID(entity.getID()); ///
+
             tableDTOEntityMap.put(subset.getId(), entity);
             List<Column> columnList = subset.getColumnList();
             Set<Long> foreignTableList = new HashSet<>();
@@ -250,6 +258,39 @@ public class ParserUtil {
         parseRelationships(relationshipList, tableDTOMap);
 
         return tableDTOMap;
+    }
+
+//    public static Map<Long, Table> parseRelationshipsToAttribute(Schema schema, List<Entity> entityList, List<Relationship> relationshipList) throws ParseException {
+//
+//        Map<Long, Table> tableDTOMap = new HashMap<>();
+//        List<Long> subsetMap = new ArrayList<>();
+//
+//        // parse all entities to table
+//        parseEntityToTable(schema.getOldTables(), entityList, tableDTOMap, subsetMap);
+//
+//        // parse multi valued column
+//        parseMultiValuedColumn(tableDTOMap, schema.getOldTables());
+//
+//        // parse subset: add pk from strong entity to subset
+//        parseSubSet(tableDTOMap, subsetMap);
+//
+//        // parse relation to new table or new attribute in existing table
+//        parseRelationships(relationshipList, tableDTOMap);
+//
+//        return tableDTOMap;
+//    }
+
+
+    private static void parseEntityToTable(List<Table> oldTables, List<Entity> entityList, Map<Long, Table> tableDTOMap, List<Long> subsetMap) {
+        for (Entity entity : entityList) {
+            Table table = new Table();
+            table.tranformEntity(entity);
+            table.setEntityID(entity.getID()); ///
+            tableDTOMap.put(table.getId(), table);
+            if (table.getTableType() == EntityType.SUBSET) {
+                subsetMap.add(table.getId());
+            }
+        }
     }
 
 
@@ -314,7 +355,8 @@ public class ParserUtil {
         List<Column> pkList = new ArrayList<>();
         columnList.add(column);
         pkList.add(column);
-        Long newTableId = RandomUtils.generateID();
+//        Long newTableId = RandomUtils.generateID(); ///
+        Long newTableId = column.getID();
         for (Column pk : table.getPrimaryKey()) {
             Column pkClone = pk.getForeignClone(newTableId, false, "");
             columnList.add(pkClone);
@@ -324,7 +366,7 @@ public class ParserUtil {
         Map<Long, List<Column>> fk = new HashMap<>();
         fk.put(table.getId(), fkList);
         Table newT = new Table(newTableId, table.getName() + "_" + column.getName(), EntityType.STRONG,
-                null, columnList, pkList, new ArrayList<>(), fk);
+                null, columnList, pkList, new ArrayList<>(), fk, null); ///
         return newT;
     }
 
@@ -374,6 +416,7 @@ public class ParserUtil {
                     }
                 }
             }
+            representTable.setId(relationship.getID()); ///
             parseRelationshipAttribtue(representTable, attributeList, tableDTOMap);
 
             mapRelationshipToTable.put(relationship.getID(), representTable.getId());
@@ -563,7 +606,7 @@ public class ParserUtil {
         Map<Long, List<Column>> foreignKey = new HashMap<>();
 
         Table newTable = new Table(RandomUtils.generateID(), tableName.toString(), EntityType.STRONG, null,
-                columnList, pkList, new ArrayList<>(), foreignKey);
+                columnList, pkList, new ArrayList<>(), foreignKey, null); ///
 
         for (Long tableId : tableIdList) {
             Table foreignTable = tableDTOMap.get(tableId);

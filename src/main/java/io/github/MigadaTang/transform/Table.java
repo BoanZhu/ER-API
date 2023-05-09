@@ -34,6 +34,8 @@ public class Table {
 
     private Map<Long, List<Column>> foreignKey;
 
+    private Long entityID;
+
     protected void tranformEntity(Entity entity) {
         this.id = entity.getID();
         this.name = entity.getName().trim().replaceAll(" ", "_");

@@ -102,6 +102,10 @@ public class Reverse {
 //            }
             DatabaseUtil.closeDBConnection(conn);
             schema = ParserUtil.parseAttributeToRelationship(tableList);
+
+            // Here we need to store the old tables generated.
+            schema.setOldTables(tableList);
+
             if (imageName != null) {
                 schema.renderAsImage(imageName);
             }

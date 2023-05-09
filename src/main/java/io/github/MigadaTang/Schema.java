@@ -54,6 +54,14 @@ public class Schema {
     private Date gmtCreate;
     private Date gmtModified;
 
+    /**
+     * The list of history tables. There are two ways to set this list: the first way is after
+     * reverse engineer, this list will be set to the result tables, and all new tables of this schema
+     * will based on these old tables so that when generating sql it will compared them. The second way
+     * is after executing the new schema created, so that every new modifications can be found.
+     */
+    private List<Table> oldTables;
+
     protected Schema(Long ID, String name, List<Entity> entityList, List<Relationship> relationshipList, Date gmtCreate, Date gmtModified) {
         this.ID = ID;
         this.name = name;
@@ -61,6 +69,7 @@ public class Schema {
         this.relationshipList = relationshipList;
         this.gmtCreate = gmtCreate;
         this.gmtModified = gmtModified;
+        this.oldTables = new ArrayList<>();
         if (this.ID == 0) {
             insertDB();
         }
@@ -708,8 +717,24 @@ public class Schema {
     public String generateSqlStatement() throws ERException, ParseException {
         comprehensiveCheck();
         Map<Long, Table> tableDTOList;
+//        tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
         tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
-        String sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
+//        String sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
+        String sqlStatement;
+        if (this.oldTables.size() == 0) {
+            sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
+        } else {
+            sqlStatement = GenerationSqlUtil.generateSqlStatements(tableDTOList, this.oldTables);
+        }
+
+        // Here we need to reset the oldTables.
+        this.oldTables = new ArrayList<>();
+        this.oldTables.addAll(tableDTOList.values());
+
         return sqlStatement;
+    }
+
+    public void setOldTables(List<Table> oldTables) {
+        this.oldTables = oldTables;
     }
 }

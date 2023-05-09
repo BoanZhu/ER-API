@@ -449,48 +449,63 @@ public class GenerationSqlUtil {
 
     }
 
-    public static String toSqlStatementEnhancement(Map<Long, Table> tableDTOList, RDBMSType databaseType, String dbUrl,
-        String userName, String password) throws ParseException, DBConnectionException {
-
-        Connection conn = null;
-        String driver = "";
-        String sqlStatements;
-
-        try {
-            driver = DatabaseUtil.recognDriver(databaseType);
-            conn = DatabaseUtil.acquireDBConnection(driver, dbUrl, userName, password);
-            conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-            // Assume the table list is correct here.
-            List<Table> tablesInDatabase = DatabaseUtil.getDatabseInfo(conn);
-            DatabaseUtil.closeDBConnection(conn);
-
-            sqlStatements = generateSqlStatements(tableDTOList, tablesInDatabase);
-
-        } catch (ParseException parseException) {
-            throw new ParseException(parseException.getMessage());
-        } catch (DBConnectionException dbConnectionException) {
-            throw new DBConnectionException(dbConnectionException.getMessage());
-        } catch (SQLException throwables) {
-            throw new DBConnectionException("Fail to create db statement");
+    public static void generateDeletedTablesSqlStatement(Map<Long, Table> tableDTOList, List<Table> deletedTables, StringBuilder sqlStatement) {
+        for (Table table: deletedTables) {
+            sqlStatement.append("DROP TABLE ").append(table.getName()).append(";\n\n");
         }
-        return sqlStatements;
     }
 
-    public static String generateSqlStatements(Map<Long, Table> tableDTOList, List<Table> tablesInDatabase)
+
+    // There is no need to connect the database and fetch the information, because it should already
+    // have reverse or have the original schema.
+//    public static String toSqlStatementEnhancement(Map<Long, Table> tableDTOList, RDBMSType databaseType, String dbUrl,
+//        String userName, String password) throws ParseException, DBConnectionException {
+//
+//        Connection conn = null;
+//        String driver = "";
+//        String sqlStatements;
+//
+//        try {
+//            driver = DatabaseUtil.recognDriver(databaseType);
+//            conn = DatabaseUtil.acquireDBConnection(driver, dbUrl, userName, password);
+//            conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//
+//            // Assume the table list is correct here.
+//            List<Table> tablesInDatabase = DatabaseUtil.getDatabseInfo(conn);
+//            DatabaseUtil.closeDBConnection(conn);
+//
+//            sqlStatements = generateSqlStatements(tableDTOList, tablesInDatabase);
+//
+//        } catch (ParseException parseException) {
+//            throw new ParseException(parseException.getMessage());
+//        } catch (DBConnectionException dbConnectionException) {
+//            throw new DBConnectionException(dbConnectionException.getMessage());
+//        } catch (SQLException throwables) {
+//            throw new DBConnectionException("Fail to create db statement");
+//        }
+//        return sqlStatements;
+//    }
+
+    public static String generateSqlStatements(Map<Long, Table> tableDTOList, List<Table> oldTables)
         throws ParseException {
         List<Table> newTables = new ArrayList<>();
-        List<List<Table>> oldTables = new ArrayList<>();
+//        List<List<Table>> oldTables = new ArrayList<>();
+        List<List<Table>> modifiedTablePair = new ArrayList<>();
+        List<Table> deleteTables = new ArrayList<>();
 
         for (Table tableInSchema: tableDTOList.values()) {
             boolean ifAlreadyExist = false;
-            for (Table tableInDatabase: tablesInDatabase) {
-                if (tableInSchema.getName().equals(tableInDatabase.getName())) {
-                    List<Table> newPair = new ArrayList<Table>();
-                    newPair.add(tableInSchema);
-                    newPair.add(tableInDatabase);
-                    oldTables.add(newPair);
+            for (Table tableInDatabase: oldTables) {
+                if (tableInSchema.getId().equals(tableInDatabase.getId())) {
+                    boolean modified = checkTableWhetherModified(tableInSchema, tableInDatabase);
                     ifAlreadyExist = true;
+                    if (modified) {
+                        List<Table> newPair = new ArrayList<Table>();
+                        newPair.add(tableInSchema);
+                        newPair.add(tableInDatabase);
+                        modifiedTablePair.add(newPair);
+
+                    }
                     break;
                 }
             }
@@ -499,36 +514,183 @@ public class GenerationSqlUtil {
             }
         }
 
+        for (Table tableInDatabase: oldTables) {
+            boolean inSchema = false;
+            for (Table tableInSchema: tableDTOList.values()) {
+                if (tableInSchema.getId().equals(tableInDatabase.getId())) {
+                    inSchema = true;
+                    break;
+                }
+            }
+            if (!inSchema) {
+                deleteTables.add(tableInDatabase);
+            }
+        }
+
         StringBuilder sqlStatement = new StringBuilder("");
+
+        // For all tables that were deleted, we need to drop these tables in the database.
+        generateDeletedTablesSqlStatement(tableDTOList, deleteTables, sqlStatement);
 
         // For all new tables, we only need to create these tables in the database with the information
         // provided in the schema.
         generateNewTablesSqlStatement(tableDTOList, newTables, sqlStatement);
 
-        // For the tables already exist in the database, we need to check the difference between
+        // For the tables already exist in the database/schema and modified, we need to check the difference between
         // the new table and old tables. For the attributes, we will add these new columns in the table.
         // For already exist columns, we need to find the modifications and change them. For some
         // already existing columns in the old table which are not appear in the new table, we can't
         // delete them.
-        for (List<Table> tablePair: oldTables) {
+        for (List<Table> tablePair: modifiedTablePair) {
+
             Table newTable = tablePair.get(0);
             Table oldTable = tablePair.get(1);
 
+            if (!newTable.getName().equals(oldTable.getName())) {
+                sqlStatement.append("ALTER TABLE ").append(oldTable.getName()).append("\n");
+                sqlStatement.append("RENAME TO ").append(newTable.getName()).append(";\n");
+//                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+
+                // No need to change foreign keys name here ?
+
+//                for (Table table: tableDTOList.values()) {
+//                    for (Column column: table.getColumnList()) {
+//                        if (column.getForeignKeyTable().equals(newTable.getId())) {
+//                            sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
+//                            sqlStatement.append("ALTER COLUMN ").append(column.getName())
+//                        }
+//                    }
+//                }
+            } else {
+//                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+            }
+
             List<Column> newColumns = newTable.getColumnList();
             List<Column> oldColumns = oldTable.getColumnList();
+            List<Column> createdColumns = new ArrayList<>();
+            List<Column> deletedColumns = new ArrayList<>();
 
-            List<Column> diffColumns = new ArrayList<>();
-            for (Column newColumn: newColumns) {
+//            List<Column> diffColumns = new ArrayList<>();
+//            List<Column> newColumns = new ArrayList<>();
 
-                for (Column oldColumn: oldColumns) {
-                    if (newColumn.getName().equals(oldColumn.getName())) {
-
+            for (Column oldColumn: oldColumns) {
+                boolean inSchema = false;
+                for (Column newColumn: newColumns) {
+                    if (newColumn.getID().equals(oldColumn.getID())) {
+                        inSchema = true;
                         break;
                     }
                 }
+                if (!inSchema) {
+                    deletedColumns.add(oldColumn);
+                }
             }
+
+            // Delete all columns in deletedColumns.
+            for (Column column: deletedColumns) {
+                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                sqlStatement.append("DROP COLUMN ").append(column.getName()).append(";\n");
+            }
+
+            for (Column newColumn: newColumns) {
+                boolean alreadyExist = false;
+                for (Column oldColumn: oldColumns) {
+                    if (newColumn.getID().equals(oldColumn.getID())) {
+                        alreadyExist = true;
+                        if (!newColumn.getName().equals(oldColumn.getName())) {
+                            sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                            sqlStatement.append("RENAME COLUMN ").append(oldColumn.getName())
+                                .append(" TO ").append(newColumn.getName()).append(";\n");
+                        }
+                        if (!newColumn.getDataType().equals(oldColumn.getDataType())) {
+                            sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                            sqlStatement.append("ALTER COLUMN ").append(newColumn.getName())
+                                .append(" " + newColumn.getDataType()).append(";\n");
+                        }
+                        if (newColumn.isNullable() != oldColumn.isNullable()) {
+                            sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                            sqlStatement.append("ALTER TABLE ").append(newColumn.getName())
+                                .append(" " + (newColumn.isNullable() ? "NULL" : "NOT NULL"))
+                                .append(";\n");
+                        }
+                        if (newColumn.isPrimary() != oldColumn.isPrimary()) {
+                            // Do something here...
+                        }
+                        break;
+                    }
+                }
+                if (!alreadyExist) {
+                    createdColumns.add(newColumn);
+                }
+            }
+
+            for (Column column: createdColumns) {
+                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                sqlStatement.append("ADD COLUMN ").append(column.getName()).append(" " + column.getDataType())
+                .append(" " + (column.isNullable() ? "NULL" : "NOT NULL")).append(";\n");
+            }
+
+            sqlStatement.append("\n");
         }
+
+        // For all tables that didn't be modified, we do not to change anything about them.
+        // Since this function was invoked by
 
         return sqlStatement.toString();
     }
+
+
+    // Simply check whether the the table with same ID have been modified. Still need to improve.
+    public static boolean checkTableWhetherModified(Table tableInSchema, Table tableInDatabase) {
+//        Boolean result = false;
+        if (!tableInSchema.getName().equals(tableInDatabase.getName())) {
+            return true;
+        }
+        if (tableInSchema.getColumnList().size() != tableInDatabase.getColumnList().size()) {
+            return true;
+        }
+        for (Column newColumn: tableInSchema.getColumnList()) {
+            boolean canFind = false;
+            for (Column oldColumn: tableInDatabase.getColumnList()) {
+                if (newColumn.getID().equals(oldColumn.getID())) {
+                    canFind = true;
+                    if (!newColumn.getName().equals(oldColumn.getName())) {
+                        return true;
+                    }
+                    if (newColumn.isNullable() != oldColumn.isNullable()) {
+                        return true;
+                    }
+                    if (newColumn.isPrimary() != oldColumn.isPrimary()) {
+                        return true;
+                    }
+                    if (!newColumn.getDataType().equals(oldColumn.getDataType())) {
+                        return true;
+                    }
+                    if (newColumn.isForeign() != oldColumn.isForeign()) {
+                        return true;
+                    }
+
+                    // The last three probably will not happen.
+//                    if (!newColumn.getForeignKeyColumn().equals(oldColumn.getForeignKeyColumn())) {
+//                        return true;
+//                    }
+//                    if (!newColumn.getForeignKeyColumnName().equals(oldColumn.getForeignKeyColumnName())) {
+//                        return true;
+//                    }
+//                    if (!newColumn.getForeignKeyTable().equals(oldColumn.getForeignKeyTable())) {
+//                        return true;
+//                    }
+                }
+            }
+            if (!canFind) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+//    public static boolean checkColumnWhetherModified(Column columnInSchemaTable, Column columnInDatabaseTable) {
+//
+//    }
 }
