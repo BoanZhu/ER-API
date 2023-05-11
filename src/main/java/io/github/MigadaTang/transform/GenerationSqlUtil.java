@@ -42,73 +42,10 @@ public class GenerationSqlUtil {
 
         tableGenerationOrders(tablesSqlGenerationOrders, tableMap, tableDTOList);
 
-        boolean whetherContainsSubset = checkContainsSubset(tablesSqlGenerationOrders);
+//        boolean whetherContainsSubset = checkContainsSubset(tablesSqlGenerationOrders);
+        boolean whetherContainsSubset = false;
 
         generateNewTablesSqlStatement(tableDTOList, tablesSqlGenerationOrders, sqlStatement);
-//        for (Table table : tableDTOList.values()) {
-//        for (Table table : tablesSqlGenerationOrders) {
-//            sqlStatement.append("CREATE TABLE ").append(table.getName()).append(" (\n");
-//            List<Column> columnList = table.getColumnList();
-//            StringBuilder constraintStatement = new StringBuilder("");
-//            Set<String> columnNames = new HashSet<>();
-//
-//            if (columnList.size() == 0) {
-//                throw new ParseException("Table `" + table.getName() + "` should contain at least one column");
-//            }
-//
-//            for (Column column : columnList) {
-//                if (columnNames.contains(column.getName()))
-//                    column.setName(column.getName() + "1");
-//                else
-//                    columnNames.add(column.getName());
-//
-//                // One improvement here, we need to transform all the spaces into underlines, or the sql statements may not
-//                // bt executed successfully.
-//                String nameTransformed = column.getName().replaceAll(" ", "_");
-//
-//                sqlStatement.append("    ").append(column.getName()).append(" ")
-//                    .append(column.getDataType().toUpperCase())
-//                    .append(" ").append(column.nullable()).append(",\n");
-//            }
-//
-//            if (table.getPrimaryKey().size() > 0) {
-//                constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_pk").append(" PRIMARY KEY (");
-//                for (Column column : table.getPrimaryKey()) {
-//                    constraintStatement.append(column.getName()).append(",");
-//                }
-//                constraintStatement.deleteCharAt(constraintStatement.lastIndexOf(","));
-//                constraintStatement.append("),\n");
-//            }
-//
-//            if (table.getForeignKey().size() > 0) {
-//                int fkIndex = 1;
-//                for (Long referTableId : table.getForeignKey().keySet()) {
-//                    List<Column> foreignKey = table.getForeignKey().get(referTableId);
-//                    if (foreignKey.size() == 0) {
-//                        continue;
-//                    }
-//                    StringBuilder fkName = new StringBuilder();
-//                    StringBuilder relatedName = new StringBuilder();
-//
-//                    for (Column column : foreignKey) {
-//                        fkName.append(column.getName()).append(",");
-//                        relatedName.append(column.getForeignKeyColumnName()).append(",");
-//                    }
-//                    fkName.deleteCharAt(fkName.lastIndexOf(","));
-//                    relatedName.deleteCharAt(relatedName.lastIndexOf(","));
-//
-//                    constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_fk").append(fkIndex)
-//                        .append(" FOREIGN KEY (").append(fkName).append(")")
-//                        .append(" REFERENCES ").append(tableDTOList.get(referTableId).getName())
-//                        .append("(").append(relatedName).append(")").append(",\n");
-//                    fkIndex++;
-//                }
-//            }
-//
-//            sqlStatement.append(constraintStatement).append(");\n\n");
-//            sqlStatement.deleteCharAt(sqlStatement.lastIndexOf(","));
-//
-//        }
 
         if (whetherContainsSubset) {
 
@@ -118,69 +55,6 @@ public class GenerationSqlUtil {
             List<Table> subsetTablesFirstCase = generateSubsetTablesFirstCase(tablesSqlGenerationOrders);
 
             generateNewTablesSqlStatement(tableDTOList, subsetTablesFirstCase, sqlStatement);
-//            for (Table table : subsetTablesFirstCase) {
-//                sqlStatement.append("CREATE TABLE ").append(table.getName()).append(" (\n");
-//                List<Column> columnList = table.getColumnList();
-//                StringBuilder constraintStatement = new StringBuilder("");
-//                Set<String> columnNames = new HashSet<>();
-//
-//                if (columnList.size() == 0) {
-//                    throw new ParseException("Table `" + table.getName() + "` should contain at least one column");
-//                }
-//
-//                for (Column column : columnList) {
-//                    if (columnNames.contains(column.getName()))
-//                        column.setName(column.getName() + "1");
-//                    else
-//                        columnNames.add(column.getName());
-//
-//                    // One improvement here, we need to transform all the spaces into underlines, or the sql statements may not
-//                    // bt executed successfully.
-//                    String nameTransformed = column.getName().replaceAll(" ", "_");
-//
-//                    sqlStatement.append("    ").append(column.getName()).append(" ")
-//                        .append(column.getDataType().toUpperCase())
-//                        .append(" ").append(column.nullable()).append(",\n");
-//                }
-//
-//                if (table.getPrimaryKey().size() > 0) {
-//                    constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_pk").append(" PRIMARY KEY (");
-//                    for (Column column : table.getPrimaryKey()) {
-//                        constraintStatement.append(column.getName()).append(",");
-//                    }
-//                    constraintStatement.deleteCharAt(constraintStatement.lastIndexOf(","));
-//                    constraintStatement.append("),\n");
-//                }
-//
-//                if (table.getForeignKey().size() > 0) {
-//                    int fkIndex = 1;
-//                    for (Long referTableId : table.getForeignKey().keySet()) {
-//                        List<Column> foreignKey = table.getForeignKey().get(referTableId);
-//                        if (foreignKey.size() == 0) {
-//                            continue;
-//                        }
-//                        StringBuilder fkName = new StringBuilder();
-//                        StringBuilder relatedName = new StringBuilder();
-//
-//                        for (Column column : foreignKey) {
-//                            fkName.append(column.getName()).append(",");
-//                            relatedName.append(column.getForeignKeyColumnName()).append(",");
-//                        }
-//                        fkName.deleteCharAt(fkName.lastIndexOf(","));
-//                        relatedName.deleteCharAt(relatedName.lastIndexOf(","));
-//
-//                        constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_fk").append(fkIndex)
-//                            .append(" FOREIGN KEY (").append(fkName).append(")")
-//                            .append(" REFERENCES ").append(tableDTOList.get(referTableId).getName())
-//                            .append("(").append(relatedName).append(")").append(",\n");
-//                        fkIndex++;
-//                    }
-//                }
-//
-//                sqlStatement.append(constraintStatement).append(");\n\n");
-//                sqlStatement.deleteCharAt(sqlStatement.lastIndexOf(","));
-//
-//            }
 
             sqlStatement.append("\n");
             sqlStatement.append("|");
@@ -188,70 +62,6 @@ public class GenerationSqlUtil {
             List<Table> subsetTablesSecondCase = generateSubsetTablesSecondCase(tablesSqlGenerationOrders);
 
             generateNewTablesSqlStatement(tableDTOList, subsetTablesSecondCase, sqlStatement);
-
-//            for (Table table : subsetTablesSecondCase) {
-//                sqlStatement.append("CREATE TABLE ").append(table.getName()).append(" (\n");
-//                List<Column> columnList = table.getColumnList();
-//                StringBuilder constraintStatement = new StringBuilder("");
-//                Set<String> columnNames = new HashSet<>();
-//
-//                if (columnList.size() == 0) {
-//                    throw new ParseException("Table `" + table.getName() + "` should contain at least one column");
-//                }
-//
-//                for (Column column : columnList) {
-//                    if (columnNames.contains(column.getName()))
-//                        column.setName(column.getName() + "1");
-//                    else
-//                        columnNames.add(column.getName());
-//
-//                    // One improvement here, we need to transform all the spaces into underlines, or the sql statements may not
-//                    // bt executed successfully.
-//                    String nameTransformed = column.getName().replaceAll(" ", "_");
-//
-//                    sqlStatement.append("    ").append(column.getName()).append(" ")
-//                        .append(column.getDataType().toUpperCase())
-//                        .append(" ").append(column.nullable()).append(",\n");
-//                }
-//
-//                if (table.getPrimaryKey().size() > 0) {
-//                    constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_pk").append(" PRIMARY KEY (");
-//                    for (Column column : table.getPrimaryKey()) {
-//                        constraintStatement.append(column.getName()).append(",");
-//                    }
-//                    constraintStatement.deleteCharAt(constraintStatement.lastIndexOf(","));
-//                    constraintStatement.append("),\n");
-//                }
-//
-//                if (table.getForeignKey().size() > 0) {
-//                    int fkIndex = 1;
-//                    for (Long referTableId : table.getForeignKey().keySet()) {
-//                        List<Column> foreignKey = table.getForeignKey().get(referTableId);
-//                        if (foreignKey.size() == 0) {
-//                            continue;
-//                        }
-//                        StringBuilder fkName = new StringBuilder();
-//                        StringBuilder relatedName = new StringBuilder();
-//
-//                        for (Column column : foreignKey) {
-//                            fkName.append(column.getName()).append(",");
-//                            relatedName.append(column.getForeignKeyColumnName()).append(",");
-//                        }
-//                        fkName.deleteCharAt(fkName.lastIndexOf(","));
-//                        relatedName.deleteCharAt(relatedName.lastIndexOf(","));
-//
-//                        constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_fk").append(fkIndex)
-//                            .append(" FOREIGN KEY (").append(fkName).append(")")
-//                            .append(" REFERENCES ").append(tableDTOList.get(referTableId).getName())
-//                            .append("(").append(relatedName).append(")").append(",\n");
-//                        fkIndex++;
-//                    }
-//                }
-//
-//                sqlStatement.append(constraintStatement).append(");\n\n");
-//                sqlStatement.deleteCharAt(sqlStatement.lastIndexOf(","));
-//
-//            }
 
         }
         return sqlStatement.toString();
@@ -449,9 +259,22 @@ public class GenerationSqlUtil {
 
     }
 
-    public static void generateDeletedTablesSqlStatement(Map<Long, Table> tableDTOList, List<Table> deletedTables, StringBuilder sqlStatement) {
-        for (Table table: deletedTables) {
-            sqlStatement.append("DROP TABLE ").append(table.getName()).append(";\n\n");
+    public static void generateDeletedTablesSqlStatement(List<Table> oldTables, List<Table> deletedTables
+        , StringBuilder sqlStatement, List<Table> newTables, List<Table> tableInSchema) {
+        for (Table deletedTable: deletedTables) {
+            for (Table oldTable: oldTables) {
+                for (Column column: oldTable.getColumnList()) {
+                    if (column.getForeignKeyTable().equals(deletedTable.getId()) && !deletedTables.contains(oldTable)) {
+                        sqlStatement.append("DROP TABLE ").append(oldTable.getName()).append(";\n\n");
+                        for (Table schemaTable: tableInSchema) {
+                            if (schemaTable.getId().equals(oldTable.getId())) {
+                                newTables.add(schemaTable);
+                            }
+                        }
+                    }
+                }
+            }
+            sqlStatement.append("DROP TABLE ").append(deletedTable.getName()).append(";\n\n");
         }
     }
 
@@ -504,7 +327,6 @@ public class GenerationSqlUtil {
                         newPair.add(tableInSchema);
                         newPair.add(tableInDatabase);
                         modifiedTablePair.add(newPair);
-
                     }
                     break;
                 }
@@ -529,8 +351,11 @@ public class GenerationSqlUtil {
 
         StringBuilder sqlStatement = new StringBuilder("");
 
+        List<Table> tableInSchema = new ArrayList<>();
+        tableInSchema.addAll(tableDTOList.values());
+
         // For all tables that were deleted, we need to drop these tables in the database.
-        generateDeletedTablesSqlStatement(tableDTOList, deleteTables, sqlStatement);
+        generateDeletedTablesSqlStatement(oldTables, deleteTables, sqlStatement, newTables, tableInSchema);
 
         // For all new tables, we only need to create these tables in the database with the information
         // provided in the schema.
@@ -586,8 +411,15 @@ public class GenerationSqlUtil {
                 }
             }
 
+            boolean deletePrimaryKey = false;
             // Delete all columns in deletedColumns.
             for (Column column: deletedColumns) {
+                if (column.isPrimary()) {
+                    sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                    sqlStatement.append("DROP CONSTRAINT ").append(oldTable.getName() + "_pk")
+                        .append(";\n");
+                    deletePrimaryKey = true;
+                }
                 sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                 sqlStatement.append("DROP COLUMN ").append(column.getName()).append(";\n");
             }
@@ -605,15 +437,96 @@ public class GenerationSqlUtil {
                         if (!newColumn.getDataType().equals(oldColumn.getDataType())) {
                             sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                             sqlStatement.append("ALTER COLUMN ").append(newColumn.getName())
-                                .append(" " + newColumn.getDataType()).append(";\n");
+                                .append(" TYPE " + newColumn.getDataType().toUpperCase() + " USING ")
+                                .append(newColumn.getName() + "::" + newColumn.getDataType().toLowerCase())
+                                .append(";\n");
                         }
                         if (newColumn.isNullable() != oldColumn.isNullable()) {
                             sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
-                            sqlStatement.append("ALTER TABLE ").append(newColumn.getName())
-                                .append(" " + (newColumn.isNullable() ? "NULL" : "NOT NULL"))
-                                .append(";\n");
+                            if (oldColumn.isNullable() && !newColumn.isNullable()) {
+                                sqlStatement.append("ALTER COLUMN ").append(newColumn.getName())
+                                    .append(" SET NOT NULL").append(";\n");
+                            } else {
+                                sqlStatement.append("ALTER COLUMN ").append(newColumn.getName())
+                                    .append(" DROP NOT NULL").append(";\n");
+                            }
                         }
                         if (newColumn.isPrimary() != oldColumn.isPrimary()) {
+                            if (!newColumn.isPrimary() && oldColumn.isPrimary()) {
+
+                                // There are two steps in this case, the first step is to drop all the
+                                // foreign key constraints which reference this primary key;
+                                for (Table table: oldTables) {
+                                    List<Column> columns = table.getColumnList();
+                                    boolean hasForeignKeys = false;
+                                    for (Column column: columns) {
+                                        if (column.getForeignKeyColumn().equals(newColumn.getID())) {
+                                            hasForeignKeys = true;
+                                            break;
+                                        }
+                                    }
+                                    if (hasForeignKeys) {
+                                        sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
+                                        sqlStatement.append("DROP CONSTRAINT ")
+                                            .append(table.getName() + "_fk_" + oldTable.getName())
+                                            .append(";\n");
+                                    }
+                                }
+
+                                // then the next step is to drop the primary key constraint in this table.
+                                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                                sqlStatement.append("DROP CONSTRAINT ").append(newColumn.getName() + "_pk")
+                                    .append(";\n");
+
+                                if (newTable.getPrimaryKey().size() != 1) {
+                                    throw new ParseException("Error! There are more than one primary key!");
+                                }
+                                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                                sqlStatement.append("ADD CONSTRAINT ").append(newColumn.getName() + "_pk")
+                                    .append(" PRIMARY KEY ").append("(")
+                                    .append(newTable.getPrimaryKey().get(0).getName())
+                                    .append(")").append(";\n");
+
+                                for (Table table: oldTables) {
+                                    List<Column> columns = table.getColumnList();
+                                    boolean hasForeignKeys = false;
+                                    for (Column column: columns) {
+                                        if (column.getForeignKeyColumn().equals(newColumn.getID())) {
+                                            hasForeignKeys = true;
+                                            break;
+                                        }
+                                    }
+                                    if (hasForeignKeys) {
+                                        StringBuilder fkName = new StringBuilder();
+                                        StringBuilder relatedName = new StringBuilder();
+
+                                        for (Column column : table.getForeignKey().get(newTable.getId())) {
+                                            fkName.append(column.getName()).append(",");
+                                            relatedName.append(column.getForeignKeyColumnName()).append(",");
+                                        }
+                                        fkName.deleteCharAt(fkName.lastIndexOf(","));
+                                        relatedName.deleteCharAt(relatedName.lastIndexOf(","));
+
+                                        sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
+                                        sqlStatement.append("ADD CONSTRAINT ")
+                                            .append(table.getName() + "_fk_" + oldTable.getName())
+                                            .append(" FOREIGN KEY ").append("(").append(fkName).append(")")
+                                            .append(" REFERENCES ").append(newTable.getName())
+                                            .append("(").append(relatedName).append(")")
+                                            .append(";\n");
+                                    }
+                                }
+                            } else {
+
+                                // Similarly, there are two steps in this case, the first step is to
+                                // add the new primary key constraint in this table;
+//                                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+//                                sqlStatement.append("ADD CONSTRAINT ").append(newColumn.getName() + "_pk")
+//                                   .append(" PRIMARY KEY ").append("(").append().append(")").append(";\n");
+
+                                // Then the second step is to add all new foreign key constraints in
+                                // other tables.
+                            }
                             // Do something here...
                         }
                         break;
@@ -628,6 +541,18 @@ public class GenerationSqlUtil {
                 sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                 sqlStatement.append("ADD COLUMN ").append(column.getName()).append(" " + column.getDataType())
                 .append(" " + (column.isNullable() ? "NULL" : "NOT NULL")).append(";\n");
+            }
+
+            if (deletePrimaryKey) {
+                StringBuilder constraintNames = new StringBuilder();
+                for (Column column : newTable.getPrimaryKey()) {
+                    constraintNames.append(column.getName()).append(",");
+                }
+                constraintNames.deleteCharAt(constraintNames.lastIndexOf(","));
+                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                sqlStatement.append("ADD CONSTRAINT ").append(newTable.getName() + "_pk")
+                    .append(" PRIMARY KEY ").append("(").append(constraintNames)
+                    .append(")").append(";\n");
             }
 
             sqlStatement.append("\n");
