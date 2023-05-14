@@ -32,6 +32,7 @@ public class GenerationSqlUtil {
             if (table.getForeignKey().size() == 0) {
                 tableMap.put(table.getId(), new ArrayList<Long>());
             } else {
+
                 for (Long id: table.getForeignKey().keySet()) {
                     List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
                     previousIds.add(id);
@@ -70,14 +71,14 @@ public class GenerationSqlUtil {
     // We need to create the sql statements for foreign key tables first, otherwise the sql
     // statements may not be executed successfully.
     // E.g. In the case of one-many relationships, the relationship table will be the first table
-    // This is wrong since we need the two entities created before it.
+    // This will be wrong since we need the two entities created before it.
     public static void tableGenerationOrders(List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap, Map<Long, Table> tableDTOList) {
         for (Long id: tableMap.keySet()) {
             List<Long> relyIds = tableMap.get(id);
             Table table = tableDTOList.get(id);
             if (!tablesSqlGenerationOrders.contains(table)) {
                 if (relyIds.size() == 0) {
-                    tablesSqlGenerationOrders.add(tableDTOList.get(id));
+                    tablesSqlGenerationOrders.add(table);
                 } else {
                     recursive(table, relyIds, tableDTOList, tablesSqlGenerationOrders, tableMap);
                 }
@@ -87,6 +88,11 @@ public class GenerationSqlUtil {
 
     // Helper function for "tableGenerationOrders".
     public static void recursive(Table table, List<Long> relyIds, Map<Long, Table> tableDTOList, List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap) {
+        // If 'relyIds' == null, this means that the table does not needed to create and already exist.
+        // So just pass the function.
+        if (relyIds == null) {
+            return;
+        }
         for (Long relyId: relyIds) {
             Table relyTable = tableDTOList.get(relyId);
             if (!tablesSqlGenerationOrders.contains(relyTable)) {
@@ -244,7 +250,8 @@ public class GenerationSqlUtil {
                     fkName.deleteCharAt(fkName.lastIndexOf(","));
                     relatedName.deleteCharAt(relatedName.lastIndexOf(","));
 
-                    constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_fk").append(fkIndex)
+//                    constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_fk").append(fkIndex)
+                    constraintStatement.append("    CONSTRAINT ").append(table.getName()).append("_fk_").append(tableDTOList.get(referTableId).getName())
                         .append(" FOREIGN KEY (").append(fkName).append(")")
                         .append(" REFERENCES ").append(tableDTOList.get(referTableId).getName())
                         .append("(").append(relatedName).append(")").append(",\n");
@@ -359,7 +366,24 @@ public class GenerationSqlUtil {
 
         // For all new tables, we only need to create these tables in the database with the information
         // provided in the schema.
-        generateNewTablesSqlStatement(tableDTOList, newTables, sqlStatement);
+        Map<Long, List<Long>> tableMap = new HashMap<>();
+        List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
+
+        for (Table table : newTables) {
+            if (table.getForeignKey().size() == 0) {
+                tableMap.put(table.getId(), new ArrayList<Long>());
+            } else {
+                for (Long id: table.getForeignKey().keySet()) {
+                    List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
+                    previousIds.add(id);
+                    tableMap.put(table.getId(), previousIds);
+                }
+            }
+        }
+
+        tableGenerationOrders(tablesSqlGenerationOrders, tableMap, tableDTOList);
+
+        generateNewTablesSqlStatement(tableDTOList, tablesSqlGenerationOrders, sqlStatement);
 
         // For the tables already exist in the database/schema and modified, we need to check the difference between
         // the new table and old tables. For the attributes, we will add these new columns in the table.
@@ -460,7 +484,7 @@ public class GenerationSqlUtil {
                                     List<Column> columns = table.getColumnList();
                                     boolean hasForeignKeys = false;
                                     for (Column column: columns) {
-                                        if (column.getForeignKeyColumn().equals(newColumn.getID())) {
+                                        if (column.getForeignKeyColumn() != null && column.getForeignKeyColumn().equals(newColumn.getID())) {
                                             hasForeignKeys = true;
                                             break;
                                         }
@@ -475,14 +499,14 @@ public class GenerationSqlUtil {
 
                                 // then the next step is to drop the primary key constraint in this table.
                                 sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
-                                sqlStatement.append("DROP CONSTRAINT ").append(newColumn.getName() + "_pk")
+                                sqlStatement.append("DROP CONSTRAINT ").append(newTable.getName() + "_pk")
                                     .append(";\n");
 
                                 if (newTable.getPrimaryKey().size() != 1) {
                                     throw new ParseException("Error! There are more than one primary key!");
                                 }
                                 sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
-                                sqlStatement.append("ADD CONSTRAINT ").append(newColumn.getName() + "_pk")
+                                sqlStatement.append("ADD CONSTRAINT ").append(newTable.getName() + "_pk")
                                     .append(" PRIMARY KEY ").append("(")
                                     .append(newTable.getPrimaryKey().get(0).getName())
                                     .append(")").append(";\n");
@@ -491,7 +515,7 @@ public class GenerationSqlUtil {
                                     List<Column> columns = table.getColumnList();
                                     boolean hasForeignKeys = false;
                                     for (Column column: columns) {
-                                        if (column.getForeignKeyColumn().equals(newColumn.getID())) {
+                                        if (column.getForeignKeyColumn() != null && column.getForeignKeyColumn().equals(newColumn.getID())) {
                                             hasForeignKeys = true;
                                             break;
                                         }

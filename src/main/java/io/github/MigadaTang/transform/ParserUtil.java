@@ -412,7 +412,7 @@ public class ParserUtil {
                         tableIdList.addAll(cardinalityListMap.get(Cardinality.ZeroToOne));
                         tableIdList.addAll(cardinalityListMap.get(Cardinality.ZeroToMany));
                         tableIdList.addAll(cardinalityListMap.get(Cardinality.OneToMany));
-                        representTable = parseCardinalityWithNewTable(tableIdList, tableDTOMap, relationship.getName());
+                        representTable = parseCardinalityWithNewTable(tableIdList, tableDTOMap, relationship.getName(), relationship);
                     }
                 }
             }
@@ -598,15 +598,17 @@ public class ParserUtil {
     }
 
 
-    private static Table parseCardinalityWithNewTable(List<Long> tableIdList, Map<Long, Table> tableDTOMap, String reName) {
+    private static Table parseCardinalityWithNewTable(List<Long> tableIdList, Map<Long, Table> tableDTOMap, String reName, Relationship relationship) {
 
         StringBuilder tableName = new StringBuilder(reName.replace(' ', '_'));
         List<Column> columnList = new ArrayList<>();
         List<Column> pkList = new ArrayList<>();
         Map<Long, List<Column>> foreignKey = new HashMap<>();
 
-        Table newTable = new Table(RandomUtils.generateID(), tableName.toString(), EntityType.STRONG, null,
-                columnList, pkList, new ArrayList<>(), foreignKey, null); ///
+//        Table newTable = new Table(RandomUtils.generateID(), tableName.toString(), EntityType.STRONG, null,
+//                columnList, pkList, new ArrayList<>(), foreignKey, null); ///
+        Table newTable = new Table(relationship.getID(), tableName.toString(), EntityType.STRONG, null,
+            columnList, pkList, new ArrayList<>(), foreignKey, null);
 
         for (Long tableId : tableIdList) {
             Table foreignTable = tableDTOMap.get(tableId);

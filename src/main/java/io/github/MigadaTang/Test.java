@@ -1,9 +1,12 @@
 package io.github.MigadaTang;
 
+import io.github.MigadaTang.common.Cardinality;
+import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.transform.Reverse;
+import io.github.MigadaTang.transform.Table;
 import java.sql.SQLException;
 
 public class Test {
@@ -12,7 +15,8 @@ public class Test {
     System.out.println("Try to test database connection!");
     ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
 //    testReverseEngineer();
-    testSqlGeneration();
+//    testSqlGeneration();
+    testSql();
     System.out.println("Test finished!");
   }
 
@@ -60,6 +64,25 @@ public class Test {
         + ");";
     String ddl2 = "CREATE TABLE Person (    salary_number VARCHAR NOT NULL,    CONSTRAINT Person_pk PRIMARY KEY (salary_number))";
     ER.connectToDatabaseAndExecuteSql("postgresql", "localhost", "5433", "boanzhu", "boanzhu", "", ddl1);
+  }
+
+  public static void testSql() throws ParseException {
+    Schema example = ER.createSchema("TestSQL");
+    Entity student = example.addEntity("student");
+    student.addPrimaryKey("name", DataType.TEXT);
+
+    Entity project = example.addEntity("project");
+    project.addPrimaryKey("pname", DataType.TEXT);
+
+    Relationship works_in = example.createRelationship("works_in", student, project, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+    String ddl = example.generateSqlStatement();
+
+    System.out.println(ddl);
+
+    for (Table table: example.getOldTables()) {
+      System.out.println();
+    }
+
   }
 
 }
