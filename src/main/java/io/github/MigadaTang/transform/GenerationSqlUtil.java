@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.chrono.ThaiBuddhistChronology;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -267,15 +269,23 @@ public class GenerationSqlUtil {
     }
 
     public static void generateDeletedTablesSqlStatement(List<Table> oldTables, List<Table> deletedTables
-        , StringBuilder sqlStatement, List<Table> newTables, List<Table> tableInSchema) {
+        , StringBuilder sqlStatement, List<Table> newTables, List<Table> tableInSchema, List<List<Table>> modifiedTablePair) {
         for (Table deletedTable: deletedTables) {
+//            System.out.println("DeletedTable: " + deletedTable);
             for (Table oldTable: oldTables) {
-                for (Column column: oldTable.getColumnList()) {
-                    if (column.getForeignKeyTable().equals(deletedTable.getId()) && !deletedTables.contains(oldTable)) {
+//                System.out.println("Oldtable: " + oldTable);
+                for (Long foreignTableId: oldTable.getForeignKey().keySet()) {
+                    if (foreignTableId.equals(deletedTable.getId()) && !deletedTables.contains(oldTable)) {
                         sqlStatement.append("DROP TABLE ").append(oldTable.getName()).append(";\n\n");
                         for (Table schemaTable: tableInSchema) {
                             if (schemaTable.getId().equals(oldTable.getId())) {
                                 newTables.add(schemaTable);
+                            }
+                        }
+                        for (List<Table> tablePair: modifiedTablePair) {
+                            if (tablePair.get(0).getId().equals(oldTable.getId()) || tablePair.get(1).equals(oldTable.getId())) {
+                                modifiedTablePair.remove(tablePair);
+                                break;
                             }
                         }
                     }
@@ -323,7 +333,27 @@ public class GenerationSqlUtil {
         List<List<Table>> modifiedTablePair = new ArrayList<>();
         List<Table> deleteTables = new ArrayList<>();
 
-        for (Table tableInSchema: tableDTOList.values()) {
+        // For all new tables, we only need to create these tables in the database with the information
+        // provided in the schema.
+        Map<Long, List<Long>> tableMap = new HashMap<>();
+        List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
+
+        for (Table table : tableDTOList.values()) {
+            if (table.getForeignKey().size() == 0) {
+                tableMap.put(table.getId(), new ArrayList<Long>());
+            } else {
+                for (Long id: table.getForeignKey().keySet()) {
+                    List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
+                    previousIds.add(id);
+                    tableMap.put(table.getId(), previousIds);
+                }
+            }
+        }
+
+        // reorder all the tables
+        tableGenerationOrders(tablesSqlGenerationOrders, tableMap, tableDTOList);
+
+        for (Table tableInSchema: tablesSqlGenerationOrders) {
             boolean ifAlreadyExist = false;
             for (Table tableInDatabase: oldTables) {
                 if (tableInSchema.getId().equals(tableInDatabase.getId())) {
@@ -333,6 +363,8 @@ public class GenerationSqlUtil {
                         List<Table> newPair = new ArrayList<Table>();
                         newPair.add(tableInSchema);
                         newPair.add(tableInDatabase);
+                        System.out.println("tableInSchema: " + tableInSchema);
+                        System.out.println("tableInDatabase: " + tableInDatabase);
                         modifiedTablePair.add(newPair);
                     }
                     break;
@@ -345,7 +377,7 @@ public class GenerationSqlUtil {
 
         for (Table tableInDatabase: oldTables) {
             boolean inSchema = false;
-            for (Table tableInSchema: tableDTOList.values()) {
+            for (Table tableInSchema: tablesSqlGenerationOrders) {
                 if (tableInSchema.getId().equals(tableInDatabase.getId())) {
                     inSchema = true;
                     break;
@@ -359,32 +391,17 @@ public class GenerationSqlUtil {
         StringBuilder sqlStatement = new StringBuilder("");
 
         List<Table> tableInSchema = new ArrayList<>();
-        tableInSchema.addAll(tableDTOList.values());
+        tableInSchema.addAll(tablesSqlGenerationOrders);
 
         // For all tables that were deleted, we need to drop these tables in the database.
-        generateDeletedTablesSqlStatement(oldTables, deleteTables, sqlStatement, newTables, tableInSchema);
+        generateDeletedTablesSqlStatement(oldTables, deleteTables, sqlStatement, newTables, tableInSchema, modifiedTablePair);
 
-        // For all new tables, we only need to create these tables in the database with the information
-        // provided in the schema.
-        Map<Long, List<Long>> tableMap = new HashMap<>();
-        List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
+        generateNewTablesSqlStatement(tableDTOList, newTables, sqlStatement);
 
-        for (Table table : newTables) {
-            if (table.getForeignKey().size() == 0) {
-                tableMap.put(table.getId(), new ArrayList<Long>());
-            } else {
-                for (Long id: table.getForeignKey().keySet()) {
-                    List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
-                    previousIds.add(id);
-                    tableMap.put(table.getId(), previousIds);
-                }
-            }
-        }
+        System.out.println("Size of newTables: " + newTables.size());
+        System.out.println("Size of deletedTables: " + deleteTables.size());
 
-        tableGenerationOrders(tablesSqlGenerationOrders, tableMap, tableDTOList);
-
-        generateNewTablesSqlStatement(tableDTOList, tablesSqlGenerationOrders, sqlStatement);
-
+        Collections.reverse(modifiedTablePair);
         // For the tables already exist in the database/schema and modified, we need to check the difference between
         // the new table and old tables. For the attributes, we will add these new columns in the table.
         // For already exist columns, we need to find the modifications and change them. For some
@@ -400,6 +417,20 @@ public class GenerationSqlUtil {
                 sqlStatement.append("RENAME TO ").append(newTable.getName()).append(";\n");
 //                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
 
+                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                sqlStatement.append("RENAME CONSTRAINT ").append(oldTable.getName() + "_pk")
+                    .append(" TO " + newTable.getName() + "_pk").append(";\n");
+//                sqlStatement.append("DROP CONSTRAINT ").append(oldTable.getName() + "_pk").append(";\n");
+//                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+//
+//                if (newTable.getPrimaryKey().size() > 0) {
+//                    sqlStatement.append("ADD CONSTRAINT ").append(newTable.getName()).append("_pk").append(" PRIMARY KEY (");
+//                    for (Column column : oldTable.getPrimaryKey()) {
+//                        sqlStatement.append(column.getName()).append(",");
+//                    }
+//                    sqlStatement.deleteCharAt(sqlStatement.lastIndexOf(","));
+//                    sqlStatement.append("),\n");
+//                }
                 // No need to change foreign keys name here ?
 
 //                for (Table table: tableDTOList.values()) {
@@ -453,10 +484,34 @@ public class GenerationSqlUtil {
                 for (Column oldColumn: oldColumns) {
                     if (newColumn.getID().equals(oldColumn.getID())) {
                         alreadyExist = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyExist) {
+                    createdColumns.add(newColumn);
+                }
+            }
+
+            for (Column column: createdColumns) {
+                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                sqlStatement.append("ADD COLUMN ").append(column.getName()).append(" " + column.getDataType())
+                    .append(" " + (column.isNullable() ? "NULL" : "NOT NULL")).append(";\n");
+            }
+
+            for (Column newColumn: newColumns) {
+//                boolean alreadyExist = false;
+                for (Column oldColumn: oldColumns) {
+                    if (newColumn.getID().equals(oldColumn.getID())) {
+//                        alreadyExist = true;
                         if (!newColumn.getName().equals(oldColumn.getName())) {
                             sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                             sqlStatement.append("RENAME COLUMN ").append(oldColumn.getName())
                                 .append(" TO ").append(newColumn.getName()).append(";\n");
+
+//                            if () {
+//
+//                            }
                         }
                         if (!newColumn.getDataType().equals(oldColumn.getDataType())) {
                             sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
@@ -489,12 +544,16 @@ public class GenerationSqlUtil {
                                             break;
                                         }
                                     }
-                                    if (hasForeignKeys) {
-                                        sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
-                                        sqlStatement.append("DROP CONSTRAINT ")
-                                            .append(table.getName() + "_fk_" + oldTable.getName())
-                                            .append(";\n");
-                                    }
+
+                                    // There is no need to drop the foreign key constraint, since the column
+                                    // was already be deleted.
+
+//                                    if (hasForeignKeys) {
+//                                        sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
+//                                        sqlStatement.append("DROP CONSTRAINT ")
+//                                            .append(table.getName() + "_fk_" + oldTable.getName())
+//                                            .append(";\n");
+//                                    }
                                 }
 
                                 // then the next step is to drop the primary key constraint in this table.
@@ -511,7 +570,7 @@ public class GenerationSqlUtil {
                                     .append(newTable.getPrimaryKey().get(0).getName())
                                     .append(")").append(";\n");
 
-                                for (Table table: oldTables) {
+                                for (Table table: oldTables) { ///
                                     List<Column> columns = table.getColumnList();
                                     boolean hasForeignKeys = false;
                                     for (Column column: columns) {
@@ -524,7 +583,14 @@ public class GenerationSqlUtil {
                                         StringBuilder fkName = new StringBuilder();
                                         StringBuilder relatedName = new StringBuilder();
 
-                                        for (Column column : table.getForeignKey().get(newTable.getId())) {
+                                        Table tableInDTOList = null;
+                                        for (Table tableInDTO: tableDTOList.values()) {
+                                            if (tableInDTO.getId().equals(table.getId())) {
+                                                tableInDTOList = tableInDTO;
+                                            }
+                                        }
+
+                                        for (Column column : tableInDTOList.getForeignKey().get(newTable.getId())) {
                                             fkName.append(column.getName()).append(",");
                                             relatedName.append(column.getForeignKeyColumnName()).append(",");
                                         }
@@ -533,7 +599,7 @@ public class GenerationSqlUtil {
 
                                         sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
                                         sqlStatement.append("ADD CONSTRAINT ")
-                                            .append(table.getName() + "_fk_" + oldTable.getName())
+                                            .append(table.getName() + "_fk_" + newTable.getName())
                                             .append(" FOREIGN KEY ").append("(").append(fkName).append(")")
                                             .append(" REFERENCES ").append(newTable.getName())
                                             .append("(").append(relatedName).append(")")
@@ -556,16 +622,11 @@ public class GenerationSqlUtil {
                         break;
                     }
                 }
-                if (!alreadyExist) {
-                    createdColumns.add(newColumn);
-                }
+//                if (!alreadyExist) {
+//                    createdColumns.add(newColumn);
+//                }
             }
 
-            for (Column column: createdColumns) {
-                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
-                sqlStatement.append("ADD COLUMN ").append(column.getName()).append(" " + column.getDataType())
-                .append(" " + (column.isNullable() ? "NULL" : "NOT NULL")).append(";\n");
-            }
 
             if (deletePrimaryKey) {
                 StringBuilder constraintNames = new StringBuilder();
@@ -578,6 +639,9 @@ public class GenerationSqlUtil {
                     .append(" PRIMARY KEY ").append("(").append(constraintNames)
                     .append(")").append(";\n");
             }
+
+            System.out.println("Size of createdColumns: " + createdColumns.size());
+            System.out.println("Size of deletedColumns: " + deletedColumns.size());
 
             sqlStatement.append("\n");
         }

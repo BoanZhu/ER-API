@@ -618,6 +618,7 @@ public class ParserUtil {
             for (Column pk : foreignTable.getPrimaryKey()) {
                 Column cloneFk = pk.getForeignClone(newTable.getId(), true, foreignTable.getName());
                 cloneFk.setNullable(false);
+                cloneFk.setID(pk.getID()); ///
                 fkColumns.add(cloneFk);
                 columnList.add(cloneFk);
                 pkList.add(cloneFk);
