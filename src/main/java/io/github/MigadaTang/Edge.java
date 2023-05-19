@@ -8,33 +8,33 @@ import lombok.Data;
 @Data
 public class Edge {
 
-  private Node sourceNode;
-  private Node targetNode;
+  private GraphNode sourceGraphNode;
+  private GraphNode targetGraphNode;
 
-  public Edge(Node sourceNode, Node targetNode) {
-    this.sourceNode = sourceNode;
-    this.targetNode = targetNode;
+  public Edge(GraphNode sourceGraphNode, GraphNode targetGraphNode) {
+    this.sourceGraphNode = sourceGraphNode;
+    this.targetGraphNode = targetGraphNode;
   }
 
-  public static Edge transformEdge(Relationship relationship, List<Entity> entityList) {
-    List<Entity> sourceAndTargetNodes = new ArrayList<>();
+  public static Edge transformEdge(Relationship relationship, List<GraphNode> graphNodes) {
+    List<GraphNode> sourceAndTargetGraphNodes = new ArrayList<>();
     for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
 //      relationshipEdge.getConnObjType() // Here we need to check the type of the ConnObj
-      Entity entity = findEntity(relationshipEdge.getConnObj().getID(), entityList);
-      sourceAndTargetNodes.add(entity);
+      GraphNode graphNode = findNode(relationshipEdge.getConnObj().getID(), graphNodes);
+      sourceAndTargetGraphNodes.add(graphNode);
     }
-    if (sourceAndTargetNodes.size() > 2) {
+    if (sourceAndTargetGraphNodes.size() > 2) {
       throw new ERException(relationship.getName() + " this relationship contains more than two entities!");
     }
-    Node sourceNode = Node.transformNode(sourceAndTargetNodes.get(0));
-    Node targetNode = Node.transformNode(sourceAndTargetNodes.get(1));
-    return new Edge(sourceNode, targetNode);
+//    Node sourceNode = Node.transformNode(sourceAndTargetNodes.get(0));
+//    Node targetNode = Node.transformNode(sourceAndTargetNodes.get(1));
+    return new Edge(sourceAndTargetGraphNodes.get(0), sourceAndTargetGraphNodes.get(1));
   }
 
-  public static Entity findEntity(Long id, List<Entity> entityList) {
-    for (Entity entity: entityList) {
-      if (entity.getID().equals(id)) {
-        return entity;
+  public static GraphNode findNode(Long id, List<GraphNode> graphNodes) {
+    for (GraphNode graphNode : graphNodes) {
+      if (graphNode.getId().equals(id)) {
+        return graphNode;
       }
     }
     return null;

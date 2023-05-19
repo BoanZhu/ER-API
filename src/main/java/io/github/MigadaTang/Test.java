@@ -1,27 +1,57 @@
 package io.github.MigadaTang;
 
-import io.github.MigadaTang.common.AttributeType;
+import static guru.nidi.graphviz.attribute.Attributes.attr;
+import static guru.nidi.graphviz.model.Factory.graph;
+import static guru.nidi.graphviz.model.Factory.node;
+import static guru.nidi.graphviz.model.Link.to;
+
+import guru.nidi.graphviz.attribute.Color;
+import guru.nidi.graphviz.attribute.Font;
+import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.model.Graph;
+import guru.nidi.graphviz.model.Node;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
-import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.transform.Reverse;
-import io.github.MigadaTang.transform.Table;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Test {
 
-  public static void main(String[] args) throws DBConnectionException, ParseException, SQLException {
+  public static void main(String[] args)
+      throws DBConnectionException, ParseException, SQLException, IOException {
     System.out.println("Try to test database connection!");
     ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
 //    testReverseEngineer();
 //    testSqlGeneration();
-    testSql();
+//    testSql();
 //    testLayout();
+
+    Schema example = ER.createSchema("TestSQL");
+    Entity student = example.addEntity("A");
+    student.addPrimaryKey("name", DataType.TEXT);
+
+    Entity project = example.addEntity("B");
+    project.addPrimaryKey("pname", DataType.TEXT);
+
+    Entity course = example.addEntity("C");
+    Entity D = example.addEntity("D");
+    Entity E = example.addEntity("E");
+
+    Relationship AB = example.createRelationship("AB", student, project, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+    Relationship AC = example.createRelationship("AC", student, course, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+    Relationship AD = example.createRelationship("AD", student, D, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+    Relationship BE = example.createRelationship("BE", course, E, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+
+    useGraphviz(example);
     System.out.println("Test finished!");
   }
 
@@ -73,16 +103,17 @@ public class Test {
     List<Entity> entities = schema.getEntityList();
     List<Relationship> relationships = schema.getRelationshipList();
 
-    List<Node> nodes = new ArrayList<>();
+    List<GraphNode> graphNodes = new ArrayList<>();
     List<Edge> edges = new ArrayList<>();
 
     for (Entity entity: entities) {
-      Node node = Node.transformNode(entity);
-      nodes.add(node);
+      GraphNode graphNode = GraphNode.transformNode(entity);
+      System.out.println("node: " + graphNode.getX() + " " + graphNode.getY());
+      graphNodes.add(graphNode);
     }
 
     for (Relationship relationship: relationships) {
-      Edge edge = Edge.transformEdge(relationship, schema.getEntityList());
+      Edge edge = Edge.transformEdge(relationship, graphNodes);
       edges.add(edge);
     }
 
@@ -91,21 +122,21 @@ public class Test {
     // times to get a appropriate position.
     // And the last step is to send these information to the frontend to render the diagram.
 
-    forceDirected(nodes, edges, 100, 800, 0.5, 100);
+    forceDirected(graphNodes, edges, 100, 200, 0.98, 100);
 
-    for (Node node: nodes) {
-      System.out.println(node.getName() + " x: " + node.getX() + ", y: " + node.getY());
+    for (GraphNode graphNode : graphNodes) {
+      System.out.println(graphNode.getName() + " x: " + graphNode.getX() + ", y: " + graphNode.getY());
     }
   }
 
-  public static void forceDirected(List<Node> nodes, List<Edge> edges, int numOfIterations, int lengthOfSpring, double attenuation, int epsilon) {
+  public static void forceDirected(List<GraphNode> graphNodes, List<Edge> edges, int numOfIterations, int lengthOfSpring, double attenuation, int epsilon) {
     int currentIterations = 0;
     while (currentIterations < numOfIterations) {
       List<Vector> Fs = new ArrayList<>();
       // The first step is to calculate all of the displacement vector
-      for (Node u: nodes) {
+      for (GraphNode u: graphNodes) {
         Vector fu = new Vector(u.getId(), 0, 0);
-        for (Node v: nodes) {
+        for (GraphNode v: graphNodes) {
           if (u.getId().equals(v.getId())) {
             continue;
           }
@@ -123,8 +154,8 @@ public class Test {
         }
 
         for (Edge edge: edges) {
-          if (edge.getSourceNode().getId().equals(u.getId())) {
-            Node v = edge.getTargetNode();
+          if (edge.getSourceGraphNode().getId().equals(u.getId())) {
+            GraphNode v = edge.getTargetGraphNode();
             double euclideanD = Math.sqrt(Math.pow(v.getX() - u.getX(), 2) + Math.pow(v.getY() - u.getY(), 2));
             double leftPart = Math.pow(euclideanD, 2) / lengthOfSpring;
             double xd = v.getX() - u.getX();
@@ -136,8 +167,8 @@ public class Test {
             double fy = unitVectorY / root;
             fu.setX(fu.getX() + fx);
             fu.setY(fu.getY() + fy);
-          } else if (edge.getTargetNode().getId().equals(u.getId())) {
-            Node v = edge.getSourceNode();
+          } else if (edge.getTargetGraphNode().getId().equals(u.getId())) {
+            GraphNode v = edge.getSourceGraphNode();
             double euclideanD = Math.sqrt(Math.pow(v.getX() - u.getX(), 2) + Math.pow(v.getY() - u.getY(), 2));
             double leftPart = Math.pow(euclideanD, 2) / lengthOfSpring;
             double xd = v.getX() - u.getX();
@@ -156,16 +187,16 @@ public class Test {
       }
 
       // Then update all nodes' position
-      for (int i = 0; i < nodes.size(); i++) {
-        Node node = nodes.get(i);
+      for (int i = 0; i < graphNodes.size(); i++) {
+        GraphNode graphNode = graphNodes.get(i);
         Vector vector = Fs.get(i);
-        node.setX(node.getX() + attenuation * vector.getX());
-        node.setY(node.getY() + attenuation * vector.getY());
+        graphNode.setX(graphNode.getX() + attenuation * vector.getX());
+        graphNode.setY(graphNode.getY() + attenuation * vector.getY());
       }
 
-      for (Node node: nodes) {
+      for (GraphNode graphNode : graphNodes) {
         System.out.println(currentIterations);
-        System.out.println(node.getName() + " x: " + node.getX() + ", y: " + node.getY());
+        System.out.println(graphNode.getName() + " x: " + graphNode.getX() + ", y: " + graphNode.getY());
       }
       currentIterations++;
     }
@@ -230,6 +261,64 @@ public class Test {
     String ddl2 = example.generateSqlStatement();
 
     System.out.println(ddl2);
+  }
+
+  public static void useGraphviz(Schema schema) throws IOException {
+
+    Graph g = graph(schema.getName()).directed()
+        .nodeAttr().with(Font.name("arial"))
+        .linkAttr().with("class", "link-class");
+
+    List<Node> nodeList = new ArrayList<>();
+    for (Entity entity: schema.getEntityList()) {
+      Node node = node(entity.getName());
+      nodeList.add(node);
+    }
+    for (Relationship relationship: schema.getRelationshipList()) {
+      Node node = node(relationship.getName());
+      nodeList.add(node);
+    }
+
+    for (Node node: nodeList) {
+      System.out.println(node);
+    }
+
+    for (Relationship relationship: schema.getRelationshipList()) {
+      Node relationshipNode = findNode(relationship.getName(), nodeList);
+      for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
+        String nodeName = relationshipEdge.getConnObj().getName();
+        Node node = findNode(nodeName, nodeList);
+        System.out.println("relationshipNode: " + relationshipNode + ", node: " + node);
+        g.with(node.link(to(relationshipNode)));
+      }
+    }
+
+    System.out.println(g);
+
+    Graphviz.fromGraph(g).width(900).height(900).render(Format.PNG).toFile(new File("example/ex2.png"));
+
+    Graph gg = graph("example1").directed()
+//        .graphAttr().with(Rank.dir(LEFT_TO_RIGHT))
+        .nodeAttr().with(Font.name("arial"))
+        .linkAttr().with("class", "link-class")
+        .with(
+            node("a").with(Color.RED).link(node("b")),
+            node("b").link(
+                to(node("c")).with(attr("weight", 5), Style.DASHED)
+            )
+        );
+
+    System.out.println(gg);
+    Graphviz.fromGraph(gg).height(100).render(Format.PNG).toFile(new File("example/ex1.png"));
+  }
+
+  public static Node findNode(String nodeName, List<Node> nodeList) {
+    for (Node node: nodeList) {
+      if (node.name().toString().equals(nodeName)) {
+        return node;
+      }
+    }
+    return null;
   }
 
 }
