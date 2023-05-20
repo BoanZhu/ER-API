@@ -5,24 +5,32 @@ import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;
 import static guru.nidi.graphviz.model.Link.to;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Font;
+import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
+import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
+import io.github.MigadaTang.transform.RandomUtils;
 import io.github.MigadaTang.transform.Reverse;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import net.sourceforge.htmlunit.corejs.javascript.json.JsonParser;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Test {
 
@@ -49,7 +57,7 @@ public class Test {
     Relationship AB = example.createRelationship("AB", student, project, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
     Relationship AC = example.createRelationship("AC", student, course, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
     Relationship AD = example.createRelationship("AD", student, D, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-    Relationship BE = example.createRelationship("BE", course, E, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+    Relationship BE = example.createRelationship("CE", course, E, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
 
     useGraphviz(example);
     System.out.println("Test finished!");
@@ -64,7 +72,7 @@ public class Test {
 
   public static void testReverseEngineer() throws DBConnectionException, ParseException {
     Reverse reverse = new Reverse();
-//    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "", "54321");
+
     Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "");
 //    for (Entity entity: schema.getEntityList()) {
 //      System.out.println("Entity: " + entity.getEntityType());
@@ -74,9 +82,12 @@ public class Test {
 //    }
 //    System.out.println("schema: " + schema.getName() + ", ID: " + schema.getID());
 
-    generateLayoutInformation(schema);
-    String JSON = schema.toRenderJSON();
+//    generateLayoutInformation(schema);
+//    String JSON = schema.toRenderJSON();
 //    System.out.println("JSON: " + JSON);
+
+
+
   }
 
   public static void testLayout() {
@@ -265,17 +276,20 @@ public class Test {
 
   public static void useGraphviz(Schema schema) throws IOException {
 
-    Graph g = graph(schema.getName()).directed()
+    Graph g = graph(schema.getName())
         .nodeAttr().with(Font.name("arial"))
         .linkAttr().with("class", "link-class");
 
+    g.directed().with(node("qwe").link("123"));
+    g.toMutable().add(node("111").link("222"));
+
     List<Node> nodeList = new ArrayList<>();
     for (Entity entity: schema.getEntityList()) {
-      Node node = node(entity.getName());
+      Node node = node(entity.getName()).with(Shape.RECTANGLE);
       nodeList.add(node);
     }
     for (Relationship relationship: schema.getRelationshipList()) {
-      Node node = node(relationship.getName());
+      Node node = node(relationship.getName()).with(Shape.DIAMOND);
       nodeList.add(node);
     }
 
@@ -289,27 +303,44 @@ public class Test {
         String nodeName = relationshipEdge.getConnObj().getName();
         Node node = findNode(nodeName, nodeList);
         System.out.println("relationshipNode: " + relationshipNode + ", node: " + node);
-        g.with(node.link(to(relationshipNode)));
+        g = g.with(node.link(to(relationshipNode)));
       }
     }
 
+    g.with(node("abcde").link("12345"));
     System.out.println(g);
 
-    Graphviz.fromGraph(g).width(900).height(900).render(Format.PNG).toFile(new File("example/ex2.png"));
+    // render the graph into png.
+    Graphviz.fromGraph(g).engine(Engine.NEATO).width(900).height(900).render(Format.PNG).toFile(new File("example/ex2.png"));
 
-    Graph gg = graph("example1").directed()
-//        .graphAttr().with(Rank.dir(LEFT_TO_RIGHT))
-        .nodeAttr().with(Font.name("arial"))
-        .linkAttr().with("class", "link-class")
-        .with(
-            node("a").with(Color.RED).link(node("b")),
-            node("b").link(
-                to(node("c")).with(attr("weight", 5), Style.DASHED)
-            )
-        );
+    // render the graph into Json format so that we can extract the position information.
+    String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).width(900).render(Format.JSON).toString();
+    JSONObject jsonObject = new JSONObject(jsonString);
+    System.out.println("-----------------");
 
-    System.out.println(gg);
-    Graphviz.fromGraph(gg).height(100).render(Format.PNG).toFile(new File("example/ex1.png"));
+    // Extract the layout information from the Json object.
+    for (Object node: (JSONArray) jsonObject.get("objects")) {
+      System.out.println("name: " + ((JSONObject ) node).get("name") + ", pos: " + ((JSONObject ) node).get("pos"));
+      String[] pos = ((JSONObject ) node).get("pos").toString().split(",");
+      for (Entity entity: schema.getEntityList()) {
+        if (entity.getName().equals(((JSONObject ) node).get("name"))) {
+          entity.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), entity.getID(),
+              BelongObjType.ENTITY, Math.floor(Double.parseDouble(pos[0])), Math.floor(Double.parseDouble(pos[1]))));
+          System.out.println(entity.getName() + " " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
+        }
+      }
+      for (Relationship relationship: schema.getRelationshipList()) {
+        if (relationship.getName().equals(((JSONObject ) node).get("name"))) {
+          relationship.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), relationship.getID(),
+              BelongObjType.RELATIONSHIP, Math.floor(Double.parseDouble(pos[0])), Math.floor(Double.parseDouble(pos[1]))));
+          System.out.println(relationship.getName() + " " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
+        }
+      }
+
+    }
+
+
+
   }
 
   public static Node findNode(String nodeName, List<Node> nodeList) {
