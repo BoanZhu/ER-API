@@ -27,6 +27,11 @@ public class GenerationSqlUtil {
         Map<Long, List<Long>> tableMap = new HashMap<>();
         List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
 
+        for (Table table: tableDTOList.values()) {
+            System.out.println("Table: " + table.getName() + " " + table);
+            System.out.println(table.getForeignKey());
+        }
+
         // One improvement here we need to create the sql statements for foreign key tables first,
         // otherwise the sql statements may not be executed successfully.
         // E.g. In the case of one-many relationships, the relationship table will be the first table
@@ -34,11 +39,13 @@ public class GenerationSqlUtil {
             if (table.getForeignKey().size() == 0) {
                 tableMap.put(table.getId(), new ArrayList<Long>());
             } else {
-
                 for (Long id: table.getForeignKey().keySet()) {
-                    List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
-                    previousIds.add(id);
-                    tableMap.put(table.getId(), previousIds);
+                    if (!id.equals(table.getId())) {
+                        System.out.println("id: " + id + ", tableId: " + table.getId());
+                        List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
+                        previousIds.add(id);
+                        tableMap.put(table.getId(), previousIds);
+                    }
                 }
             }
         }
