@@ -344,14 +344,14 @@ public class Schema {
 //            System.out.println("222: " + entity.getEntityType());
             switch (entity.getEntityType()) {
                 case WEAK:
-                    if (primaryKeyNum != 0) {
-                        throw new ERException(String.format("weak entity (%s) cannot have primary key", entity.getName()));
-                    }
+//                    if (primaryKeyNum != 0) {
+//                        throw new ERException(String.format("weak entity (%s) cannot have primary key", entity.getName()));
+//                    }
                     break;
                 case STRONG:
-//                    if (primaryKeyNum < 1) {
-//                        throw new ERException(String.format("strong entity (%s) must have one primary key", entity.getName()));
-//                    }
+                    if (primaryKeyNum < 1) {
+                        throw new ERException(String.format("strong entity (%s) must have one primary key", entity.getName()));
+                    }
                     break;
                 case SUBSET:
                     if (primaryKeyNum != 0) {
@@ -430,14 +430,14 @@ public class Schema {
             }
             switch (entity.getEntityType()) {
                 case WEAK:
-                    if (primaryKeyNum != 0) {
-                        throw new ERException(String.format("weak entity (%s) cannot have primary key", entity.getName()));
-                    }
+//                    if (primaryKeyNum != 0) {
+//                        throw new ERException(String.format("weak entity (%s) cannot have primary key", entity.getName()));
+//                    }
                     break;
                 case STRONG:
-//                    if (primaryKeyNum < 1) {
-//                        throw new ERException(String.format("strong entity (%s) must have one primary key", entity.getName()));
-//                    }
+                    if (primaryKeyNum < 1) {
+                        throw new ERException(String.format("strong entity (%s) must have one primary key", entity.getName()));
+                    }
                     break;
                 case SUBSET:
                     if (primaryKeyNum != 0) {
