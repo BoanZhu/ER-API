@@ -354,9 +354,9 @@ public class Schema {
 //                    }
                     break;
                 case SUBSET:
-                    if (primaryKeyNum != 0) {
-                        throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
-                    }
+//                    if (primaryKeyNum != 0) {
+//                        throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
+//                    }
                     if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG) {
                         throw new ERException(String.format("subset (%s) must have a relying on strong entity", entity.getName()));
                     }
@@ -440,9 +440,9 @@ public class Schema {
 //                    }
                     break;
                 case SUBSET:
-                    if (primaryKeyNum != 0) {
-                        throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
-                    }
+//                    if (primaryKeyNum != 0) {
+//                        throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
+//                    }
                     if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG) {
                         throw new ERException(String.format("subset (%s) must have a relying on strong entity", entity.getName()));
                     }
