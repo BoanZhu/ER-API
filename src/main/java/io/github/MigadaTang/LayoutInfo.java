@@ -38,7 +38,8 @@ public class LayoutInfo {
      */
     private Double layoutY;
 
-    protected LayoutInfo(Long ID, Long belongObjID, BelongObjType belongObjType, Double layoutX, Double layoutY) {
+    public LayoutInfo(Long ID, Long belongObjID, BelongObjType belongObjType, Double layoutX,
+        Double layoutY) {
         this.ID = ID;
         this.belongObjID = belongObjID;
         this.belongObjType = belongObjType;

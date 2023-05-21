@@ -5,6 +5,7 @@ import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +30,8 @@ public class Reverse {
      * @throws DBConnectionException Exception that fail to read database information
      */
     public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
-            , String userName, String password) throws ParseException, DBConnectionException {
+            , String userName, String password)
+        throws ParseException, DBConnectionException, IOException {
         Schema schema;
         try {
             schema = relationSchemasToERModel(databaseType, hostname, portNum, databaseName, userName, password, null);
@@ -37,22 +39,28 @@ public class Reverse {
             throw new ParseException(e.getMessage());
         } catch (DBConnectionException e) {
             throw new DBConnectionException(e.getMessage());
+        } catch (IOException e) {
+            throw new IOException(e.getMessage());
         }
 
         return schema;
     }
 
     public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
-            , String userName, String password, String imageName) throws ParseException, DBConnectionException {
+            , String userName, String password, String imageName)
+        throws ParseException, DBConnectionException, IOException {
         String dbUrl = "";
         Schema schema;
         try {
             dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
             schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
+            GraphvizImplementation.useGraphviz(schema);
         } catch (ParseException e) {
             throw new ParseException(e.getMessage());
         } catch (DBConnectionException e) {
             throw new DBConnectionException(e.getMessage());
+        } catch (IOException e) {
+            throw new IOException(e.getMessage());
         }
 
         return schema;
