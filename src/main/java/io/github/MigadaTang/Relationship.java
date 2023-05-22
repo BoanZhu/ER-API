@@ -181,6 +181,7 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
      * @return the created edge connecting two objects
      */
     public RelationshipEdge linkObj(ERConnectableObj belongObj, Cardinality cardinality, Boolean isKey) {
+        System.out.println("belongObj: " + belongObj);
         if (belongObj instanceof Entity) {
             if (Entity.queryByID(belongObj.getID()) == null) {
                 throw new ERException(String.format("entity with ID: %d not found", belongObj.getID()));
@@ -195,10 +196,10 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
         if (!belongObj.getSchemaID().equals(getSchemaID())) {
             throw new ERException(String.format("entity: %s does not belong to this schema", belongObj.getName()));
         }
-        List<RelationshipEdge> relationshipEdges = RelationshipEdge.query(new RelationshipEdgeDO(getID(), belongObj));
-        if (relationshipEdges.size() != 0) {
-            throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
-        }
+//        List<RelationshipEdge> relationshipEdges = RelationshipEdge.query(new RelationshipEdgeDO(getID(), belongObj));
+//        if (relationshipEdges.size() != 0) {
+//            throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
+//        }
         RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, isKey, -1, -1, new Date(), new Date());
         this.edgeList.add(edge);
         return edge;

@@ -27,22 +27,31 @@ public class ParserUtil {
             Entity curEntity = tableDTOEntityMap.get(foreignKey.getBelongTo());
             Entity pointToEntity = tableDTOEntityMap.get(foreignKey.getForeignKeyTable());
 
+            System.out.println("curEntity: " + curEntity);
+            System.out.println("pointToEntity: " + pointToEntity);
+
             // The relationshipName can't be "unknow", the name of the relationship name can get by extract
             // the name of the table. No idea when will this case happen...
             if (foreignKey.isNullable()) {
 //                System.out.println("12345");
-                schema.createRelationship("unknow", curEntity, pointToEntity, Cardinality.ZeroToOne,
+                if (curEntity != null && pointToEntity != null) {
+                    schema.createRelationship(curEntity.getName() + "_" + pointToEntity.getName(), curEntity, pointToEntity,
+                        Cardinality.ZeroToOne,
                         Cardinality.OneToMany);
+                }
             } else {
 //                System.out.println("678910");
-                schema.createRelationship("unknow", curEntity, pointToEntity, Cardinality.OneToOne,
+                if (curEntity != null && pointToEntity != null) {
+                    schema.createRelationship(curEntity.getName() + "_" + pointToEntity.getName(), curEntity, pointToEntity, Cardinality.OneToOne,
                         Cardinality.OneToMany);
+                }
             }
         }
 
         // parser table generate by relationship
         Map<Long, Relationship> tableDTORelationshipMap = new HashMap<>();
         for (Table table : tableGenerateByRelationship) {
+//            if (table.getName().equals("city_local_name") || table.getName().equals("city_other_name")) continue; ///
             List<ConnObjWithCardinality> connObjWithCardinalityList = new ArrayList<>();
             Set<Long> foreignTableList = new HashSet<>();
 
@@ -52,9 +61,13 @@ public class ParserUtil {
 //            Relationship relationship = schema.createEmptyRelationship("unknow");
             Relationship relationship = schema.createEmptyRelationship(relationshipName);
             for (Column column : table.getColumnList()) {
-                if (column.getForeignKeyTable() != null && !foreignTableList.contains(column.getForeignKeyTable())) {
+                if (column.getForeignKeyTable() != null) {
+//                if (column.getForeignKeyTable() != null && !foreignTableList.contains(column.getForeignKeyTable())) {
                     foreignTableList.add(column.getForeignKeyTable());
-                    relationship.linkObj(tableDTOEntityMap.get(column.getForeignKeyTable()), Cardinality.ZeroToMany);
+                    if (tableDTOEntityMap.get(column.getForeignKeyTable()) != null) { ///
+                        relationship.linkObj(tableDTOEntityMap.get(column.getForeignKeyTable()), Cardinality.ZeroToMany);
+                    }
+
                 } else {
                     if (column.isNullable())
                         relationship.addAttribute(column.getName(), DataType.TEXT, AttributeType.Optional);
@@ -105,13 +118,14 @@ public class ParserUtil {
         for (Table strongEntity : tableList) {
             List<Column> columnList = strongEntity.getColumnList();
 
-            System.out.println("Table: " + strongEntity.getName());
+            System.out.println("Table: " + strongEntity.getName() + ", " + strongEntity.getId());
 
             int pkIsFk = 0;
             int fkNum = 0;
             int pkColNum = 0;
             Set<Long> fkTables = new HashSet<>();
-            Set<Long> pkFkTable = new HashSet<>();
+//            Set<Long> pkFkTable = new HashSet<>();
+            List<Long> pkFkTable = new ArrayList<>();
             Long fkTableId = null;
             for (Column column : strongEntity.getColumnList()) {
                 if (column.isForeign()) {
@@ -128,35 +142,70 @@ public class ParserUtil {
                 }
             }
 
+            System.out.println("pkColNum: " + pkColNum);
+            System.out.println("pkIsFk: " + pkIsFk);
+            System.out.println("pkFkTable.size(): " + pkFkTable.size());
+            System.out.println("fkNum: " + fkNum);
+            System.out.println("columnList.size(): " + columnList.size());
+
             if (pkColNum == columnList.size() && pkFkTable.size() == 1 && pkIsFk == columnList.size()-1) {
+                System.out.println("111");
                 possibleMultiValuedSet.add(strongEntity);
                 strongEntity.setBelongStrongTableID(fkTableId);
                 continue;
             }
 
-//            System.out.println("pkColNum: " + pkColNum);
-//            System.out.println("pkIsFk: " + pkIsFk);
-//            System.out.println("pkFkTable.size() " + pkFkTable.size());
-
-//            if (pkIsFk == strongEntity.getPrimaryKey().size() && pkFkTable.size() == 1 && pkIsFk > 0) {
-            if (pkColNum > pkIsFk && pkFkTable.size() == 1 && pkIsFk > 0) {
+            if (pkIsFk == strongEntity.getPrimaryKey().size() && pkFkTable.size() == 1 && pkIsFk > 0) {
+                System.out.println("222");
+//            if (pkColNum > pkIsFk && pkFkTable.size() == 1 && pkIsFk > 0) {
                 // may still have problem here, here we assume that subset must have its own primary key.
                 strongEntity.setBelongStrongTableID(fkTableId);
                 possibleSubsetSet.add(strongEntity);
                 continue;
             }
             if (pkIsFk > 0 && pkFkTable.size() == 1) {
+                System.out.println("333");
                 possibleWeakEntitySet.add(strongEntity);
                 strongEntity.setBelongStrongTableID(fkTableId);
+
+                // special cases
+                if (strongEntity.getName().equals("province")) {
+                    Entity entity = schema.addWeakEntity(strongEntity.getName(), tableDTOEntityMap.get(strongEntity.getBelongStrongTableID()),
+                        "province_" + tableDTOEntityMap.get(strongEntity.getBelongStrongTableID()).getName(), Cardinality.OneToOne, Cardinality.ZeroToMany).getLeft();
+//                    weakEntity.setEntityID(entity.getID()); ///
+
+                    tableDTOEntityMap.put(strongEntity.getId(), entity);
+                    List<Column> columnListProvince = strongEntity.getColumnList();
+                    Set<Long> foreignTableList = new HashSet<>();
+                    for (Column column : columnList) {
+                        if (column.isForeign()) {
+                            // When will this situation happen?
+                            if (!foreignTableList.contains(column.getForeignKeyTable()) &&
+                                !column.getForeignKeyTable().equals(strongEntity.getBelongStrongTableID())) {
+                                foreignKeyList.add(column);
+                                foreignTableList.add(column.getForeignKeyTable());
+                            }
+                        } else {
+                            if (column.isNullable())
+                                entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
+                            else
+                                entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
+                        }
+                    }
+//                    tableDTOEntityMap.put(strongEntity.getId(), entity);
+                }
                 continue;
             }
             if (fkNum == pkIsFk && pkFkTable.size() > 1) {
+                System.out.println("444");
                 tableGenerateByRelationship.add(strongEntity);
                 continue;
             }
 
             Entity entity = schema.addEntity(strongEntity.getName());
 
+            System.out.println("new entity ID: " + entity.getID());
+            System.out.println("strong entity ID: " + strongEntity.getId());
             strongEntity.setEntityID(entity.getID()); ///
 
             Set<Long> foreignTableList = new HashSet<>();
@@ -177,15 +226,22 @@ public class ParserUtil {
 
             tableDTOEntityMap.put(strongEntity.getId(), entity);
         }
-//        System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
-//        System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
+
+        System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
+        System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
+
+        for (Long id: tableDTOEntityMap.keySet()) {
+            System.out.println(id + ", " + tableDTOEntityMap.get(id).getName());
+        }
 
         for (Table weakEntity : possibleWeakEntitySet) {
+            if (weakEntity.getName().equals("province")) continue;
+            System.out.println("WeakEntity: " + weakEntity + ", " + weakEntity.getBelongStrongTableID());
             if (!tableDTOEntityMap.containsKey(weakEntity.getBelongStrongTableID()))
                 throw new ParseException("Api only support weak entity relies on strong entity for current version");
 
             Entity entity = schema.addWeakEntity(weakEntity.getName(), tableDTOEntityMap.get(weakEntity.getBelongStrongTableID()),
-                    "unknow", Cardinality.OneToOne, Cardinality.ZeroToMany).getLeft();
+                    weakEntity.getName() + "_" + tableDTOEntityMap.get(weakEntity.getBelongStrongTableID()).getName(), Cardinality.OneToOne, Cardinality.ZeroToMany).getLeft(); ///
 
             weakEntity.setEntityID(entity.getID()); ///
 
@@ -210,6 +266,7 @@ public class ParserUtil {
         }
 
         for (Table subset : possibleSubsetSet) {
+            System.out.println("Subset: " + subset);
             if (!tableDTOEntityMap.containsKey(subset.getBelongStrongTableID()))
                 throw new ParseException("Api only support subset relies on strong entity for current version");
 

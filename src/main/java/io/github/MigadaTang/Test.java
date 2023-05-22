@@ -35,31 +35,31 @@ public class Test {
       throws DBConnectionException, ParseException, SQLException, IOException {
     System.out.println("Try to test database connection!");
     ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
-//    testReverseEngineer();
+    testReverseEngineer();
 
-    Schema example = ER.createSchema("Test Layout");
-    Entity A = example.addEntity("A");
-    A.addPrimaryKey("name", DataType.TEXT);
-
-    Entity B = example.addEntity("B");
-    B.addPrimaryKey("pname", DataType.TEXT);
-
-    Entity C = example.addEntity("C");
-    Entity D = example.addEntity("D");
-    Entity E = example.addEntity("E");
-    Entity F = example.addEntity("F");
-    Entity G = example.addEntity("G");
-    Entity H = example.addEntity("H");
-
-    Relationship AB = example.createRelationship("AB", A, B, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-    Relationship AC = example.createRelationship("AC", A, C, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-    Relationship AD = example.createRelationship("AD", A, D, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-    Relationship BE = example.createRelationship("BE", B, E, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-    Relationship EF = example.createRelationship("EF", E, F, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-    Relationship EH = example.createRelationship("EH", E, H, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-    Relationship CG = example.createRelationship("CG", C, G, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-
-    useGraphviz(example);
+//    Schema example = ER.createSchema("Test Layout");
+//    Entity A = example.addEntity("A");
+//    A.addPrimaryKey("name", DataType.TEXT);
+//
+//    Entity B = example.addEntity("B");
+//    B.addPrimaryKey("pname", DataType.TEXT);
+//
+//    Entity C = example.addEntity("C");
+//    Entity D = example.addEntity("D");
+//    Entity E = example.addEntity("E");
+//    Entity F = example.addEntity("F");
+//    Entity G = example.addEntity("G");
+//    Entity H = example.addEntity("H");
+//
+//    Relationship AB = example.createRelationship("AB", A, B, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+//    Relationship AC = example.createRelationship("AC", A, C, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+//    Relationship AD = example.createRelationship("AD", A, D, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+//    Relationship BE = example.createRelationship("BE", B, E, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+//    Relationship EF = example.createRelationship("EF", E, F, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+//    Relationship EH = example.createRelationship("EH", E, H, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+//    Relationship CG = example.createRelationship("CG", C, G, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
+//
+//    useGraphviz(example);
     System.out.println("Test finished!");
   }
 
@@ -74,6 +74,7 @@ public class Test {
     Reverse reverse = new Reverse();
 
     Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "");
+//    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "mondial", "lab", "lab");
 //    for (Entity entity: schema.getEntityList()) {
 //      System.out.println("Entity: " + entity.getEntityType());
 //    }
@@ -86,7 +87,8 @@ public class Test {
 //    String JSON = schema.toRenderJSON();
 //    System.out.println("JSON: " + JSON);
 
-    GraphvizImplementation.useGraphviz(schema);
+//    GraphvizImplementation.useGraphviz(schema);
+    useGraphviz(schema);
     for (Entity entity: schema.getEntityList()) {
       System.out.println(entity.getName() + " " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
     }
@@ -282,10 +284,12 @@ public class Test {
 
     List<Node> nodeList = new ArrayList<>();
     for (Entity entity: schema.getEntityList()) {
+      System.out.println("entity: " + entity);
       Node node = node(entity.getName()).with(Shape.RECTANGLE);
       nodeList.add(node);
     }
     for (Relationship relationship: schema.getRelationshipList()) {
+      System.out.println("relationship: " + relationship);
       Node node = node(relationship.getName()).with(Shape.DIAMOND);
       nodeList.add(node);
     }
@@ -304,15 +308,15 @@ public class Test {
       }
     }
 
-    g.with(node("abcde").link("12345"));
     System.out.println(g);
 
     // render the graph into png.
-    Graphviz.fromGraph(g).engine(Engine.NEATO).width(1200).height(1200).render(Format.PNG).toFile(new File("example/ex2.png"));
+    Graphviz.fromGraph(g).engine(Engine.NEATO).width(2400).height(2400).render(Format.PNG).toFile(new File("example/ex2.png"));
 
     // render the graph into Json format so that we can extract the position information.
-    String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).width(1200).height(1200).render(Format.JSON).toString();
+    String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).width(2400).height(2400).render(Format.JSON).toString();
     JSONObject jsonObject = new JSONObject(jsonString);
+    System.out.println(jsonObject);
     System.out.println("-----------------");
 
     // Extract the layout information from the Json object.
@@ -338,11 +342,30 @@ public class Test {
 
     // Firstly, initialise the grid with zero.
     int numOfEntities = schema.getEntityList().size() - 1;
+    if (numOfEntities < 3) {
+      numOfEntities = 3;
+    } else if (3 < numOfEntities && numOfEntities <= 5) {
+      numOfEntities = 5;
+    } else if (5 < numOfEntities && numOfEntities <= 7) {
+      numOfEntities = 7;
+    } else if (7 < numOfEntities && numOfEntities <= 9){
+      numOfEntities = 9;
+    } else {
+      numOfEntities = 11;
+    }
     String[][] grid = new String[numOfEntities][numOfEntities];
     for (int i = 0; i < numOfEntities; i++) {
       for (int j = 0; j < numOfEntities; j++) {
         grid[i][j] = "*";
       }
+    }
+
+    System.out.println("================");
+    for (int i = 0; i < numOfEntities; i++) {
+      for (int j = 0; j < numOfEntities; j++) {
+        System.out.print(grid[i][j] + ", ");
+      }
+      System.out.println();
     }
 
     // e.g largestX = 709, so finalWidth = ((709 / 100) + 1) * 100 = 800.
@@ -361,14 +384,14 @@ public class Test {
 
     for (Entity entity: schema.getEntityList()) {
       LayoutInfo layoutInfo = entity.getLayoutInfo();
-      double x = layoutInfo.getLayoutX();
-      double y = layoutInfo.getLayoutY();
+      double x = layoutInfo != null ? layoutInfo.getLayoutX() : 100;
+      double y = layoutInfo != null ? layoutInfo.getLayoutY() : 100;
       int[] point = findNearestGridPoint(grid, x, y, finalWidth, finalHeight, entity.getName());
       points.add(point);
     }
 
     for (int[] point: points) {
-      System.out.println(point[0] + ", " + point[1]);
+      System.out.println("point: " + point[0] + ", " + point[1]);
     }
 
     for (int i = 0; i < numOfEntities; i++) {
@@ -380,7 +403,7 @@ public class Test {
 
     reverseByY(grid);
 //    leftRotate(grid);
-    System.out.println("----------------------");
+    System.out.println("==============");
     for (int i = 0; i < numOfEntities; i++) {
       for (int j = 0; j < numOfEntities; j++) {
         System.out.print(grid[i][j] + ", ");
@@ -390,8 +413,8 @@ public class Test {
 
     // Thirdly, we need to map the grid point into actual position layouts.
     String[][] finalGridPositions = new String[numOfEntities][numOfEntities];
-    int gridWidth = 1000;
-    int gridHeight = 1000;
+    int gridWidth = numOfEntities <= 10 ? 1000 : 2000;
+    int gridHeight = numOfEntities <= 10 ? 1000 : 2000;
     int widthPerGrid = gridWidth / (numOfEntities + 2);
     int heightPerGrid = gridHeight / (numOfEntities + 2);
     for (int i = 0; i < numOfEntities; i++) {
@@ -458,7 +481,8 @@ public class Test {
   public static double findWidth(List<Entity> entities) {
     double largestX = 0;
     for (Entity entity: entities) {
-      if (entity.getLayoutInfo().getLayoutX() > largestX) {
+      System.out.println("Entity: " + entity.getName() + ", " + entity.getLayoutInfo());
+      if (entity.getLayoutInfo() != null && entity.getLayoutInfo().getLayoutX() > largestX) {
         largestX = entity.getLayoutInfo().getLayoutX();
       }
     }
@@ -468,7 +492,7 @@ public class Test {
   public static double findHeight(List<Entity> entities) {
     double largestY = 0;
     for (Entity entity: entities) {
-      if (entity.getLayoutInfo().getLayoutY() > largestY) {
+      if (entity.getLayoutInfo() != null && entity.getLayoutInfo().getLayoutY() > largestY) {
         largestY = entity.getLayoutInfo().getLayoutY();
       }
     }
