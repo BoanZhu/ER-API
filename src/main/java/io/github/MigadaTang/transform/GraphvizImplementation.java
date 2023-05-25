@@ -5,6 +5,7 @@ import static guru.nidi.graphviz.model.Factory.*;
 import static guru.nidi.graphviz.model.Link.to;
 
 import guru.nidi.graphviz.attribute.Font;
+import guru.nidi.graphviz.attribute.GraphAttr;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -27,75 +28,12 @@ import org.json.JSONObject;
 
 public class GraphvizImplementation {
 
-//  public static void useGraphviz(Schema schema) throws IOException {
-//    Graph g = graph(schema.getName())
-//        .nodeAttr().with(Font.name("arial"))
-//        .linkAttr().with("class", "link-class");
-//
-//    List<Node> nodeList = new ArrayList<>();
-//    for (Entity entity: schema.getEntityList()) {
-//      Node node = node(entity.getName()).with(Shape.RECTANGLE).with(attr("height", 1));
-//      nodeList.add(node);
-//    }
-//    for (Relationship relationship: schema.getRelationshipList()) {
-//      Node node = node(relationship.getName()).with(Shape.DIAMOND);
-//      nodeList.add(node);
-//    }
-//
-//    for (Node node: nodeList) {
-//      System.out.println(node);
-//    }
-//
-//    for (Relationship relationship: schema.getRelationshipList()) {
-//      Node relationshipNode = findNode(relationship.getName(), nodeList);
-//      for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
-//        String nodeName = relationshipEdge.getConnObj().getName();
-//        Node node = findNode(nodeName, nodeList);
-//        System.out.println("relationshipNode: " + relationshipNode + ", node: " + node);
-//        g = g.with(node.link(to(relationshipNode)));
-//      }
-//    }
-//
-//    // render the graph into png.
-////    Graphviz.fromGraph(g).engine(Engine.NEATO).width(1200).height(1200).render(
-////        Format.PNG).toFile(new File("example/ex2.png"));
-//
-//    // render the graph into Json format so that we can extract the position information.
-//    Graphviz viz = Graphviz.fromGraph(g);
-//    Graphviz.useEngine(new GraphvizV8Engine());
-//    String jsonString = viz.engine(Engine.NEATO).width(1200).height(1200).render(Format.JSON).toString();
-//    JSONObject jsonObject = new JSONObject(jsonString);
-//    System.out.println("-----------------");
-//
-//    // Extract the layout information from the Json object.
-//    for (Object node: (JSONArray) jsonObject.get("objects")) {
-////      System.out.println("name: " + ((JSONObject ) node).get("name") + ", pos: " + ((JSONObject ) node).get("pos"));
-//      String[] pos = ((JSONObject ) node).get("pos").toString().split(",");
-//
-//      for (Entity entity: schema.getEntityList()) {
-//        if (entity.getName().equals(((JSONObject ) node).get("name"))) {
-//          entity.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), entity.getID(),
-//              BelongObjType.ENTITY, Math.floor(Double.parseDouble(pos[0])), Math.floor(Double.parseDouble(pos[1]))));
-////          System.out.println(entity.getName() + " " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
-//        }
-//      }
-//
-//      for (Relationship relationship: schema.getRelationshipList()) {
-//        if (relationship.getName().equals(((JSONObject ) node).get("name"))) {
-//          relationship.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), relationship.getID(),
-//              BelongObjType.RELATIONSHIP, Math.floor(Double.parseDouble(pos[0])), Math.floor(Double.parseDouble(pos[1]))));
-////          System.out.println(relationship.getName() + " " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
-//        }
-//      }
-//
-//    }
-//
-//  }
-
   public static void useGraphviz(Schema schema) throws IOException {
 
     Graph g = graph(schema.getName())
-        .nodeAttr().with(Font.name("arial"))
+        .graphAttr().with(GraphAttr.sizeMax(5000, 5000))
+//        .nodeAttr().with(Font.name("arial"))
+        .nodeAttr().with(Font.size(7))
         .linkAttr().with("class", "link-class");
 
     List<Node> nodeList = new ArrayList<>();
@@ -117,37 +55,59 @@ public class GraphvizImplementation {
       }
     }
 
-    g.with(node("abcde").link("12345"));
-
     // render the graph into png.
     Graphviz.useEngine(new GraphvizV8Engine());
 //    Graphviz.fromGraph(g).engine(Engine.NEATO).width(1200).height(1200).render(Format.PNG).toFile(new File("example/ex2.png"));
 
     // render the graph into Json format so that we can extract the position information.
-    Graphviz.fromGraph(g).engine(Engine.NEATO).width(2400).height(2400).render(Format.PNG).toFile(new File("example/ex2.png"));
+    Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.PNG).toFile(new File("example/ex4.png"));
 
     // render the graph into Json format so that we can extract the position information.
     String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).width(2400).height(2400).render(Format.JSON).toString();
     JSONObject jsonObject = new JSONObject(jsonString);
-    System.out.println(jsonObject);
+//    System.out.println(jsonObject);
 
     // Extract the layout information from the Json object.
     for (Object node: (JSONArray) jsonObject.get("objects")) {
       String[] pos = ((JSONObject ) node).get("pos").toString().split(",");
+      boolean find = false;
+
+      String nodeName = (String) ((JSONObject ) node).get("name");
+
       for (Entity entity: schema.getEntityList()) {
-        if (entity.getName().equals(((JSONObject ) node).get("name"))) {
+        String entityName = entity.getName();
+        if (entityName.equals(nodeName)) {
+          find = true;
+
           entity.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), entity.getID(),
               BelongObjType.ENTITY, Math.floor(Double.parseDouble(pos[0])), Math.floor(Double.parseDouble(pos[1]))));
-        }
-      }
-      for (Relationship relationship: schema.getRelationshipList()) {
-        if (relationship.getName().equals(((JSONObject ) node).get("name"))) {
-          relationship.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), relationship.getID(),
-              BelongObjType.RELATIONSHIP, Math.floor(Double.parseDouble(pos[0])), Math.floor(Double.parseDouble(pos[1]))));
+          break;
         }
       }
 
+      if (find) {
+        continue;
+      }
+      for (Relationship relationship: schema.getRelationshipList()) {
+        String relationshipName = relationship.getName();
+
+        if (relationshipName.equals(nodeName)) {
+          find = true;
+
+          relationship.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), relationship.getID(),
+              BelongObjType.RELATIONSHIP, Math.floor(Double.parseDouble(pos[0])), Math.floor(Double.parseDouble(pos[1]))));
+          break;
+        }
+      }
+//      if (!find) {
+//        System.out.println("!!!!!!!!!!!!! Can't find node: " + ((JSONObject ) node).get("name"));
+//      }
     }
+
+//    System.out.println("---------------------------------");
+//    System.out.println("entities size: " + schema.getEntityList().size());
+//    System.out.println("relationships size: " + schema.getRelationshipList().size());
+//    System.out.println("nodes size: " + nodeList.size());
 
     // Firstly, initialise the grid with zero.
     int numOfEntities = schema.getEntityList().size() - 1;
@@ -178,10 +138,16 @@ public class GraphvizImplementation {
     List<int[]> points = new ArrayList<>();
     for (Relationship relationship: schema.getRelationshipList()) {
       LayoutInfo layoutInfo = relationship.getLayoutInfo();
-      double x = layoutInfo.getLayoutX();
-      double y = layoutInfo.getLayoutY();
+      double x = layoutInfo != null ? layoutInfo.getLayoutX() : 100;
+      double y = layoutInfo != null ? layoutInfo.getLayoutY() : 100;
       int[] point = findNearestGridPoint(grid, x, y, finalWidth, finalHeight, relationship.getName());
       points.add(point);
+
+      System.out.println("RELATIONSHIP: " + relationship.getName() + ", edges size: " + relationship.getEdgeList().size());
+      for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
+        System.out.println("edge: " + relationshipEdge.getConnObj().getName());
+      }
+
     }
 
     for (Entity entity: schema.getEntityList()) {
@@ -196,8 +162,10 @@ public class GraphvizImplementation {
 
     // Thirdly, we need to map the grid point into actual position layouts.
     String[][] finalGridPositions = new String[numOfEntities][numOfEntities];
-    int gridWidth = numOfEntities <= 10 ? 1000 : 2000;
-    int gridHeight = numOfEntities <= 10 ? 1000 : 2000;
+//    int gridWidth = numOfEntities <= 10 ? 1000 : 2000;
+    int gridWidth = 2000;
+//    int gridHeight = numOfEntities <= 10 ? 1000 : 2000;
+    int gridHeight = 2000;
     int widthPerGrid = gridWidth / (numOfEntities + 2);
     int heightPerGrid = gridHeight / (numOfEntities + 2);
     for (int i = 0; i < numOfEntities; i++) {
@@ -210,27 +178,39 @@ public class GraphvizImplementation {
       for (int j = 0; j < numOfEntities; j++) {
         if (!grid[i][j].equals("*")) {
           String name = grid[i][j];
+          boolean find = false;
           for (Entity entity: schema.getEntityList()) {
             if (entity.getName().equals(name)) {
+              find = true;
               String[] position = finalGridPositions[i][j].split(",");
               double x = Double.parseDouble(position[0]);
               double y = Double.parseDouble(position[1]);
               entity.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), entity.getID(), BelongObjType.ENTITY,
                   x, y));
+//              System.out.println("layoutInfo entity: " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
               break;
             }
           }
 
+          if (find) {
+            continue;
+          }
+
           for (Relationship relationship: schema.getRelationshipList()) {
             if (relationship.getName().equals(name)) {
+              find = true;
               String[] position = finalGridPositions[i][j].split(",");
               double x = Double.parseDouble(position[0]);
               double y = Double.parseDouble(position[1]);
               relationship.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), relationship.getID(), BelongObjType.RELATIONSHIP,
                   x, y));
+//              System.out.println("layoutInfo relationship: " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
               break;
             }
           }
+//          if (!find) {
+//            System.out.println("cannot find: " + grid[i][j]);
+//          }
         }
       }
     }
@@ -249,7 +229,7 @@ public class GraphvizImplementation {
   public static double findWidth(List<Entity> entities) {
     double largestX = 0;
     for (Entity entity: entities) {
-      System.out.println("Entity: " + entity.getName() + ", " + entity.getLayoutInfo());
+//      System.out.println("Entity: " + entity.getName() + ", " + entity.getLayoutInfo());
       if (entity.getLayoutInfo() != null && entity.getLayoutInfo().getLayoutX() > largestX) {
         largestX = entity.getLayoutInfo().getLayoutX();
       }

@@ -371,9 +371,9 @@ public class Schema {
                     throw new ERException(String.format("attribute (%s) of relationship (%s) cannot be primary key", attribute.getName(), relationship.getName()));
                 }
             }
-            if (relationship.getEdgeList().size() < 2) {
-                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
-            }
+//            if (relationship.getEdgeList().size() < 2) {
+//                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
+//            }
             // check if this is a duplicated relationship in which all the objects have already been connected
             List<ERConnectableObj> belongObjList = new ArrayList<>();
             for (RelationshipEdge edge : relationship.getEdgeList()) {
@@ -457,9 +457,9 @@ public class Schema {
                     throw new ERException(String.format("attribute (%s) of relationship (%s) cannot be primary key", attribute.getName(), relationship.getName()));
                 }
             }
-            if (relationship.getEdgeList().size() < 2) {
-                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
-            }
+//            if (relationship.getEdgeList().size() < 2) {
+//                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
+//            }
             // check if this is a duplicated relationship in which all the objects have already been connected
             List<ERConnectableObj> belongObjList = new ArrayList<>();
             for (RelationshipEdge edge : relationship.getEdgeList()) {
@@ -557,7 +557,14 @@ public class Schema {
      * @return a json string that can be rendered by html
      */
     public String toRenderJSON() {
-        sanityCheck();
+//        sanityCheck();
+        System.out.println("====================");
+        for (Relationship relationship: relationshipList) {
+            System.out.println("relationship name: " + relationship.getName());
+            for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
+                System.out.println("relationshipEdge name: " + relationshipEdge.getConnObj().getName());
+            }
+        }
         SimpleModule module = new SimpleModule();
         module.addSerializer(Schema.class, new SchemaSerializer(true));
         module.addSerializer(Entity.class, new EntitySerializer(true));

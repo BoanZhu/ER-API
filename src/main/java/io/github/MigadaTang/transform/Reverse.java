@@ -55,6 +55,8 @@ public class Reverse {
             dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
             schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
             GraphvizImplementation.useGraphviz(schema);
+            String json = schema.toRenderJSON();
+            System.out.println(json);
         } catch (ParseException e) {
             throw new ParseException(e.getMessage());
         } catch (DBConnectionException e) {

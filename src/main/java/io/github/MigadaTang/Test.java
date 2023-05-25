@@ -88,7 +88,7 @@ public class Test {
 //    System.out.println("JSON: " + JSON);
 
 //    GraphvizImplementation.useGraphviz(schema);
-    useGraphviz(schema);
+//    useGraphviz(schema);
     for (Entity entity: schema.getEntityList()) {
       System.out.println(entity.getName() + " " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
     }
