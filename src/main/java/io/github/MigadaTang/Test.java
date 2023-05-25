@@ -89,13 +89,13 @@ public class Test {
 
 //    GraphvizImplementation.useGraphviz(schema);
 //    useGraphviz(schema);
-    for (Entity entity: schema.getEntityList()) {
-      System.out.println(entity.getName() + " " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
-    }
-
-    for (Relationship relationship: schema.getRelationshipList()) {
-      System.out.println(relationship.getName() + " " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
-    }
+//    for (Entity entity: schema.getEntityList()) {
+//      System.out.println(entity.getName() + " " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
+//    }
+//
+//    for (Relationship relationship: schema.getRelationshipList()) {
+//      System.out.println(relationship.getName() + " " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
+//    }
 
   }
 

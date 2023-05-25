@@ -13,6 +13,7 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.GraphvizV8Engine;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
+import io.github.MigadaTang.Attribute;
 import io.github.MigadaTang.Entity;
 import io.github.MigadaTang.LayoutInfo;
 import io.github.MigadaTang.Relationship;
@@ -215,6 +216,85 @@ public class GraphvizImplementation {
       }
     }
 
+    // At the end, we need to set the positions of all the attributes.
+    for (Entity entity: schema.getEntityList()) {
+
+//      boolean whetherOnTheSides = false;
+      boolean onTheLeft = false;
+      boolean onTheRight = false;
+      for (int i = 0; i < numOfEntities; i++) {
+        for (int j = 0; j < numOfEntities; j++) {
+          if (grid[i][j].equals(entity.getName())) {
+            // check whether the entity is on the sides of the grid.
+            if (i == 0 || grid[i - 1][j].equals("*")) {
+              onTheLeft = true;
+              break;
+            }
+            if (i == numOfEntities - 1 || grid[i + 1][j].equals("*")) {
+              onTheRight = true;
+              break;
+            }
+            break;
+          }
+        }
+      }
+
+      double entityX = entity.getLayoutInfo().getLayoutX();
+      double entityY = entity.getLayoutInfo().getLayoutY();
+      int numOfAttributes = entity.getAttributeList().size();
+
+      List<Double> positions = generateAttributePositions(numOfAttributes);
+      List<List<Double>> positionsAround = generateAttributePositionsAround(entityX, entityY, numOfAttributes);
+      int index = 0;
+      for (Attribute attribute: entity.getAttributeList()) {
+
+        // If the entity is on the sides of the grid, the attributes should also on the sides of the grid.
+        // Otherwise, the attributes should put around the entity.
+        if (onTheLeft) {
+          double x = entityX - 60;
+          double y = entityY + positions.get(index);
+          attribute.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), attribute.getID(), BelongObjType.ATTRIBUTE,
+              x, y));
+        } else if (onTheRight) {
+          double x = entityX + 100 + 60;
+          double y = entityY + positions.get(index);
+          attribute.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), attribute.getID(), BelongObjType.ATTRIBUTE,
+              x, y));
+        } else {
+          List<Double> position = positionsAround.get(index);
+          double x = position.get(0);
+          double y = position.get(1);
+          attribute.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), attribute.getID(), BelongObjType.ATTRIBUTE,
+              x, y));
+        }
+
+        index++;
+      }
+    }
+
+    for (Relationship relationship: schema.getRelationshipList()) {
+      double relationshipX = relationship.getLayoutInfo().getLayoutX();
+      double relationshipY = relationship.getLayoutInfo().getLayoutY();
+      int numOfAttributes = relationship.getAttributeList().size();
+      List<List<Double>> positionsAround = generateAttributePositionsAround(relationshipX, relationshipY, numOfAttributes);
+
+      int index = 0;
+      for (Attribute attribute: relationship.getAttributeList()) {
+        List<Double> position = positionsAround.get(index);
+        double x = position.get(0);
+        double y = position.get(1);
+        attribute.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), attribute.getID(), BelongObjType.ATTRIBUTE,
+            x, y));
+        index++;
+      }
+    }
+
+    for (Entity entity: schema.getEntityList()) {
+      System.out.println(entity.getName() + ": " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
+    }
+    for (Relationship relationship: schema.getRelationshipList()) {
+      System.out.println(relationship.getName() + ": " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
+    }
   }
 
   public static Node findNode(String nodeName, List<Node> nodeList) {
@@ -291,6 +371,45 @@ public class GraphvizImplementation {
         high--;
       }
     }
+  }
+
+  public static List<Double> generateAttributePositions(int numOfAttributes) {
+    List<Double> positions = new ArrayList<>();
+    int scale = (numOfAttributes - 1) / 2;
+    double startPoint = 20 - 20 * scale;
+    for (int i = 0; i < numOfAttributes; i++) {
+      positions.add(startPoint + i * 20);
+    }
+    return positions;
+  }
+
+  public static List<List<Double>> generateAttributePositionsAround(double entityX, double entityY, int numOfAttributes) {
+    List<List<Double>> positions = new ArrayList<>();
+    int bottomNums = numOfAttributes / 2;
+    int topNums = numOfAttributes - bottomNums;
+
+    int scaleTop = topNums / 2;
+    int scaleBottom = bottomNums / 2;
+    double startPointTop = entityX + 50 + (-50) * scaleTop;
+    double startPointBottom = entityX + 50 + (-50) * scaleBottom;
+
+    for (int i = 0; i < topNums; i++) {
+      List<Double> position = new ArrayList<>();
+      double x = startPointTop + 50 * i;
+      double y = entityY - 40;
+      position.add(x);
+      position.add(y);
+      positions.add(position);
+    }
+    for (int i = 0; i < bottomNums; i++) {
+      List<Double> position = new ArrayList<>();
+      double x = startPointBottom + 50 * i;
+      double y = entityY + 50 + 40;
+      position.add(x);
+      position.add(y);
+      positions.add(position);
+    }
+    return positions;
   }
 
 }
