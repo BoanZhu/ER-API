@@ -32,10 +32,11 @@ public class GraphvizImplementation {
   public static void useGraphviz(Schema schema) throws IOException {
 
     Graph g = graph(schema.getName())
-        .graphAttr().with(GraphAttr.sizeMax(5000, 5000))
+//        .graphAttr().with(GraphAttr.sizePreferred())
+//        .graphAttr().with(GraphAttr.sizePreferred(1000))
 //        .nodeAttr().with(Font.name("arial"))
-        .nodeAttr().with(Font.size(7))
-        .linkAttr().with("class", "link-class");
+        .nodeAttr().with(Font.size(7));
+//        .linkAttr().with("class", "link-class");
 
     List<Node> nodeList = new ArrayList<>();
     for (Entity entity: schema.getEntityList()) {
@@ -61,12 +62,14 @@ public class GraphvizImplementation {
 //    Graphviz.fromGraph(g).engine(Engine.NEATO).width(1200).height(1200).render(Format.PNG).toFile(new File("example/ex2.png"));
 
     // render the graph into Json format so that we can extract the position information.
-    Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.PNG).toFile(new File("example/ex4.png"));
+//    Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.PNG).toFile(new File("example/ex1.png"));
 
     // render the graph into Json format so that we can extract the position information.
-    String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).width(2400).height(2400).render(Format.JSON).toString();
+    String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.JSON).toString();
     JSONObject jsonObject = new JSONObject(jsonString);
-//    System.out.println(jsonObject);
+    System.out.println("---------------------------");
+    System.out.println(g);
+    System.out.println(jsonObject);
 
     // Extract the layout information from the Json object.
     for (Object node: (JSONArray) jsonObject.get("objects")) {
@@ -112,16 +115,20 @@ public class GraphvizImplementation {
 
     // Firstly, initialise the grid with zero.
     int numOfEntities = schema.getEntityList().size() - 1;
+
+    int gridWidth = ((numOfEntities / 10) + 2) * 1000;
+    int gridHeight = ((numOfEntities / 10) + 2) * 1000;
+
     if (numOfEntities < 3) {
       numOfEntities = 3;
     } else if (3 < numOfEntities && numOfEntities <= 5) {
       numOfEntities = 5;
     } else if (5 < numOfEntities && numOfEntities <= 7) {
       numOfEntities = 7;
-    } else if (7 < numOfEntities && numOfEntities <= 9){
+    } else if (7 < numOfEntities && numOfEntities <= 10){
       numOfEntities = 9;
     } else {
-      numOfEntities = 11;
+      numOfEntities = schema.getEntityList().size() / 2 + 1; ///
     }
 
     String[][] grid = new String[numOfEntities][numOfEntities];
@@ -164,9 +171,9 @@ public class GraphvizImplementation {
     // Thirdly, we need to map the grid point into actual position layouts.
     String[][] finalGridPositions = new String[numOfEntities][numOfEntities];
 //    int gridWidth = numOfEntities <= 10 ? 1000 : 2000;
-    int gridWidth = 2000;
+//    gridWidth = 5000;
 //    int gridHeight = numOfEntities <= 10 ? 1000 : 2000;
-    int gridHeight = 2000;
+//    gridHeight = 5000;
     int widthPerGrid = gridWidth / (numOfEntities + 2);
     int heightPerGrid = gridHeight / (numOfEntities + 2);
     for (int i = 0; i < numOfEntities; i++) {
@@ -199,7 +206,6 @@ public class GraphvizImplementation {
 
           for (Relationship relationship: schema.getRelationshipList()) {
             if (relationship.getName().equals(name)) {
-              find = true;
               String[] position = finalGridPositions[i][j].split(",");
               double x = Double.parseDouble(position[0]);
               double y = Double.parseDouble(position[1]);
@@ -209,9 +215,6 @@ public class GraphvizImplementation {
               break;
             }
           }
-//          if (!find) {
-//            System.out.println("cannot find: " + grid[i][j]);
-//          }
         }
       }
     }
@@ -226,11 +229,11 @@ public class GraphvizImplementation {
         for (int j = 0; j < numOfEntities; j++) {
           if (grid[i][j].equals(entity.getName())) {
             // check whether the entity is on the sides of the grid.
-            if (i == 0 || grid[i - 1][j].equals("*")) {
+            if (i == 0 || whetherLeftist(grid, i, j)) {
               onTheLeft = true;
               break;
             }
-            if (i == numOfEntities - 1 || grid[i + 1][j].equals("*")) {
+            if (i == numOfEntities - 1 || whetherRightist(grid, i, j)) {
               onTheRight = true;
               break;
             }
@@ -410,6 +413,24 @@ public class GraphvizImplementation {
       positions.add(position);
     }
     return positions;
+  }
+
+  public static boolean whetherLeftist(String[][] grid, int i, int j) {
+    for (int x = i - 1; x >= 0; x--) {
+      if (!grid[x][j].equals("*")) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static boolean whetherRightist(String[][] grid, int i, int j) {
+    for (int x = i + 1; x < grid.length; x++) {
+      if (!grid[x][j].equals("*")) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }
