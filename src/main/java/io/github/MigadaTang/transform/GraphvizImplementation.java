@@ -20,6 +20,7 @@ import io.github.MigadaTang.Relationship;
 import io.github.MigadaTang.RelationshipEdge;
 import io.github.MigadaTang.Schema;
 import io.github.MigadaTang.common.BelongObjType;
+import io.github.MigadaTang.common.EntityType;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,19 +58,27 @@ public class GraphvizImplementation {
       }
     }
 
+    for (Entity entity: schema.getEntityList()) {
+      if (entity.getEntityType() == EntityType.SUBSET) {
+        Node subsetNode = findNode(entity.getName(), nodeList);
+        Node relyOnNode = findNode(entity.getBelongStrongEntity().getName(), nodeList);
+        g = g.with(subsetNode.link(to(relyOnNode)));
+      }
+    }
+
     // render the graph into png.
     Graphviz.useEngine(new GraphvizV8Engine());
-//    Graphviz.fromGraph(g).engine(Engine.NEATO).width(1200).height(1200).render(Format.PNG).toFile(new File("example/ex2.png"));
+//    Graphviz.fromGraph(g).engine(Engine.NEATO).width(2000).height(2000).render(Format.PNG).toFile(new File("example/ex7.png"));
 
     // render the graph into Json format so that we can extract the position information.
 //    Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.PNG).toFile(new File("example/ex1.png"));
 
     // render the graph into Json format so that we can extract the position information.
-    String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.JSON).toString();
+    String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).width(2000).height(2000).render(Format.JSON).toString();
     JSONObject jsonObject = new JSONObject(jsonString);
     System.out.println("---------------------------");
     System.out.println(g);
-    System.out.println(jsonObject);
+//    System.out.println(jsonObject);
 
     // Extract the layout information from the Json object.
     for (Object node: (JSONArray) jsonObject.get("objects")) {
@@ -96,16 +105,12 @@ public class GraphvizImplementation {
         String relationshipName = relationship.getName();
 
         if (relationshipName.equals(nodeName)) {
-          find = true;
 
           relationship.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), relationship.getID(),
               BelongObjType.RELATIONSHIP, Math.floor(Double.parseDouble(pos[0])), Math.floor(Double.parseDouble(pos[1]))));
           break;
         }
       }
-//      if (!find) {
-//        System.out.println("!!!!!!!!!!!!! Can't find node: " + ((JSONObject ) node).get("name"));
-//      }
     }
 
 //    System.out.println("---------------------------------");
@@ -151,10 +156,10 @@ public class GraphvizImplementation {
       int[] point = findNearestGridPoint(grid, x, y, finalWidth, finalHeight, relationship.getName());
       points.add(point);
 
-      System.out.println("RELATIONSHIP: " + relationship.getName() + ", edges size: " + relationship.getEdgeList().size());
-      for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
-        System.out.println("edge: " + relationshipEdge.getConnObj().getName());
-      }
+//      System.out.println("RELATIONSHIP: " + relationship.getName() + ", edges size: " + relationship.getEdgeList().size());
+//      for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
+//        System.out.println("edge: " + relationshipEdge.getConnObj().getName());
+//      }
 
     }
 
