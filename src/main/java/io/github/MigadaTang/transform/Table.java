@@ -7,6 +7,7 @@ import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.transform.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class Table {
     private Long id;
 
@@ -36,6 +38,8 @@ public class Table {
 
     private Long entityID;
 
+    private boolean reflexive;
+
     protected void tranformEntity(Entity entity) {
         this.id = entity.getID();
         this.name = entity.getName().trim().replaceAll(" ", "_");
@@ -44,6 +48,7 @@ public class Table {
         this.multiValuedColumn = new ArrayList<>();
         this.foreignKey = new HashMap<>();
         this.tableType = entity.getEntityType();
+        this.reflexive = false;
         if (entity.getBelongStrongEntity() != null) {
             this.belongStrongTableID = entity.getBelongStrongEntity().getID();
         }
@@ -66,5 +71,7 @@ public class Table {
         }
     }
 
-
+    public boolean getReflexive() {
+        return this.reflexive;
+    }
 }

@@ -29,16 +29,24 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
      * The list of edges connecting this relationship and other relationship or entities
      */
     private List<RelationshipEdge> edgeList;
+    /**
+     * The list of edges connecting this relationship and other relationship or entities
+     */
+    private boolean isReflexive;
 
-    protected Relationship(Long ID, String name, Long schemaID, List<Attribute> attributeList, List<RelationshipEdge> edgeList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
+    protected Relationship(Long ID, String name, Long schemaID, boolean isReflexive, List<Attribute> attributeList, List<RelationshipEdge> edgeList, LayoutInfo layoutInfo, Date gmtCreate, Date gmtModified) {
         super(ID, schemaID, name, BelongObjType.RELATIONSHIP, layoutInfo, gmtCreate, gmtModified);
         this.attributeList = attributeList;
         this.edgeList = edgeList;
+        this.isReflexive = isReflexive;
         if (getID() == 0) {
             setID(insertDB());
         }
     }
 
+    public void setReflexive(boolean isReflexive) {
+        this.isReflexive = isReflexive;
+    }
 
     private Long insertDB() {
         try {
@@ -181,7 +189,7 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
      * @return the created edge connecting two objects
      */
     public RelationshipEdge linkObj(ERConnectableObj belongObj, Cardinality cardinality, Boolean isKey) {
-        System.out.println("belongObj: " + belongObj);
+//        System.out.println("belongObj: " + belongObj);
         if (belongObj instanceof Entity) {
             if (Entity.queryByID(belongObj.getID()) == null) {
                 throw new ERException(String.format("entity with ID: %d not found", belongObj.getID()));
@@ -200,8 +208,30 @@ public class Relationship extends ERBaseObj implements ERConnectableObj {
 //        if (relationshipEdges.size() != 0) {
 //            throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
 //        }
+        List<RelationshipEdge> relationshipEdges = RelationshipEdge.query(new RelationshipEdgeDO(getID(), belongObj));
+//        RelationshipEdge edge = null;
+//        if (relationshipEdges.size() == 0) {
+//            edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, isKey, -1, -1, new Date(), new Date());
+//            this.edgeList.add(edge);
+//        }
+        if (relationshipEdges.size() != 0) {
+            if (!isReflexive) {
+                return null; ///
+//                throw new ERException(String.format("relationship edge already exists, ID: %d", relationshipEdges.get(0).getID()));
+            } else {
+                if (relationshipEdges.size() == 1) {
+                    RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, isKey, -1, -1, new Date(), new Date());
+                    this.edgeList.add(edge);
+                    return edge;
+                } else {
+                    throw new ERException(String.format("reflexive relationship already contains two edges, name: %s", getName()));
+                }
+            }
+
+        }
         RelationshipEdge edge = new RelationshipEdge(0L, getID(), getSchemaID(), belongObj, cardinality, isKey, -1, -1, new Date(), new Date());
         this.edgeList.add(edge);
+//        // todo: reflexive的情况会和其冲突 reflexive一定是连自己两次 而正常则不需要 可能需要加一个属性去判断到底是怎么样的 这样前端也方便判断
         return edge;
     }
 

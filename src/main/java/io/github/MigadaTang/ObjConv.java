@@ -66,7 +66,7 @@ class ObjConv {
             edgeList = RelationshipEdge.query(new RelationshipEdgeDO(relationshipDO.getID(), null));
             attributeList = Attribute.query(new AttributeDO(relationshipDO.getID(), BelongObjType.RELATIONSHIP, null, null));
         }
-        return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getSchemaID(), attributeList, edgeList,
+        return new Relationship(relationshipDO.getID(), relationshipDO.getName(), relationshipDO.getSchemaID(), false, attributeList, edgeList,
                 layoutInfo, relationshipDO.getGmtCreate(), relationshipDO.getGmtModified());
     }
 

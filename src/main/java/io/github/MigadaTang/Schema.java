@@ -221,7 +221,7 @@ public class Schema {
      * @return the created relationship
      */
     public Relationship createEmptyRelationship(String relationshipName) {
-        Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
+        Relationship relationship = new Relationship(0L, relationshipName, this.ID, false, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
         this.relationshipList.add(relationship);
         return relationship;
     }
@@ -295,7 +295,7 @@ public class Schema {
                 }
             }
         }
-        Relationship relationship = new Relationship(0L, relationshipName, this.ID, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
+        Relationship relationship = new Relationship(0L, relationshipName, this.ID, false, new ArrayList<>(), new ArrayList<>(), null, new Date(), new Date());
         for (ConnObjWithCardinality eCard : connObjWithCardinalityList) {
             RelationshipEdge relationshipEdge = new RelationshipEdge(0L, relationship.getID(), this.ID, eCard.getConnObj(), eCard.getCardinality(), false, -1, -1, new Date(), new Date());
             relationship.getEdgeList().add(relationshipEdge);
