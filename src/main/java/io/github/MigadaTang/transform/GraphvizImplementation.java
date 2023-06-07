@@ -4,15 +4,24 @@ import static guru.nidi.graphviz.attribute.Attributes.attr;
 import static guru.nidi.graphviz.model.Factory.*;
 import static guru.nidi.graphviz.model.Link.to;
 
+import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Font;
 import guru.nidi.graphviz.attribute.GraphAttr;
+import guru.nidi.graphviz.attribute.GraphAttr.SplineMode;
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.NodeAttr;
 import guru.nidi.graphviz.attribute.Shape;
+import guru.nidi.graphviz.attribute.Size;
+import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.GraphvizV8Engine;
 import guru.nidi.graphviz.model.Graph;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.MutableNode;
 import guru.nidi.graphviz.model.Node;
+import guru.nidi.graphviz.parse.Position;
 import io.github.MigadaTang.Attribute;
 import io.github.MigadaTang.Entity;
 import io.github.MigadaTang.LayoutInfo;
@@ -24,7 +33,9 @@ import io.github.MigadaTang.common.EntityType;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,53 +43,285 @@ public class GraphvizImplementation {
 
   public static void useGraphviz(Schema schema) throws IOException {
 
-    Graph g = graph(schema.getName())
-//        .graphAttr().with(GraphAttr.sizePreferred())
-//        .graphAttr().with(GraphAttr.sizePreferred(1000))
+//    Graph g = graph(schema.getName())
+////        .graphAttr().with(GraphAttr.sizePreferred())
+////        .graphAttr().with(GraphAttr.sizePreferred(1000))
+////        .graphAttr().with()
 //        .nodeAttr().with(Font.name("arial"))
-        .nodeAttr().with(Font.size(7));
-//        .linkAttr().with("class", "link-class");
+////        .nodeAttr().with(new Position("123"))
+//        .nodeAttr().with(Font.size(7));
+////        .linkAttr().with("class", "link-class");
+    MutableGraph g = mutGraph(schema.getName()).setDirected(false)
+        .graphAttrs().add("size", "15,15!")
+        .graphAttrs().add("overlap", "scale");
+//        .graphAttrs().add("overlap", "scale");
+//        .nodeAttr().with(Font.name("arial"))
 
-    List<Node> nodeList = new ArrayList<>();
+    List<MutableNode> nodeList = new ArrayList<>();
+    List<MutableNode> subsetList = new ArrayList<>();
+    List<Entity> subsets = new ArrayList<>();
+    List<Entity> generalisations = new ArrayList<>();
+
     for (Entity entity: schema.getEntityList()) {
-      Node node = node(entity.getName()).with(Shape.RECTANGLE);
-      nodeList.add(node);
+      if (entity.getEntityType() == EntityType.SUBSET) {
+        subsets.add(entity);
+      }
     }
-    for (Relationship relationship: schema.getRelationshipList()) {
-      Node node = node(relationship.getName()).with(Shape.DIAMOND);
-      nodeList.add(node);
+
+    for (Entity subset: subsets) {
+      for (Entity otherSubset: subsets) {
+        if (otherSubset.equals(subset)) {
+          continue;
+        }
+        if (otherSubset.getBelongStrongEntity().equals(subset.getBelongStrongEntity())) {
+          generalisations.add(subset);
+          break;
+        }
+      }
+    }
+
+//    for (Entity subset: subsets) {
+//      System.out.println("Subset: " + subset.getName());
+//    }
+//
+//    for (Entity generalisation: generalisations) {
+//      System.out.println("generalisation: " + generalisation.getName());
+//    }
+
+    List<List<Integer>> positionsForSuperEntity = new ArrayList<>();
+    List<Integer> position1 = new ArrayList<>();
+    position1.add(6);
+    position1.add(4);
+    positionsForSuperEntity.add(position1);
+    List<Integer> position2 = new ArrayList<>();
+    position2.add(2);
+    position2.add(6);
+    positionsForSuperEntity.add(position2);
+
+    Map<String, List<Integer>> superEntityMap = new HashMap<>();
+
+    int n = 0;
+    while (generalisations.size() > 0) {
+      List<Entity> tempList = new ArrayList<>();
+      for (Entity entity: generalisations) {
+        if (superEntityMap.get(entity.getName()) != null) {
+          continue;
+        }
+
+        Entity relyOnEntity = entity.getBelongStrongEntity();
+
+        if (superEntityMap.get(relyOnEntity.getName()) == null) {
+          if (relyOnEntity.getEntityType() == EntityType.SUBSET) {
+            tempList.add(entity);
+            continue;
+          } else {
+
+            List<Integer> position = positionsForSuperEntity.get(n);
+            superEntityMap.put(relyOnEntity.getName(), position);
+            n++;
+            int x = position.get(0);
+            int y = position.get(1);
+
+            List<Entity> children = new ArrayList<>();
+            for (Entity generalisation: generalisations) {
+              if (generalisation.getBelongStrongEntity().getName().equals(relyOnEntity.getName())) {
+                children.add(generalisation);
+              }
+            }
+
+            int numOfChildren = children.size();
+
+            boolean whetherOdd = numOfChildren % 2 != 0;
+            int startPointX;
+            if (whetherOdd) {
+              startPointX = x - numOfChildren / 2 * 2;
+            } else {
+              startPointX = x - numOfChildren / 2 * 2 + 2;
+            }
+            int startPointY = y - 1;
+
+            for (int i = 0; i < numOfChildren; i++) {
+              Entity generalisation = children.get(i);
+              int newX = startPointX + i * 2;
+              int newY = startPointY;
+              List<Integer> newPosition = new ArrayList<>();
+              newPosition.add(newX);
+              newPosition.add(newY);
+              superEntityMap.put(generalisation.getName(), newPosition);
+            }
+
+          }
+        } else {
+          // in this case, the rely on generalisation entity has the position.
+          List<Integer> position = superEntityMap.get(relyOnEntity.getName());
+          int x = position.get(0);
+          int y = position.get(1);
+
+          List<Entity> children = new ArrayList<>();
+          for (Entity generalisation: generalisations) {
+            if (generalisation.getBelongStrongEntity().getName().equals(relyOnEntity.getName())) {
+              children.add(generalisation);
+            }
+          }
+
+          int numOfChildren = children.size();
+
+          boolean whetherOdd = numOfChildren % 2 != 0;
+          int startPointX;
+          if (whetherOdd) {
+            startPointX = x - numOfChildren / 2 * 2;
+          } else {
+            startPointX = x - numOfChildren / 2 * 2 + 2;
+          }
+          int startPointY = y - 1;
+
+          for (int i = 0; i < numOfChildren; i++) {
+            Entity generalisation = children.get(i);
+            int newX = startPointX + i * 2;
+            int newY = startPointY;
+            List<Integer> newPosition = new ArrayList<>();
+            newPosition.add(newX);
+            newPosition.add(newY);
+            superEntityMap.put(generalisation.getName(), newPosition);
+          }
+
+        }
+
+      }
+      generalisations = tempList;
+    }
+
+
+//    for (String str: superEntityMap.keySet()) {
+//      System.out.println("name: " + str + ", " + superEntityMap.get(str));
+//    }
+
+    for (Entity entity: schema.getEntityList()) {
+
+      // In this case, the superclass entity only has one subset
+      if (subsets.contains(entity) && !superEntityMap.containsKey(entity.getName())) {
+        // We will not put this kind of subset in the graphviz graph, they will be put at the bottom
+        // of its relying on entity.
+        continue;
+      }
+
+      // In this case, the superclass entity has multiple subsets (generalisations)
+//      if (generalisations.contains(entity)) {
+//        if (superEntityMap.get(entity.getBelongStrongEntity().getName()) == null) {
+//          superEntityMap.put(entity.getBelongStrongEntity().getName(), positionsForSuperEntity.get(n));
+//          n++;
+//        }
+//      }
+      if (superEntityMap.containsKey(entity.getName())) {
+//        System.out.println("123: " + entity.getName());
+        List<Integer> position = superEntityMap.get(entity.getName());
+        int x = position.get(0);
+        int y = position.get(1);
+        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", x + "," + y + "!");
+        nodeList.add(node);
+        subsetList.add(node);
+      } else {
+        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7));
+        nodeList.add(node);
+      }
+
+//      if (entity.getName().equals("feature")) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", "6,3!");
+//        nodeList.add(node);
+//      } else if (entity.getName().equals("waterbody")) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", "5,2!");
+//        nodeList.add(node);
+//      } else if (entity.getName().equals("island")) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", "6,2!");
+//        nodeList.add(node);
+//      } else if (entity.getName().equals("mountain")) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", "7,2!");
+//        nodeList.add(node);
+//      } else if (entity.getName().equals("desert")) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", "8,2!");
+//        nodeList.add(node);
+//      } else if (entity.getName().equals("sea")) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", "4,1!");
+//        nodeList.add(node);
+//      } else if (entity.getName().equals("lake")) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", "5,1!");
+//        nodeList.add(node);
+//      } else if (entity.getName().equals("river")) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7)).add("pos", "6,1!");
+//        nodeList.add(node);
+//      } else {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7));
+//        nodeList.add(node);
+//      }
+
+
+//      if (entity.getEntityType() == EntityType.SUBSET) {
+//        MutableNode node = mutNode(entity.getName()).add(Shape.RECTANGLE).add(Font.size(7));
+//        subsetList.add(node);
+//      }
     }
 
     for (Relationship relationship: schema.getRelationshipList()) {
-      Node relationshipNode = findNode(relationship.getName(), nodeList);
-      for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
+//      Node node = node(relationship.getName()).with(Shape.DIAMOND);
+      MutableNode node = mutNode(relationship.getName()).add(Shape.DIAMOND).add(Font.size(7));
+      nodeList.add(node);
+    }
+
+//    for (MutableNode node: nodeList) {
+//      System.out.println("Node: " + node);
+//    }
+
+    for (Relationship relationship: schema.getRelationshipList()) {
+//      Node relationshipNode = findNode(relationship.getName(), nodeList);
+      MutableNode relationshipNode = findNode(relationship.getName(), nodeList);
+      List<RelationshipEdge> edges = relationship.getEdgeList();
+      for (RelationshipEdge relationshipEdge: edges) {
+        // todo: check whether the relationship is used for connecting two subsets.
+        if (relationship.getEdgeList().size() == 2) {
+          RelationshipEdge edge1 = edges.get(0);
+          RelationshipEdge edge2 = edges.get(1);
+          MutableNode node1 = findNode(edge1.getConnObj().getName(), subsetList);
+          MutableNode node2 = findNode(edge2.getConnObj().getName(), subsetList);
+          if (node1 != null && node2 != null && node1 != node2) {
+            break;
+          }
+        }
+
         String nodeName = relationshipEdge.getConnObj().getName();
-        Node node = findNode(nodeName, nodeList);
-        g = g.with(node.link(to(relationshipNode)));
+//        Node node = findNode(nodeName, nodeList);
+        MutableNode node = findNode(nodeName, nodeList);
+//        g = g.with(node.link(to(relationshipNode)));
+
+        g.add(relationshipNode.addLink(node));
       }
     }
 
     for (Entity entity: schema.getEntityList()) {
       if (entity.getEntityType() == EntityType.SUBSET) {
-        Node subsetNode = findNode(entity.getName(), nodeList);
-        Node relyOnNode = findNode(entity.getBelongStrongEntity().getName(), nodeList);
-        g = g.with(subsetNode.link(to(relyOnNode)));
+//        Node subsetNode = findNode(entity.getName(), nodeList);
+//        Node relyOnNode = findNode(entity.getBelongStrongEntity().getName(), nodeList);
+//        g = g.with(subsetNode.link(to(relyOnNode)));
+        MutableNode subsetNode = findNode(entity.getName(), nodeList);
+        MutableNode relyOnNode = findNode(entity.getBelongStrongEntity().getName(), nodeList);
+        g.add(subsetNode.addLink(relyOnNode));
       }
     }
+//    g = g.graphAttr().with(GraphAttr.splines(SplineMode.ORTHO));
 
     // render the graph into png.
     Graphviz.useEngine(new GraphvizV8Engine());
-//    Graphviz.fromGraph(g).engine(Engine.NEATO).width(2000).height(2000).render(Format.PNG).toFile(new File("example/ex7.png"));
+    Graphviz.fromGraph(g).engine(Engine.FDP).width(3000).render(Format.PNG).toFile(new File("example/ex30.png"));
 
     // render the graph into Json format so that we can extract the position information.
 //    Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.PNG).toFile(new File("example/ex1.png"));
 
-    // render the graph into Json format so that we can extract the position information.
-    String jsonString = Graphviz.fromGraph(g).engine(Engine.NEATO).width(2000).height(2000).render(Format.JSON).toString();
+//     render the graph into Json format so that we can extract the position information.
+    String jsonString = Graphviz.fromGraph(g).engine(Engine.FDP).width(3000).render(Format.JSON).toString();
     JSONObject jsonObject = new JSONObject(jsonString);
     System.out.println("---------------------------");
     System.out.println(g);
-//    System.out.println(jsonObject);
+    System.out.println("json: -------------");
+    System.out.println(jsonObject);
 
     // Extract the layout information from the Json object.
     for (Object node: (JSONArray) jsonObject.get("objects")) {
@@ -133,7 +376,7 @@ public class GraphvizImplementation {
     } else if (7 < numOfEntities && numOfEntities <= 10){
       numOfEntities = 9;
     } else {
-      numOfEntities = schema.getEntityList().size() / 2 + 1; ///
+      numOfEntities = schema.getEntityList().size() / 2 + 6; /// 从1改成了6，先试试
     }
 
     String[][] grid = new String[numOfEntities][numOfEntities];
@@ -149,10 +392,53 @@ public class GraphvizImplementation {
 
     // Secondly, for each entities and relationships, we need to find its nearest grid point.
     List<int[]> points = new ArrayList<>();
+
+//    for (Entity entity: schema.getEntityList()) {
+//      if (subsets.contains(entity) && !superEntityMap.containsKey(entity.getName())) {
+//
+//      }
+//    }
+
+    for (Entity entity: schema.getEntityList()) {
+      LayoutInfo layoutInfo = entity.getLayoutInfo();
+      if (layoutInfo != null) {
+        double x = layoutInfo != null ? layoutInfo.getLayoutX() : 100;
+        double y = layoutInfo != null ? layoutInfo.getLayoutY() : 100;
+        int[] point = findNearestGridPoint(grid, x, y, finalWidth, finalHeight, entity.getName());
+        points.add(point);
+      }
+    }
+
+    for (Entity entity: schema.getEntityList()) {
+      LayoutInfo layoutInfo = entity.getLayoutInfo();
+      if (layoutInfo == null) {
+        // in this case, this is a subset entity.
+        System.out.println("find a single subset!!!" + entity.getName());
+        if (entity.getEntityType() != EntityType.SUBSET) {
+          throw new IOException("Non-subset found...");
+        }
+        Entity relyOnEntity = entity.getBelongStrongEntity();
+        for (int i = 0; i < numOfEntities; i++) {
+          for (int j = 0; j < numOfEntities; j++) {
+            if (grid[i][j].equals(relyOnEntity.getName())) {
+              grid[i][j - 1] = entity.getName();
+              break;
+            }
+          }
+        }
+      }
+    }
+
     for (Relationship relationship: schema.getRelationshipList()) {
       LayoutInfo layoutInfo = relationship.getLayoutInfo();
-      double x = layoutInfo != null ? layoutInfo.getLayoutX() : 100;
-      double y = layoutInfo != null ? layoutInfo.getLayoutY() : 100;
+
+      if (layoutInfo == null) {
+        continue;
+      }
+//      double x = layoutInfo != null ? layoutInfo.getLayoutX() : 100;
+//      double y = layoutInfo != null ? layoutInfo.getLayoutY() : 100;
+      double x = layoutInfo.getLayoutX();
+      double y = layoutInfo.getLayoutY();
       int[] point = findNearestGridPoint(grid, x, y, finalWidth, finalHeight, relationship.getName());
       points.add(point);
 
@@ -161,14 +447,6 @@ public class GraphvizImplementation {
 //        System.out.println("edge: " + relationshipEdge.getConnObj().getName());
 //      }
 
-    }
-
-    for (Entity entity: schema.getEntityList()) {
-      LayoutInfo layoutInfo = entity.getLayoutInfo();
-      double x = layoutInfo != null ? layoutInfo.getLayoutX() : 100;
-      double y = layoutInfo != null ? layoutInfo.getLayoutY() : 100;
-      int[] point = findNearestGridPoint(grid, x, y, finalWidth, finalHeight, entity.getName());
-      points.add(point);
     }
 
     reverseByY(grid);
@@ -221,6 +499,21 @@ public class GraphvizImplementation {
             }
           }
         }
+      }
+    }
+
+    for (Relationship relationship: schema.getRelationshipList()) {
+      if (relationship.getLayoutInfo() == null) {
+        List<RelationshipEdge> edges = relationship.getEdgeList();
+        Entity subset1 = findSubset(edges.get(0).getConnObj().getName(), schema.getEntityList());
+        Entity subset2 = findSubset(edges.get(1).getConnObj().getName(), schema.getEntityList());
+        if (subset1 == null || subset2 == null) {
+          throw new IOException("Subset issue happens.");
+        }
+        double x = (subset1.getLayoutInfo().getLayoutX() + subset2.getLayoutInfo().getLayoutX()) / 2;
+        double y = (subset1.getLayoutInfo().getLayoutY() + subset2.getLayoutInfo().getLayoutY()) / 2;
+        relationship.setLayoutInfo(new LayoutInfo(RandomUtils.generateID(), relationship.getID(), BelongObjType.RELATIONSHIP,
+            x, y));
       }
     }
 
@@ -297,16 +590,16 @@ public class GraphvizImplementation {
       }
     }
 
-    for (Entity entity: schema.getEntityList()) {
-      System.out.println(entity.getName() + ": " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
-    }
-    for (Relationship relationship: schema.getRelationshipList()) {
-      System.out.println(relationship.getName() + ": " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
-    }
+//    for (Entity entity: schema.getEntityList()) {
+//      System.out.println(entity.getName() + ": " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
+//    }
+//    for (Relationship relationship: schema.getRelationshipList()) {
+//      System.out.println(relationship.getName() + ": " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
+//    }
   }
 
-  public static Node findNode(String nodeName, List<Node> nodeList) {
-    for (Node node: nodeList) {
+  public static MutableNode findNode(String nodeName, List<MutableNode> nodeList) {
+    for (MutableNode node: nodeList) {
       if (node.name().toString().equals(nodeName)) {
         return node;
       }
@@ -398,12 +691,12 @@ public class GraphvizImplementation {
 
     int scaleTop = topNums / 2;
     int scaleBottom = bottomNums / 2;
-    double startPointTop = entityX + 50 + (-50) * scaleTop;
-    double startPointBottom = entityX + 50 + (-50) * scaleBottom;
+    double startPointTop = entityX + 20 + (-50) * scaleTop;
+    double startPointBottom = entityX + 20 + (-50) * scaleBottom;
 
     for (int i = 0; i < topNums; i++) {
       List<Double> position = new ArrayList<>();
-      double x = startPointTop + 50 * i;
+      double x = startPointTop + 60 * i;
       double y = entityY - 40;
       position.add(x);
       position.add(y);
@@ -411,7 +704,7 @@ public class GraphvizImplementation {
     }
     for (int i = 0; i < bottomNums; i++) {
       List<Double> position = new ArrayList<>();
-      double x = startPointBottom + 50 * i;
+      double x = startPointBottom + 60 * i;
       double y = entityY + 50 + 40;
       position.add(x);
       position.add(y);
@@ -438,5 +731,13 @@ public class GraphvizImplementation {
     return true;
   }
 
+  public static Entity findSubset(String name, List<Entity> entities) {
+    for (Entity entity: entities) {
+      if (entity.getName().equals(name)) {
+        return entity;
+      }
+    }
+    return null;
+  }
 }
 
