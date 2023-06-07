@@ -40,6 +40,8 @@ public class Table {
 
     private boolean reflexive;
 
+    private Map<Long, Long> columnIdsMap = new HashMap<>();
+
     protected void tranformEntity(Entity entity) {
         this.id = entity.getID();
         this.name = entity.getName().trim().replaceAll(" ", "_");
@@ -52,7 +54,7 @@ public class Table {
         if (entity.getBelongStrongEntity() != null) {
             this.belongStrongTableID = entity.getBelongStrongEntity().getID();
         }
-        this.foreignKey = new HashMap<>();
+//        this.foreignKey = new HashMap<>();
         for (Attribute attribute : entity.getAttributeList()) {
             Column column = new Column();
             if (attribute.getAttributeType() == AttributeType.Optional) {

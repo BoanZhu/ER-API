@@ -20,26 +20,44 @@ public class ParserUtil {
         List<Table> possibleMultiValuedSet = new ArrayList<>();
         parseTableToEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList, possibleMultiValuedSet);
 
+//        for (Table table: tableList) {
+//            System.out.println(table.getName() + ", " + table.getForeignKey());
+//        }
+
         // parser foreign key, (1-N)
         for (Column foreignKey : foreignKeyList) {
             Entity curEntity = tableDTOEntityMap.get(foreignKey.getBelongTo());
             Entity pointToEntity = tableDTOEntityMap.get(foreignKey.getForeignKeyTable());
 
+            System.out.println("Foreign key: " + foreignKey.getName());
+            System.out.println("curEntity: " + curEntity.getName());
+            System.out.println("pointToEntity: " + pointToEntity.getName());
+
             // The relationshipName can't be "unknow", the name of the relationship name can get by extract
             // the name of the table. No idea when will this case happen...
+
+            String relationshipName = curEntity.getName() + "_" + pointToEntity.getName();
+            if (foreignKey.getName().contains(pointToEntity.getName())) {
+                foreignKey.setName(foreignKey.getName().replaceAll("_", " "));
+                relationshipName = foreignKey.getName().replace(pointToEntity.getName(), "");
+            }
+            if (relationshipName.equals("")) {
+                relationshipName = curEntity.getName() + "_" + pointToEntity.getName();
+            }
+
             if (foreignKey.isNullable()) {
                 if (curEntity != null && pointToEntity != null) {
-                    Relationship newRelationship = schema.createRelationship(curEntity.getName() + "_" + pointToEntity.getName(), curEntity, pointToEntity,
+                    Relationship newRelationship = schema.createRelationship(relationshipName, curEntity, pointToEntity,
                         Cardinality.ZeroToOne,
                         Cardinality.OneToMany);
-                    System.out.println("newRelationship: " + newRelationship.getName());
+//                    System.out.println("newRelationship: " + newRelationship.getName());
                 }
             } else {
                 if (curEntity != null && pointToEntity != null) {
-                    Relationship newRelationship = schema.createRelationship(curEntity.getName() + "_" + pointToEntity.getName(), curEntity, pointToEntity,
+                    Relationship newRelationship = schema.createRelationship(relationshipName, curEntity, pointToEntity,
                         Cardinality.OneToOne,
                         Cardinality.OneToMany);
-                    System.out.println("newRelationship: " + newRelationship.getName());
+//                    System.out.println("newRelationship: " + newRelationship.getName());
                 }
             }
         }
@@ -52,10 +70,12 @@ public class ParserUtil {
             Set<Long> foreignTableList = new HashSet<>();
 
             // The name of the relationship should be extracted from the name of the table
-            System.out.println("TableName by relationship: " + table.getName());
+//            System.out.println("TableName by relationship: " + table.getName());
             String relationshipName = table.getName().split("_")[0]; // extract the name of the relationship
 //            Relationship relationship = schema.createEmptyRelationship("unknow");
             Relationship relationship = schema.createEmptyRelationship(table.getName());
+
+            table.setId(relationship.getID());
 
             relationship.setReflexive(table.getReflexive());
 
@@ -68,10 +88,26 @@ public class ParserUtil {
                     }
                     // todo: check whether optional?
                 } else {
-                    if (column.isNullable())
-                        relationship.addAttribute(column.getName(), DataType.TEXT, AttributeType.Optional);
-                    else
-                        relationship.addAttribute(column.getName(), DataType.TEXT, AttributeType.Mandatory);
+                    DataType dataType = null;
+                    if (column.getDataType().equals("varchar")) {
+                        dataType = DataType.VARCHAR;
+                    } else if (column.getDataType().equals("int4")) {
+                        dataType = DataType.INT4;
+                    } else if (column.getDataType().equals("numeric")) {
+                        dataType = DataType.NUMERIC;
+                    } else if (column.getDataType().equals("date")) {
+                        dataType = DataType.DATE;
+                    } else {
+                        dataType = DataType.TEXT;
+                    }
+                    if (column.isNullable()) {
+                        Attribute attribute = relationship.addAttribute(column.getName(), dataType, AttributeType.Optional);
+                        column.setID(attribute.getID());
+                    }
+                    else {
+                        Attribute attribute = relationship.addAttribute(column.getName(), dataType, AttributeType.Mandatory);
+                        column.setID(attribute.getID());
+                    }
                 }
             }
             tableDTORelationshipMap.put(table.getId(), relationship);
@@ -90,10 +126,36 @@ public class ParserUtil {
             }
             if (tableDTOEntityMap.containsKey(multiValued.getBelongStrongTableID())) {
                 Entity entity = tableDTOEntityMap.get(multiValued.getBelongStrongTableID());
-                entity.addAttribute(multiValuedColumn.getName(), DataType.TEXT, AttributeType.Both);
+                DataType dataType = null;
+                if (multiValuedColumn.getDataType().equals("varchar")) {
+                    dataType = DataType.VARCHAR;
+                } else if (multiValuedColumn.getDataType().equals("int4")) {
+                    dataType = DataType.INT4;
+                } else if (multiValuedColumn.getDataType().equals("numeric")) {
+                    dataType = DataType.NUMERIC;
+                } else if (multiValuedColumn.getDataType().equals("date")) {
+                    dataType = DataType.DATE;
+                } else {
+                    dataType = DataType.TEXT;
+                }
+                Attribute attribute = entity.addAttribute(multiValuedColumn.getName(), dataType, AttributeType.Both);
+                multiValuedColumn.setID(attribute.getID());
             } else if (tableDTORelationshipMap.containsKey(multiValued.getBelongStrongTableID())) {
                 Relationship relationship = tableDTORelationshipMap.get(multiValued.getBelongStrongTableID());
-                relationship.addAttribute(multiValuedColumn.getName(), DataType.TEXT, AttributeType.Both);
+                DataType dataType = null;
+                if (multiValuedColumn.getDataType().equals("varchar")) {
+                    dataType = DataType.VARCHAR;
+                } else if (multiValuedColumn.getDataType().equals("int4")) {
+                    dataType = DataType.INT4;
+                } else if (multiValuedColumn.getDataType().equals("numeric")) {
+                    dataType = DataType.NUMERIC;
+                } else if (multiValuedColumn.getDataType().equals("date")) {
+                    dataType = DataType.DATE;
+                } else {
+                    dataType = DataType.TEXT;
+                }
+                Attribute attribute = relationship.addAttribute(multiValuedColumn.getName(), dataType, AttributeType.Both);
+                multiValuedColumn.setID(attribute.getID());
             }
         }
 
@@ -119,6 +181,8 @@ public class ParserUtil {
         List<Table> possibleSubsetSet = new ArrayList<>();
 
         List<Table> tablesRelyOnNonStrongEntity = new ArrayList<>();
+        Map<Long, Table> tableDTOTableMap = new HashMap<>();
+        Map<Long, Long> idMap = new HashMap<>();
 
         // parse strong entity
         for (Table strongEntity : tableList) {
@@ -176,7 +240,7 @@ public class ParserUtil {
             }
 
             if (pkIsFk > 0 && pkFkTable.size() == 1 && pkColNum == pkIsFk + 1) {
-                System.out.println("find weak entity: " + strongEntity.getName());
+//                System.out.println("find weak entity: " + strongEntity.getName());
                 possibleWeakEntitySet.add(strongEntity);
                 strongEntity.setBelongStrongTableID(fkTableId);
                 continue;
@@ -194,6 +258,11 @@ public class ParserUtil {
             }
 
             Entity entity = schema.addEntity(strongEntity.getName());
+//            entity.setID(strongEntity.getId()); // todo:
+
+            Long previousStrongEntityId = strongEntity.getId();
+            strongEntity.setId(entity.getID());
+            idMap.put(previousStrongEntityId, entity.getID());
 
             strongEntity.setEntityID(entity.getID()); ///
 
@@ -209,32 +278,68 @@ public class ParserUtil {
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-                    if (column.isNullable())
-                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
-                    else
-                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
+                    DataType dataType = null;
+                    if (column.getDataType().equals("varchar")) {
+                        dataType = DataType.VARCHAR;
+                    } else if (column.getDataType().equals("int4")) {
+                        dataType = DataType.INT4;
+                    } else if (column.getDataType().equals("numeric")) {
+                        dataType = DataType.NUMERIC;
+                    } else if (column.getDataType().equals("date")) {
+                        dataType = DataType.DATE;
+                    } else {
+                        dataType = DataType.TEXT;
+                    }
+                    if (column.isNullable()) {
+                        Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Optional);
+                        Long previousColumnId = column.getID();
+                        column.setID(attribute.getID());
+                        strongEntity.getColumnIdsMap().put(previousColumnId, attribute.getID());
+//                        System.out.println(attribute.getID() + ", " + column.getID());
+                    } else {
+                        Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Mandatory);
+                        Long previousColumnId = column.getID();
+                        column.setID(attribute.getID());
+                        strongEntity.getColumnIdsMap().put(previousColumnId, attribute.getID());
+//                        System.out.println(attribute.getID() + ", " + column.getID());
+                    }
+
                 }
             }
 
             tableDTOEntityMap.put(strongEntity.getId(), entity);
+            tableDTOTableMap.put(strongEntity.getId(), strongEntity);
         }
 
         System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
         System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
         System.out.println("possibleMultiValuedSet: " + possibleMultiValuedSet.size());
 
-//        for (Table subset: possibleSubsetSet) {
-//            System.out.println("Subset: " + subset.getName());
-//        }
-//        for (Table multivalue: possibleMultiValuedSet) {
-//            System.out.println("multivalue: " + multivalue.getName());
-//        }
-//        for (Table weakEntity: possibleWeakEntitySet) {
-//            System.out.println("weakEntity: " + weakEntity.getName());
-//        }
-//        for (Table relationship: tableGenerateByRelationship) {
-//            System.out.println("relationship: " + relationship.getName());
-//        }
+        for (Table weakEntity: possibleWeakEntitySet) {
+            for (Long previousId: idMap.keySet()) {
+                if (weakEntity.getBelongStrongTableID().equals(previousId)) {
+                    weakEntity.setBelongStrongTableID(idMap.get(previousId));
+                }
+            }
+        }
+        for (Table subset: possibleSubsetSet) {
+            for (Long previousId: idMap.keySet()) {
+                if (subset.getBelongStrongTableID().equals(previousId)) {
+                    subset.setBelongStrongTableID(idMap.get(previousId));
+                }
+            }
+        }
+        for (Table multiValued: possibleMultiValuedSet) {
+            for (Long previousId: idMap.keySet()) {
+                if (multiValued.getBelongStrongTableID().equals(previousId)) {
+                    multiValued.setBelongStrongTableID(idMap.get(previousId));
+                }
+            }
+        }
+
+        for (Long id: tableDTOEntityMap.keySet()) {
+            System.out.println(id + ", " + tableDTOEntityMap.get(id));
+        }
 
         for (Table weakEntity : possibleWeakEntitySet) {
             if (!tableDTOEntityMap.containsKey(weakEntity.getBelongStrongTableID())) {
@@ -242,15 +347,22 @@ public class ParserUtil {
                 tablesRelyOnNonStrongEntity.add(weakEntity);
                 continue;
             }
+//            System.out.println("id: " + weakEntity.getBelongStrongTableID());
+//            System.out.println("strong entity: " + tableDTOEntityMap.get(weakEntity.getBelongStrongTableID()));
 
             Entity entity = schema.addWeakEntity(weakEntity.getName(), tableDTOEntityMap.get(weakEntity.getBelongStrongTableID()),
                     weakEntity.getName() + "_" + tableDTOEntityMap.get(weakEntity.getBelongStrongTableID()).getName(), Cardinality.OneToOne, Cardinality.ZeroToMany).getLeft(); ///
 
 //            System.out.println("weak entity relying on strong entity1: " + tableDTOEntityMap.get(weakEntity.getBelongStrongTableID()).getName());
 
+            Long previousId = weakEntity.getId();
+            weakEntity.setId(entity.getID());
+            idMap.put(previousId, entity.getID());
+
             weakEntity.setEntityID(entity.getID()); ///??
 
             tableDTOEntityMap.put(weakEntity.getId(), entity);
+            tableDTOTableMap.put(weakEntity.getId(), weakEntity);
 
             List<Column> columnList = weakEntity.getColumnList();
             Set<Long> foreignTableList = new HashSet<>();
@@ -258,59 +370,139 @@ public class ParserUtil {
                 if (column.isForeign()) {
                     // When will this situation happen?
                     if (!foreignTableList.contains(column.getForeignKeyTable()) &&
-                            !column.getForeignKeyTable().equals(weakEntity.getBelongStrongTableID())) {
+                            !column.getForeignKeyTable().equals(weakEntity.getBelongStrongTableID()) && !column.isPrimary()) {
                         foreignKeyList.add(column);
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-                    if (column.isNullable())
-                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
-                    else
-                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
+                    DataType dataType = null;
+                    if (column.getDataType().equals("varchar")) {
+                        dataType = DataType.VARCHAR;
+                    } else if (column.getDataType().equals("int4")) {
+                        dataType = DataType.INT4;
+                    } else if (column.getDataType().equals("numeric")) {
+                        dataType = DataType.NUMERIC;
+                    } else if (column.getDataType().equals("date")) {
+                        dataType = DataType.DATE;
+                    } else {
+                        dataType = DataType.TEXT;
+                    }
+                    if (column.isNullable()) {
+                        Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Optional);
+                        Long previousColumnId = column.getID();
+                        column.setID(attribute.getID());
+                        weakEntity.getColumnIdsMap().put(previousColumnId, attribute.getID());
+                    }
+                    else {
+                        Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Mandatory);
+                        Long previousColumnId = column.getID();
+                        column.setID(attribute.getID());
+                        weakEntity.getColumnIdsMap().put(previousColumnId, attribute.getID());
+                    }
                 }
             }
         }
+        System.out.println("here ----------------- ");
 
         for (Table subset : possibleSubsetSet) {
-            System.out.println("Subset: " + subset);
+//            System.out.println("Subset: " + subset);
             if (!tableDTOEntityMap.containsKey(subset.getBelongStrongTableID())) {
 //                throw new ParseException("Api only support subset relies on strong entity for current version");
                 tablesRelyOnNonStrongEntity.add(subset);
                 continue;
             }
+            System.out.println("subset getBelongStrongTableID: " + subset.getBelongStrongTableID());
+            System.out.println("subset strong entity: " + tableDTOEntityMap.get(subset.getBelongStrongTableID()));
 
             Entity entity = schema.addSubset(subset.getName(), tableDTOEntityMap.get(subset.getBelongStrongTableID()));
 
 //            System.out.println("subset relying on strong entity1: " + tableDTOEntityMap.get(subset.getBelongStrongTableID()).getName());
 
+            Long previousId = subset.getId();
+            subset.setId(entity.getID());
+            idMap.put(previousId, entity.getID());
+
             subset.setEntityID(entity.getID()); ///
 
             tableDTOEntityMap.put(subset.getId(), entity);
+            tableDTOTableMap.put(subset.getId(), subset);
 
             List<Column> columnList = subset.getColumnList();
             Set<Long> foreignTableList = new HashSet<>();
             for (Column column : columnList) {
                 if (column.isForeign()) {
                     // This will never happen? Because the foreign key of the subset must belong to
-                    // its relying strong entity?
-                    if (!foreignTableList.contains(column.getForeignKeyTable()) &&
-                            !column.getForeignKeyTable().equals(subset.getBelongStrongTableID())) {
+                    // its relying strong entity? The foreign key can point to other entities!
+//                    if (!foreignTableList.contains(column.getForeignKeyTable()) &&
+//                            !column.getForeignKeyTable().equals(subset.getBelongStrongTableID())) {
+                    // todo: check the result
+                    if (!foreignTableList.contains(column.getForeignKeyTable()) && !column.isPrimary()) {
                         foreignKeyList.add(column);
                         foreignTableList.add(column.getForeignKeyTable());
                     }
                 } else {
-                    if (column.isNullable())
-                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
-                    else
-                        entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
+                    DataType dataType = null;
+                    if (column.getDataType().equals("varchar")) {
+                        dataType = DataType.VARCHAR;
+                    } else if (column.getDataType().equals("int4")) {
+                        dataType = DataType.INT4;
+                    } else if (column.getDataType().equals("numeric")) {
+                        dataType = DataType.NUMERIC;
+                    } else if (column.getDataType().equals("date")) {
+                        dataType = DataType.DATE;
+                    } else {
+                        dataType = DataType.TEXT;
+                    }
+                    if (column.isNullable()) {
+                        Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Optional);
+                        Long previousColumnId = column.getID();
+                        column.setID(attribute.getID());
+                        subset.getColumnIdsMap().put(previousColumnId, attribute.getID());
+                    }
+                    else {
+                        Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Mandatory);
+                        Long previousColumnId = column.getID();
+                        column.setID(attribute.getID());
+                        subset.getColumnIdsMap().put(previousColumnId, attribute.getID());
+                    }
                 }
             }
         }
+
+        for (Table weakEntity: possibleWeakEntitySet) {
+            for (Long previousId: idMap.keySet()) {
+                if (weakEntity.getBelongStrongTableID().equals(previousId)) {
+                    weakEntity.setBelongStrongTableID(idMap.get(previousId));
+                }
+            }
+        }
+        for (Table subset: possibleSubsetSet) {
+            for (Long previousId: idMap.keySet()) {
+                if (subset.getBelongStrongTableID().equals(previousId)) {
+                    subset.setBelongStrongTableID(idMap.get(previousId));
+                }
+            }
+        }
+        for (Table multiValued: possibleMultiValuedSet) {
+            for (Long previousId: idMap.keySet()) {
+                if (multiValued.getBelongStrongTableID().equals(previousId)) {
+                    multiValued.setBelongStrongTableID(idMap.get(previousId));
+                }
+            }
+        }
+
+        for (Long id: tableDTOEntityMap.keySet()) {
+            System.out.println(id + ", " + tableDTOEntityMap.get(id));
+        }
+
+        System.out.println("--------------");
 
         while (tablesRelyOnNonStrongEntity.size() > 0) {
             List<Table> recursiveList = new ArrayList<>();
             for (Table table: tablesRelyOnNonStrongEntity) {
 
+//                System.out.println("im here: " + table);
+                System.out.println(possibleWeakEntitySet.contains(table));
                 if (possibleWeakEntitySet.contains(table)) {
                     if (!tableDTOEntityMap.containsKey(table.getBelongStrongTableID())) {
                         recursiveList.add(table);
@@ -322,10 +514,14 @@ public class ParserUtil {
 
 //                    System.out.println("weak entity: " + table.getName());
 //                    System.out.println("weak entity relying on strong entity2: " + tableDTOEntityMap.get(table.getBelongStrongTableID()).getName());
+                    Long previousId = table.getId();
+                    table.setId(entity.getID());
+                    idMap.put(previousId, entity.getID());
 
                     table.setEntityID(entity.getID()); ///??
 
                     tableDTOEntityMap.put(table.getId(), entity);
+                    tableDTOTableMap.put(table.getId(), table);
 
                     List<Column> columnList = table.getColumnList();
                     Set<Long> foreignTableList = new HashSet<>();
@@ -333,15 +529,35 @@ public class ParserUtil {
                         if (column.isForeign()) {
                             // When will this situation happen?
                             if (!foreignTableList.contains(column.getForeignKeyTable()) &&
-                                !column.getForeignKeyTable().equals(table.getBelongStrongTableID())) {
+                                !column.getForeignKeyTable().equals(table.getBelongStrongTableID()) && !column.isPrimary()) {
                                 foreignKeyList.add(column);
                                 foreignTableList.add(column.getForeignKeyTable());
                             }
                         } else {
-                            if (column.isNullable())
-                                entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
-                            else
-                                entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
+                            DataType dataType = null;
+                            if (column.getDataType().equals("varchar")) {
+                                dataType = DataType.VARCHAR;
+                            } else if (column.getDataType().equals("int4")) {
+                                dataType = DataType.INT4;
+                            } else if (column.getDataType().equals("numeric")) {
+                                dataType = DataType.NUMERIC;
+                            } else if (column.getDataType().equals("date")) {
+                                dataType = DataType.DATE;
+                            } else {
+                                dataType = DataType.TEXT;
+                            }
+                            if (column.isNullable()) {
+                                Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Optional);
+                                Long previousColumnId = column.getID();
+                                column.setID(attribute.getID());
+                                table.getColumnIdsMap().put(previousColumnId, attribute.getID());
+                            }
+                            else {
+                                Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Mandatory);
+                                Long previousColumnId = column.getID();
+                                column.setID(attribute.getID());
+                                table.getColumnIdsMap().put(previousColumnId, attribute.getID());
+                            }
                         }
                     }
 
@@ -358,9 +574,14 @@ public class ParserUtil {
 //                    System.out.println("subset: " + table.getName());
 //                    System.out.println("subset relying on strong entity2: " + tableDTOEntityMap.get(table.getBelongStrongTableID()).getName());
 
+                    Long previousId = table.getId();
+                    table.setId(entity.getID());
+                    idMap.put(previousId, entity.getID());
+
                     table.setEntityID(entity.getID()); ///
 
                     tableDTOEntityMap.put(table.getId(), entity);
+                    tableDTOTableMap.put(table.getId(), table);
 
                     List<Column> columnList = table.getColumnList();
                     Set<Long> foreignTableList = new HashSet<>();
@@ -368,16 +589,37 @@ public class ParserUtil {
                         if (column.isForeign()) {
                             // This will never happen? Because the foreign key of the subset must belong to
                             // its relying strong entity?
-                            if (!foreignTableList.contains(column.getForeignKeyTable()) &&
-                                !column.getForeignKeyTable().equals(table.getBelongStrongTableID())) {
+//                            if (!foreignTableList.contains(column.getForeignKeyTable()) &&
+//                                !column.getForeignKeyTable().equals(table.getBelongStrongTableID())) {
+                            if (!foreignTableList.contains(column.getForeignKeyTable()) && !column.isPrimary()) {
                                 foreignKeyList.add(column);
                                 foreignTableList.add(column.getForeignKeyTable());
                             }
                         } else {
-                            if (column.isNullable())
-                                entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Optional);
-                            else
-                                entity.addAttribute(column.getName(), DataType.TEXT, column.isPrimary(), AttributeType.Mandatory);
+                            DataType dataType = null;
+                            if (column.getDataType().equals("varchar")) {
+                                dataType = DataType.VARCHAR;
+                            } else if (column.getDataType().equals("int4")) {
+                                dataType = DataType.INT4;
+                            } else if (column.getDataType().equals("numeric")) {
+                                dataType = DataType.NUMERIC;
+                            } else if (column.getDataType().equals("date")) {
+                                dataType = DataType.DATE;
+                            } else {
+                                dataType = DataType.TEXT;
+                            }
+                            if (column.isNullable()) {
+                                Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Optional);
+                                Long previousColumnId = column.getID();
+                                column.setID(attribute.getID());
+                                table.getColumnIdsMap().put(previousColumnId, attribute.getID());
+                            }
+                            else {
+                                Attribute attribute = entity.addAttribute(column.getName(), dataType, column.isPrimary(), AttributeType.Mandatory);
+                                Long previousColumnId = column.getID();
+                                column.setID(attribute.getID());
+                                table.getColumnIdsMap().put(previousColumnId, attribute.getID());
+                            }
                         }
                     }
 
@@ -387,6 +629,191 @@ public class ParserUtil {
                 }
             }
             tablesRelyOnNonStrongEntity = recursiveList;
+            for (Table weakEntity: possibleWeakEntitySet) {
+                for (Long previousId: idMap.keySet()) {
+                    if (weakEntity.getBelongStrongTableID().equals(previousId)) {
+                        weakEntity.setBelongStrongTableID(idMap.get(previousId));
+                    }
+                }
+            }
+            for (Table subset: possibleSubsetSet) {
+                for (Long previousId: idMap.keySet()) {
+                    if (subset.getBelongStrongTableID().equals(previousId)) {
+                        subset.setBelongStrongTableID(idMap.get(previousId));
+                    }
+                }
+            }
+            for (Table multiValued: possibleMultiValuedSet) {
+                for (Long previousId: idMap.keySet()) {
+                    if (multiValued.getBelongStrongTableID().equals(previousId)) {
+                        multiValued.setBelongStrongTableID(idMap.get(previousId));
+                    }
+                }
+            }
+
+//            for (Long id: tableDTOEntityMap.keySet()) {
+//                System.out.println(id + ", " + tableDTOEntityMap.get(id));
+//            }
+        }
+
+//        for (Column column: foreignKeyList) {
+//            for (Long previousId: idMap.keySet()) {
+//                if (column.getForeignKeyTable().equals(previousId)) {
+//                    Long newTableId = idMap.get(previousId);
+//                    Table foreignTable = tableDTOTableMap.get(newTableId);
+//                    column.setForeignKeyTable(newTableId);
+//                    for (Long previousColumnId: foreignTable.getColumnIdsMap().keySet()) {
+//                        if (previousColumnId.equals(column.getForeignKeyColumn())) {
+//                            column.setForeignKeyColumn(foreignTable.getColumnIdsMap().get(previousColumnId));
+//                            column.setID(foreignTable.getColumnIdsMap().get(previousColumnId));
+//                            break;
+//                        }
+//                    }
+//                    break;
+//                }
+//            }
+//            for (Long previousId: idMap.keySet()) {
+//                if (column.getBelongTo().equals(previousId)) {
+//                    Long newTableId = idMap.get(previousId);
+//                    column.setBelongTo(newTableId);
+//                    break;
+//                }
+//            }
+//        }
+
+        for (Table table: tableList) {
+            for (Column column: table.getColumnList()) {
+                if (column.isForeign()) {
+
+                    for (Long previousId: idMap.keySet()) {
+                        if (previousId.equals(column.getForeignKeyTable())) {
+                            // set ForeignKeyTable id
+                            Long newForeignTableId = idMap.get(previousId);
+                            Table foreignTable = tableDTOTableMap.get(newForeignTableId);
+
+                            // find the foreign key and set its id
+//                            boolean findForeignKeyColumn = false;
+                            for (Long previousColumnId: foreignTable.getColumnIdsMap().keySet()) {
+                                if (previousColumnId.equals(column.getForeignKeyColumn())) {
+                                    column.setForeignKeyTable(newForeignTableId);
+                                    Long newColumnId = foreignTable.getColumnIdsMap().get(previousColumnId);
+                                    column.setForeignKeyColumn(newColumnId);
+                                    table.getColumnIdsMap().put(column.getID(), newColumnId);
+                                    column.setID(newColumnId);
+//                                    findForeignKeyColumn = true;
+                                    break;
+                                }
+                            }
+
+//                            if (!findForeignKeyColumn) {
+//                                for (Column foreignTableColumn: foreignTable.getColumnList()) {
+//                                    if (foreignTableColumn.getID().equals(column.getForeignKeyColumn())) {
+//                                        Long foreignForeignTableId = foreignTableColumn.getForeignKeyTable();
+//
+//                                        for (Long tableId: idMap.keySet()) {
+//                                            if (tableId.equals(foreignForeignTableId)) {
+//                                                Long newForeignForeignTableId = idMap.get(foreignForeignTableId);
+//                                                Table foreignForeignTable = tableDTOTableMap.get(newForeignForeignTableId);
+//
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//
+
+                            break;
+                        }
+                    }
+                    for (Long previousId: idMap.keySet()) {
+                        if (column.getBelongTo().equals(previousId)) {
+                            Long newTableId = idMap.get(previousId);
+                            column.setBelongTo(newTableId);
+                            break;
+                        }
+                    }
+
+                }
+            }
+
+            Map<Long, List<Column>> foreignKeyMap = table.getForeignKey();
+            Map<Long, List<Column>> newMap = new HashMap<>();
+            for (Long id: foreignKeyMap.keySet()) {
+                for (Long previousId: idMap.keySet()) {
+                    if (id.equals(previousId)) {
+                        Long newId = idMap.get(previousId);
+                        List<Column> columns = foreignKeyMap.get(previousId);
+                        newMap.put(newId, columns);
+                    }
+                }
+            }
+            table.setForeignKey(newMap);
+        }
+
+        for (Table table: tableList) {
+            for (Column column: table.getColumnList()) {
+                if (column.isForeign()) {
+
+                    for (Long previousId: idMap.keySet()) {
+                        if (previousId.equals(column.getForeignKeyTable())) {
+                            // set ForeignKeyTable id
+                            Long newForeignTableId = idMap.get(previousId);
+                            Table foreignTable = tableDTOTableMap.get(newForeignTableId);
+
+                            // find the foreign key and set its id
+//                            boolean findForeignKeyColumn = false;
+                            for (Long previousColumnId: foreignTable.getColumnIdsMap().keySet()) {
+                                if (previousColumnId.equals(column.getForeignKeyColumn())) {
+                                    column.setForeignKeyTable(newForeignTableId);
+                                    Long newColumnId = foreignTable.getColumnIdsMap().get(previousColumnId);
+                                    column.setForeignKeyColumn(newColumnId);
+                                    table.getColumnIdsMap().put(column.getID(), newColumnId);
+                                    column.setID(newColumnId);
+//                                    findForeignKeyColumn = true;
+//                                    table.getColumnIdsMap().put(previousColumnId, newColumnId);
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+
+                }
+            }
+        }
+
+        for (Table table: tableList) {
+            for (Column column: table.getColumnList()) {
+                if (column.isForeign()) {
+
+                    for (Long previousId: idMap.keySet()) {
+                        if (previousId.equals(column.getForeignKeyTable())) {
+                            // set ForeignKeyTable id
+                            Long newForeignTableId = idMap.get(previousId);
+                            Table foreignTable = tableDTOTableMap.get(newForeignTableId);
+
+                            // find the foreign key and set its id
+//                            boolean findForeignKeyColumn = false;
+                            for (Long previousColumnId: foreignTable.getColumnIdsMap().keySet()) {
+                                if (previousColumnId.equals(column.getForeignKeyColumn())) {
+                                    column.setForeignKeyTable(newForeignTableId);
+                                    Long newColumnId = foreignTable.getColumnIdsMap().get(previousColumnId);
+                                    column.setForeignKeyColumn(newColumnId);
+                                    table.getColumnIdsMap().put(column.getID(), newColumnId);
+                                    column.setID(newColumnId);
+//                                    findForeignKeyColumn = true;
+//                                    table.getColumnIdsMap().put(previousColumnId, newColumnId);
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+
+                }
+            }
         }
     }
 
@@ -405,12 +832,21 @@ public class ParserUtil {
         // parse subset: add pk from strong entity to subset
         parseSubSet(tableDTOMap, subsetMap);
 
+//        for (Long id: tableDTOMap.keySet()) {
+//            System.out.println("5555555: " + id);
+//            System.out.println("6666666: " + tableDTOMap.get(id));
+//        }
         // parse relation to new table or new attribute in existing table
         parseRelationships(relationshipList, tableDTOMap);
 
-        for (Table table: tableDTOMap.values()) {
-            System.out.println("00000000000: " + table.getName());
-        }
+//        for (Long id: tableDTOMap.keySet()) {
+//            System.out.println("7777777: " + id);
+//            System.out.println("8888888: " + tableDTOMap.get(id));
+//        }
+//        for (Table table: tableDTOMap.values()) {
+//            System.out.println("00000000000: " + table.getName());
+//        }
+
         return tableDTOMap;
     }
 
@@ -463,6 +899,7 @@ public class ParserUtil {
     private static void parseSubSet(Map<Long, Table> tableDTOMap, List<Long> subsetMap) {
         for (Long tableId : subsetMap) {
             Table subset = tableDTOMap.get(tableId);
+
             Table strongEntity = tableDTOMap.get(subset.getBelongStrongTableID());
             List<Column> strongPk = strongEntity.getPrimaryKey();
 
@@ -471,7 +908,7 @@ public class ParserUtil {
             Map<Long, List<Column>> weakFk = subset.getForeignKey();
             List<Column> newFk = new ArrayList<>();
             for (Column column : strongPk) {
-                Column cloneC = column.getForeignClone(tableId, true, strongEntity.getName());
+                Column cloneC = column.getForeignClone(tableId, true, strongEntity.getName(), column.isNullable());
                 weakPk.add(cloneC);
                 weakColumns.add(cloneC);
                 newFk.add(cloneC);
@@ -493,6 +930,7 @@ public class ParserUtil {
 
             for (Column column : multiValuedColumns) {
                 Table newT = parseMultiValuedColumn(tableDTOMap, table, column);
+                newT.setId(column.getID()); // todo:
                 newts.add(newT);
             }
         }
@@ -512,7 +950,7 @@ public class ParserUtil {
 //        Long newTableId = RandomUtils.generateID(); ///
         Long newTableId = column.getID();
         for (Column pk : table.getPrimaryKey()) {
-            Column pkClone = pk.getForeignClone(newTableId, false, "");
+            Column pkClone = pk.getForeignClone(newTableId, true, "", pk.isNullable()); // todo: change isPk to true
             columnList.add(pkClone);
             fkList.add(pkClone);
             pkList.add(pkClone);
@@ -520,7 +958,7 @@ public class ParserUtil {
         Map<Long, List<Column>> fk = new HashMap<>();
         fk.put(table.getId(), fkList);
         Table newT = new Table(newTableId, table.getName() + "_" + column.getName(), EntityType.STRONG,
-                null, columnList, pkList, new ArrayList<>(), fk, null, false); ///
+                null, columnList, pkList, new ArrayList<>(), fk, null, false, null); ///
         return newT;
     }
 
@@ -532,7 +970,6 @@ public class ParserUtil {
 
         // parse weak entity and save all the relationships using id
         for (Relationship relationship : relationshipList) {
-            System.out.println("2222222: " + relationship.getName());
             List<RelationshipEdge> relationshipEdges = relationship.getEdgeList();
             // parse weak entity
             for (RelationshipEdge edge : relationshipEdges) {
@@ -548,7 +985,7 @@ public class ParserUtil {
         Queue<Relationship> relationshipQueue = generateRelationshipTopologySeq(normalRelationship);
 
         for (Relationship relationship : relationshipQueue) {
-            System.out.println("relationship: ------- " + relationship.getName());
+//            System.out.println("relationship: ------- " + relationship.getName());
             List<RelationshipEdge> edgeList = relationship.getEdgeList();
             List<Attribute> attributeList = relationship.getAttributeList();
             Map<Cardinality, List<Long>> cardinalityListMap = analyzeCardinality(edgeList, mapRelationshipToTable);
@@ -559,10 +996,12 @@ public class ParserUtil {
             } else {
                 if (cardinalityListMap.get(Cardinality.OneToOne).size() + cardinalityListMap.get(Cardinality.ZeroToOne).size() == 1) {
                     representTable = parseOneToMany(cardinalityListMap, tableDTOMap);
+//                    representTable.setId(relationship.getID());
                 } else {
                     if (edgeList.size() == 2 &&
                             (cardinalityListMap.get(Cardinality.OneToOne).size() + cardinalityListMap.get(Cardinality.ZeroToOne).size() == 2)) {
                         representTable = parseTwoOneToOne(cardinalityListMap, tableDTOMap);
+//                        representTable.setId(relationship.getID());
                     } else {
                         List<Long> tableIdList = cardinalityListMap.get(Cardinality.OneToOne);
                         tableIdList.addAll(cardinalityListMap.get(Cardinality.ZeroToOne));
@@ -572,7 +1011,7 @@ public class ParserUtil {
                     }
                 }
             }
-            representTable.setId(relationship.getID()); ///
+//            representTable.setId(relationship.getID()); /// todo: yuan lai zui kui huo shou zai zhe li md!
             parseRelationshipAttribtue(representTable, attributeList, tableDTOMap);
 
             mapRelationshipToTable.put(relationship.getID(), representTable.getId());
@@ -650,7 +1089,7 @@ public class ParserUtil {
             Table strongEntity = tableMap.get(edge.getConnObj().getID());
             List<Column> fkList = new ArrayList<>();
             for (Column strongPk : strongEntity.getPrimaryKey()) {
-                Column clonePk = strongPk.getForeignClone(weakEntity.getId(), true, strongEntity.getName());
+                Column clonePk = strongPk.getForeignClone(weakEntity.getId(), true, strongEntity.getName(), strongPk.isNullable());
                 fkList.add(clonePk);
                 weakEntity.getPrimaryKey().add(clonePk);
                 weakEntity.getColumnList().add(clonePk);
@@ -698,7 +1137,7 @@ public class ParserUtil {
             importedTable = tableDTOMap.get(cardinalityListMap.get(Cardinality.OneToOne).get(0));
             exportedTable = tableDTOMap.get(cardinalityListMap.get(Cardinality.OneToOne).get(1));
         } else if (cardinalityListMap.get(Cardinality.ZeroToOne).size() == 2) {
-            importedTable = tableDTOMap.get(cardinalityListMap.get(Cardinality.OneToOne).get(0));
+            importedTable = tableDTOMap.get(cardinalityListMap.get(Cardinality.OneToOne).get(0)); // todo:
             exportedTable = tableDTOMap.get(cardinalityListMap.get(Cardinality.ZeroToOne).get(1));
             canbeNull = true;
         } else {
@@ -708,7 +1147,7 @@ public class ParserUtil {
 
         List<Column> fkList = new ArrayList<>();
         for (Column pk : exportedTable.getPrimaryKey()) {
-            Column fk = pk.getForeignClone(importedTable.getId(), false, exportedTable.getName());
+            Column fk = pk.getForeignClone(importedTable.getId(), true, exportedTable.getName(), pk.isNullable()); // todo: change isPk to true
             if (canbeNull)
                 fk.setNullable(true);
             importedTable.getColumnList().add(fk);
@@ -740,7 +1179,7 @@ public class ParserUtil {
 
             List<Column> fkColumns = new ArrayList<>();
             for (Column pk : foreignTable.getPrimaryKey()) {
-                Column cloneFk = pk.getForeignClone(mainTableId, false, foreignTable.getName());
+                Column cloneFk = pk.getForeignClone(mainTableId, true, foreignTable.getName(), pk.isNullable()); // todo: change isOk to true
                 if (canBeZero) {
                     cloneFk.setNullable(true);
                 }
@@ -764,7 +1203,7 @@ public class ParserUtil {
 //        Table newTable = new Table(RandomUtils.generateID(), tableName.toString(), EntityType.STRONG, null,
 //                columnList, pkList, new ArrayList<>(), foreignKey, null); ///
         Table newTable = new Table(relationship.getID(), tableName.toString(), EntityType.STRONG, null,
-            columnList, pkList, new ArrayList<>(), foreignKey, null, false);
+            columnList, pkList, new ArrayList<>(), foreignKey, null, false, null);
 
         for (Long tableId : tableIdList) {
             Table foreignTable = tableDTOMap.get(tableId);
@@ -772,7 +1211,7 @@ public class ParserUtil {
 
             List<Column> fkColumns = new ArrayList<>();
             for (Column pk : foreignTable.getPrimaryKey()) {
-                Column cloneFk = pk.getForeignClone(newTable.getId(), true, foreignTable.getName());
+                Column cloneFk = pk.getForeignClone(newTable.getId(), true, foreignTable.getName(), pk.isNullable());
                 cloneFk.setNullable(false);
                 cloneFk.setID(pk.getID()); ///
                 fkColumns.add(cloneFk);
