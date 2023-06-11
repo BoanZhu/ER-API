@@ -314,6 +314,7 @@ public class ParserUtil {
         System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
         System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
         System.out.println("possibleMultiValuedSet: " + possibleMultiValuedSet.size());
+        System.out.println("tableGenerateByRelationship: " + tableGenerateByRelationship.size());
 
         for (Table weakEntity: possibleWeakEntitySet) {
             for (Long previousId: idMap.keySet()) {

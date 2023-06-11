@@ -1,6 +1,7 @@
 package io.github.MigadaTang.transform;
 
 import io.github.MigadaTang.Attribute;
+import java.util.Locale;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,7 +34,7 @@ public class Column {
     protected void transformAttribute(Attribute attribute, boolean nullable) {
         this.ID = attribute.getID();
         this.name = attribute.getName();
-        this.dataType = attribute.getDataType().toString();
+        this.dataType = attribute.getDataType().toString().toLowerCase();
         this.isPrimary = attribute.getIsPrimary();
         this.isForeign = false;
         this.foreignKeyColumn = null;
@@ -50,15 +51,18 @@ public class Column {
         }
     }
 
-    protected Column getForeignClone(Long tableID, boolean isPk, String foreignTableName) {
+    protected Column getForeignClone(Long tableID, boolean isPk, String foreignTableName, Boolean nullable) {
         String name = "";
         if (foreignTableName.equals("")) {
             name = this.name;
         } else {
-            name = foreignTableName + "_" + this.name;
+//            name = foreignTableName + "_" + this.name;
+            name = this.name;
         }
-        Column clone = new Column(RandomUtils.generateID(), name, this.dataType, isPk,
-                true, this.ID, this.name, tableID, false, null);
+//        Column clone = new Column(RandomUtils.generateID(), name, this.dataType, isPk,
+//                true, this.ID, this.name, tableID, false, null); // todo:
+        Column clone = new Column(this.ID, name, this.dataType, isPk,
+            true, this.ID, this.name, tableID, false, null); // todo:
         return clone;
     }
 }

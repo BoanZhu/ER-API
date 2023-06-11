@@ -19,5 +19,8 @@ public enum DataType {
     BIGINT,
     FLOAT,
     DOUBLE,
-    DATETIME
+    DATETIME,
+    NUMERIC,
+    INT4,
+    DATE
 }
