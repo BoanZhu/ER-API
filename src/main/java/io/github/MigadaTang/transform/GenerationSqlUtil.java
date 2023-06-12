@@ -1,5 +1,6 @@
 package io.github.MigadaTang.transform;
 
+import io.github.MigadaTang.common.EntityType;
 import io.github.MigadaTang.common.RDBMSType;
 import io.github.MigadaTang.exception.DBConnectionException;
 import io.github.MigadaTang.exception.ParseException;
@@ -27,10 +28,10 @@ public class GenerationSqlUtil {
         Map<Long, List<Long>> tableMap = new HashMap<>();
         List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
 
-        for (Table table: tableDTOList.values()) {
-            System.out.println("Table: " + table.getName() + " " + table);
-            System.out.println(table.getForeignKey());
-        }
+//        for (Table table: tableDTOList.values()) {
+//            System.out.println("Table: " + table.getName() + " " + table);
+//            System.out.println(table.getForeignKey());
+//        }
 
         // One improvement here we need to create the sql statements for foreign key tables first,
         // otherwise the sql statements may not be executed successfully.
@@ -41,7 +42,7 @@ public class GenerationSqlUtil {
             } else {
                 for (Long id: table.getForeignKey().keySet()) {
                     if (!id.equals(table.getId())) {
-                        System.out.println("id: " + id + ", tableId: " + table.getId());
+//                        System.out.println("id: " + id + ", tableId: " + table.getId());
                         List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
                         previousIds.add(id);
                         tableMap.put(table.getId(), previousIds);
@@ -83,15 +84,21 @@ public class GenerationSqlUtil {
     // This will be wrong since we need the two entities created before it.
     public static void tableGenerationOrders(List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap, Map<Long, Table> tableDTOList) {
         for (Long id: tableMap.keySet()) {
+//            System.out.println("id: " + id);
             List<Long> relyIds = tableMap.get(id);
+//            System.out.println("relyIds: " + relyIds);
             Table table = tableDTOList.get(id);
+//            System.out.println(tablesSqlGenerationOrders.contains(table));
+//            System.out.println(table.getName() + " " + table);
             if (!tablesSqlGenerationOrders.contains(table)) {
                 if (relyIds.size() == 0) {
                     tablesSqlGenerationOrders.add(table);
                 } else {
+//                    System.out.println("enterrrrrrr---");
                     recursive(table, relyIds, tableDTOList, tablesSqlGenerationOrders, tableMap);
                 }
             }
+//            System.out.println("tablesSqlGenerationOrders.size(): " + tablesSqlGenerationOrders.size());
         }
     }
 
@@ -99,13 +106,21 @@ public class GenerationSqlUtil {
     public static void recursive(Table table, List<Long> relyIds, Map<Long, Table> tableDTOList, List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap) {
         // If 'relyIds' == null, this means that the table does not needed to create and already exist.
         // So just pass the function.
-        if (relyIds == null) {
+//        if (relyIds == null) {
+//            return;
+//        }
+        if (relyIds.size() == 0) {
+            tablesSqlGenerationOrders.add(table);
             return;
         }
         for (Long relyId: relyIds) {
+//            System.out.println("relyIddddddd: " + relyId);
             Table relyTable = tableDTOList.get(relyId);
+//            System.out.println("relyTableeeeeeee: " + relyTable);
             if (!tablesSqlGenerationOrders.contains(relyTable)) {
-                recursive(relyTable, tableMap.get(relyId), tableDTOList, tablesSqlGenerationOrders, tableMap);
+                List<Long> ids = tableMap.get(relyTable.getId());
+//                System.out.println("idsssssssss: " + ids);
+                recursive(relyTable, tableMap.get(relyTable.getId()), tableDTOList, tablesSqlGenerationOrders, tableMap);
             }
         }
         tablesSqlGenerationOrders.add(table);
@@ -149,7 +164,7 @@ public class GenerationSqlUtil {
                         Column specialColumn = new Column();
                         specialColumn.setName("is_" + currTable.getName());
                         specialColumn.setNullable(false);
-                        specialColumn.setDataType("TEXT");
+                        specialColumn.setDataType("TEXT"); ///
                         columns.add(specialColumn);
 
                         for (Column column: currTable.getColumnList()) {
@@ -174,7 +189,7 @@ public class GenerationSqlUtil {
     public static List<Table> generateSubsetTablesSecondCase(List<Table> tables) {
         List<Table> result = new ArrayList<>();
         for (Table currTable: tables) {
-            if (currTable.getBelongStrongTableID() != null) { // in this case this is the subset
+            if (currTable.getBelongStrongTableID() != null) { // in this case this is the subset ///?
                 for (Table addedTable: result) {
                     if (addedTable.getId().equals(currTable.getBelongStrongTableID())) { // in this case this is the strong entity
                         List<Column> columns = currTable.getColumnList();
@@ -278,9 +293,7 @@ public class GenerationSqlUtil {
     public static void generateDeletedTablesSqlStatement(List<Table> oldTables, List<Table> deletedTables
         , StringBuilder sqlStatement, List<Table> newTables, List<Table> tableInSchema, List<List<Table>> modifiedTablePair) {
         for (Table deletedTable: deletedTables) {
-//            System.out.println("DeletedTable: " + deletedTable);
             for (Table oldTable: oldTables) {
-//                System.out.println("Oldtable: " + oldTable);
                 for (Long foreignTableId: oldTable.getForeignKey().keySet()) {
                     if (foreignTableId.equals(deletedTable.getId()) && !deletedTables.contains(oldTable)) {
                         sqlStatement.append("DROP TABLE ").append(oldTable.getName()).append(";\n\n");
@@ -345,14 +358,21 @@ public class GenerationSqlUtil {
         Map<Long, List<Long>> tableMap = new HashMap<>();
         List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
 
-        for (Table table : tableDTOList.values()) {
+        System.out.println("size of tableDTOList: " + tableDTOList.values().size());
+
+        System.out.println("size of oldTables: " + oldTables.size());
+
+//        for (Table table : tableDTOList.values()) {
+        for (Long idInDTO : tableDTOList.keySet()) {
+            Table table = tableDTOList.get(idInDTO);
             if (table.getForeignKey().size() == 0) {
-                tableMap.put(table.getId(), new ArrayList<Long>());
+                List<Long> list = new ArrayList<>();
+                tableMap.put(idInDTO, list);
             } else {
                 for (Long id: table.getForeignKey().keySet()) {
                     List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
                     previousIds.add(id);
-                    tableMap.put(table.getId(), previousIds);
+                    tableMap.put(idInDTO, previousIds);
                 }
             }
         }
@@ -361,6 +381,7 @@ public class GenerationSqlUtil {
         tableGenerationOrders(tablesSqlGenerationOrders, tableMap, tableDTOList);
 
         for (Table tableInSchema: tablesSqlGenerationOrders) {
+            if (tableInSchema.getName().contains("other_name")) continue;
             boolean ifAlreadyExist = false;
             for (Table tableInDatabase: oldTables) {
                 if (tableInSchema.getId().equals(tableInDatabase.getId())) {
@@ -370,8 +391,6 @@ public class GenerationSqlUtil {
                         List<Table> newPair = new ArrayList<Table>();
                         newPair.add(tableInSchema);
                         newPair.add(tableInDatabase);
-                        System.out.println("tableInSchema: " + tableInSchema);
-                        System.out.println("tableInDatabase: " + tableInDatabase);
                         modifiedTablePair.add(newPair);
                     }
                     break;
@@ -383,6 +402,7 @@ public class GenerationSqlUtil {
         }
 
         for (Table tableInDatabase: oldTables) {
+            if (tableInDatabase.getName().contains("other_name")) continue;
             boolean inSchema = false;
             for (Table tableInSchema: tablesSqlGenerationOrders) {
                 if (tableInSchema.getId().equals(tableInDatabase.getId())) {
@@ -427,29 +447,6 @@ public class GenerationSqlUtil {
                 sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                 sqlStatement.append("RENAME CONSTRAINT ").append(oldTable.getName() + "_pk")
                     .append(" TO " + newTable.getName() + "_pk").append(";\n");
-//                sqlStatement.append("DROP CONSTRAINT ").append(oldTable.getName() + "_pk").append(";\n");
-//                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
-//
-//                if (newTable.getPrimaryKey().size() > 0) {
-//                    sqlStatement.append("ADD CONSTRAINT ").append(newTable.getName()).append("_pk").append(" PRIMARY KEY (");
-//                    for (Column column : oldTable.getPrimaryKey()) {
-//                        sqlStatement.append(column.getName()).append(",");
-//                    }
-//                    sqlStatement.deleteCharAt(sqlStatement.lastIndexOf(","));
-//                    sqlStatement.append("),\n");
-//                }
-                // No need to change foreign keys name here ?
-
-//                for (Table table: tableDTOList.values()) {
-//                    for (Column column: table.getColumnList()) {
-//                        if (column.getForeignKeyTable().equals(newTable.getId())) {
-//                            sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
-//                            sqlStatement.append("ALTER COLUMN ").append(column.getName())
-//                        }
-//                    }
-//                }
-            } else {
-//                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
             }
 
             List<Column> newColumns = newTable.getColumnList();
@@ -464,6 +461,7 @@ public class GenerationSqlUtil {
                 boolean inSchema = false;
                 for (Column newColumn: newColumns) {
                     if (newColumn.getID().equals(oldColumn.getID())) {
+//                    if (newColumn.getName().equals(oldColumn.getName())) {
                         inSchema = true;
                         break;
                     }
@@ -490,6 +488,7 @@ public class GenerationSqlUtil {
                 boolean alreadyExist = false;
                 for (Column oldColumn: oldColumns) {
                     if (newColumn.getID().equals(oldColumn.getID())) {
+//                    if (newColumn.getName().equals(oldColumn.getName())) {
                         alreadyExist = true;
                         break;
                     }
@@ -503,15 +502,16 @@ public class GenerationSqlUtil {
             for (Column column: createdColumns) {
                 sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                 sqlStatement.append("ADD COLUMN ").append(column.getName()).append(" " + column.getDataType())
-                    .append(" " + (column.isNullable() ? "NULL" : "NOT NULL")).append(";\n");
+                    .append(" " + (column.isNullable() ? "NULL" : "NOT NULL DEFAULT 'N/A'")).append(";\n");
             }
 
             for (Column newColumn: newColumns) {
 //                boolean alreadyExist = false;
                 for (Column oldColumn: oldColumns) {
                     if (newColumn.getID().equals(oldColumn.getID())) {
+//                    if (newColumn.getName().equals(oldColumn.getName())) {
 //                        alreadyExist = true;
-                        if (!newColumn.getName().equals(oldColumn.getName())) {
+                        if (!newColumn.getName().equals(oldColumn.getName()) && !newColumn.isForeign()) {
                             sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                             sqlStatement.append("RENAME COLUMN ").append(oldColumn.getName())
                                 .append(" TO ").append(newColumn.getName()).append(";\n");
@@ -528,13 +528,20 @@ public class GenerationSqlUtil {
                                 .append(";\n");
                         }
                         if (newColumn.isNullable() != oldColumn.isNullable()) {
-                            sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                             if (oldColumn.isNullable() && !newColumn.isNullable()) {
+                                sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                                 sqlStatement.append("ALTER COLUMN ").append(newColumn.getName())
                                     .append(" SET NOT NULL").append(";\n");
                             } else {
-                                sqlStatement.append("ALTER COLUMN ").append(newColumn.getName())
-                                    .append(" DROP NOT NULL").append(";\n");
+//                                System.out.println("why: " + newColumn);
+//                                System.out.println("whyyyy: " + oldColumn);
+                                // todo: if the column is a primary key, it's impossible to become nullable
+                                if (!newColumn.isPrimary()) {
+                                    sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
+                                    sqlStatement.append("ALTER COLUMN ").append(newColumn.getName())
+                                        .append(" DROP NOT NULL").append(";\n");
+                                }
+
                             }
                         }
                         if (newColumn.isPrimary() != oldColumn.isPrimary()) {
@@ -542,15 +549,15 @@ public class GenerationSqlUtil {
 
                                 // There are two steps in this case, the first step is to drop all the
                                 // foreign key constraints which reference this primary key;
-                                for (Table table: oldTables) {
-                                    List<Column> columns = table.getColumnList();
-                                    boolean hasForeignKeys = false;
-                                    for (Column column: columns) {
-                                        if (column.getForeignKeyColumn() != null && column.getForeignKeyColumn().equals(newColumn.getID())) {
-                                            hasForeignKeys = true;
-                                            break;
-                                        }
-                                    }
+//                                for (Table table: oldTables) {
+//                                    List<Column> columns = table.getColumnList();
+//                                    boolean hasForeignKeys = false;
+//                                    for (Column column: columns) {
+//                                        if (column.getForeignKeyColumn() != null && column.getForeignKeyColumn().equals(newColumn.getID())) {
+//                                            hasForeignKeys = true;
+//                                            break;
+//                                        }
+//                                    }
 
                                     // There is no need to drop the foreign key constraint, since the column
                                     // was already be deleted.
@@ -561,16 +568,17 @@ public class GenerationSqlUtil {
 //                                            .append(table.getName() + "_fk_" + oldTable.getName())
 //                                            .append(";\n");
 //                                    }
-                                }
+//                                }
 
                                 // then the next step is to drop the primary key constraint in this table.
                                 sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                                 sqlStatement.append("DROP CONSTRAINT ").append(newTable.getName() + "_pk")
                                     .append(";\n");
 
-                                if (newTable.getPrimaryKey().size() != 1) {
-                                    throw new ParseException("Error! There are more than one primary key!");
-                                }
+                                // todo:
+//                                if (newTable.getPrimaryKey().size() != 1) {
+//                                    throw new ParseException("Error! There are more than one primary key!");
+//                                }
                                 sqlStatement.append("ALTER TABLE ").append(newTable.getName()).append("\n");
                                 sqlStatement.append("ADD CONSTRAINT ").append(newTable.getName() + "_pk")
                                     .append(" PRIMARY KEY ").append("(")
@@ -594,23 +602,29 @@ public class GenerationSqlUtil {
                                         for (Table tableInDTO: tableDTOList.values()) {
                                             if (tableInDTO.getId().equals(table.getId())) {
                                                 tableInDTOList = tableInDTO;
+                                                break;
                                             }
                                         }
 
-                                        for (Column column : tableInDTOList.getForeignKey().get(newTable.getId())) {
-                                            fkName.append(column.getName()).append(",");
-                                            relatedName.append(column.getForeignKeyColumnName()).append(",");
-                                        }
-                                        fkName.deleteCharAt(fkName.lastIndexOf(","));
-                                        relatedName.deleteCharAt(relatedName.lastIndexOf(","));
+//                                        System.out.println("tableInDTOList: " + tableInDTOList);
+//                                        System.out.println("newTable: " + newTable);
+                                        if (tableInDTOList != null && tableInDTOList.getForeignKey().get(newTable.getId()) != null) {
+                                            for (Column column : tableInDTOList.getForeignKey().get(newTable.getId())) {
+                                                fkName.append(column.getName()).append(",");
+                                                relatedName.append(column.getForeignKeyColumnName()).append(",");
+                                            }
+                                            fkName.deleteCharAt(fkName.lastIndexOf(","));
+                                            relatedName.deleteCharAt(relatedName.lastIndexOf(","));
 
-                                        sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
-                                        sqlStatement.append("ADD CONSTRAINT ")
-                                            .append(table.getName() + "_fk_" + newTable.getName())
-                                            .append(" FOREIGN KEY ").append("(").append(fkName).append(")")
-                                            .append(" REFERENCES ").append(newTable.getName())
-                                            .append("(").append(relatedName).append(")")
-                                            .append(";\n");
+                                            sqlStatement.append("ALTER TABLE ").append(table.getName()).append("\n");
+                                            sqlStatement.append("ADD CONSTRAINT ")
+                                                .append(table.getName() + "_fk_" + newTable.getName())
+                                                .append(" FOREIGN KEY ").append("(").append(fkName).append(")")
+                                                .append(" REFERENCES ").append(newTable.getName())
+                                                .append("(").append(relatedName).append(")")
+                                                .append(";\n");
+                                        }
+
                                     }
                                 }
                             } else {
@@ -673,8 +687,9 @@ public class GenerationSqlUtil {
             boolean canFind = false;
             for (Column oldColumn: tableInDatabase.getColumnList()) {
                 if (newColumn.getID().equals(oldColumn.getID())) {
+//                if (newColumn.getName().equals(oldColumn.getName())) {
                     canFind = true;
-                    if (!newColumn.getName().equals(oldColumn.getName())) {
+                    if (!newColumn.getName().equals(oldColumn.getName()) && !newColumn.isForeign()) {
                         return true;
                     }
                     if (newColumn.isNullable() != oldColumn.isNullable()) {
