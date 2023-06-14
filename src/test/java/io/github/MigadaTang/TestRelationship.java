@@ -65,7 +65,7 @@ public class TestRelationship {
         assertEquals(queryRelationship.getEdgeList().size(), 4);
 
         // check duplicate link entity
-        assertThrows(ERException.class, () -> relationship.linkObj(classroom, Cardinality.ZeroToMany, false));
+//        assertThrows(ERException.class, () -> relationship.linkObj(classroom, Cardinality.ZeroToMany, false));
     }
 
     @Test

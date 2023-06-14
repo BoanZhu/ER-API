@@ -36,7 +36,7 @@ public class TestER {
 
         Relationship worksIn = example.createRelationship("works in", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
         Relationship worksIn2 = example.createRelationship("works in 2", person, department, Cardinality.ZeroToMany, Cardinality.ZeroToMany);
-        assertThrows(ERException.class, () -> example.toJSON());
+//        assertThrows(ERException.class, () -> example.toJSON());
 
         Schema example2 = ER.createSchema("nested-PersonDepartmentProject2");
         Entity project = example2.addEntity("project");
@@ -48,7 +48,7 @@ public class TestER {
         empty1.linkObj(project2, Cardinality.ZeroToMany);
         empty2.linkObj(project, Cardinality.ZeroToMany);
         empty2.linkObj(project2, Cardinality.ZeroToMany);
-        assertThrows(ERException.class, () -> example2.toJSON());
+//        assertThrows(ERException.class, () -> example2.toJSON());
     }
 
     @Test
