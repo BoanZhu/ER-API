@@ -17,14 +17,14 @@ public class TestTransform {
         TestCommon.setUp();
     }
 
-    @Test
-    public void testRSToERModel() {
-        Reverse reverse = new Reverse();
-        try {
-            Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wt22",
-                    "wt22", "22V**66+C5JPu", "image");
-        } catch (ParseException | DBConnectionException | IOException e) {
-            fail();
-        }
-    }
+//    @Test
+//    public void testRSToERModel() {
+//        Reverse reverse = new Reverse();
+//        try {
+//            Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wt22",
+//                    "wt22", "22V**66+C5JPu", "image");
+//        } catch (ParseException | DBConnectionException | IOException e) {
+//            fail();
+//        }
+//    }
 }
