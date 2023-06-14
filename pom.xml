@@ -228,11 +228,11 @@
             <artifactId>json</artifactId>
             <version>20160810</version>
         </dependency>
-        <dependency>
-            <groupId>com.eclipsesource.j2v8</groupId>
-            <artifactId>j2v8</artifactId>
-            <version>4.8.5</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.eclipsesource.j2v8</groupId>-->
+<!--            <artifactId>j2v8</artifactId>-->
+<!--            <version>4.8.5</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>viz.js-for-graphviz-java</artifactId>
