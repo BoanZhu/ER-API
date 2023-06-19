@@ -54,13 +54,12 @@ public class Column {
     protected Column getForeignClone(Long tableID, boolean isPk, String foreignTableName, Boolean nullable) {
         String name = "";
         if (foreignTableName.equals("")) {
-            name = this.name;
+            name = this.name; // use the foreign key's name
         } else {
 //            name = foreignTableName + "_" + this.name;
-            name = this.name;
+//            name = this.name; ///
+            name = foreignTableName; // otherwise, use foreign table name
         }
-//        Column clone = new Column(RandomUtils.generateID(), name, this.dataType, isPk,
-//                true, this.ID, this.name, tableID, false, null); // todo:
         Column clone = new Column(this.ID, name, this.dataType, isPk,
             true, this.ID, this.name, tableID, false, null); // todo:
         return clone;
