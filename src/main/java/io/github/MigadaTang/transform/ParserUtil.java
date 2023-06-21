@@ -18,48 +18,37 @@ public class ParserUtil {
         List<Column> foreignKeyList = new ArrayList<>();
         List<Table> tableGenerateByRelationship = new ArrayList<>();
         List<Table> possibleMultiValuedSet = new ArrayList<>();
-        parseTableToEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList, possibleMultiValuedSet);
+        Map<Long, Long> idMap = new HashMap<>();
+        Map<Long, Table> tableDTOTableMap = new HashMap<>();
 
-//        for (Table table: tableList) {
-//            System.out.println(table.getName() + ", " + table.getForeignKey());
-//        }
-
-        // parser foreign key, (1-N)
-        for (Column foreignKey : foreignKeyList) {
-            Entity curEntity = tableDTOEntityMap.get(foreignKey.getBelongTo());
-            Entity pointToEntity = tableDTOEntityMap.get(foreignKey.getForeignKeyTable());
-
-//            System.out.println("Foreign key: " + foreignKey.getName());
-//            System.out.println("curEntity: " + curEntity.getName());
-//            System.out.println("pointToEntity: " + pointToEntity.getName());
-
-            // The relationshipName can't be "unknow", the name of the relationship name can get by extract
-            // the name of the table. No idea when will this case happen...
-
-            String relationshipName = curEntity.getName() + "_" + pointToEntity.getName();
-            // subset or generalization may have logic relationship with the parent entity.
-            if (foreignKey.getName().contains(pointToEntity.getName()) && curEntity.getEntityType() == EntityType.SUBSET) {
-                foreignKey.setName(foreignKey.getName().replaceAll("_", " "));
-                relationshipName = foreignKey.getName().replace(pointToEntity.getName(), "");
-            }
-            if (relationshipName.equals("")) {
-                relationshipName = curEntity.getName() + "_" + pointToEntity.getName();
+        for (Table table: tableList) {
+            System.out.println(table.getName() + ", " + table.getId());
+            for (Column column: table.getColumnList()) {
+                System.out.println("    " + "column: " + column);
             }
 
-            if (foreignKey.isNullable()) {
-                if (curEntity != null && pointToEntity != null) {
-                    Relationship newRelationship = schema.createRelationship(relationshipName, curEntity, pointToEntity,
-                        Cardinality.ZeroToOne,
-                        Cardinality.OneToMany);
-                }
-            } else {
-                if (curEntity != null && pointToEntity != null) {
-                    Relationship newRelationship = schema.createRelationship(relationshipName, curEntity, pointToEntity,
-                        Cardinality.OneToOne,
-                        Cardinality.OneToMany);
-                }
-            }
         }
+
+        parseTableToEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList, possibleMultiValuedSet, idMap, tableDTOTableMap);
+
+        System.out.println("size: " + idMap.size());
+        for (Long id: idMap.keySet()) {
+            System.out.println("previous id: " + id + ", " + "new id: " + idMap.get(id));
+        }
+
+        for (Table table: tableList) {
+            System.out.println(table.getName() + ", " + table.getForeignKey());
+        }
+
+        for (Table table: tableList) {
+            System.out.println(table.getName() + ", " + table.getId());
+            for (Column column: table.getColumnList()) {
+                System.out.println("    " + "column: " + column);
+            }
+
+        }
+
+        Map<String, Integer> namesMap = new HashMap<>();
 
         // parser table generate by relationship
         Map<Long, Relationship> tableDTORelationshipMap = new HashMap<>();
@@ -71,9 +60,14 @@ public class ParserUtil {
             String relationshipName = table.getName().split("_")[0]; // extract the name of the relationship
             Relationship relationship = schema.createEmptyRelationship(table.getName());
 
+            Long previousId = table.getId();
+
             table.setId(relationship.getID());
+            System.out.println("previousId: " + previousId + " new id: " + table.getId());
+            idMap.put(previousId, table.getId());
 
             relationship.setReflexive(table.getReflexive());
+
 
             for (Column column : table.getColumnList()) {
                 if (column.getForeignKeyTable() != null) {
@@ -106,7 +100,121 @@ public class ParserUtil {
                 }
             }
             tableDTORelationshipMap.put(table.getId(), relationship);
+            tableDTOTableMap.put(table.getId(), table);
+//            tableDTOEntityMap.put(table.getId(), relationship);
+//            idMap.put(table.getId())
         }
+
+        System.out.println("size: " + idMap.size());
+        for (Long id: idMap.keySet()) {
+            System.out.println("previous id: " + id + ", " + "new id: " + idMap.get(id));
+        }
+
+        for (Table table: tableList) {
+            for (Column column: table.getColumnList()) {
+                if (column.isForeign()) {
+
+                    for (Long previousId: idMap.keySet()) {
+                        if (previousId.equals(column.getForeignKeyTable())) {
+                            // set ForeignKeyTable id
+                            Long newForeignTableId = idMap.get(previousId);
+                            Table foreignTable = tableDTOTableMap.get(newForeignTableId);
+
+                            // find the foreign key and set its id
+                            for (Long previousColumnId: foreignTable.getColumnIdsMap().keySet()) {
+                                if (previousColumnId.equals(column.getForeignKeyColumn())) {
+                                    column.setForeignKeyTable(newForeignTableId);
+                                    Long newColumnId = foreignTable.getColumnIdsMap().get(previousColumnId);
+                                    column.setForeignKeyColumn(newColumnId);
+                                    table.getColumnIdsMap().put(column.getID(), newColumnId);
+                                    column.setID(newColumnId);
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+
+                }
+            }
+        }
+
+        // parser foreign key, (1-N)
+        for (Column foreignKey : foreignKeyList) {
+            Entity curEntity = tableDTOEntityMap.get(foreignKey.getBelongTo());
+            Entity pointToEntity = tableDTOEntityMap.get(foreignKey.getForeignKeyTable());
+
+            if (pointToEntity == null) {
+                Relationship pointToRelationship = tableDTORelationshipMap.get(foreignKey.getForeignKeyTable());
+                String relationshipName = curEntity.getName() + "_" + pointToRelationship.getName();
+                // subset or generalization may have logic relationship with the parent entity.
+                if (foreignKey.getName().contains(pointToRelationship.getName()) && curEntity.getEntityType() == EntityType.SUBSET) {
+                    foreignKey.setName(foreignKey.getName().replaceAll("_", " "));
+                    relationshipName = foreignKey.getName().replace(pointToRelationship.getName(), "");
+                }
+                if (relationshipName.equals("")) {
+                    relationshipName = curEntity.getName() + "_" + pointToRelationship.getName();
+                }
+
+                namesMap.put(relationshipName, namesMap.getOrDefault(relationshipName, 0) + 1);
+                if (namesMap.get(relationshipName) > 1) {
+                    relationshipName += namesMap.get(relationshipName);
+                }
+
+                if (foreignKey.isNullable()) {
+                    if (curEntity != null && pointToRelationship != null) {
+                        Relationship newRelationship = schema.createRelationship(relationshipName, curEntity, pointToRelationship,
+                            Cardinality.ZeroToOne,
+                            Cardinality.OneToMany);
+                    }
+                } else {
+                    if (curEntity != null && pointToRelationship != null) {
+                        Relationship newRelationship = schema.createRelationship(relationshipName, curEntity, pointToRelationship,
+                            Cardinality.OneToOne,
+                            Cardinality.OneToMany);
+                    }
+                }
+                break;
+            }
+
+            System.out.println("Foreign key: " + foreignKey.getName());
+            System.out.println("curEntity: " + curEntity.getName());
+            System.out.println("pointToEntity: " + pointToEntity.getName());
+
+            // The relationshipName can't be "unknow", the name of the relationship name can get by extract
+            // the name of the table. No idea when will this case happen...
+
+            String relationshipName = curEntity.getName() + "_" + pointToEntity.getName();
+            // subset or generalization may have logic relationship with the parent entity.
+            if (foreignKey.getName().contains(pointToEntity.getName()) && curEntity.getEntityType() == EntityType.SUBSET) {
+                foreignKey.setName(foreignKey.getName().replaceAll("_", " "));
+                relationshipName = foreignKey.getName().replace(pointToEntity.getName(), "");
+            }
+            if (relationshipName.equals("")) {
+                relationshipName = curEntity.getName() + "_" + pointToEntity.getName();
+            }
+
+            namesMap.put(relationshipName, namesMap.getOrDefault(relationshipName, 0) + 1);
+            if (namesMap.get(relationshipName) > 1) {
+                relationshipName += namesMap.get(relationshipName);
+            }
+
+            if (foreignKey.isNullable()) {
+                if (curEntity != null && pointToEntity != null) {
+                    Relationship newRelationship = schema.createRelationship(relationshipName, curEntity, pointToEntity,
+                        Cardinality.ZeroToOne,
+                        Cardinality.OneToMany);
+                }
+            } else {
+                if (curEntity != null && pointToEntity != null) {
+                    Relationship newRelationship = schema.createRelationship(relationshipName, curEntity, pointToEntity,
+                        Cardinality.OneToOne,
+                        Cardinality.OneToMany);
+                }
+            }
+        }
+
 
         for (Table multiValued : possibleMultiValuedSet) {
             Column multiValuedColumn = null;
@@ -165,13 +273,14 @@ public class ParserUtil {
 
     private static void parseTableToEntity(List<Table> tableList, Map<Long, Entity> tableDTOEntityMap,
                                            List<Table> tableGenerateByRelationship, Schema schema,
-                                           List<Column> foreignKeyList, List<Table> possibleMultiValuedSet) throws ParseException {
+                                           List<Column> foreignKeyList, List<Table> possibleMultiValuedSet,
+                                            Map<Long, Long> idMap, Map<Long, Table> tableDTOTableMap) throws ParseException {
         List<Table> possibleWeakEntitySet = new ArrayList<>();
         List<Table> possibleSubsetSet = new ArrayList<>();
 
         List<Table> tablesRelyOnNonStrongEntity = new ArrayList<>();
-        Map<Long, Table> tableDTOTableMap = new HashMap<>();
-        Map<Long, Long> idMap = new HashMap<>();
+//        Map<Long, Table> tableDTOTableMap = new HashMap<>();
+//        idMap = new HashMap<>();
 
         // parse strong entity
         for (Table strongEntity : tableList) {
@@ -204,11 +313,12 @@ public class ParserUtil {
                 }
             }
 
-//            System.out.println("pkColNum: " + pkColNum);
-//            System.out.println("pkIsFk: " + pkIsFk);
-//            System.out.println("pkFkTable.size(): " + pkFkTable.size());
-//            System.out.println("fkNum: " + fkNum);
-//            System.out.println("columnList.size(): " + columnList.size());
+            System.out.println("strongEntity: " + strongEntity.getName() + "-------");
+            System.out.println("pkColNum: " + pkColNum);
+            System.out.println("pkIsFk: " + pkIsFk);
+            System.out.println("pkFkTable.size(): " + pkFkTable.size());
+            System.out.println("fkNum: " + fkNum);
+            System.out.println("columnList.size(): " + columnList.size());
 
             // 特殊情况下 pkFkTable.size() 可能会大于1，例如"province_other_name". 暂时删除该条件
             if (pkColNum == columnList.size() && pkFkTable.size() >= 1 && pkIsFk == columnList.size()-1) {
@@ -292,10 +402,22 @@ public class ParserUtil {
             tableDTOTableMap.put(strongEntity.getId(), strongEntity);
         }
 
-//        System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
-//        System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
-//        System.out.println("possibleMultiValuedSet: " + possibleMultiValuedSet.size());
-//        System.out.println("tableGenerateByRelationship: " + tableGenerateByRelationship.size());
+        System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
+        System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
+        System.out.println("possibleMultiValuedSet: " + possibleMultiValuedSet.size());
+        System.out.println("tableGenerateByRelationship: " + tableGenerateByRelationship.size());
+        for (Table table: possibleWeakEntitySet) {
+            System.out.println("possibleWeakEntitySet: " + table.getName());
+        }
+        for (Table table: possibleSubsetSet) {
+            System.out.println("possibleSubsetSet: " + table.getName());
+        }
+        for (Table table: possibleMultiValuedSet) {
+            System.out.println("possibleMultiValuedSet: " + table.getName());
+        }
+        for (Table table: tableGenerateByRelationship) {
+            System.out.println("tableGenerateByRelationship: " + table.getName());
+        }
 
         for (Table weakEntity: possibleWeakEntitySet) {
             for (Long previousId: idMap.keySet()) {
@@ -610,7 +732,7 @@ public class ParserUtil {
 
         }
 
-        for (Table table: tableList) {
+        for (Table table: tableList)  {
             for (Column column: table.getColumnList()) {
                 if (column.isForeign()) {
 
@@ -852,11 +974,12 @@ public class ParserUtil {
         // parse weak entity and save all the relationships using id
         for (Relationship relationship : relationshipList) {
             List<RelationshipEdge> relationshipEdges = relationship.getEdgeList();
+            List<RelationshipEdge> tempRelationshipEdges = new ArrayList<>(relationshipEdges);
             // parse weak entity
-            for (RelationshipEdge edge : relationshipEdges) {
+            for (RelationshipEdge edge : tempRelationshipEdges) {
                 if (edge.getIsKey()) {
-                    relationshipEdges.remove(edge);
-                    parseWeakEntity(edge, relationshipEdges, tableDTOMap);
+                    tempRelationshipEdges.remove(edge); /// 问题大概率出现在这里 因为它居然报没有key的error 肯定是被删掉了
+                    parseWeakEntity(edge, tempRelationshipEdges, tableDTOMap);
                     break;
                 }
             }
@@ -1096,14 +1219,26 @@ public class ParserUtil {
         Table newTable = new Table(relationship.getID(), tableName.toString(), EntityType.STRONG, null,
             columnList, pkList, new ArrayList<>(), foreignKey, null, false, null);
 
+        Map<String, Integer> namesMap = new HashMap<>();
         for (Long tableId : tableIdList) {
             Table foreignTable = tableDTOMap.get(tableId);
 
             List<Column> fkColumns = new ArrayList<>();
+
             for (Column pk : foreignTable.getPrimaryKey()) {
                 String name = foreignTable.getName() + "_" + pk.getName();
                 if (pk.getName().contains("_")) {
                     name = pk.getName();
+                }
+
+                if (namesMap.get(name) == null) {
+                    namesMap.put(name, 1);
+                } else {
+                    namesMap.put(name, namesMap.get(name) + 1);
+                }
+
+                if (namesMap.get(name) > 1) {
+                    name += namesMap.get(name);
                 }
                 Column cloneFk = pk.getForeignClone(newTable.getId(), true, name, pk.isNullable());
                 cloneFk.setNullable(false);
