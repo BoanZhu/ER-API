@@ -44,7 +44,7 @@ Back-end application link: https://gitlab.doc.ic.ac.uk/bz2818/er-backend
 
 The following diagram shows the structure of the three sub-projects:
 
-![Architecture](https://gitlab.doc.ic.ac.uk/bz2818/er-api/-/blob/master/images/API architecture.png)
+![Architecture](https://gitlab.doc.ic.ac.uk/bz2818/er-api/-/blob/master/images/projectStructure.png)
 
 Download the ER API sub-project using the following command line:
 
@@ -54,7 +54,7 @@ git clone https://gitlab.doc.ic.ac.uk/bz2818/er-api.git
 
 After downloading the ER API subproject, you can package it into a JAR file and embed it in your own application.
 
-![Architecture](https://gitlab.doc.ic.ac.uk/bz2818/er-api/-/blob/master/images/build artifact.png)
+![Architecture](https://gitlab.doc.ic.ac.uk/bz2818/er-api/-/blob/master/images/buildArtifact.png)
 
 The back-end application already contains the JAR file and can be used directly.
 
