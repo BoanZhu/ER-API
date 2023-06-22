@@ -8,24 +8,57 @@ Amazing ER
 
 A library providing rich features around ER modelling. With this project, you could:
 
-1. create ER schema using Java
-2. Export ER schema to JSON format
-3. Render ER schema to png image
-4. Transform ER schema to Data Definition Language(DDL)
-5. Reverse engineer database into a single ER schema
-6. Embed this project into your own application
+1. Create ER schemas using Java
+2. Export ER schemas to JSON format
+3. Automatically define the layout of the ER diagram   
+4. Transform ER schema to relational schema and generate Data Definition Language (DDL)
+5. Reverse engineering a database into an ER schema
+6. Round-trip for database modelling (synchronise the changes to database)
+7. Embed this project into your own application
 
-# Dependency
+[comment]: <> (# Dependency)
 
-```xml 
-<dependency>
-    <groupId>io.github.MigadaTang</groupId>
-    <artifactId>amazing-er</artifactId>
-    <version>1.0.2</version>
-</dependency>
-```
+[comment]: <> (```xml )
+
+[comment]: <> (<dependency>)
+
+[comment]: <> (    <groupId>io.github.MigadaTang</groupId>)
+
+[comment]: <> (    <artifactId>amazing-er</artifactId>)
+
+[comment]: <> (    <version>1.0.2</version>)
+
+[comment]: <> (</dependency>)
+
+[comment]: <> (```)
 
 # Quick Start
+
+## How to use
+
+This is the one of the sub-projects, the other two projects links:
+
+Front-end application link: https://gitlab.doc.ic.ac.uk/bz2818/er-frontend
+
+Back-end application link: https://gitlab.doc.ic.ac.uk/bz2818/er-backend
+
+The following diagram shows the structure of the three sub-projects:
+
+![Architecture](https://gitlab.doc.ic.ac.uk/bz2818/er-api/-/blob/master/images/API architecture.png)
+
+Download the ER API sub-project using the following command line:
+
+```
+git clone https://gitlab.doc.ic.ac.uk/bz2818/er-api.git
+```
+
+After downloading the ER API subproject, you can package it into a JAR file and embed it in your own application.
+
+![Architecture](https://gitlab.doc.ic.ac.uk/bz2818/er-api/-/blob/master/images/build artifact.png)
+
+The back-end application already contains the JAR file and can be used directly.
+
+# Examples
 
 ## Create vanilla ER schema, export to JSON, image and DDL.
 
@@ -70,14 +103,124 @@ public class Example {
 
         // export the ER schema to a JSON format
         String jsonString = example.toJSON();
-
-        // save your ER schema as image
-        example.renderAsImage(String.format(outputImagePath, example.getName()));
-
+        
         // transform your ER schema to DDL
         String DDL = example.generateSqlStatement();
+        
     }
 }
+```
+
+## Reverse engineering a database example
+
+```java
+
+package io.github.MigadaTang;
+
+import io.github.MigadaTang.common.RDBMSType;
+import io.github.MigadaTang.exception.DBConnectionException;
+import io.github.MigadaTang.exception.ParseException;
+import io.github.MigadaTang.transform.Reverse;
+import java.io.IOException;
+import java.sql.SQLException;
+
+public class Example {
+
+  public void reverseEngineer()
+      throws SQLException, ParseException, DBConnectionException, IOException {
+    ER.initialize();
+    Reverse reverse = new Reverse();
+    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "host"
+        , "port", "databaseName", "username", "password");
+  }
+
+}
+
+```
+
+## Round-trip case1 example:
+
+```java
+
+package io.github.MigadaTang;
+
+import io.github.MigadaTang.common.AttributeType;
+import io.github.MigadaTang.common.Cardinality;
+import io.github.MigadaTang.common.DataType;
+import io.github.MigadaTang.exception.DBConnectionException;
+import io.github.MigadaTang.exception.ParseException;
+import java.io.IOException;
+import java.sql.SQLException;
+
+public class Example {
+
+  public void roundTripCase1()
+      throws SQLException, ParseException, DBConnectionException, IOException {
+    ER.initialize();
+    Schema schema = ER. createSchema("schemaName");
+    Entity entity1 = schema.addEntity("entityName1");
+    Entity entity2 = schema.addEntity("entityName2");
+    Attribute primaryKey1 = entity1 .addPrimaryKey("primaryKeyName1", DataType.TEXT);
+    Attribute attribute = entity1.addAttribute("attributeName", DataType.VARCHAR,
+        AttributeType.Mandatory ) ;
+
+    Attribute primaryKey2 = entity2 .addPrimaryKey("primaryKeyName2", DataType.TEXT);
+    Relationship relationship = schema.createRelationship("relationshipName",
+        entity1, entity2, Cardinality.OneToOne, Cardinality.ZeroToMany);
+
+    // Generate the DDL statements and execute them String
+    String DDL = schema.generateSqlStatement();
+    ER.connectToDatabaseAndExecuteSql("databaseType", "hostname",
+        "portNumber", "databaseName", "username", "password", DDL);
+
+    // Then continue editing the ER schema, such as adding new attribute in entity1
+    Attribute attribute2 = entity1.addAttribute("attributeName2", DataType.VARCHAR, 
+        AttributeType.Mandatory ) ;
+    // Generate the corresponding SQL statements and execute them 
+    String SQL = schema.generateSqlStatement();
+    ER.connectToDatabaseAndExecuteSql("databaseType", "hostname", 
+        "portNumber", "databaseName", "username", 
+        "password", SQL);
+
+  }
+
+}
+
+```
+
+## Round-trip case2 example:
+
+```java
+
+package io.github.MigadaTang;
+
+import io.github.MigadaTang.common.RDBMSType;
+import io.github.MigadaTang.exception.DBConnectionException;
+import io.github.MigadaTang.exception.ParseException;
+import io.github.MigadaTang.transform.Reverse;
+import java.io.IOException;
+import java.sql.SQLException;
+
+public class Example {
+
+  public void roundTripCase2()
+      throws SQLException, ParseException, DBConnectionException, IOException {
+    ER.initialize();
+    Reverse reverse = new Reverse ();
+    Schema schema = reverse .relationSchemasToERModel(RDBMSType.POSTGRESQL,
+        "hostname", "portNumber", "databaseName",
+        "username", "password");
+
+    // After make some modifications in the schema
+    String SQL = schema.generateSqlStatement();
+    // Execute the SQL statements in the database 
+    ER.connectToDatabaseAndExecuteSql("databaseType", "hostname", "portNumber",
+    "databaseName", "username", "password", SQL);
+  }
+
+}
+
+
 ```
 
 **ER schema to JSON**
@@ -196,9 +339,9 @@ public class Example {
 }
 ```
 
-**ER schema to Image**
+[comment]: <> (**ER schema to Image**)
 
-![Vanilla](https://i.postimg.cc/zGPHCxq3/Vanilla.png)
+[comment]: <> (![Vanilla]&#40;https://i.postimg.cc/zGPHCxq3/Vanilla.png&#41;)
 
 **ER schema to Data Definition Language(DDL)**
 
