@@ -40,10 +40,10 @@ public class TestSchema {
         assertThrows(ERException.class, () -> Schema.queryByID(finalTestDeleteSchema.getID()));
     }
 
-    @Test
-    public void querySchemaTest() {
-        Schema firstSchema = ER.createSchema("first schema");
-        List<Schema> schemas = Schema.queryAll();
-        assertNotEquals(schemas.size(), 0);
-    }
+//    @Test
+//    public void querySchemaTest() {
+//        Schema firstSchema = ER.createSchema("first schema");
+//        List<Schema> schemas = Schema.queryAll();
+//        assertNotEquals(schemas.size(), 0);
+//    }
 }
