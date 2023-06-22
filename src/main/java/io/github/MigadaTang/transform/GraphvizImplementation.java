@@ -275,7 +275,7 @@ public class GraphvizImplementation {
 
     // render the graph into png.
     Graphviz.useEngine(new GraphvizV8Engine());
-    Graphviz.fromGraph(g).engine(Engine.FDP).width(3000).render(Format.PNG).toFile(new File("example/ex45.png"));
+//    Graphviz.fromGraph(g).engine(Engine.FDP).width(3000).render(Format.PNG).toFile(new File("example/ex45.png"));
 
     // render the graph into Json format so that we can extract the position information.
 //    Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.PNG).toFile(new File("example/ex1.png"));
@@ -283,10 +283,10 @@ public class GraphvizImplementation {
 //     render the graph into Json format so that we can extract the position information.
     String jsonString = Graphviz.fromGraph(g).engine(Engine.FDP).width(3000).render(Format.JSON).toString();
     JSONObject jsonObject = new JSONObject(jsonString);
-    System.out.println("--------------------------- g:");
-    System.out.println(g);
-    System.out.println("json: -------------");
-    System.out.println(jsonObject);
+//    System.out.println("--------------------------- g:");
+//    System.out.println(g);
+//    System.out.println("json: -------------");
+//    System.out.println(jsonObject);
 
     // Extract the layout information from the Json object.
     for (Object node: (JSONArray) jsonObject.get("objects")) {
@@ -616,7 +616,7 @@ public class GraphvizImplementation {
 
     // render the graph into png.
     Graphviz.useEngine(new GraphvizV8Engine());
-    Graphviz.fromGraph(g).engine(Engine.FDP).width(5000).render(Format.PNG).toFile(new File("example/ex47.png"));
+//    Graphviz.fromGraph(g).engine(Engine.FDP).width(5000).render(Format.PNG).toFile(new File("example/ex47.png"));
 
     // render the graph into Json format so that we can extract the position information.
 //    Graphviz.fromGraph(g).engine(Engine.NEATO).render(Format.PNG).toFile(new File("example/ex1.png"));
@@ -624,10 +624,10 @@ public class GraphvizImplementation {
 //     render the graph into Json format so that we can extract the position information.
     String jsonString = Graphviz.fromGraph(g).engine(Engine.FDP).width(5000).render(Format.JSON).toString();
     JSONObject jsonObject = new JSONObject(jsonString);
-    System.out.println("--------------------------- g:");
-    System.out.println(g);
-    System.out.println("json: -------------");
-    System.out.println(jsonObject);
+//    System.out.println("--------------------------- g:");
+//    System.out.println(g);
+//    System.out.println("json: -------------");
+//    System.out.println(jsonObject);
 
     // Extract the layout information from the Json object.
     for (Object node: (JSONArray) jsonObject.get("objects")) {
@@ -886,13 +886,13 @@ public class GraphvizImplementation {
         index++;
       }
     }
-
-    for (Entity entity: schema.getEntityList()) {
-      System.out.println(entity.getName() + ": " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
-    }
-    for (Relationship relationship: schema.getRelationshipList()) {
-      System.out.println(relationship.getName() + ": " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
-    }
+//
+//    for (Entity entity: schema.getEntityList()) {
+//      System.out.println(entity.getName() + ": " + entity.getLayoutInfo().getLayoutX() + ", " + entity.getLayoutInfo().getLayoutY());
+//    }
+//    for (Relationship relationship: schema.getRelationshipList()) {
+//      System.out.println(relationship.getName() + ": " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
+//    }
   }
 
   public static MutableNode findNode(String nodeName, List<MutableNode> nodeList) {

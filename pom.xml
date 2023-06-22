@@ -37,6 +37,10 @@
             <name>Yaqi Zhou</name>
             <email>yaqi.zhou22@imperial.ac.uk</email>
         </developer>
+        <developer>
+            <name>Boan Zhu</name>
+            <email>boan.zhu18@imperial.ac.uk</email>
+        </developer>
     </developers>
 
     <scm>

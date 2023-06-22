@@ -2,6 +2,8 @@ package io.github.MigadaTang;
 
 import static guru.nidi.graphviz.attribute.Attributes.attr;
 import static guru.nidi.graphviz.model.Factory.graph;
+import static guru.nidi.graphviz.model.Factory.mutGraph;
+import static guru.nidi.graphviz.model.Factory.mutNode;
 import static guru.nidi.graphviz.model.Factory.node;
 import static guru.nidi.graphviz.model.Link.to;
 
@@ -10,8 +12,12 @@ import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.engine.GraphvizV8Engine;
 import guru.nidi.graphviz.model.Graph;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.MutableNode;
 import guru.nidi.graphviz.model.Node;
+import io.github.MigadaTang.common.AttributeType;
 import io.github.MigadaTang.common.BelongObjType;
 import io.github.MigadaTang.common.Cardinality;
 import io.github.MigadaTang.common.DataType;
@@ -33,9 +39,11 @@ public class Test {
 
   public static void main(String[] args)
       throws DBConnectionException, ParseException, SQLException, IOException {
-    System.out.println("Try to test database connection!");
-    ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
-    testReverseEngineer();
+//    System.out.println("Try to test database connection!");
+//    ER.initialize(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "wh722", "wh722", "4jC@A3528>0N6");
+//    testReverseEngineer();
+
+//    testLayoutPos();
 
 //    Schema example = ER.createSchema("Test Layout");
 //    Entity A = example.addEntity("A");
@@ -74,6 +82,44 @@ public class Test {
     Reverse reverse = new Reverse();
 
     Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "localhost", "5433", "boanzhu", "boanzhu", "");
+//    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "usgs", "lab", "lab", false);
+
+//    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "airroute", "lab", "lab", false);
+
+    //    for (Entity entity: schema.getEntityList()) {
+//      if (entity.getName().equals("city")) {
+////        for (Attribute attribute: entity.getAttributeList()) {
+////          if (attribute.getName().equals("salary_number")) {
+////            attribute.updateInfo(attribute.getName(), attribute.getDataType(), false, attribute.getAttributeType());
+////          } else if (attribute.getName().equals("name")) {
+////            attribute.updateInfo(attribute.getName(), attribute.getDataType(), true, attribute.getAttributeType());
+////          }
+////        }
+//        entity.addAttribute("test", DataType.TEXT, AttributeType.Mandatory);
+//      }
+//    }
+
+    //    Entity test = schema.addEntity("test");
+//    test.addPrimaryKey("name", DataType.TEXT);
+//    String json = schema.generateSqlStatement();
+//    System.out.println("@@@@@@@@@@@@: " + json);
+//
+//    for (Entity entity: schema.getEntityList()) {
+//      if (entity.getName().equals("city")) {
+////        for (Attribute attribute: entity.getAttributeList()) {
+////          if (attribute.getName().equals("salary_number")) {
+////            attribute.updateInfo(attribute.getName(), attribute.getDataType(), false, attribute.getAttributeType());
+////          } else if (attribute.getName().equals("name")) {
+////            attribute.updateInfo(attribute.getName(), attribute.getDataType(), true, attribute.getAttributeType());
+////          }
+////        }
+//        entity.addAttribute("person", DataType.TEXT, AttributeType.Mandatory);
+//      }
+//    }
+//
+//    String json2 = schema.generateSqlStatement();
+//    System.out.println("#############: " + json2);
+
 //    Schema schema = reverse.relationSchemasToERModel(RDBMSType.POSTGRESQL, "db.doc.ic.ac.uk", "5432", "mondial", "lab", "lab");
 //    for (Entity entity: schema.getEntityList()) {
 //      System.out.println("Entity: " + entity.getEntityType());
@@ -96,7 +142,7 @@ public class Test {
 //    for (Relationship relationship: schema.getRelationshipList()) {
 //      System.out.println(relationship.getName() + " " + relationship.getLayoutInfo().getLayoutX() + ", " + relationship.getLayoutInfo().getLayoutY());
 //    }
-
+//    schema.generateSqlStatement();
   }
 
   public static void testLayout() {
@@ -564,6 +610,43 @@ public class Test {
         high--;
       }
     }
+  }
+
+  public static void testLayoutPos() throws IOException {
+    MutableGraph g = mutGraph("test").setDirected(false)
+//        .graphAttrs().add("size", "15,15!")
+        .graphAttrs().add("overlap", "voronoi");
+//    MutableNode node1 = mutNode("A");
+////        .add("pos", "3,3!");
+//    MutableNode node2 = mutNode("B");
+////        .add("pos", "1,2!");
+//    MutableNode node3 = mutNode("C");
+////        .add("pos", "2,2!");
+//    MutableNode node4 = mutNode("D");
+////        .add("pos", "3,2!");
+//    MutableNode node5 = mutNode("E");
+//        .add("pos", "4,2!");
+    MutableNode node1 = mutNode("A")
+        .add("pos", "3,3!");
+    MutableNode node2 = mutNode("B")
+        .add("pos", "1,2!");
+    MutableNode node3 = mutNode("C")
+        .add("pos", "2,2!");
+    MutableNode node4 = mutNode("D")
+        .add("pos", "3,2!");
+    MutableNode node5 = mutNode("E")
+        .add("pos", "4,2!");
+
+    g.add(node1);
+    g.add(node2);
+    g.add(node3);
+    g.add(node4);
+    g.add(node5);
+    g.add(mutNode("FFF"));
+    g.add(mutNode("G").add("pos", "0,0!"));
+//    g.add("overlap", "false");
+    Graphviz.useEngine(new GraphvizV8Engine());
+    Graphviz.fromGraph(g).engine(Engine.FDP).width(5000).render(Format.PNG).toFile(new File("example/ex22.png"));
   }
 
 }

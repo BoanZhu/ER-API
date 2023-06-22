@@ -18,6 +18,7 @@ import io.github.MigadaTang.entity.SchemaDO;
 import io.github.MigadaTang.exception.ERException;
 import io.github.MigadaTang.exception.ParseException;
 import io.github.MigadaTang.serializer.*;
+import io.github.MigadaTang.transform.Column;
 import io.github.MigadaTang.transform.GenerationSqlUtil;
 import io.github.MigadaTang.transform.ParserUtil;
 import io.github.MigadaTang.transform.Table;
@@ -74,6 +75,11 @@ public class Schema {
             insertDB();
         }
     }
+
+//    public void setName(String name) {
+//        this.name = name;
+//        this.updateInfo();
+//    }
 
     //
 
@@ -154,7 +160,9 @@ public class Schema {
         // check if the specified strong entity that this subset relies on exists
         Entity entity;
         try {
+//            System.out.println("123: " + strongEntity.getID());
             entity = Entity.queryByID(strongEntity.getID());
+//            System.out.println("entity: " + entity);
         } catch (ERException ex) {
             throw new ERException("addWeakEntity fail: the specified strong entity does not exist");
         }
@@ -191,6 +199,24 @@ public class Schema {
             throw new ERException(String.format("entity with name: %s already exists", entityName));
         }
         Entity entity = new Entity(0L, entityName, this.ID, entityType, belongStrongEntity, new ArrayList<>(), Integer.valueOf(-1), null, new Date(), new Date());
+        this.entityList.add(entity);
+        return entity;
+    }
+
+    public Entity addEntity(String entityName, Long entityId) {
+        return addEntity(entityName, EntityType.STRONG, null, entityId);
+    }
+
+    private Entity addEntity(String entityName, EntityType entityType, Entity belongStrongEntity, Long entityId) {
+        if (entityName.equals("")) {
+            throw new ERException("entityName cannot be empty");
+        }
+        List<Entity> entities = Entity.query(new EntityDO(entityName, this.ID, null));
+        if (entities.size() != 0) {
+            throw new ERException(String.format("entity with name: %s already exists", entityName));
+        }
+        Entity entity = new Entity(entityId, entityName, this.ID, entityType, belongStrongEntity, new ArrayList<>(), Integer.valueOf(-1), null, new Date(), new Date());
+        System.out.println("why: " + entity);
         this.entityList.add(entity);
         return entity;
     }
@@ -357,7 +383,9 @@ public class Schema {
 //                    if (primaryKeyNum != 0) {
 //                        throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
 //                    }
-                    if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG) {
+//                    if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG) {
+                    if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG
+                        && entity.getBelongStrongEntity().getEntityType() != EntityType.SUBSET) {
                         throw new ERException(String.format("subset (%s) must have a relying on strong entity", entity.getName()));
                     }
                     break;
@@ -375,13 +403,13 @@ public class Schema {
 //                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
 //            }
             // check if this is a duplicated relationship in which all the objects have already been connected
-            List<ERConnectableObj> belongObjList = new ArrayList<>();
-            for (RelationshipEdge edge : relationship.getEdgeList()) {
-                belongObjList.add(edge.getConnObj());
-            }
-            if (RelationshipEdge.checkInSameRelationship(relationship.getID(), belongObjList)) {
-                throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
-            }
+//            List<ERConnectableObj> belongObjList = new ArrayList<>();
+//            for (RelationshipEdge edge : relationship.getEdgeList()) {
+//                belongObjList.add(edge.getConnObj());
+//            }
+//            if (RelationshipEdge.checkInSameRelationship(relationship.getID(), belongObjList)) {
+//                throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
+//            }
             for (RelationshipEdge edge : relationship.getEdgeList()) {
                 if (edge.getIsKey()) {
                     // key relationship can only be used by weak entity
@@ -443,7 +471,9 @@ public class Schema {
 //                    if (primaryKeyNum != 0) {
 //                        throw new ERException(String.format("subset (%s) cannot have primary key", entity.getName()));
 //                    }
-                    if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG) {
+//                    if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG) {
+                    if (entity.getBelongStrongEntity() == null || entity.getBelongStrongEntity().getEntityType() != EntityType.STRONG
+                    && entity.getBelongStrongEntity().getEntityType() != EntityType.SUBSET) {
                         throw new ERException(String.format("subset (%s) must have a relying on strong entity", entity.getName()));
                     }
                     break;
@@ -461,13 +491,13 @@ public class Schema {
 //                throw new ERException(String.format("relationship (%s) must have more than one edges", relationship.getName()));
 //            }
             // check if this is a duplicated relationship in which all the objects have already been connected
-            List<ERConnectableObj> belongObjList = new ArrayList<>();
-            for (RelationshipEdge edge : relationship.getEdgeList()) {
-                belongObjList.add(edge.getConnObj());
-            }
-            if (RelationshipEdge.checkInSameRelationship(relationship.getID(), belongObjList)) {
-                throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
-            }
+//            List<ERConnectableObj> belongObjList = new ArrayList<>();
+//            for (RelationshipEdge edge : relationship.getEdgeList()) {
+//                belongObjList.add(edge.getConnObj());
+//            }
+//            if (RelationshipEdge.checkInSameRelationship(relationship.getID(), belongObjList)) {
+//                throw new ERException(String.format("duplicated relationship: %s, the same set of entities have already been connected", relationship.getName()));
+//            }
             int keyRelationshipEdgeCount = 0;
             for (RelationshipEdge edge : relationship.getEdgeList()) {
                 if (edge.getIsKey()) {
@@ -500,7 +530,7 @@ public class Schema {
                     }
                     if (edge.getConnObjType() == BelongObjType.ENTITY) {
                         Entity entity = Entity.queryByID(edge.getConnObj().getID());
-                        if (entity.getEntityType() != EntityType.STRONG) {
+                        if (entity.getEntityType() != EntityType.STRONG && entity.getEntityType() != EntityType.WEAK) {
                             throw new ERException(String.format("relationship %s with key relationship edge can only connect to strong entities", relationship.getName()));
                         }
                     } else {
@@ -722,11 +752,26 @@ public class Schema {
      * @throws ParseException Exception that fail to mapping entity, relationship and attribute to table and column
      */
     public String generateSqlStatement() throws ERException, ParseException {
-        comprehensiveCheck();
+//        comprehensiveCheck();
         Map<Long, Table> tableDTOList;
 //        tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
         tableDTOList = ParserUtil.parseRelationshipsToAttribute(this.getEntityList(), this.getRelationshipList());
 //        String sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);
+
+        for (Entity entity: this.getEntityList()) {
+            System.out.println("entity: " + entity.getName() + entity.getID());
+        }
+        for (Relationship relationship: this.getRelationshipList()) {
+            System.out.println("relationship: " + relationship.getName() + relationship.getID());
+        }
+
+        for (Table table: tableDTOList.values()) {
+            System.out.println("after generateSqlStatement: " + table.getName() + ", " + table.getId());
+            for (Column column: table.getColumnList()) {
+                System.out.println("    " + column.getName() + ", " + column.getDataType());
+            }
+        }
+
         String sqlStatement;
         if (this.oldTables.size() == 0) {
             sqlStatement = GenerationSqlUtil.toSqlStatement(tableDTOList);

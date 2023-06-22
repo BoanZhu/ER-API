@@ -28,11 +28,6 @@ public class GenerationSqlUtil {
         Map<Long, List<Long>> tableMap = new HashMap<>();
         List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
 
-//        for (Table table: tableDTOList.values()) {
-//            System.out.println("Table: " + table.getName() + " " + table);
-//            System.out.println(table.getForeignKey());
-//        }
-
         // One improvement here we need to create the sql statements for foreign key tables first,
         // otherwise the sql statements may not be executed successfully.
         // E.g. In the case of one-many relationships, the relationship table will be the first table
@@ -42,7 +37,6 @@ public class GenerationSqlUtil {
             } else {
                 for (Long id: table.getForeignKey().keySet()) {
                     if (!id.equals(table.getId())) {
-//                        System.out.println("id: " + id + ", tableId: " + table.getId());
                         List<Long> previousIds = tableMap.getOrDefault(table.getId(), new ArrayList<Long>());
                         previousIds.add(id);
                         tableMap.put(table.getId(), previousIds);
@@ -84,21 +78,15 @@ public class GenerationSqlUtil {
     // This will be wrong since we need the two entities created before it.
     public static void tableGenerationOrders(List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap, Map<Long, Table> tableDTOList) {
         for (Long id: tableMap.keySet()) {
-//            System.out.println("id: " + id);
             List<Long> relyIds = tableMap.get(id);
-//            System.out.println("relyIds: " + relyIds);
             Table table = tableDTOList.get(id);
-//            System.out.println(tablesSqlGenerationOrders.contains(table));
-//            System.out.println(table.getName() + " " + table);
             if (!tablesSqlGenerationOrders.contains(table)) {
                 if (relyIds.size() == 0) {
                     tablesSqlGenerationOrders.add(table);
                 } else {
-//                    System.out.println("enterrrrrrr---");
                     recursive(table, relyIds, tableDTOList, tablesSqlGenerationOrders, tableMap);
                 }
             }
-//            System.out.println("tablesSqlGenerationOrders.size(): " + tablesSqlGenerationOrders.size());
         }
     }
 
@@ -106,20 +94,14 @@ public class GenerationSqlUtil {
     public static void recursive(Table table, List<Long> relyIds, Map<Long, Table> tableDTOList, List<Table> tablesSqlGenerationOrders, Map<Long, List<Long>> tableMap) {
         // If 'relyIds' == null, this means that the table does not needed to create and already exist.
         // So just pass the function.
-//        if (relyIds == null) {
-//            return;
-//        }
         if (relyIds.size() == 0) {
             tablesSqlGenerationOrders.add(table);
             return;
         }
         for (Long relyId: relyIds) {
-//            System.out.println("relyIddddddd: " + relyId);
             Table relyTable = tableDTOList.get(relyId);
-//            System.out.println("relyTableeeeeeee: " + relyTable);
             if (!tablesSqlGenerationOrders.contains(relyTable)) {
                 List<Long> ids = tableMap.get(relyTable.getId());
-//                System.out.println("idsssssssss: " + ids);
                 recursive(relyTable, tableMap.get(relyTable.getId()), tableDTOList, tablesSqlGenerationOrders, tableMap);
             }
         }
@@ -358,9 +340,9 @@ public class GenerationSqlUtil {
         Map<Long, List<Long>> tableMap = new HashMap<>();
         List<Table> tablesSqlGenerationOrders = new ArrayList<Table>();
 
-        System.out.println("size of tableDTOList: " + tableDTOList.values().size());
-
-        System.out.println("size of oldTables: " + oldTables.size());
+//        System.out.println("size of tableDTOList: " + tableDTOList.values().size());
+//
+//        System.out.println("size of oldTables: " + oldTables.size());
 
 //        for (Table table : tableDTOList.values()) {
         for (Long idInDTO : tableDTOList.keySet()) {
@@ -425,8 +407,8 @@ public class GenerationSqlUtil {
 
         generateNewTablesSqlStatement(tableDTOList, newTables, sqlStatement);
 
-        System.out.println("Size of newTables: " + newTables.size());
-        System.out.println("Size of deletedTables: " + deleteTables.size());
+//        System.out.println("Size of newTables: " + newTables.size());
+//        System.out.println("Size of deletedTables: " + deleteTables.size());
 
         Collections.reverse(modifiedTablePair);
         // For the tables already exist in the database/schema and modified, we need to check the difference between
@@ -705,16 +687,6 @@ public class GenerationSqlUtil {
                         return true;
                     }
 
-                    // The last three probably will not happen.
-//                    if (!newColumn.getForeignKeyColumn().equals(oldColumn.getForeignKeyColumn())) {
-//                        return true;
-//                    }
-//                    if (!newColumn.getForeignKeyColumnName().equals(oldColumn.getForeignKeyColumnName())) {
-//                        return true;
-//                    }
-//                    if (!newColumn.getForeignKeyTable().equals(oldColumn.getForeignKeyTable())) {
-//                        return true;
-//                    }
                 }
             }
             if (!canFind) {
@@ -724,8 +696,4 @@ public class GenerationSqlUtil {
         return false;
     }
 
-
-//    public static boolean checkColumnWhetherModified(Column columnInSchemaTable, Column columnInDatabaseTable) {
-//
-//    }
 }

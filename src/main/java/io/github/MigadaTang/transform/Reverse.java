@@ -33,11 +33,37 @@ public class Reverse {
      * @throws DBConnectionException Exception that fail to read database information
      */
     public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
-            , String userName, String password, Boolean subsetRequirement)
+            , String userName, String password)
         throws ParseException, DBConnectionException, IOException {
+        String dbUrl = "";
         Schema schema;
         try {
-            schema = relationSchemasToERModel(databaseType, hostname, portNum, databaseName, userName, password, "", subsetRequirement);
+//            schema = relationSchemasToERModel(databaseType, hostname, portNum, databaseName, userName, password, "", subsetRequirement);
+            dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
+            schema = relationSchemasToERModel(databaseType, dbUrl, userName, password);
+        } catch (ParseException e) {
+            throw new ParseException(e.getMessage());
+        } catch (DBConnectionException e) {
+            throw new DBConnectionException(e.getMessage());
+        }
+
+        return schema;
+    }
+
+    public Schema relationSchemasToERModelWithLayoutInformation(RDBMSType databaseType, String hostname, String portNum, String databaseName
+        , String userName, String password, Boolean subsetRequirement)
+        throws ParseException, DBConnectionException, IOException {
+        String dbUrl = "";
+        Schema schema;
+        try {
+//            schema = relationSchemasToERModel(databaseType, hostname, portNum, databaseName, userName, password, subsetRequirement);
+            dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
+            schema = relationSchemasToERModel(databaseType, dbUrl, userName, password);
+            if (subsetRequirement) {
+                GraphvizImplementation.useGraphviz(schema);
+            } else {
+                GraphvizImplementation.useGraphvizWithoutSubsetRequirement(schema);
+            }
         } catch (ParseException e) {
             throw new ParseException(e.getMessage());
         } catch (DBConnectionException e) {
@@ -49,38 +75,69 @@ public class Reverse {
         return schema;
     }
 
-    public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
-            , String userName, String password, String imageName, Boolean subsetRequirement)
-        throws ParseException, DBConnectionException, IOException {
-        String dbUrl = "";
-        Schema schema;
-        try {
-            dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
-            schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
+//    public Schema relationSchemasToERModelWithLayoutInformation(RDBMSType databaseType, String hostname, String portNum, String databaseName
+//        , String userName, String password, String imageName, Boolean subsetRequirement)
+//        throws ParseException, DBConnectionException, IOException {
+//        String dbUrl = "";
+//        Schema schema;
+//        try {
+//            dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
+//            schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
+//
+//            if (subsetRequirement) {
+//                GraphvizImplementation.useGraphviz(schema);
+//            } else {
+//                GraphvizImplementation.useGraphvizWithoutSubsetRequirement(schema);
+//            }
+////            GraphvizImplementation.useGraphviz(schema);
+////            GraphvizImplementation.useGraphvizWithoutSubsetRequirement(schema);
+////            String json = schema.toRenderJSON();
+////            System.out.println(json);
+//        } catch (ParseException e) {
+//            throw new ParseException(e.getMessage());
+//        } catch (DBConnectionException e) {
+//            throw new DBConnectionException(e.getMessage());
+//        }
+//        catch (IOException e) {
+//            throw new IOException(e.getMessage());
+//        }
+//
+//        return schema;
+//    }
+//
 
-            System.out.println("getEntityList().size(): " + schema.getEntityList().size());
-            System.out.println("getRelationshipList().size(): " + schema.getRelationshipList().size());
-
-            if (subsetRequirement) {
-                GraphvizImplementation.useGraphviz(schema);
-            } else {
-                GraphvizImplementation.useGraphvizWithoutSubsetRequirement(schema);
-            }
-//            GraphvizImplementation.useGraphviz(schema);
-//            GraphvizImplementation.useGraphvizWithoutSubsetRequirement(schema);
-//            String json = schema.toRenderJSON();
-//            System.out.println(json);
-        } catch (ParseException e) {
-            throw new ParseException(e.getMessage());
-        } catch (DBConnectionException e) {
-            throw new DBConnectionException(e.getMessage());
-        }
-        catch (IOException e) {
-            throw new IOException(e.getMessage());
-        }
-
-        return schema;
-    }
+//    public Schema relationSchemasToERModel(RDBMSType databaseType, String hostname, String portNum, String databaseName
+//            , String userName, String password, String imageName)
+//        throws ParseException, DBConnectionException, IOException {
+//        String dbUrl = "";
+//        Schema schema;
+//        try {
+//            dbUrl = DatabaseUtil.generateDatabaseURL(databaseType, hostname, portNum, databaseName);
+//            schema = relationSchemasToERModel(databaseType, dbUrl, userName, password, imageName);
+//
+////            System.out.println("getEntityList().size(): " + schema.getEntityList().size());
+////            System.out.println("getRelationshipList().size(): " + schema.getRelationshipList().size());
+//
+////            if (subsetRequirement) {
+////                GraphvizImplementation.useGraphviz(schema);
+////            } else {
+////                GraphvizImplementation.useGraphvizWithoutSubsetRequirement(schema);
+////            }
+////            GraphvizImplementation.useGraphviz(schema);
+////            GraphvizImplementation.useGraphvizWithoutSubsetRequirement(schema);
+////            String json = schema.toRenderJSON();
+////            System.out.println(json);
+//        } catch (ParseException e) {
+//            throw new ParseException(e.getMessage());
+//        } catch (DBConnectionException e) {
+//            throw new DBConnectionException(e.getMessage());
+//        }
+////        catch (IOException e) {
+////            throw new IOException(e.getMessage());
+////        }
+//
+//        return schema;
+//    }
 
     /**
      * The function parse table in specify database to er model
@@ -106,12 +163,12 @@ public class Reverse {
      * @param dbUrl        the url of the database
      * @param userName     the username to log in database
      * @param password     the password to log in database
-     * @param imageName    the name of the image saved
+//     * @param imageName    the name of the image saved
      * @return the created schema
      * @throws DBConnectionException Exception that fail to read database information
      * @throws ParseException        Exception that fail to mapping table and column to entity, relationship and attribute
      */
-    public Schema relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password, String imageName) throws DBConnectionException, ParseException {
+    public Schema relationSchemasToERModel(RDBMSType databaseType, String dbUrl, String userName, String password) throws DBConnectionException, ParseException {
         Connection conn = null;
         String driver = "";
         Schema schema;
@@ -121,38 +178,18 @@ public class Reverse {
             conn = DatabaseUtil.acquireDBConnection(driver, dbUrl, userName, password);
             conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             List<Table> tableList = DatabaseUtil.getDatabseInfo(conn);
+            String databaseSchemaName = conn.getSchema();
+            if (databaseSchemaName == null) {
+                databaseSchemaName = "reverseEng";
+            }
             DatabaseUtil.closeDBConnection(conn);
 
             schema = ParserUtil.parseAttributeToRelationship(tableList);
-
-            for (Entity entity: schema.getEntityList()) {
-                System.out.println(entity.getName() + ", " + entity.getID());
-                for (Attribute attribute: entity.getAttributeList()) {
-                    System.out.println("    " + attribute.getName() + ", " + attribute.getID());
-                }
-            }
-            for (Relationship relationship: schema.getRelationshipList()) {
-                System.out.println(relationship.getName() + ", " + relationship.getID());
-                for (Attribute attribute: relationship.getAttributeList()) {
-                    System.out.println("    " + attribute.getName() + ", " + attribute.getID());
-                }
-            }
-
-            System.out.println("------------------------------------");
-
-            for (Table table: tableList) {
-                System.out.println(table.getName() + ", " + table.getId());
-                for (Column column: table.getColumnList()) {
-                    System.out.println("        " + column.getName() + ", " + column);
-                }
-            }
+            schema.updateInfo(databaseSchemaName);
 
             // Here we need to store the old tables generated.
             schema.setOldTables(tableList);
 
-//            if (imageName != null) {
-//                schema.renderAsImage(imageName);
-//            }
         } catch (ParseException parseException) {
             throw new ParseException(parseException.getMessage());
         } catch (DBConnectionException dbConnectionException) {

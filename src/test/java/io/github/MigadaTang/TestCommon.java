@@ -3,7 +3,7 @@ package io.github.MigadaTang;
 import io.github.MigadaTang.common.RDBMSType;
 
 public class TestCommon {
-    public static final boolean usePostgre = false;
+    public static final boolean usePostgre = true;
 
     public static void setUp() throws Exception {
         if (usePostgre) {

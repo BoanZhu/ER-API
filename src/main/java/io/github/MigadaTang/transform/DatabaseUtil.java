@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 public class DatabaseUtil {
-    public static List<Table> getDatabseInfo(Connection conn) throws DBConnectionException {
+    public static List<Table> getDatabseInfo(Connection conn)
+        throws DBConnectionException, SQLException {
         List<Table> tableList = new ArrayList<>();
         Map<String, Map<String, Column>> columnTracker = new HashMap<>();
         Map<String, Table> tableTracker = new HashMap<>();

@@ -21,32 +21,7 @@ public class ParserUtil {
         Map<Long, Long> idMap = new HashMap<>();
         Map<Long, Table> tableDTOTableMap = new HashMap<>();
 
-        for (Table table: tableList) {
-            System.out.println(table.getName() + ", " + table.getId());
-            for (Column column: table.getColumnList()) {
-                System.out.println("    " + "column: " + column);
-            }
-
-        }
-
         parseTableToEntity(tableList, tableDTOEntityMap, tableGenerateByRelationship, schema, foreignKeyList, possibleMultiValuedSet, idMap, tableDTOTableMap);
-
-        System.out.println("size: " + idMap.size());
-        for (Long id: idMap.keySet()) {
-            System.out.println("previous id: " + id + ", " + "new id: " + idMap.get(id));
-        }
-
-        for (Table table: tableList) {
-            System.out.println(table.getName() + ", " + table.getForeignKey());
-        }
-
-        for (Table table: tableList) {
-            System.out.println(table.getName() + ", " + table.getId());
-            for (Column column: table.getColumnList()) {
-                System.out.println("    " + "column: " + column);
-            }
-
-        }
 
         Map<String, Integer> namesMap = new HashMap<>();
 
@@ -63,7 +38,6 @@ public class ParserUtil {
             Long previousId = table.getId();
 
             table.setId(relationship.getID());
-            System.out.println("previousId: " + previousId + " new id: " + table.getId());
             idMap.put(previousId, table.getId());
 
             relationship.setReflexive(table.getReflexive());
@@ -101,13 +75,6 @@ public class ParserUtil {
             }
             tableDTORelationshipMap.put(table.getId(), relationship);
             tableDTOTableMap.put(table.getId(), table);
-//            tableDTOEntityMap.put(table.getId(), relationship);
-//            idMap.put(table.getId())
-        }
-
-        System.out.println("size: " + idMap.size());
-        for (Long id: idMap.keySet()) {
-            System.out.println("previous id: " + id + ", " + "new id: " + idMap.get(id));
         }
 
         for (Table table: tableList) {
@@ -177,10 +144,6 @@ public class ParserUtil {
                 }
                 break;
             }
-
-            System.out.println("Foreign key: " + foreignKey.getName());
-            System.out.println("curEntity: " + curEntity.getName());
-            System.out.println("pointToEntity: " + pointToEntity.getName());
 
             // The relationshipName can't be "unknow", the name of the relationship name can get by extract
             // the name of the table. No idea when will this case happen...
@@ -261,13 +224,6 @@ public class ParserUtil {
             }
         }
 
-//        for (Relationship relationship: schema.getRelationshipList()) {
-//            System.out.println("RELATIONSHIP: " + relationship.getName() + ", edges size: " + relationship.getEdgeList().size());
-//            for (RelationshipEdge relationshipEdge: relationship.getEdgeList()) {
-//                System.out.println("edgeee: " + relationshipEdge.getConnObj().getName());
-//            }
-//        }
-
         return schema;
     }
 
@@ -313,12 +269,12 @@ public class ParserUtil {
                 }
             }
 
-            System.out.println("strongEntity: " + strongEntity.getName() + "-------");
-            System.out.println("pkColNum: " + pkColNum);
-            System.out.println("pkIsFk: " + pkIsFk);
-            System.out.println("pkFkTable.size(): " + pkFkTable.size());
-            System.out.println("fkNum: " + fkNum);
-            System.out.println("columnList.size(): " + columnList.size());
+//            System.out.println("strongEntity: " + strongEntity.getName() + "-------");
+//            System.out.println("pkColNum: " + pkColNum);
+//            System.out.println("pkIsFk: " + pkIsFk);
+//            System.out.println("pkFkTable.size(): " + pkFkTable.size());
+//            System.out.println("fkNum: " + fkNum);
+//            System.out.println("columnList.size(): " + columnList.size());
 
             // 特殊情况下 pkFkTable.size() 可能会大于1，例如"province_other_name". 暂时删除该条件
             if (pkColNum == columnList.size() && pkFkTable.size() >= 1 && pkIsFk == columnList.size()-1) {
@@ -328,7 +284,6 @@ public class ParserUtil {
                 continue;
             }
 
-            // 暂时没问题
             if (pkIsFk == strongEntity.getPrimaryKey().size() && pkFkTable.size() == 1 && pkIsFk > 0 && !isReflexive) {
 //            if (pkColNum > pkIsFk && pkFkTable.size() == 1 && pkIsFk > 0) {
                 // may still have problem here, here we assume that subset must have its own primary key.
@@ -338,7 +293,6 @@ public class ParserUtil {
             }
 
             if (pkIsFk > 0 && pkFkTable.size() == 1 && pkColNum == pkIsFk + 1) {
-//                System.out.println("find weak entity: " + strongEntity.getName());
                 possibleWeakEntitySet.add(strongEntity);
                 strongEntity.setBelongStrongTableID(fkTableId);
                 continue;
@@ -402,22 +356,10 @@ public class ParserUtil {
             tableDTOTableMap.put(strongEntity.getId(), strongEntity);
         }
 
-        System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
-        System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
-        System.out.println("possibleMultiValuedSet: " + possibleMultiValuedSet.size());
-        System.out.println("tableGenerateByRelationship: " + tableGenerateByRelationship.size());
-        for (Table table: possibleWeakEntitySet) {
-            System.out.println("possibleWeakEntitySet: " + table.getName());
-        }
-        for (Table table: possibleSubsetSet) {
-            System.out.println("possibleSubsetSet: " + table.getName());
-        }
-        for (Table table: possibleMultiValuedSet) {
-            System.out.println("possibleMultiValuedSet: " + table.getName());
-        }
-        for (Table table: tableGenerateByRelationship) {
-            System.out.println("tableGenerateByRelationship: " + table.getName());
-        }
+//        System.out.println("possibleWeakEntitySet: " + possibleWeakEntitySet.size());
+//        System.out.println("possibleSubsetSet: " + possibleSubsetSet.size());
+//        System.out.println("possibleMultiValuedSet: " + possibleMultiValuedSet.size());
+//        System.out.println("tableGenerateByRelationship: " + tableGenerateByRelationship.size());
 
         for (Table weakEntity: possibleWeakEntitySet) {
             for (Long previousId: idMap.keySet()) {
@@ -439,10 +381,6 @@ public class ParserUtil {
                     multiValued.setBelongStrongTableID(idMap.get(previousId));
                 }
             }
-        }
-
-        for (Long id: tableDTOEntityMap.keySet()) {
-            System.out.println(id + ", " + tableDTOEntityMap.get(id));
         }
 
         for (Table weakEntity : possibleWeakEntitySet) {
@@ -508,8 +446,6 @@ public class ParserUtil {
                 tablesRelyOnNonStrongEntity.add(subset);
                 continue;
             }
-//            System.out.println("subset getBelongStrongTableID: " + subset.getBelongStrongTableID());
-//            System.out.println("subset strong entity: " + tableDTOEntityMap.get(subset.getBelongStrongTableID()));
 
             Entity entity = schema.addSubset(subset.getName(), tableDTOEntityMap.get(subset.getBelongStrongTableID()));
 
@@ -978,7 +914,7 @@ public class ParserUtil {
             // parse weak entity
             for (RelationshipEdge edge : tempRelationshipEdges) {
                 if (edge.getIsKey()) {
-                    tempRelationshipEdges.remove(edge); /// 问题大概率出现在这里 因为它居然报没有key的error 肯定是被删掉了
+                    tempRelationshipEdges.remove(edge); ///
                     parseWeakEntity(edge, tempRelationshipEdges, tableDTOMap);
                     break;
                 }
@@ -989,7 +925,6 @@ public class ParserUtil {
         Queue<Relationship> relationshipQueue = generateRelationshipTopologySeq(normalRelationship);
 
         for (Relationship relationship : relationshipQueue) {
-            System.out.println("relationship: ------- " + relationship.getName());
             List<RelationshipEdge> edgeList = relationship.getEdgeList();
             List<Attribute> attributeList = relationship.getAttributeList();
             Map<Cardinality, List<Long>> cardinalityListMap = analyzeCardinality(edgeList, mapRelationshipToTable);
