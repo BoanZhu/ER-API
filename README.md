@@ -38,9 +38,9 @@ A library providing rich features around ER modelling. With this project, you co
 
 This is the one of the sub-projects, the other two projects links:
 
-Front-end application link: https://gitlab.doc.ic.ac.uk/bz2818/er-frontend
+Front-end application link: https://github.com/BoanZhu/ER-Frontend.git
 
-Back-end application link: https://gitlab.doc.ic.ac.uk/bz2818/er-backend
+Back-end application link: https://github.com/BoanZhu/ER-Backend.git
 
 Their details are placed in their own README files.
 
@@ -51,7 +51,7 @@ The following diagram shows the structure of the three sub-projects:
 Download the ER API sub-project using the following command line:
 
 ```
-git clone https://gitlab.doc.ic.ac.uk/bz2818/er-api.git
+git clone https://github.com/BoanZhu/ER-API.git
 ```
 
 After downloading the ER API subproject, you can package it into a JAR file and embed it in your own application.
@@ -442,4 +442,3 @@ This code is under the [MIT Licence](https://choosealicense.com/licenses/mit/).
 
 [ER Modelling slides](https://www.doc.ic.ac.uk/~pjm/idb/lectures/idb-er-handout.pdf)
 
-[GOJS ER Diagram Library](https://gojs.net/latest/samples/entityRelationship.html)
